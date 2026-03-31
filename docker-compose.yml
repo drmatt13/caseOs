@@ -37,4 +37,3 @@ services:
       - type: bind
         source: ${USERPROFILE}/.aws
         target: /root/.aws
-        read_only: true

@@ -46,8 +46,8 @@ app.use("/langgraph-service", (req, res) => {
   return proxyToContainer(
     req,
     res,
-    LANGGRAPH_SERVICE_URL,
-    "/langgraph-service",
+    LANGGRAPH_SERVICE_URL, // Forward to the LangGraph service container
+    "/langgraph-service", // Strip the base path when forwarding to the container
   );
 });
 
