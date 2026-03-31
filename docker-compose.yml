@@ -1,0 +1,40 @@
+x-common-env: &common-env
+  CHOKIDAR_USEPOLLING: "true"
+  CHOKIDAR_INTERVAL: "300"
+  AWS_PROFILE: dev
+  AWS_REGION: us-east-1
+  AWS_SDK_LOAD_CONFIG: "1"
+
+services:
+  local-api-dev-server:
+    build:
+      context: ./local-api-dev-server
+      dockerfile: dockerfile
+    environment:
+      <<: *common-env
+      NODE_ENV: development
+      PORT: "8080"
+      LANGGRAPH_SERVICE_URL: "http://langgraph-service"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./local-api-dev-server:/app
+      - ./cdk-app:/cdk-app
+      - /app/node_modules
+    depends_on:
+      - langgraph-service
+
+  langgraph-service:
+    build:
+      context: ./cdk-app/ecs_containers/langgraph-service
+      dockerfile: dockerfile
+    environment:
+      <<: *common-env
+      PORT: "80"
+    volumes:
+      - ./cdk-app/ecs_containers/langgraph-service:/app
+      - /app/node_modules
+      - type: bind
+        source: ${USERPROFILE}/.aws
+        target: /root/.aws
+        read_only: true
