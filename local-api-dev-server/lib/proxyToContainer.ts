@@ -31,6 +31,8 @@ export default async function proxyToContainer(
     for (const [key, value] of Object.entries(req.headers)) {
       if (value === undefined) continue;
       if (key.toLowerCase() === "host") continue;
+      if (key.toLowerCase() === "content-length") continue;
+      if (key.toLowerCase() === "transfer-encoding") continue;
 
       forwardHeaders[key] = Array.isArray(value) ? value.join(", ") : value;
     }
