@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=BJ+Cree:wght@400;500;600;700&family=Geist:wght@100..900&family=Inconsolata:wght@200..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&family=Noto+Serif+JP:wght@200..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  /* --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Montserrat", "JetBrains Mono", ui-monospace, SF Mono, SF Mono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  --font-serif: "Noto Serif JP", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif; */
+}
+
+/* fonts */
+.font-roboto {
+  font-family: "Roboto", ui-sans-serif, system-ui, sans-serif;
+}
+.font-lato {
+  font-family: "Lato", ui-sans-serif, system-ui, sans-serif;
+}
+.font-geist {
+  font-family: "Geist", ui-sans-serif, system-ui, sans-serif;
+}
+.font-inter {
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+.font-montserrat {
+  font-family: "Montserrat", "JetBrains Mono", ui-monospace, SF Mono, SF Mono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+.font-jetbrains-mono {
+  font-family: "JetBrains Mono", ui-monospace, SF Mono, SF Mono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+.font-noto-serif-display {
+  font-family: "Noto Serif Display", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+}
+.font-noto-serif-jp {
+  font-family: "Noto Serif JP", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+}
+/* no good */
+.font-inconsolata {
+  font-family: "Inconsolata", ui-monospace, SF Mono, SF Mono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+/* logo */
+.font-bj-cree {
+  font-family: "BJ Cree", ui-sans-serif, system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
