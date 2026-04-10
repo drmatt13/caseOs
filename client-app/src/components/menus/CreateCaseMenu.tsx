@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import {
   Clock,
   Target,
@@ -16,20 +16,42 @@ interface CreateCaseMenuProps {
   setCaseIntakeState: React.Dispatch<
     React.SetStateAction<CaseIntakeWizardState>
   >;
+  hasUnsavedCaseIntake: boolean;
 }
 
 const CreateCaseMenu = ({
   caseIntakeState,
   setCaseIntakeState,
+  hasUnsavedCaseIntake,
 }: CreateCaseMenuProps) => {
+  const navigate = useNavigate();
+
+  const handleLeaveCreateCase = async () => {
+    if (hasUnsavedCaseIntake) {
+      const shouldLeave = window.confirm(
+        "You have unsaved case intake details or uploaded files. Leaving now will discard your changes. Continue?",
+      );
+
+      if (!shouldLeave) {
+        return;
+      }
+    }
+
+    await navigate({ to: "/" });
+  };
+
   return (
     <>
       <div className="text-xs flex gap-1.5 items-center">
-        <Link to="/">
-          <div className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer">
-            <ArrowLeft className="w-3 h-3" />
-          </div>
-        </Link>
+        <button
+          type="button"
+          className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer"
+          onClick={() => {
+            void handleLeaveCreateCase();
+          }}
+        >
+          <ArrowLeft className="w-3 h-3" />
+        </button>
 
         <p className="truncate">Create New Case</p>
       </div>

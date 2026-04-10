@@ -37,6 +37,20 @@ function RouteComponent() {
     },
   );
 
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+
+  const hasUnsavedCaseIntake =
+    uploadedFiles.length > 0 ||
+    Object.entries(caseIntakeState.caseIntake).some(([key, value]) => {
+      const initialValue = initialCaseIntake[key as keyof CaseIntake];
+
+      if (typeof value === "string" && typeof initialValue === "string") {
+        return value.trim() !== initialValue.trim();
+      }
+
+      return JSON.stringify(value) !== JSON.stringify(initialValue);
+    });
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, [caseIntakeState.step]);
@@ -106,7 +120,13 @@ function RouteComponent() {
           />
         );
       case 6:
-        return <DocumentsForm caseIntake={caseIntakeState.caseIntake} />;
+        return (
+          <DocumentsForm
+            caseIntake={caseIntakeState.caseIntake}
+            uploadedFiles={uploadedFiles}
+            setUploadedFiles={setUploadedFiles}
+          />
+        );
       default:
         return null;
     }
@@ -119,6 +139,7 @@ function RouteComponent() {
         <CreateCaseMenu
           caseIntakeState={caseIntakeState}
           setCaseIntakeState={setCaseIntakeState}
+          hasUnsavedCaseIntake={hasUnsavedCaseIntake}
         />
       </LeftPanelLayout>
       <WorkPanelLayout>
