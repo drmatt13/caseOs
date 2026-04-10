@@ -1,6 +1,7 @@
 import type { CaseIntake } from "#/../../types/caseWorkspace.schema";
 import { FormSection } from "#/components/layouts/new_case/fields";
 import { Upload, FileText, XIcon, CheckCircle } from "lucide-react";
+import LoadingSpinner from "#/components/LoadingSpinner";
 
 type DocumentsFormProps = {
   caseIntake: CaseIntake;
@@ -41,7 +42,7 @@ const DocumentsForm = ({ caseIntake }: DocumentsFormProps) => {
             <div className="text-xs flex gap-1.5 items-center">
               <div>
                 {/* if uploading, p tag with ...uploading, custom spinner to replace later */}
-                {/* <p>...uploading</p> */}
+                {/* <LoadingSpinner /> */}
                 {/* if upload successful, show check icon */}
                 <CheckCircle className="w-4 h-4 text-green-600" />
               </div>
@@ -65,7 +66,7 @@ const DocumentsForm = ({ caseIntake }: DocumentsFormProps) => {
             <div className="text-xs flex gap-1.5 items-center">
               <div>
                 {/* if uploading, p tag with ...uploading, custom spinner to replace later */}
-                {/* <p>...uploading</p> */}
+                {/* <LoadingSpinner /> */}
                 {/* if upload successful, show check icon */}
                 <CheckCircle className="w-4 h-4 text-green-600" />
               </div>
