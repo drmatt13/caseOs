@@ -22,8 +22,9 @@ const GoalsObjectivesAndRisksForm = ({
       description="Clarify what success looks like, what the other side likely wants, and the main exposure shaping strategy."
       icon="target"
     >
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-x-4 gap-y-3 md:grid-cols-2">
         <TextAreaField
+          className="row-span-2 grid-rows-subgrid"
           label="Your objective"
           description="Describe the principal goal for this matter."
           value={caseIntake.yourObjective}
@@ -33,6 +34,7 @@ const GoalsObjectivesAndRisksForm = ({
           placeholder="Dismiss claims, narrow discovery burden, obtain early settlement leverage..."
         />
         <TextAreaField
+          className="row-span-2 grid-rows-subgrid"
           label="Other side’s likely objective"
           description="Capture your best current read on the opponent’s goals."
           value={caseIntake.otherSidesLikelyObjective}
@@ -42,6 +44,7 @@ const GoalsObjectivesAndRisksForm = ({
           placeholder="Maximize damages, force business change, delay production..."
         />
         <TextAreaField
+          className="row-span-2 grid-rows-subgrid"
           label="Desired outcome"
           description="State the ideal end state for the client."
           value={caseIntake.desiredOutcome}
@@ -51,6 +54,7 @@ const GoalsObjectivesAndRisksForm = ({
           placeholder="Defense verdict, favorable settlement, injunction denied..."
         />
         <TextAreaField
+          className="row-span-2 grid-rows-subgrid"
           label="Biggest current risk"
           description="Identify the fact, motion, witness, or timeline risk that matters most now."
           value={caseIntake.biggestCurrentRisk}

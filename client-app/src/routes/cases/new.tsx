@@ -32,7 +32,7 @@ function RouteComponent() {
 
   const [caseIntakeState, setCaseIntakeState] = useState<CaseIntakeWizardState>(
     {
-      step: 1,
+      step: 6,
       caseIntake: initialCaseIntake,
     },
   );
@@ -144,7 +144,7 @@ function RouteComponent() {
                     ? "Review"
                     : "Next"
                 }
-                disabled={caseIntakeState.step === CASE_INTAKE_TOTAL_STEPS}
+                // disabled={caseIntakeState.step === CASE_INTAKE_TOTAL_STEPS}
                 onClick={goToNextStep}
               />
             </div>
