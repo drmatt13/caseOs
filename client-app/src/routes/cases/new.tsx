@@ -170,6 +170,12 @@ function RouteComponent() {
                     : "Next"
                 }
                 onClick={goToNextStep}
+                rainbow={caseIntakeState.step === CASE_INTAKE_TOTAL_STEPS}
+                icon={
+                  caseIntakeState.step === CASE_INTAKE_TOTAL_STEPS
+                    ? "sparkles"
+                    : undefined
+                }
               />
             </div>
           </div>

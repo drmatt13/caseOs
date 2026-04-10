@@ -2,10 +2,33 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-@theme {
+@theme inline {
+  --color-mist-300: #d8e5e8;
+  --color-mist-500: #9eb7bf;
+  --color-mist-600: #7f98a1;
+  --animate-rainbow: rainbow var(--rainbow-speed, 2.4s) infinite linear;
+
   /* --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Montserrat", "JetBrains Mono", ui-monospace, SF Mono, SF Mono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
   --font-serif: "Noto Serif JP", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif; */
+}
+
+:root {
+  --color-rainbow-1: 0 100% 50%;
+  --color-rainbow-2: 270 100% 50%;
+  --color-rainbow-3: 210 100% 50%;
+  --color-rainbow-4: 195 100% 50%;
+  --color-rainbow-5: 90 100% 50%;
+}
+
+@keyframes rainbow {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  100% {
+    background-position: 200% 50%;
+  }
 }
 
 /* fonts */
