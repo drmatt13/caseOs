@@ -79,7 +79,7 @@ export const FormSection = ({
   icon,
   children,
 }: FormSectionProps) => (
-  <section className="flex flex-col gap-6 rounded-2xl">
+  <section className="flex flex-col gap-6">
     <div className="flex items-center gap-2.5">
       <div className="rounded-lg bg-black/15 p-2.5">
         {icon === "briefcase" && (
@@ -93,9 +93,9 @@ export const FormSection = ({
           <FileTextIcon className="w-5 h-5 text-black/90" />
         )}
       </div>
-      <div className="flex flex-col">
+      <div className="flex flex-col min-w-0">
         <h2 className="text-[1.1rem] font-semibold text-black">{title}</h2>
-        <p className="-translate-y-0.5 max-w-3xl text-xs text-black/65">
+        <p className="-translate-y-0.5 text-xs text-black/65 truncate">
           {description}
         </p>
       </div>
