@@ -112,44 +112,57 @@ export interface Document {
   referencedBy?: WorkspaceReferencedByMap;
 }
 
-export interface CaseIntake {
-  id: string; // unique identifier for the case intake, e.g. a UUID
-
-  // Case Basics
+export type CaseBasics = {
   caseName: string; // e.g. "Smith v. Jones"
   intakeProvidedBy: string; // e.g. "John Doe, Esq." or "Jane Smith, Client"
   representationPracticeArea: RepresentationPracticeArea; // e.g. "Civil Litigation"
   representationRole: RepresentationRole; // e.g. "Lead Counsel"
   clientRole: ClientRole; // e.g. "Plaintiff"
   jurisdictionOrCourt: string; // e.g. "Superior Court of California, County of Los Angeles"
+};
 
-  // Dispute Details
+export type DisputeDetails = {
   whatIsTheDisputeAbout: string; // Describe the nature of the dispute, conflict, or legal issue at hand.
   whatClaimsOrAllegationsAreInvolved: string; // Describe the specific claims or allegations involved in the case.
   caseNumber?: string; // e.g. "2023-CV-12345"
   currentCaseStatus: CaseStatus; // e.g. "Discovery"
+};
 
-  // Timeline and Urgency
+export type TimelineAndUrgency = {
   keyEventsSoFar: string; // List the key events that have occurred in the case so far, such as filings, hearings, or significant developments.
   importantFilingsDeadlinesAndIncidents: string; // Court filings, deadlines, hearings, or incidents that are upcoming or have recently occurred.
   anythingUrgentRightNow: string; // Upcoming deadlines, pending motions, time-sensitive matters...
+};
 
-  // Goals, Objectives, and Risks
+export type GoalsObjectivesAndRisks = {
   yourObjective: string; // What are you trying to archieve in this case? Describe your main goals and objectives.
   otherSidesLikelyObjective: string; // What do you think the other side's main goals and objectives are in this case?
   desiredOutcome: string; // What would be the ideal resolution or outcome for your client in this case?
   biggestCurrentRisk: string; // What concerns you the most about this case?
+};
 
-  // People, parties, and witnesses
+export type PeoplePartiesAndWitnesses = {
   parties: string; // List the parties involved in the case. e.g. "John Smith (Plaintiff), Jane Doe (Defendant)"
   attorneys: string; // List the attorneys involved in the case. e.g. "John Doe, Esq. (Lead Counsel for Plaintiff), Jane Smith, Esq. (Defense Counsel for Defendant)"
   witnessesAndAnticipatedTestimony: string; // List the witnesses and their anticipated testimony. e.g. "Alice Johnson (Eyewitness to the incident), Bob Lee (Expert witness on industry standards)"
   whoMattersMostRightNow: string; // Identify the key individuals or entities that are most important at this stage of the case. e.g. "The judge assigned to the case, the opposing counsel, and the key witness whose testimony is expected to be crucial in the upcoming hearing."
+};
 
-  // Documents and Evidence
+export type DocumentsAndEvidence = {
   documents: {
     [documentId: string]: Document;
   };
+};
+
+export interface CaseIntake
+  extends
+    CaseBasics,
+    DisputeDetails,
+    TimelineAndUrgency,
+    GoalsObjectivesAndRisks,
+    PeoplePartiesAndWitnesses,
+    DocumentsAndEvidence {
+  id: string; // unique identifier for the case intake, e.g. a UUID
 }
 
 export type WorkspaceRecordBase = {
@@ -239,7 +252,11 @@ export type WorkspaceState = {
   timeline: WorkspaceRecordMap<TimelineRecord>;
 };
 
-export type ViewTypes = StateObjectTypes | "case_summary" | "documents_index";
+export type ViewTypes =
+  | StateObjectTypes
+  | "agent_config"
+  | "case_summary"
+  | "documents_index";
 export type WorkspaceViews = {
   [view in ViewTypes]: {
     content: string;

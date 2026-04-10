@@ -1,9 +1,73 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { useState } from "react";
+import type { SubmitEvent } from "react";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/login')({
+import { verifyUser } from "#/lib/auth";
+import login from "#/lib/login";
+
+export const Route = createFileRoute("/login")({
+  beforeLoad: async () => {
+    // If the user is already authenticated, redirect to the home page
+    const { user } = await verifyUser();
+    if (user) {
+      throw redirect({ to: "/" });
+    }
+  },
   component: RouteComponent,
-})
+});
 
 function RouteComponent() {
-  return <div>Hello "/login"!</div>
+  const navigate = useNavigate();
+  const [userIdInput, setUserIdInput] = useState("");
+
+  const handleUserIdSubmit = (event: SubmitEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const userId = userIdInput.trim();
+    if (!userId) {
+      return;
+    }
+
+    login(userId, "password", userId);
+    void navigate({ to: "/", replace: true });
+  };
+
+  return (
+    <>
+      <div className="flex flex-1 items-center justify-center p-6">
+        <form
+          className="flex w-full max-w-sm flex-col gap-4 rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
+          onSubmit={handleUserIdSubmit}
+        >
+          <div>
+            <h1 className="text-lg font-semibold text-gray-900">
+              Enter user ID
+            </h1>
+            <p className="text-sm text-gray-600">
+              Temporary prototype access for backend testing.
+            </p>
+          </div>
+
+          <label className="flex flex-col gap-2 text-sm font-medium text-gray-700">
+            User ID
+            <input
+              autoFocus
+              className="rounded-md border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-gray-500"
+              onChange={(event) => setUserIdInput(event.target.value)}
+              placeholder="Enter any user ID"
+              type="text"
+              value={userIdInput}
+            />
+          </label>
+
+          <button
+            className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-700"
+            type="submit"
+          >
+            Continue
+          </button>
+        </form>
+      </div>
+    </>
+  );
 }

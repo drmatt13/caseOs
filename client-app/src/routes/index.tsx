@@ -1,82 +1,39 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useState } from "react";
-import {
-  Settings,
-  Bot,
-  Clock,
-  Target,
-  SquareCheckBig,
-  Folder,
-  FileText,
-  PlusIcon,
-} from "lucide-react";
-
-import TempLogin from "#/components/TempLogin";
-import SelectCaseMenu from "#/components/SelectCaseMenu";
-import CreateCaseMenu from "#/components/CreateCaseMenu";
-import CaseWorkspace from "#/components/WorkspaceMenu";
-import { verifyBearerCookie } from "#/lib/auth";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { requireAuth } from "#/lib/auth";
+import AppLayout from "#/components/layouts/AppLayout";
+import LeftPanelLayout from "#/components/layouts/LeftPanelLayout";
+import SelectCaseMenu from "#/components/menus/SelectCaseMenu";
+import UserPanel from "#/components/menus/UserPanel";
+import { ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/")({
-  beforeLoad: async () => {
-    // Perform any necessary checks or data fetching here
-    const { user } = await verifyBearerCookie();
-    if (!user) {
-      throw redirect({ to: "/login" });
-    }
-    return { user };
-  },
+  beforeLoad: requireAuth,
   component: App,
 });
 
 function App() {
   const { user } = Route.useRouteContext();
 
-  // const [workSpace, setWorkSpace] = useState<
-  //   | "Agent Config"
-  //   | "Case Summary"
-  //   | "Timeline"
-  //   | "Objectives"
-  //   | "Tasks"
-  //   | "Documents"
-  // >("Agent Config");
-  // const [user, setUser] = useState<{ //   name: string; //   email: string; // } | null>(null); const [orgs, setOrgs] = useState<{ useOrg: boolean; selectedOrg?: string; orgs: string[];
-  // }>({
-  //   useOrg: false,
-  //   selectedOrg: undefined,
-  //   orgs: [],
-  // });
-
-  const [caseState, setCaseState] = useState<{}>({});
-  const [workSpace, setWorkSpace] = useState<string>("");
-  const [createCaseState, setCreateCaseState] = useState<{
-    step: number;
-    caseId?: string;
-  }>({ step: 1 });
-
-  // if (osState === "login")
-  // return <TempLogin setOsState={setOsState} setUser={setUser} />;
-
   return (
-    <>
-      <div className="flex gap-6 pb-16 px-8">
-        <div className="w-64 flex flex-col /border gap-4">
-          <div className="flex flex-col gap-1 h-14">
-            <p className="text-3xl /font-noto-serif-jp font-bj-cree">CaseOS</p>
-            <p className="text-xs font-inconsolata">
-              AI-Powered Case Intelligence Workspace
-            </p>
-          </div>
-          <div className="sticky top-4 bg-white rounded-2xl py-6 px-4 border border-black/15 shadow-md flex flex-col h-max max-h-[calc(100dvh-9.5rem)] gap-2">
-            <SelectCaseMenu />
-          </div>
+    <AppLayout>
+      <LeftPanelLayout>
+        <UserPanel user={user} />
+        <div className="text-xs flex gap-1.5 items-center">
+          <p className="truncate">Select Organization</p>
         </div>
-        {/* {osState !== "select_case" && (
-          <div className="flex-1 py-8 px-6 /border h-[120vh] /h-max bg-white rounded-2xl border border-black/15 shadow-md">
-            {osState === "create_case" && <></>}
-          </div>
-        )} */}
-      </div>
-    </>
+        <div className="text-xs flex gap-1.5 items-center">
+          <select
+            className="rounded-lg px-2 py-2.5 /mx-2 text-xs bg-gray-100 border border-black/15"
+            name="organization"
+            id="organization"
+          >
+            <option value="">Organization 1</option>
+            <option value="">Organization 2</option>
+            <option value="">Organization 3</option>
+          </select>
+        </div>
+        <SelectCaseMenu />
+      </LeftPanelLayout>
+    </AppLayout>
   );
 }

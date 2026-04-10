@@ -1,10 +1,11 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import invokeLambdaFunction from "../lib/invokeLambdaFunction";
 import proxyToContainer from "../lib/proxyToContainer";
 
 // Import Lambda function handlers
-import { lambdaHandler as testFunction1 } from "../../cdk-app/lambda_functions/test-function-1/index";
+import { lambdaHandler as verifyUser } from "../../cdk-app/lambda_functions/verify-user/index";
 import { lambdaHandler as testFunction2 } from "../../cdk-app/lambda_functions/test-function-2/index";
 
 dotenv.config({
@@ -18,6 +19,13 @@ const LANGGRAPH_SERVICE_URL =
   process.env.LANGGRAPH_SERVICE_URL || "http://localhost:5000";
 
 const app = express();
+
+app.use(
+  cors({
+    origin: "http://localhost:3000", // Allow requests from the React app
+    credentials: true, // Allow cookies to be sent
+  }),
+);
 
 app.use(express.json());
 
@@ -34,8 +42,8 @@ app.get("/", (req, res) => {
 });
 
 // Lambda function routes
-app.all("/test-function-1", (req, res) => {
-  return invokeLambdaFunction(req, res, testFunction1);
+app.all("/verify-user", (req, res) => {
+  return invokeLambdaFunction(req, res, verifyUser);
 });
 app.all("/test-function-2", (req, res) => {
   return invokeLambdaFunction(req, res, testFunction2);

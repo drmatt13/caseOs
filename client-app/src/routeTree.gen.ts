@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CasesNewRouteImport } from './routes/cases/new'
+import { Route as CaseIdRouteImport } from './routes/case/$id'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -28,34 +29,43 @@ const CasesNewRoute = CasesNewRouteImport.update({
   path: '/cases/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CaseIdRoute = CaseIdRouteImport.update({
+  id: '/case/$id',
+  path: '/case/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/case/$id': typeof CaseIdRoute
   '/cases/new': typeof CasesNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/case/$id': typeof CaseIdRoute
   '/cases/new': typeof CasesNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/case/$id': typeof CaseIdRoute
   '/cases/new': typeof CasesNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/cases/new'
+  fullPaths: '/' | '/login' | '/case/$id' | '/cases/new'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/cases/new'
-  id: '__root__' | '/' | '/login' | '/cases/new'
+  to: '/' | '/login' | '/case/$id' | '/cases/new'
+  id: '__root__' | '/' | '/login' | '/case/$id' | '/cases/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
+  CaseIdRoute: typeof CaseIdRoute
   CasesNewRoute: typeof CasesNewRoute
 }
 
@@ -82,12 +92,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CasesNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/case/$id': {
+      id: '/case/$id'
+      path: '/case/$id'
+      fullPath: '/case/$id'
+      preLoaderRoute: typeof CaseIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
+  CaseIdRoute: CaseIdRoute,
   CasesNewRoute: CasesNewRoute,
 }
 export const routeTree = rootRouteImport
