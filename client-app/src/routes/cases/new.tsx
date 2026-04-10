@@ -7,13 +7,14 @@ import CaseBasicsForm from "#/components/layouts/new_case/CaseBasicsForm";
 import DisputeDetailsForm from "#/components/layouts/new_case/DisputeDetailsForm";
 import DocumentsForm from "#/components/layouts/new_case/DocumentsForm";
 import GoalsObjectivesAndRisksForm from "#/components/layouts/new_case/GoalsObjectivesAndRisksForm";
+import PeoplePartiesAndWitnessesForm from "#/components/layouts/new_case/PeoplePartiesAndWitnessesForm";
+import TimelineAndUrgencyForm from "#/components/layouts/new_case/TimelineAndUrgencyForm";
+import ReviewForm from "#/components/layouts/new_case/ReviewForm";
 import LeftPanelLayout from "#/components/layouts/LeftPanelLayout";
 import {
   CASE_INTAKE_TOTAL_STEPS,
   initialCaseIntake,
 } from "#/components/layouts/new_case/caseIntakeForm";
-import PeoplePartiesAndWitnessesForm from "#/components/layouts/new_case/PeoplePartiesAndWitnessesForm";
-import TimelineAndUrgencyForm from "#/components/layouts/new_case/TimelineAndUrgencyForm";
 import WorkPanelLayout from "#/components/layouts/WorkPanelLayout";
 import CreateCaseMenu from "#/components/menus/CreateCaseMenu";
 import UserPanel from "#/components/menus/UserPanel";
@@ -127,6 +128,8 @@ function RouteComponent() {
             setUploadedFiles={setUploadedFiles}
           />
         );
+      case 7:
+        return <ReviewForm />;
       default:
         return null;
     }
@@ -147,7 +150,8 @@ function RouteComponent() {
           {renderStep()}
           <div className="flex items-end justify-between gap-3 rounded-2xl /border /border-black/10 /bg-white/70 /p-4">
             <p className="text-sm text-black/55">
-              Step {caseIntakeState.step} of {CASE_INTAKE_TOTAL_STEPS}
+              {caseIntakeState.step !== CASE_INTAKE_TOTAL_STEPS &&
+                `Step ${caseIntakeState.step} of ${CASE_INTAKE_TOTAL_STEPS - 1}`}
             </p>
             <div className="flex gap-2">
               {caseIntakeState.step !== 1 && (
@@ -162,10 +166,9 @@ function RouteComponent() {
                 style="primary"
                 text={
                   caseIntakeState.step === CASE_INTAKE_TOTAL_STEPS
-                    ? "Review"
+                    ? "Generate Workspace"
                     : "Next"
                 }
-                // disabled={caseIntakeState.step === CASE_INTAKE_TOTAL_STEPS}
                 onClick={goToNextStep}
               />
             </div>

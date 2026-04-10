@@ -17,7 +17,7 @@ export type SelectOption<T extends string> = {
   label: string;
 };
 
-export const CASE_INTAKE_TOTAL_STEPS = 6;
+export const CASE_INTAKE_TOTAL_STEPS = 7;
 
 const formatOptionLabel = (value: string) =>
   value

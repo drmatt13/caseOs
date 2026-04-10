@@ -94,7 +94,9 @@ const DocumentsForm = ({
       </div>
 
       <div className="text-xs flex flex-col gap-2.5">
-        <p>Uploaded files ({uploadedFiles.length})</p>
+        {uploadedFiles.length > 0 && (
+          <p>Uploaded files ({uploadedFiles.length})</p>
+        )}
         {uploadedFiles.map((file, index) => (
           <div
             key={`${file.name}-${file.size}-${file.lastModified}-${index}`}
