@@ -1,0 +1,123 @@
+import * as cdk from "aws-cdk-lib";
+import { Construct } from "constructs";
+import * as cognito from "aws-cdk-lib/aws-cognito";
+
+export interface CognitoStackProps extends cdk.StackProps {
+  googleClientId?: string;
+  googleClientSecret?: cdk.SecretValue;
+  callbackUrls?: string[];
+  logoutUrls?: string[];
+}
+
+export class CognitoStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props: CognitoStackProps) {
+    super(scope, id, props);
+
+    const callbackUrls = props.callbackUrls ?? [
+      "http://localhost:3000/auth/callback",
+    ];
+
+    const logoutUrls = props.logoutUrls ?? ["http://localhost:3000/"];
+
+    const userPool = new cognito.UserPool(this, "UserPool", {
+      userPoolName: "LocalDevKitUserPool",
+      selfSignUpEnabled: true,
+      signInAliases: {
+        email: true,
+      },
+      autoVerify: {
+        email: true,
+      },
+      standardAttributes: {
+        email: {
+          required: true,
+          mutable: true,
+        },
+        givenName: {
+          required: false,
+          mutable: true,
+        },
+        familyName: {
+          required: false,
+          mutable: true,
+        },
+      },
+      passwordPolicy: {
+        minLength: 8,
+        requireLowercase: true,
+        requireUppercase: true,
+        requireDigits: true,
+        requireSymbols: false,
+      },
+      accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
+    });
+
+    const domain = userPool.addDomain("UserPoolDomain", {
+      cognitoDomain: {
+        domainPrefix: `localdevkit-${this.account?.toLowerCase().slice(-8) ?? "dev"}`,
+      },
+    });
+
+    let googleProvider: cognito.UserPoolIdentityProviderGoogle | undefined;
+
+    if (props.googleClientId && props.googleClientSecret) {
+      googleProvider = new cognito.UserPoolIdentityProviderGoogle(
+        this,
+        "Google",
+        {
+          userPool,
+          clientId: props.googleClientId,
+          clientSecretValue: props.googleClientSecret,
+          scopes: ["openid", "email", "profile"],
+          attributeMapping: {
+            email: cognito.ProviderAttribute.GOOGLE_EMAIL,
+            givenName: cognito.ProviderAttribute.GOOGLE_GIVEN_NAME,
+            familyName: cognito.ProviderAttribute.GOOGLE_FAMILY_NAME,
+            profilePicture: cognito.ProviderAttribute.GOOGLE_PICTURE,
+          },
+        },
+      );
+    }
+
+    const supportedIdentityProviders = googleProvider
+      ? [
+          cognito.UserPoolClientIdentityProvider.COGNITO,
+          cognito.UserPoolClientIdentityProvider.GOOGLE,
+        ]
+      : [cognito.UserPoolClientIdentityProvider.COGNITO];
+
+    const userPoolClient = new cognito.UserPoolClient(this, "UserPoolClient", {
+      userPool,
+      generateSecret: false, // for browser-based apps
+      supportedIdentityProviders,
+      oAuth: {
+        flows: {
+          authorizationCodeGrant: true,
+        },
+        scopes: [
+          cognito.OAuthScope.OPENID,
+          cognito.OAuthScope.EMAIL,
+          cognito.OAuthScope.PROFILE,
+        ],
+        callbackUrls,
+        logoutUrls,
+      },
+    });
+
+    if (googleProvider) {
+      userPoolClient.node.addDependency(googleProvider);
+    }
+
+    new cdk.CfnOutput(this, "UserPoolId", {
+      value: userPool.userPoolId,
+    });
+
+    new cdk.CfnOutput(this, "UserPoolClientId", {
+      value: userPoolClient.userPoolClientId,
+    });
+
+    new cdk.CfnOutput(this, "UserPoolDomainUrl", {
+      value: `https://${domain.domainName}.auth.${this.region}.amazoncognito.com`,
+    });
+  }
+}

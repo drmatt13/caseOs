@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import * as cdk from "aws-cdk-lib";
+import { CognitoStack } from "../lib/cognito-stack";
 // import { LambdaHandlersStack } from "../lib/lambda-handlers-stack";
 // import { EcsStack } from "../lib/ecs-stack";
 // import { ApiStack } from "../lib/api-stack";
@@ -20,16 +21,22 @@ const stackEnv: cdk.Environment = {
   region,
 };
 
-// Create handlers stack first (without API details)
+// Create Cognito User Pool + Client + Identity Pool
+const cognitoStack = new CognitoStack(app, "CognitoStack", {
+  env: stackEnv,
+});
+
+// Create handlers stack first (without API details) ** Lambda Functions
 // const handlersStack = new LambdaHandlersStack(app, "LambdaHandlersStack", {
 //   env: stackEnv,
 // });
 
+// Create ECS stack next (without API details) ** ECS Containers
 // const ecsStack = new EcsStack(app, "EcsStack", {
 //   env: stackEnv,
 // });
 
-// Create API stack with the handler functions
+// Create API stack ** API Gateway with Lambda and ECS integrations
 // const apiStack = new ApiStack(app, "ApiStack", {
 // env: stackEnv,
 // testFunction1: handlersStack.testFunction1,

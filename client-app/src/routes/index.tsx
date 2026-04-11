@@ -19,17 +19,17 @@ function App() {
       <LeftPanelLayout>
         <UserPanel user={user} />
         <div className="text-xs flex gap-1.5 items-center">
-          <p className="truncate">Select Organization</p>
+          <p className="truncate">Select Workspace</p>
         </div>
         <div className="text-xs flex gap-1.5 items-center">
           <select
             className="rounded-lg px-2 py-2.5 /mx-2 text-xs bg-gray-100 border border-black/15"
-            name="organization"
-            id="organization"
+            name="Workspace"
+            id="Workspace"
           >
-            <option value="">Organization 1</option>
-            <option value="">Organization 2</option>
-            <option value="">Organization 3</option>
+            <option value="">Workspace 1</option>
+            <option value="">Workspace 2</option>
+            <option value="">Workspace 3</option>
           </select>
         </div>
         <SelectCaseMenu />

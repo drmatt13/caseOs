@@ -23,6 +23,9 @@ import Button from "#/components/Button";
 import type { CaseIntake } from "#/../../types/caseWorkspace.schema";
 import type { CaseIntakeWizardState } from "#/components/layouts/new_case/caseIntakeForm";
 
+// test data
+import { testCaseIntake } from "#/lib/test_data";
+
 export const Route = createFileRoute("/cases/new")({
   beforeLoad: requireAuth,
   component: RouteComponent,
@@ -34,7 +37,7 @@ function RouteComponent() {
   const [caseIntakeState, setCaseIntakeState] = useState<CaseIntakeWizardState>(
     {
       step: 6,
-      caseIntake: initialCaseIntake,
+      caseIntake: testCaseIntake,
     },
   );
 
@@ -81,6 +84,51 @@ function RouteComponent() {
       ...prev,
       step: Math.max(prev.step - 1, 1),
     }));
+  };
+
+  const isStepComplete = (step: number): boolean => {
+    const c = caseIntakeState.caseIntake;
+    const filled = (...fields: string[]) =>
+      fields.every((f) => f.trim().length > 0);
+
+    switch (step) {
+      case 1:
+        return filled(c.caseName, c.intakeProvidedBy, c.jurisdictionOrCourt);
+      case 2:
+        return (
+          filled(
+            c.whatIsTheDisputeAbout,
+            c.whatClaimsOrAllegationsAreInvolved,
+          ) &&
+          (c.currentCaseStatus === "pre_filing" || filled(c.caseNumber ?? ""))
+        );
+      case 3:
+        return filled(
+          c.keyEventsSoFar,
+          c.importantFilingsDeadlinesAndIncidents,
+          c.anythingUrgentRightNow,
+        );
+      case 4:
+        return filled(
+          c.yourObjective,
+          c.otherSidesLikelyObjective,
+          c.desiredOutcome,
+          c.biggestCurrentRisk,
+        );
+      case 5:
+        return filled(
+          c.parties,
+          c.attorneys,
+          c.witnessesAndAnticipatedTestimony,
+          c.whoMattersMostRightNow,
+        );
+      case 6:
+        return true;
+      case 7:
+        return true;
+      default:
+        return false;
+    }
   };
 
   const renderStep = () => {
@@ -170,6 +218,7 @@ function RouteComponent() {
                     : "Next"
                 }
                 onClick={goToNextStep}
+                disabled={!isStepComplete(caseIntakeState.step)}
                 rainbow={caseIntakeState.step === CASE_INTAKE_TOTAL_STEPS}
                 icon={
                   caseIntakeState.step === CASE_INTAKE_TOTAL_STEPS
