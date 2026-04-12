@@ -7,11 +7,14 @@ export interface CognitoStackProps extends cdk.StackProps {
   googleClientSecret?: cdk.SecretValue;
   callbackUrls?: string[];
   logoutUrls?: string[];
+  isProduction?: boolean;
 }
 
 export class CognitoStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: CognitoStackProps) {
     super(scope, id, props);
+
+    const isProduction = props.isProduction ?? false;
 
     const callbackUrls = props.callbackUrls ?? [
       "http://localhost:3000/auth/callback",
@@ -19,15 +22,24 @@ export class CognitoStack extends cdk.Stack {
 
     const logoutUrls = props.logoutUrls ?? ["http://localhost:3000/"];
 
+    const domainPrefix = `localdevkit-${cdk.Stack.of(this)
+      .account.slice(-8)
+      .toLowerCase()}`;
+
     const userPool = new cognito.UserPool(this, "UserPool", {
       userPoolName: "LocalDevKitUserPool",
+
       selfSignUpEnabled: true,
+      signInCaseSensitive: false,
+
       signInAliases: {
         email: true,
       },
+
       autoVerify: {
         email: true,
       },
+
       standardAttributes: {
         email: {
           required: true,
@@ -42,6 +54,7 @@ export class CognitoStack extends cdk.Stack {
           mutable: true,
         },
       },
+
       passwordPolicy: {
         minLength: 8,
         requireLowercase: true,
@@ -49,12 +62,19 @@ export class CognitoStack extends cdk.Stack {
         requireDigits: true,
         requireSymbols: false,
       },
+
       accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
+      mfa: cognito.Mfa.OPTIONAL,
+
+      deletionProtection: isProduction,
+      removalPolicy: isProduction
+        ? cdk.RemovalPolicy.RETAIN
+        : cdk.RemovalPolicy.DESTROY,
     });
 
     const domain = userPool.addDomain("UserPoolDomain", {
       cognitoDomain: {
-        domainPrefix: `localdevkit-${this.account?.toLowerCase().slice(-8) ?? "dev"}`,
+        domainPrefix,
       },
     });
 
@@ -88,8 +108,22 @@ export class CognitoStack extends cdk.Stack {
 
     const userPoolClient = new cognito.UserPoolClient(this, "UserPoolClient", {
       userPool,
-      generateSecret: false, // for browser-based apps
+      generateSecret: false,
       supportedIdentityProviders,
+      preventUserExistenceErrors: true,
+
+      authFlows: {
+        userSrp: true,
+        userPassword: false,
+        adminUserPassword: false,
+        custom: false,
+      },
+
+      authSessionValidity: cdk.Duration.minutes(5),
+      accessTokenValidity: cdk.Duration.hours(1),
+      idTokenValidity: cdk.Duration.hours(1),
+      refreshTokenValidity: cdk.Duration.days(30),
+
       oAuth: {
         flows: {
           authorizationCodeGrant: true,

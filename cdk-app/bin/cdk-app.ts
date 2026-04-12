@@ -21,9 +21,15 @@ const stackEnv: cdk.Environment = {
   region,
 };
 
+const stage = app.node.tryGetContext("stage") ?? "dev";
+const isProduction = stage === "prod";
+
 // Create Cognito User Pool + Client + Identity Pool
 const cognitoStack = new CognitoStack(app, "CognitoStack", {
   env: stackEnv,
+  isProduction,
+  googleClientId: undefined,
+  googleClientSecret: undefined,
 });
 
 // Create handlers stack first (without API details) ** Lambda Functions
