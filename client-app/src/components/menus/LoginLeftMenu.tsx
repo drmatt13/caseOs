@@ -13,20 +13,20 @@ const LoginLeftMenu = () => {
       </div>
       <div className="w-full /bg-black/10 grid grid-cols-2 gap-4">
         <div className="w-full h-36 p-4 bg-neutral-300 border border-neutral-400 shadow-md rounded-2xl">
-          <div className="flex flex-col gap-2">
-            <div>header</div>
+          <div className="flex flex-col">
+            <div className="text-lg">header</div>
             <div>content</div>
           </div>
         </div>
         <div className="w-full h-36 p-4 bg-neutral-300 border border-neutral-400 shadow-md rounded-2xl">
-          <div className="flex flex-col gap-2">
-            <div>header</div>
+          <div className="flex flex-col">
+            <div className="text-lg">header</div>
             <div>content</div>
           </div>
         </div>
         <div className="w-full h-36 p-4 bg-neutral-300 border border-neutral-400 shadow-md rounded-2xl col-span-2">
-          <div className="flex flex-col gap-2">
-            <div>header</div>
+          <div className="flex flex-col">
+            <div className="text-lg">header</div>
             <div>content</div>
           </div>
         </div>

@@ -1,11 +1,8 @@
 import { useState } from "react";
-import type { SubmitEvent } from "react";
 import { Link, createFileRoute, redirect } from "@tanstack/react-router";
+import Button from "#/components/Button";
+import LoginLayout from "#/components/layouts/LoginLayout";
 
-import AuthPageShell, {
-  AuthField,
-  authInputClassName,
-} from "#/components/layouts/auth/AuthPageShell";
 import { verifyUser } from "#/lib/auth";
 
 export const Route = createFileRoute("/register")({
@@ -24,91 +21,96 @@ function RouteComponent() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [status, setStatus] = useState<string | null>(null);
 
-  const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (!email.trim() || !password.trim() || !confirmPassword.trim()) {
-      setStatus("Complete all fields before continuing.");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setStatus("Passwords must match before account creation can proceed.");
-      return;
-    }
-
-    setStatus(
-      "Account creation flow is prepared for authentication service integration.",
-    );
-  };
-
   return (
-    <AuthPageShell
-      description="Create access to a workspace that turns fragmented case material into a persistent, linked system for strategy, analysis, and execution."
-      eyebrow="Account Setup"
-      footer={
-        <>
-          Already have access?{" "}
-          <Link
-            className="font-medium text-black underline underline-offset-4"
-            to="/login"
+    <>
+      <LoginLayout>
+        <div className="flex flex-col w-md">
+          <div
+            id="register-form"
+            className="flex flex-col px-5 pt-8 pb-5 border-mist-400 shadow-md rounded-2xl bg-white"
           >
-            Sign in
-          </Link>
-        </>
-      }
-      formId="register-form"
-      helper="Your account will anchor access to documents, workspace state, and agent-driven case updates."
-      onSubmit={handleSubmit}
-      status={status}
-      submitLabel="Create your CaseOS account"
-      title="Start your CaseOS workspace"
-    >
-      <AuthField
-        description="This email becomes your primary CaseOS sign-in identity."
-        htmlFor="register-email"
-        label="Work email"
-      >
-        <input
-          autoComplete="email"
-          autoFocus
-          className={authInputClassName}
-          id="register-email"
-          onChange={(event) => setEmail(event.target.value)}
-          type="email"
-          value={email}
-        />
-      </AuthField>
+            <p className="text-3xl font-bold">Create your account</p>
+            <p className="mt-1 text-sm text-gray-600">
+              Get started with your workspace
+            </p>
+            <label
+              htmlFor="register-email"
+              className="text-sm font-medium mt-5 mb-1.5"
+            >
+              Email
+            </label>
+            <input
+              type="email"
+              id="register-email"
+              autoComplete="email"
+              autoFocus
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="rounded-md px-2 py-2.5 text-xs bg-gray-100 border border-black/15"
+              placeholder="name@firm.com"
+            />
+            <label
+              htmlFor="register-password"
+              className="text-sm font-medium mt-3 mb-1.5"
+            >
+              Password
+            </label>
+            <input
+              type="password"
+              id="register-password"
+              autoComplete="new-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="rounded-md px-2 py-2.5 text-xs bg-gray-100 border border-black/15"
+              placeholder="••••••••"
+            />
+            <label
+              htmlFor="register-confirm-password"
+              className="text-sm font-medium mt-3 mb-1.5"
+            >
+              Confirm password
+            </label>
+            <input
+              type="password"
+              id="register-confirm-password"
+              autoComplete="new-password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="rounded-md px-2 py-2.5 mb-3 text-xs bg-gray-100 border border-black/15"
+              placeholder="••••••••"
+            />
+            {status && (
+              <p className="text-sm text-red-600 mt-1 mb-2">{status}</p>
+            )}
+            {/* <div className="mt-2 w-full"> */}
+            <div className="mt-2 w-full" />
+            <Button submit={true} text="Create account" style="primary" />
+            {/* </div> */}
+            <div className="mt-4 text-gray-500 flex w-full justify-center">
+              <p>
+                Already have an account?{" "}
+                <Link to="/login" className="text-blue-600 hover:underline">
+                  Sign in
+                </Link>
+              </p>
+            </div>
+            {/* <div className="flex items-center my-4">
+              <div className="flex-1 h-px bg-black/15" />
+              <span className="px-3 text-xs text-gray-500">
+                or continue with
+              </span>
+              <div className="flex-1 h-px bg-black/15" />
+            </div>
 
-      <AuthField
-        description="Choose a password for secure workspace access."
-        htmlFor="register-password"
-        label="Password"
-      >
-        <input
-          autoComplete="new-password"
-          className={authInputClassName}
-          id="register-password"
-          onChange={(event) => setPassword(event.target.value)}
-          type="password"
-          value={password}
-        />
-      </AuthField>
-
-      <AuthField
-        description="Repeat the password exactly to confirm the account setup."
-        htmlFor="register-confirm-password"
-        label="Confirm password"
-      >
-        <input
-          autoComplete="new-password"
-          className={authInputClassName}
-          id="register-confirm-password"
-          onChange={(event) => setConfirmPassword(event.target.value)}
-          type="password"
-          value={confirmPassword}
-        />
-      </AuthField>
-    </AuthPageShell>
+            <button
+              type="button"
+              className="w-full rounded-md border border-black/15 bg-white py-2.5 text-sm font-medium hover:bg-gray-50"
+            >
+              Continue with Google
+            </button> */}
+          </div>
+        </div>
+      </LoginLayout>
+    </>
   );
 }
