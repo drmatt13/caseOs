@@ -9,6 +9,7 @@ interface ButtonProps {
   disabled?: boolean;
   rainbow?: boolean;
   icon?: "sparkles";
+  submit?: boolean;
 }
 
 import { Sparkles } from "lucide-react";
@@ -20,6 +21,7 @@ const Button = ({
   disabled = false,
   rainbow = false,
   icon = undefined,
+  submit = false,
 }: ButtonProps) => {
   const [suppressHover, setSuppressHover] = useState(false);
   const isRainbowPrimary = rainbow && style === "primary" && !disabled;
@@ -56,6 +58,7 @@ const Button = ({
       }}
       onMouseLeave={() => setSuppressHover(false)}
       disabled={disabled}
+      type={submit ? "submit" : "button"}
     >
       <span
         className={

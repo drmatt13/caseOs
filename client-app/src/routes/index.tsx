@@ -6,13 +6,22 @@ import SelectCaseMenu from "#/components/menus/SelectCaseMenu";
 import UserPanel from "#/components/menus/UserPanel";
 import { ArrowLeft } from "lucide-react";
 
+import type { User } from "#/schemas/user";
+
 export const Route = createFileRoute("/")({
-  beforeLoad: requireAuth,
+  // beforeLoad: requireAuth,
   component: App,
 });
 
 function App() {
-  const { user } = Route.useRouteContext();
+  // const { user } = Route.useRouteContext();
+  const user: User = {
+    id: "user-1",
+    email: "user@example.com",
+    userName: "John Doe",
+    firstName: "John",
+    lastName: "Doe",
+  };
 
   return (
     <AppLayout>
