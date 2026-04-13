@@ -46,11 +46,11 @@ export class CognitoStack extends cdk.Stack {
           mutable: true,
         },
         givenName: {
-          required: false,
+          required: true,
           mutable: true,
         },
         familyName: {
-          required: false,
+          required: true,
           mutable: true,
         },
       },

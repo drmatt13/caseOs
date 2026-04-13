@@ -1,9 +1,12 @@
 import { useState } from "react";
+import type { SubmitEvent } from "react";
 import { Link, createFileRoute, redirect } from "@tanstack/react-router";
 import Button from "#/components/Button";
 import LoginLayout from "#/components/layouts/LoginLayout";
 
 import { verifyUser } from "#/lib/auth";
+
+const MIN_NAME_LENGTH = 2;
 
 export const Route = createFileRoute("/register")({
   beforeLoad: async () => {
@@ -16,17 +19,49 @@ export const Route = createFileRoute("/register")({
 });
 
 function RouteComponent() {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [status, setStatus] = useState<string | null>(null);
 
+  const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const trimmedFirstName = firstName.trim();
+    const trimmedLastName = lastName.trim();
+
+    if (!trimmedFirstName || !trimmedLastName) {
+      setStatus("First and last name are required.");
+      return;
+    }
+
+    if (
+      trimmedFirstName.length < MIN_NAME_LENGTH ||
+      trimmedLastName.length < MIN_NAME_LENGTH
+    ) {
+      setStatus(
+        `First and last name must be at least ${MIN_NAME_LENGTH} characters.`,
+      );
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setStatus("Passwords do not match.");
+      return;
+    }
+
+    setStatus(null);
+  };
+
   return (
     <>
       <LoginLayout>
         <div className="flex flex-col w-md">
-          <div
+          <form
             id="register-form"
+            onSubmit={handleSubmit}
             className="flex flex-col px-5 pt-8 pb-5 border-mist-400 shadow-md rounded-2xl bg-white"
           >
             <p className="text-3xl font-bold">Create your account</p>
@@ -34,8 +69,43 @@ function RouteComponent() {
               Get started with your workspace
             </p>
             <label
-              htmlFor="register-email"
+              htmlFor="register-first-name"
               className="text-sm font-medium mt-5 mb-1.5"
+            >
+              First name
+            </label>
+            <input
+              type="text"
+              id="register-first-name"
+              autoComplete="given-name"
+              autoFocus
+              required
+              minLength={MIN_NAME_LENGTH}
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              className="rounded-md px-2 py-2.5 text-xs bg-gray-100 border border-black/15"
+              placeholder="Jane"
+            />
+            <label
+              htmlFor="register-last-name"
+              className="text-sm font-medium mt-3 mb-1.5"
+            >
+              Last name
+            </label>
+            <input
+              type="text"
+              id="register-last-name"
+              autoComplete="family-name"
+              required
+              minLength={MIN_NAME_LENGTH}
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              className="rounded-md px-2 py-2.5 text-xs bg-gray-100 border border-black/15"
+              placeholder="Doe"
+            />
+            <label
+              htmlFor="register-email"
+              className="text-sm font-medium mt-3 mb-1.5"
             >
               Email
             </label>
@@ -43,7 +113,7 @@ function RouteComponent() {
               type="email"
               id="register-email"
               autoComplete="email"
-              autoFocus
+              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="rounded-md px-2 py-2.5 text-xs bg-gray-100 border border-black/15"
@@ -59,6 +129,7 @@ function RouteComponent() {
               type="password"
               id="register-password"
               autoComplete="new-password"
+              required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="rounded-md px-2 py-2.5 text-xs bg-gray-100 border border-black/15"
@@ -74,6 +145,7 @@ function RouteComponent() {
               type="password"
               id="register-confirm-password"
               autoComplete="new-password"
+              required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               className="rounded-md px-2 py-2.5 mb-3 text-xs bg-gray-100 border border-black/15"
@@ -94,21 +166,7 @@ function RouteComponent() {
                 </Link>
               </p>
             </div>
-            {/* <div className="flex items-center my-4">
-              <div className="flex-1 h-px bg-black/15" />
-              <span className="px-3 text-xs text-gray-500">
-                or continue with
-              </span>
-              <div className="flex-1 h-px bg-black/15" />
-            </div>
-
-            <button
-              type="button"
-              className="w-full rounded-md border border-black/15 bg-white py-2.5 text-sm font-medium hover:bg-gray-50"
-            >
-              Continue with Google
-            </button> */}
-          </div>
+          </form>
         </div>
       </LoginLayout>
     </>
