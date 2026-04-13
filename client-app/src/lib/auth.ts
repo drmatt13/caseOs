@@ -1,3 +1,4 @@
+import { createIsomorphicFn } from "@tanstack/react-start";
 import { redirect } from "@tanstack/react-router";
 import { UserSchema } from "#/schemas/user";
 import type { User } from "#/schemas/user";
@@ -69,14 +70,12 @@ function getUserFromIdToken(idToken: string | undefined): User | null {
   }
 }
 
-async function getCookieHeader(): Promise<string | undefined> {
-  if (typeof document !== "undefined") {
-    return document.cookie;
-  }
-
-  const { getRequest } = await import("@tanstack/react-start/server");
-  return getRequest().headers.get("cookie") ?? undefined;
-}
+const getCookieHeader = createIsomorphicFn()
+  .client(() => document.cookie)
+  .server(async () => {
+    const { getRequest } = await import("@tanstack/react-start/server");
+    return getRequest().headers.get("cookie") ?? undefined;
+  });
 
 function hasCognitoCredentials(cookies: Record<string, string>): boolean {
   return ["idToken", "accessToken", "refreshToken"].every((cookieName) =>

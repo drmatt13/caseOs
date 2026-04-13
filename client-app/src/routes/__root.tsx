@@ -44,14 +44,14 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
       </head>
-      <body className="bg-gray-100 font-geist antialiased mx-auto h-dvh flex flex-col text-black max-w-4xl w-full pt-16 text-sm">
+      <body className="bg-gray-100 font-geist antialiased mx-auto h-dvh text-black text-sm">
         <SettingsContext.Provider
           value={{ showSettingsModal, setShowSettingsModal }}
         >
           <SettingsModal />
           {children}
         </SettingsContext.Provider>
-        <TanStackDevtools
+        {/* <TanStackDevtools
           config={{
             position: "bottom-right",
           }}
@@ -61,7 +61,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               render: <TanStackRouterDevtoolsPanel />,
             },
           ]}
-        />
+        /> */}
         <Scripts />
       </body>
     </html>
