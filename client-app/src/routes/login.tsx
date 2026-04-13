@@ -1,12 +1,7 @@
 import { useState } from "react";
 import type { SubmitEvent } from "react";
 import { Link, createFileRoute, redirect } from "@tanstack/react-router";
-import {
-  ArrowRight,
-  BrainCircuit,
-  Network,
-  ShieldCheck,
-} from "lucide-react";
+import { ArrowRight, BrainCircuit, Network, ShieldCheck } from "lucide-react";
 
 import { verifyUser } from "#/lib/auth";
 
@@ -143,9 +138,7 @@ function RouteComponent() {
             </div>
 
             {status ? (
-              <p className="text-[0.82rem] leading-5 text-black/42">
-                {status}
-              </p>
+              <p className="text-[0.82rem] leading-5 text-black/42">{status}</p>
             ) : null}
 
             <button
