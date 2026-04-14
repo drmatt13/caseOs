@@ -27,8 +27,8 @@ function RouteComponent() {
             id="forgot-password-form"
             className="flex flex-col px-5 pt-8 pb-5 border-mist-400 shadow-md rounded-2xl bg-white"
           >
-            <p className="text-3xl font-bold">Reset your password</p>
-            <p className="mt-1 text-sm text-gray-600">
+            <p className="text-[1.7rem] font-bold">Reset your password</p>
+            <p className="mt-0.5 text-sm text-gray-600">
               Enter your email and we'll send you reset instructions
             </p>
             <label

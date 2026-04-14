@@ -71,7 +71,7 @@ services:
       retries: 10
 
   pgbouncer:
-    image: edoburu/pgbouncer:1.23.1
+    image: edoburu/pgbouncer:v1.25.1-p0
     container_name: local-pgbouncer
     restart: unless-stopped
     environment:

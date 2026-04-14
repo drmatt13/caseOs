@@ -1,12 +1,20 @@
 import { useState } from "react";
 import type { SubmitEvent } from "react";
-import { Link, createFileRoute, redirect } from "@tanstack/react-router";
+import {
+  Link,
+  createFileRoute,
+  redirect,
+  useNavigate,
+} from "@tanstack/react-router";
 import Button from "#/components/Button";
 import LoginLayout from "#/components/layouts/LoginLayout";
 
-import { verifyUser } from "#/lib/auth";
+import { verifyUser, signUpUser } from "#/lib/auth";
 
 const MIN_NAME_LENGTH = 2;
+const PASSWORD_POLICY_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+const PASSWORD_POLICY_MESSAGE =
+  "Password must be at least 8 characters and include at least one uppercase letter, one lowercase letter, and one number.";
 
 export const Route = createFileRoute("/register")({
   beforeLoad: async () => {
@@ -19,6 +27,7 @@ export const Route = createFileRoute("/register")({
 });
 
 function RouteComponent() {
+  const navigate = useNavigate();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -26,7 +35,7 @@ function RouteComponent() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [status, setStatus] = useState<string | null>(null);
 
-  const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const trimmedFirstName = firstName.trim();
@@ -52,7 +61,28 @@ function RouteComponent() {
       return;
     }
 
+    if (!PASSWORD_POLICY_REGEX.test(password)) {
+      setStatus(PASSWORD_POLICY_MESSAGE);
+      return;
+    }
+
     setStatus(null);
+    try {
+      await signUpUser(
+        email.trim(),
+        password,
+        trimmedFirstName,
+        trimmedLastName,
+      );
+      alert(
+        `Account created successfully. Please confirm your account using the verification email sent to ${email.trim()} before signing in.`,
+      );
+      await navigate({ to: "/login" });
+    } catch (error) {
+      setStatus(
+        error instanceof Error ? error.message : "Failed to create account.",
+      );
+    }
   };
 
   return (
@@ -64,8 +94,8 @@ function RouteComponent() {
             onSubmit={handleSubmit}
             className="flex flex-col px-5 pt-8 pb-5 border-mist-400 shadow-md rounded-2xl bg-white"
           >
-            <p className="text-3xl font-bold">Create your account</p>
-            <p className="mt-1 text-sm text-gray-600">
+            <p className="text-[1.7rem] font-bold">Create your account</p>
+            <p className="mt-0.5 text-sm text-gray-600">
               Get started with your workspace
             </p>
             <label
@@ -130,6 +160,8 @@ function RouteComponent() {
               id="register-password"
               autoComplete="new-password"
               required
+              pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}"
+              title={PASSWORD_POLICY_MESSAGE}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="rounded-md px-2 py-2.5 text-xs bg-gray-100 border border-black/15"
@@ -146,6 +178,8 @@ function RouteComponent() {
               id="register-confirm-password"
               autoComplete="new-password"
               required
+              pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}"
+              title={PASSWORD_POLICY_MESSAGE}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               className="rounded-md px-2 py-2.5 mb-3 text-xs bg-gray-100 border border-black/15"

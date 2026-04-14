@@ -8,7 +8,7 @@ interface LoginLayoutProps {
 const LoginLayout = ({ children }: LoginLayoutProps) => {
   return (
     <>
-      <div className="mx-auto h-dvh flex flex-col gap-6 pb-16 /px-8 font-sans max-w-5xl w-full pt-48">
+      <div className="mx-auto h-dvh flex flex-col gap-6 pb-16 /px-8 font-sans max-w-5xl w-full pt-24">
         <div className="flex gap-6">
           <LoginLeftMenu />
           {children}

@@ -4,7 +4,7 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as nodejs from "aws-cdk-lib/aws-lambda-nodejs";
 import * as path from "path";
 
-export class LambdaHandlersStack extends cdk.Stack {
+export class ApiGatewayLambdaFunctionsStack extends cdk.Stack {
   public readonly testFunction1: nodejs.NodejsFunction;
   public readonly testFunction2: nodejs.NodejsFunction;
 

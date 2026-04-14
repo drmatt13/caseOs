@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 import * as cdk from "aws-cdk-lib";
+import { CognitoLambdaFunctionsStack } from "../lib/cognito-lambda-functions-stack";
 import { CognitoStack } from "../lib/cognito-stack";
-// import { LambdaHandlersStack } from "../lib/lambda-handlers-stack";
+// import { ApiGatewayLambdaFunctionsStack } from "../lib/api-gateway-lambda-functions-stack";
 // import { EcsStack } from "../lib/ecs-stack";
 // import { ApiStack } from "../lib/api-stack";
 
@@ -23,6 +24,20 @@ const stackEnv: cdk.Environment = {
 
 const stage = app.node.tryGetContext("stage") ?? "dev";
 const isProduction = stage === "prod";
+const frontendUrl =
+  app.node.tryGetContext("frontendUrl") ??
+  process.env.FRONTEND_URL ??
+  "http://localhost:3000";
+
+// Create Cognito Lambda Functions Stack
+const cognitoLambdaFunctionsStack = new CognitoLambdaFunctionsStack(
+  app,
+  "CognitoLambdaFunctionsStack",
+  {
+    env: stackEnv,
+    frontendUrl,
+  },
+);
 
 // Create Cognito User Pool + Client + Identity Pool
 const cognitoStack = new CognitoStack(app, "CognitoStack", {
@@ -30,10 +45,12 @@ const cognitoStack = new CognitoStack(app, "CognitoStack", {
   isProduction,
   googleClientId: undefined,
   googleClientSecret: undefined,
+  cognitoLambdaFunctionsStack,
 });
+cognitoStack.addDependency(cognitoLambdaFunctionsStack);
 
-// Create handlers stack first (without API details) ** Lambda Functions
-// const handlersStack = new LambdaHandlersStack(app, "LambdaHandlersStack", {
+// Create API Gateway Lambda Functions Stack
+// const apiGatewayLambdaFunctionsStack = new ApiGatewayLambdaFunctionsStack(app, "ApiGatewayLambdaFunctionsStack", {
 //   env: stackEnv,
 // });
 
@@ -45,11 +62,11 @@ const cognitoStack = new CognitoStack(app, "CognitoStack", {
 // Create API stack ** API Gateway with Lambda and ECS integrations
 // const apiStack = new ApiStack(app, "ApiStack", {
 // env: stackEnv,
-// testFunction1: handlersStack.testFunction1,
-// testFunction2: handlersStack.testFunction2,
+// testFunction1: apiGatewayLambdaFunctionsStack.testFunction1,
+// testFunction2: apiGatewayLambdaFunctionsStack.testFunction2,
 // testContainer1Url: ecsStack.testContainer1Url,
 // testContainer2Url: ecsStack.testContainer2Url,
 // });
 
-// apiStack.addDependency(handlersStack);
+// apiStack.addDependency(apiGatewayLambdaFunctionsStack);
 // apiStack.addDependency(ecsStack);

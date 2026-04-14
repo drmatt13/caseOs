@@ -28,8 +28,8 @@ function RouteComponent() {
             id="login-form"
             className="flex flex-col px-5 pt-8 pb-5 border-mist-400 shadow-md rounded-2xl bg-white"
           >
-            <p className="text-3xl font-bold">Welcome back</p>
-            <p className="mt-1 text-sm text-gray-600">
+            <p className="text-[1.7rem] font-bold">Welcome back</p>
+            <p className="mt-0.5 text-sm text-gray-600">
               Sign in to your workspace
             </p>
             <label htmlFor="email" className="text-sm font-medium mt-5 mb-1.5">
