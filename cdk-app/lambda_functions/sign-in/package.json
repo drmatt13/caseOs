@@ -1,7 +1,7 @@
 {
-  "name": "hello_world",
+  "name": "sgn-in",
   "version": "1.0.0",
-  "description": "hello world sample for NodeJS",
+  "description": "A Lambda function to handle user sign-in.",
   "main": "index.js",
   "repository": "",
   "author": "Matthew Sweeney",

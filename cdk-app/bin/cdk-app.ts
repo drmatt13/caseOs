@@ -2,9 +2,9 @@
 import * as cdk from "aws-cdk-lib";
 import { CognitoLambdaFunctionsStack } from "../lib/cognito-lambda-functions-stack";
 import { CognitoStack } from "../lib/cognito-stack";
-// import { ApiGatewayLambdaFunctionsStack } from "../lib/api-gateway-lambda-functions-stack";
+import { ApiGatewayLambdaFunctionsStack } from "../lib/api-gateway-lambda-functions-stack";
 // import { EcsStack } from "../lib/ecs-stack";
-// import { ApiStack } from "../lib/api-stack";
+import { ApiStack } from "../lib/api-stack";
 
 const app = new cdk.App();
 
@@ -50,9 +50,14 @@ const cognitoStack = new CognitoStack(app, "CognitoStack", {
 cognitoStack.addDependency(cognitoLambdaFunctionsStack);
 
 // Create API Gateway Lambda Functions Stack
-// const apiGatewayLambdaFunctionsStack = new ApiGatewayLambdaFunctionsStack(app, "ApiGatewayLambdaFunctionsStack", {
-//   env: stackEnv,
-// });
+const apiGatewayLambdaFunctionsStack = new ApiGatewayLambdaFunctionsStack(
+  app,
+  "ApiGatewayLambdaFunctionsStack",
+  {
+    env: stackEnv,
+  },
+);
+apiGatewayLambdaFunctionsStack.addDependency(cognitoLambdaFunctionsStack);
 
 // Create ECS stack next (without API details) ** ECS Containers
 // const ecsStack = new EcsStack(app, "EcsStack", {
@@ -60,13 +65,13 @@ cognitoStack.addDependency(cognitoLambdaFunctionsStack);
 // });
 
 // Create API stack ** API Gateway with Lambda and ECS integrations
-// const apiStack = new ApiStack(app, "ApiStack", {
-// env: stackEnv,
-// testFunction1: apiGatewayLambdaFunctionsStack.testFunction1,
-// testFunction2: apiGatewayLambdaFunctionsStack.testFunction2,
-// testContainer1Url: ecsStack.testContainer1Url,
-// testContainer2Url: ecsStack.testContainer2Url,
-// });
+const apiStack = new ApiStack(app, "ApiStack", {
+  env: stackEnv,
+  signIn: apiGatewayLambdaFunctionsStack.signIn,
+  verifyUser: apiGatewayLambdaFunctionsStack.verifyUser,
+  // testContainer1Url: ecsStack.testContainer1Url,
+  // testContainer2Url: ecsStack.testContainer2Url,
+});
 
-// apiStack.addDependency(apiGatewayLambdaFunctionsStack);
+apiStack.addDependency(apiGatewayLambdaFunctionsStack);
 // apiStack.addDependency(ecsStack);

@@ -5,8 +5,8 @@ import * as integrations from "aws-cdk-lib/aws-apigatewayv2-integrations";
 import { IFunction } from "aws-cdk-lib/aws-lambda";
 
 export interface ApiStackProps extends cdk.StackProps {
-  testFunction1: IFunction;
-  testFunction2: IFunction;
+  signIn: IFunction;
+  verifyUser: IFunction;
   // testContainer1Url: string;
   // testContainer2Url: string;
 }
@@ -21,20 +21,20 @@ export class ApiStack extends cdk.Stack {
     });
 
     api.addRoutes({
-      path: "/test-function-1",
+      path: "/sign-in",
       methods: [apigwv2.HttpMethod.ANY],
       integration: new integrations.HttpLambdaIntegration(
-        "TestFunction1Integration",
-        props.testFunction1,
+        "SignInIntegration",
+        props.signIn,
       ),
     });
 
     api.addRoutes({
-      path: "/test-function-2",
+      path: "/verify-user",
       methods: [apigwv2.HttpMethod.ANY],
       integration: new integrations.HttpLambdaIntegration(
-        "TestFunction2Integration",
-        props.testFunction2,
+        "VerifyUserIntegration",
+        props.verifyUser,
       ),
     });
 
