@@ -14,7 +14,11 @@ const SettingsModal = () => {
   const handleLogout = async () => {
     logout();
     setShowSettingsModal(false);
-    await navigate({ to: "/login", replace: true });
+    await navigate({
+      to: "/login",
+      replace: true,
+      search: { email: undefined, "account-verified": undefined },
+    });
   };
 
   return (

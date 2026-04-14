@@ -5,6 +5,7 @@ import {
   ConfirmSignUpCommand,
   CognitoIdentityProviderClient,
   CognitoIdentityProviderServiceException,
+  ResendConfirmationCodeCommand,
   SignUpCommand,
 } from "@aws-sdk/client-cognito-identity-provider";
 import type { User } from "#/schemas/user";
@@ -128,7 +129,11 @@ export async function verifyUser(): Promise<{ user: User | null }> {
 export async function requireAuth() {
   const { user } = await verifyUser();
   if (!user) {
-    throw redirect({ to: "/login" });
+    throw redirect({
+      to: "/login",
+      replace: true,
+      search: { email: undefined, "account-verified": undefined },
+    });
   }
   return { user };
 }
@@ -209,6 +214,12 @@ function mapConfirmSignUpError(error: unknown): string {
       return "Invalid verification code. Please try again.";
     case "ExpiredCodeException":
       return "Verification code has expired. Please request a new one.";
+    case "TooManyFailedAttemptsException":
+      return "Attempt limit exceeded. Please wait a few minutes and try again.";
+    case "LimitExceededException":
+      return "Attempt limit exceeded. Please request a new code and try again shortly.";
+    case "TooManyRequestsException":
+      return "Too many requests. Please wait a moment and try again.";
     case "NotAuthorizedException":
       return "Your account is already verified. Please sign in.";
     case "UserNotFoundException":
@@ -218,10 +229,26 @@ function mapConfirmSignUpError(error: unknown): string {
   }
 }
 
-export async function confirmSignUpUser(email: string, code: string) {
+function mapResendCodeError(error: unknown): string {
+  if (!(error instanceof CognitoIdentityProviderServiceException)) {
+    return "Failed to resend verification code.";
+  }
+
+  switch (error.name) {
+    case "TooManyRequestsException":
+    case "LimitExceededException":
+      return "Too many resend attempts. Please wait a bit before trying again.";
+    case "UserNotFoundException":
+      return "Account not found. Please register first.";
+    default:
+      return error.message || "Failed to resend verification code.";
+  }
+}
+
+export async function confirmSignUpUser(usernameOrEmail: string, code: string) {
   const command = new ConfirmSignUpCommand({
     ClientId: import.meta.env.VITE_USER_POOL_CLIENT_ID,
-    Username: email.trim().toLowerCase(),
+    Username: usernameOrEmail.trim().toLowerCase(),
     ConfirmationCode: code.trim(),
   });
 
@@ -230,5 +257,19 @@ export async function confirmSignUpUser(email: string, code: string) {
   } catch (error) {
     console.error("Raw Cognito confirm-signup error:", error);
     throw new Error(mapConfirmSignUpError(error));
+  }
+}
+
+export async function resendConfirmationCodeUser(usernameOrEmail: string) {
+  const command = new ResendConfirmationCodeCommand({
+    ClientId: import.meta.env.VITE_USER_POOL_CLIENT_ID,
+    Username: usernameOrEmail.trim().toLowerCase(),
+  });
+
+  try {
+    return await cognitoClient.send(command);
+  } catch (error) {
+    console.error("Raw Cognito resend-code error:", error);
+    throw new Error(mapResendCodeError(error));
   }
 }

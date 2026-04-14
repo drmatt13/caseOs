@@ -77,7 +77,10 @@ function RouteComponent() {
       alert(
         `Account created successfully. Please confirm your account using the verification email sent to ${email.trim()} before signing in.`,
       );
-      await navigate({ to: "/login" });
+      await navigate({
+        to: "/login",
+        search: { email: undefined, "account-verified": undefined },
+      });
     } catch (error) {
       setStatus(
         error instanceof Error ? error.message : "Failed to create account.",
@@ -195,7 +198,11 @@ function RouteComponent() {
             <div className="mt-4 text-gray-500 flex w-full justify-center">
               <p>
                 Already have an account?{" "}
-                <Link to="/login" className="text-blue-600 hover:underline">
+                <Link
+                  to="/login"
+                  search={{ email: undefined, "account-verified": undefined }}
+                  className="text-blue-600 hover:underline"
+                >
                   Sign in
                 </Link>
               </p>

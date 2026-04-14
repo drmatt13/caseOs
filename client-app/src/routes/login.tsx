@@ -1,5 +1,4 @@
-import { useState } from "react";
-import type { SubmitEvent } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, createFileRoute, redirect } from "@tanstack/react-router";
 import Button from "#/components/Button";
 import LoginLayout from "#/components/layouts/LoginLayout";
@@ -11,14 +10,35 @@ export const Route = createFileRoute("/login")({
     const { user } = await verifyUser();
     if (user) throw redirect({ to: "/" });
   },
+  validateSearch: (search) => {
+    const email = typeof search.email === "string" ? search.email : undefined;
+    const accountVerified =
+      search["account-verified"] === true ||
+      search["account-verified"] === "true";
+
+    return {
+      email,
+      "account-verified": accountVerified ? true : undefined,
+    };
+  },
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const [email, setEmail] = useState("");
+  const { email: userEmail, "account-verified": accountVerified } =
+    Route.useSearch();
+  const passwordInputRef = useRef<HTMLInputElement | null>(null);
+
+  const [email, setEmail] = useState(userEmail ?? "");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<string | null>(null);
   const [rememberMe, setRememberMe] = useState(false);
+
+  useEffect(() => {
+    if (accountVerified) {
+      passwordInputRef.current?.focus();
+    }
+  }, [accountVerified]);
 
   return (
     <>
@@ -32,6 +52,11 @@ function RouteComponent() {
             <p className="mt-0.5 text-sm text-gray-600">
               Sign in to your workspace
             </p>
+            {accountVerified && (
+              <p className="mt-3 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
+                Account verified successfully. You can sign in now.
+              </p>
+            )}
             <label htmlFor="email" className="text-sm font-medium mt-5 mb-1.5">
               Email
             </label>
@@ -52,6 +77,7 @@ function RouteComponent() {
             <input
               type="password"
               id="password"
+              ref={passwordInputRef}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="rounded-md px-2 py-2.5 mb-3 text-xs bg-gray-100 border border-black/15"
