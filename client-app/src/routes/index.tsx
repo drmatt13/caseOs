@@ -18,10 +18,10 @@ function App() {
     <AppLayout>
       <LeftPanelLayout>
         <UserPanel user={user} settings={true} />
-        <div className="text-xs flex gap-1.5 items-center">
+        <div className="text-xs">
           <p className="truncate">Select Workspace</p>
         </div>
-        <div className="text-xs flex gap-1.5 items-center">
+        <div className="text-xs flex gap-1.5 mb-0.5 items-center">
           <select
             className="rounded-lg px-2 py-2.5 /mx-2 text-xs bg-gray-100 border border-black/15"
             name="Workspace"

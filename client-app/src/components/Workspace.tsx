@@ -1,8 +1,14 @@
-import React from "react";
-import { PlusIcon, Settings, MessageSquare, Mail } from "lucide-react";
+// import React from "react";
+import {
+  PlusIcon,
+  Settings,
+  MessageSquare,
+  Mail,
+  UserPlus,
+} from "lucide-react";
 import UserPanel from "./menus/UserPanel";
 
-import Button from "./Button";
+// import Button from "./Button";
 
 const Workspace = () => {
   return (
@@ -22,7 +28,8 @@ const Workspace = () => {
             <div>Invites</div>
           </div>
         </div>
-        <div className="p-1.5 hover:bg-mist-300/60 rounded-lg cursor-pointer">
+        <div className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer">
+          {/* ONLY IF YOU ARE THE WORKSPACE OWNER SHOULD YOU SEE THIS */}
           <Settings className="w-5 h-5 text-black" />
         </div>
       </div>
@@ -33,7 +40,7 @@ const Workspace = () => {
           and housing-related legal matters. Members can collaborate on case
           files, share documents, and communicate about ongoing proceedings.
         </p>
-        <p className="text-md font-medium text-black/70 pb-1">
+        {/* <p className="text-md font-medium text-black/75 pb-1">
           Workspace Owner
         </p>
         <div className="pl-2">
@@ -46,11 +53,11 @@ const Workspace = () => {
               email: "john.doe@example.com",
             }}
           />
-        </div>
-        <div className="mt-2.5 pb-1 flex justify-between">
-          <p className="text-md font-medium text-black/70">Members (6)</p>
+        </div> */}
+        <div className="mt-2 pb-1 flex justify-between">
+          <p className="text-md font-medium text-black/75">Members (6)</p>
           <div className="text-xs p-2 rounded-lg hover:bg-mist-300/60 cursor-pointer flex items-center gap-1.5 text-black border border-black/15">
-            <PlusIcon className="w-3.5 h-3.5" />
+            <UserPlus className="w-3.5 h-3.5" />
             <div>Onboard Members</div>
           </div>
         </div>
