@@ -13,6 +13,9 @@ export interface CognitoStackProps extends cdk.StackProps {
 }
 
 export class CognitoStack extends cdk.Stack {
+  public readonly userPoolId: string;
+  public readonly userPoolClientId: string;
+
   constructor(scope: Construct, id: string, props: CognitoStackProps) {
     super(scope, id, props);
 
@@ -122,7 +125,7 @@ export class CognitoStack extends cdk.Stack {
 
       authFlows: {
         userSrp: true,
-        userPassword: false,
+        userPassword: true,
         adminUserPassword: false,
         custom: false,
       },
@@ -149,6 +152,9 @@ export class CognitoStack extends cdk.Stack {
     if (googleProvider) {
       userPoolClient.node.addDependency(googleProvider);
     }
+
+    this.userPoolId = userPool.userPoolId;
+    this.userPoolClientId = userPoolClient.userPoolClientId;
 
     new cdk.CfnOutput(this, "UserPoolId", {
       value: userPool.userPoolId,

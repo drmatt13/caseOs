@@ -22,7 +22,7 @@ function RouteComponent() {
   return (
     <>
       <LoginLayout>
-        <div className="flex flex-col w-md">
+        <div className="flex flex-col w-sm">
           <div
             id="forgot-password-form"
             className="flex flex-col px-5 pt-8 pb-5 border-mist-400 shadow-md rounded-2xl bg-white"
@@ -61,7 +61,14 @@ function RouteComponent() {
             <div className="mt-4 text-gray-500 flex w-full justify-center">
               <p>
                 Remember your password?{" "}
-                <Link to="/login" className="text-blue-600 hover:underline">
+                <Link
+                  to="/login"
+                  search={{
+                    "account-verified": undefined,
+                    email: undefined,
+                  }}
+                  className="text-blue-600 hover:underline"
+                >
                   Back to login
                 </Link>
               </p>

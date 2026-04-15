@@ -4,8 +4,9 @@ import cors from "cors";
 import invokeLambdaFunction from "../lib/invokeLambdaFunction";
 import proxyToContainer from "../lib/proxyToContainer";
 
-// Import Lambda function handlers
+// Lambda Functions
 import { lambdaHandler as signIn } from "../../cdk-app/lambda_functions/sign-in/index";
+import { lambdaHandler as signOut } from "../../cdk-app/lambda_functions/sign-out/index";
 import { lambdaHandler as verifyUser } from "../../cdk-app/lambda_functions/verify-user/index";
 
 dotenv.config({
@@ -42,11 +43,15 @@ app.get("/", (req, res) => {
 });
 
 // Lambda function routes
-app.all("/sign-in", (req, res) => {
+app.all("/sign-in", async (req, res) => {
   return invokeLambdaFunction(req, res, signIn);
 });
-app.all("/verify-user", (req, res) => {
+app.all("/verify-user", async (req, res) => {
   return invokeLambdaFunction(req, res, verifyUser);
+});
+
+app.all("/sign-out", async (req, res) => {
+  return invokeLambdaFunction(req, res, signOut);
 });
 
 // ECS container routes

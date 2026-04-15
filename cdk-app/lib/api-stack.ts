@@ -6,7 +6,9 @@ import { IFunction } from "aws-cdk-lib/aws-lambda";
 
 export interface ApiStackProps extends cdk.StackProps {
   signIn: IFunction;
+  signOut: IFunction;
   verifyUser: IFunction;
+  frontendUrl: string;
   // testContainer1Url: string;
   // testContainer2Url: string;
 }
@@ -18,6 +20,16 @@ export class ApiStack extends cdk.Stack {
     const api = new apigwv2.HttpApi(this, "HttpApi", {
       apiName: "LocalDevKitHttpApi",
       createDefaultStage: true,
+      corsPreflight: {
+        allowOrigins: [props.frontendUrl],
+        allowMethods: [
+          apigwv2.CorsHttpMethod.GET,
+          apigwv2.CorsHttpMethod.POST,
+          apigwv2.CorsHttpMethod.OPTIONS,
+        ],
+        allowHeaders: ["Content-Type", "Authorization"],
+        allowCredentials: true,
+      },
     });
 
     api.addRoutes({
@@ -26,6 +38,15 @@ export class ApiStack extends cdk.Stack {
       integration: new integrations.HttpLambdaIntegration(
         "SignInIntegration",
         props.signIn,
+      ),
+    });
+
+    api.addRoutes({
+      path: "/sign-out",
+      methods: [apigwv2.HttpMethod.ANY],
+      integration: new integrations.HttpLambdaIntegration(
+        "SignOutIntegration",
+        props.signOut,
       ),
     });
 

@@ -55,9 +55,11 @@ const apiGatewayLambdaFunctionsStack = new ApiGatewayLambdaFunctionsStack(
   "ApiGatewayLambdaFunctionsStack",
   {
     env: stackEnv,
+    userPoolId: cognitoStack.userPoolId,
+    userPoolClientId: cognitoStack.userPoolClientId,
   },
 );
-apiGatewayLambdaFunctionsStack.addDependency(cognitoLambdaFunctionsStack);
+apiGatewayLambdaFunctionsStack.addDependency(cognitoStack);
 
 // Create ECS stack next (without API details) ** ECS Containers
 // const ecsStack = new EcsStack(app, "EcsStack", {
@@ -68,7 +70,9 @@ apiGatewayLambdaFunctionsStack.addDependency(cognitoLambdaFunctionsStack);
 const apiStack = new ApiStack(app, "ApiStack", {
   env: stackEnv,
   signIn: apiGatewayLambdaFunctionsStack.signIn,
+  signOut: apiGatewayLambdaFunctionsStack.signOut,
   verifyUser: apiGatewayLambdaFunctionsStack.verifyUser,
+  frontendUrl,
   // testContainer1Url: ecsStack.testContainer1Url,
   // testContainer2Url: ecsStack.testContainer2Url,
 });

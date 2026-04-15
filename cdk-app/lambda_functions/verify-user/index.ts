@@ -3,14 +3,12 @@ import {
   APIGatewayProxyEventV2,
   APIGatewayProxyResult,
 } from "aws-lambda";
+import {
+  CognitoIdentityProviderClient,
+  GetUserCommand,
+} from "@aws-sdk/client-cognito-identity-provider";
 
-interface User {
-  id: string;
-  email: string;
-  userName: string;
-  firstName: string;
-  lastName: string;
-}
+const cognito = new CognitoIdentityProviderClient({});
 
 function parseCookies(
   cookieHeader: string | undefined,
@@ -24,71 +22,73 @@ function parseCookies(
   );
 }
 
+function attr(
+  attrs: { Name?: string; Value?: string }[] | undefined,
+  name: string,
+): string {
+  return attrs?.find((a) => a.Name === name)?.Value ?? "";
+}
+
 export const lambdaHandler = async (
   event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResult> => {
-  // TODO: Replace mock decode with real Cognito token verification via JWKS
+  const method =
+    "httpMethod" in event
+      ? event.httpMethod
+      : event.requestContext?.http?.method;
+
+  if (method === "OPTIONS") {
+    return { statusCode: 204, body: "" };
+  }
 
   const cookieHeader = event.headers?.cookie || event.headers?.Cookie;
   const cookies = parseCookies(cookieHeader);
-  const idToken = cookies["idToken"];
+  const accessToken = cookies["accessToken"];
 
-  if (!idToken) {
+  if (!accessToken) {
     return {
       statusCode: 401,
-      body: JSON.stringify({ success: false, error: "Missing idToken" }),
+      body: JSON.stringify({ success: false, error: "Missing accessToken" }),
     };
   }
 
-  // Mock decode: real Cognito tokens are JWTs verified against the JWKS endpoint
   try {
-    const parts = idToken.split(".");
-    if (parts.length !== 3) {
-      return {
-        statusCode: 401,
-        body: JSON.stringify({ success: false, error: "Malformed token" }),
-      };
-    }
-
-    const payload = JSON.parse(
-      Buffer.from(parts[1], "base64").toString("utf-8"),
+    const result = await cognito.send(
+      new GetUserCommand({ AccessToken: accessToken }),
     );
 
-    // TODO: Verify signature against Cognito JWKS, check exp, iss, aud, token_use
-    if (payload.token_use !== "id") {
-      return {
-        statusCode: 401,
-        body: JSON.stringify({
-          success: false,
-          error: "Invalid token_use, expected id token",
-        }),
-      };
-    }
-
-    const now = Math.floor(Date.now() / 1000);
-    if (payload.exp && payload.exp < now) {
-      return {
-        statusCode: 401,
-        body: JSON.stringify({ success: false, error: "Token expired" }),
-      };
-    }
-
-    const user: User = {
-      id: payload.sub,
-      userName: payload["cognito:username"],
-      firstName: payload.given_name ?? "",
-      lastName: payload.family_name ?? "",
-      email: payload.email,
+    const user = {
+      id: attr(result.UserAttributes, "sub"),
+      email: attr(result.UserAttributes, "email"),
+      userName: result.Username ?? "",
+      firstName: attr(result.UserAttributes, "given_name"),
+      lastName: attr(result.UserAttributes, "family_name"),
     };
 
     return {
       statusCode: 200,
       body: JSON.stringify({ success: true, user }),
     };
-  } catch (e) {
+  } catch (error: unknown) {
+    const err = error as { name?: string };
+
+    if (
+      err.name === "NotAuthorizedException" ||
+      err.name === "UserNotFoundException"
+    ) {
+      return {
+        statusCode: 401,
+        body: JSON.stringify({
+          success: false,
+          error: "Invalid or expired token",
+        }),
+      };
+    }
+
+    console.error("Verify-user error:", error);
     return {
-      statusCode: 401,
-      body: JSON.stringify({ success: false, error: "Invalid token" }),
+      statusCode: 500,
+      body: JSON.stringify({ success: false, error: "Internal server error" }),
     };
   }
 };

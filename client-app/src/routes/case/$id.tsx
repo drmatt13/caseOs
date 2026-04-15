@@ -15,12 +15,11 @@ export const Route = createFileRoute("/case/$id")({
 function RouteComponent() {
   const { id } = Route.useParams();
   const { user } = Route.useRouteContext();
-  // router
 
   return (
     <AppLayout>
       <LeftPanelLayout>
-        <UserPanel user={user} />
+        <UserPanel user={user} settings={true} />
         <div className="text-xs flex gap-1.5 items-center">
           <Link to="/">
             <div className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer">

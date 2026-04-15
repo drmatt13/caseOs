@@ -4,6 +4,7 @@ import AppLayout from "#/components/layouts/AppLayout";
 import LeftPanelLayout from "#/components/layouts/LeftPanelLayout";
 import SelectCaseMenu from "#/components/menus/SelectCaseMenu";
 import UserPanel from "#/components/menus/UserPanel";
+import Workspace from "#/components/Workspace";
 
 export const Route = createFileRoute("/")({
   beforeLoad: requireAuth,
@@ -16,7 +17,7 @@ function App() {
   return (
     <AppLayout>
       <LeftPanelLayout>
-        <UserPanel user={user} />
+        <UserPanel user={user} settings={true} />
         <div className="text-xs flex gap-1.5 items-center">
           <p className="truncate">Select Workspace</p>
         </div>
@@ -33,6 +34,7 @@ function App() {
         </div>
         <SelectCaseMenu />
       </LeftPanelLayout>
+      <Workspace />
     </AppLayout>
   );
 }

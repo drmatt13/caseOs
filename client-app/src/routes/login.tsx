@@ -1,9 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, createFileRoute, redirect } from "@tanstack/react-router";
+import {
+  Link,
+  createFileRoute,
+  redirect,
+  useNavigate,
+} from "@tanstack/react-router";
 import Button from "#/components/Button";
 import LoginLayout from "#/components/layouts/LoginLayout";
 
-import { verifyUser } from "#/lib/auth";
+import { signInUser, verifyUser } from "#/lib/auth";
 
 export const Route = createFileRoute("/login")({
   beforeLoad: async () => {
@@ -27,11 +32,13 @@ export const Route = createFileRoute("/login")({
 function RouteComponent() {
   const { email: userEmail, "account-verified": accountVerified } =
     Route.useSearch();
+  const navigate = useNavigate();
   const passwordInputRef = useRef<HTMLInputElement | null>(null);
 
   const [email, setEmail] = useState(userEmail ?? "");
   const [password, setPassword] = useState("");
-  const [status, setStatus] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
   useEffect(() => {
@@ -40,11 +47,33 @@ function RouteComponent() {
     }
   }, [accountVerified]);
 
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      const result = await signInUser(email, password);
+
+      if (!result.success) {
+        setError(result.error ?? "Sign in failed");
+        return;
+      }
+
+      await navigate({ to: "/" });
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return (
     <>
       <LoginLayout>
-        <div className="flex flex-col w-md">
-          <div
+        <div className="flex flex-col w-sm">
+          <form
+            onSubmit={handleSubmit}
             id="login-form"
             className="flex flex-col px-5 pt-8 pb-5 border-mist-400 shadow-md rounded-2xl bg-white"
           >
@@ -55,6 +84,11 @@ function RouteComponent() {
             {accountVerified && (
               <p className="mt-3 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
                 Account verified successfully. You can sign in now.
+              </p>
+            )}
+            {error && (
+              <p className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+                {error}
               </p>
             )}
             <label htmlFor="email" className="text-sm font-medium mt-5 mb-1.5">
@@ -103,7 +137,12 @@ function RouteComponent() {
                 Forgot password?
               </Link>
             </div>
-            <Button submit={true} text="Login" style="primary" />
+            <Button
+              submit={true}
+              text={isSubmitting ? "Signing in..." : "Login"}
+              style="primary"
+              disabled={isSubmitting}
+            />
             {/* dont have an account? register now */}
             <div className="mt-4 text-gray-500 flex w-full justify-center">
               <p>
@@ -127,7 +166,7 @@ function RouteComponent() {
             >
               Continue with Google
             </button>
-          </div>
+          </form>
         </div>
       </LoginLayout>
     </>

@@ -12,7 +12,7 @@ const SettingsModal = () => {
     useContext(SettingsContext);
 
   const handleLogout = async () => {
-    logout();
+    await logout();
     setShowSettingsModal(false);
     await navigate({
       to: "/login",

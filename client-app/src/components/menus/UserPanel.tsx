@@ -8,9 +8,10 @@ import { SettingsContext } from "#/context/SettingsContext";
 
 interface UserPanelProps {
   user: User;
+  settings?: boolean;
 }
 
-const UserPanel = ({ user }: UserPanelProps) => {
+const UserPanel = ({ user, settings = false }: UserPanelProps) => {
   const { setShowSettingsModal } = useContext(SettingsContext);
 
   return (
@@ -25,12 +26,14 @@ const UserPanel = ({ user }: UserPanelProps) => {
             {user.firstName} {user.lastName}
           </p>
         </div>
-        <div
-          onClick={() => setShowSettingsModal(true)}
-          className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer"
-        >
-          <Settings className="w-5 h-5 text-black" />
-        </div>
+        {settings && (
+          <div
+            onClick={() => setShowSettingsModal(true)}
+            className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer"
+          >
+            <Settings className="w-5 h-5 text-black" />
+          </div>
+        )}
       </div>
     </>
   );
