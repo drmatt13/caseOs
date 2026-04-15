@@ -1,0 +1,13 @@
+/client-app
+  - VITE_API_GATEWAY_URL=your_api_gateway_url_here
+  - VITE_AWS_REGION=your_aws_region_here
+  - VITE_USER_POOL_ID=your_user_pool_id_here
+  - VITE_USER_POOL_CLIENT_ID=your_user_pool_client_id_here
+
+/local-api-dev-server
+  - USER_POOL_CLIENT_ID=your_user_pool_client_id_here
+  - DATABASE_URL=your_database_url_here
+
+/packages/database
+  - DATABASE_URL=your_database_url_here
+  - DIRECT_URL=your_direct_database_url_here

@@ -15,8 +15,8 @@ services:
       NODE_ENV: development
       PORT: "8080"
       LANGGRAPH_SERVICE_URL: "http://langgraph-service"
-      DATABASE_URL: "postgresql://app_user:app_password@pgbouncer:5432/app_db"
-      DIRECT_URL: "postgresql://app_user:app_password@postgres:5432/app_db"
+      DATABASE_POOLING_URL: "postgresql://app_user:app_password@pgbouncer:5432/app_db"
+      DATABASE_DIRECT_URL: "postgresql://app_user:app_password@postgres:5432/app_db"
     ports:
       - "8080:8080"
     volumes:
@@ -38,8 +38,6 @@ services:
     environment:
       <<: *common-env
       PORT: "80"
-      DATABASE_URL: "postgresql://app_user:app_password@pgbouncer:5432/app_db"
-      DIRECT_URL: "postgresql://app_user:app_password@postgres:5432/app_db"
     volumes:
       - ./cdk-app/ecs_containers/langgraph-service:/app
       - /app/node_modules
@@ -99,7 +97,9 @@ services:
       PGADMIN_DEFAULT_EMAIL: admin@local.dev
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
-      - "5050:5050"
+      - "5050:80"
+    volumes:
+      - ./pgadmin/servers.json:/pgadmin4/servers.json
     depends_on:
       postgres:
         condition: service_healthy

@@ -1,4 +1,5 @@
 import { PostConfirmationTriggerEvent } from "aws-lambda";
+import { prisma } from "@repo/database";
 // import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
 
 // const snsClient = new SNSClient({});

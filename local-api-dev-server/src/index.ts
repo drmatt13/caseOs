@@ -10,7 +10,7 @@ import { lambdaHandler as signOut } from "../../cdk-app/lambda_functions/sign-ou
 import { lambdaHandler as verifyUser } from "../../cdk-app/lambda_functions/verify-user/index";
 
 dotenv.config({
-  path: `.env.${process.env.NODE_ENV || "development"}`,
+  path: "./.env",
 });
 
 const PORT = process.env.PORT || 8080;

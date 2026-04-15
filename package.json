@@ -1,5 +1,8 @@
 {
-  "dependencies": {
-    "lucide-react": "^1.7.0"
-  }
+  "name": "my-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "aws-cdk-app/lambda_functions/*"
+  ]
 }
