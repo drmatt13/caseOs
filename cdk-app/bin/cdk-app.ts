@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 import * as cdk from "aws-cdk-lib";
+import { ApiStack } from "../lib/api-stack";
+import { ApiGatewayLambdaFunctionsStack } from "../lib/api-gateway-lambda-functions-stack";
 import { CognitoLambdaFunctionsStack } from "../lib/cognito-lambda-functions-stack";
 import { CognitoStack } from "../lib/cognito-stack";
-import { ApiGatewayLambdaFunctionsStack } from "../lib/api-gateway-lambda-functions-stack";
-// import { EcsStack } from "../lib/ecs-stack";
-import { ApiStack } from "../lib/api-stack";
+import { DevLambdaReplayStack } from "../lib/dev-lambda-replay-stack";
+import { EcsStack } from "../lib/ecs-stack";
 
 const app = new cdk.App();
 
@@ -28,6 +29,15 @@ const frontendUrl =
   app.node.tryGetContext("frontendUrl") ??
   process.env.FRONTEND_URL ??
   "http://localhost:3000";
+
+// Create Dev Lambda Replay Stack
+const devLambdaReplayStack = new DevLambdaReplayStack(
+  app,
+  "DevLambdaReplayStack",
+  {
+    env: stackEnv,
+  },
+);
 
 // Create Cognito Lambda Functions Stack
 const cognitoLambdaFunctionsStack = new CognitoLambdaFunctionsStack(
