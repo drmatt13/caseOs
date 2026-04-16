@@ -2,6 +2,7 @@ import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { useState } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // context
 import { SettingsContext } from "#/context/SettingsContext";
@@ -35,6 +36,8 @@ export const Route = createRootRoute({
   shellComponent: RootDocument,
 });
 
+const queryClient = new QueryClient();
+
 function RootDocument({ children }: { children: React.ReactNode }) {
   const [showSettingsModal, setShowSettingsModal] = useState(false);
 
@@ -44,26 +47,28 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
       </head>
-      <body className="bg-gray-100 font-geist antialiased mx-auto h-dvh text-black text-sm">
+      <QueryClientProvider client={queryClient}>
         <SettingsContext.Provider
           value={{ showSettingsModal, setShowSettingsModal }}
         >
-          <SettingsModal />
-          {children}
+          <body className="bg-gray-100 font-geist antialiased mx-auto h-dvh text-black text-sm">
+            <SettingsModal />
+            {children}
+            <TanStackDevtools
+              config={{
+                position: "bottom-right",
+              }}
+              plugins={[
+                {
+                  name: "Tanstack Router",
+                  render: <TanStackRouterDevtoolsPanel />,
+                },
+              ]}
+            />
+            <Scripts />
+          </body>
         </SettingsContext.Provider>
-        {/* <TanStackDevtools
-          config={{
-            position: "bottom-right",
-          }}
-          plugins={[
-            {
-              name: "Tanstack Router",
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-          ]}
-        /> */}
-        <Scripts />
-      </body>
+      </QueryClientProvider>
     </html>
   );
 }

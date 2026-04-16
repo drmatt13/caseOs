@@ -9,8 +9,8 @@
  * 🟢 You can import this file directly.
  */
 import type * as runtime from "@prisma/client/runtime/client"
-import type * as $Enums from "../enums.ts"
-import type * as Prisma from "../internal/prismaNamespace.ts"
+import type * as $Enums from "../enums"
+import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model LlmUsageEvent
@@ -44,9 +44,11 @@ export type LlmUsageEventMinAggregateOutputType = {
   id: string | null
   workspaceId: string | null
   caseId: string | null
-  userId: string | null
+  actorUserId: string | null
+  billedToUserId: string | null
   provider: string | null
   model: string | null
+  operation: string | null
   inputTokens: number | null
   outputTokens: number | null
   totalTokens: number | null
@@ -58,9 +60,11 @@ export type LlmUsageEventMaxAggregateOutputType = {
   id: string | null
   workspaceId: string | null
   caseId: string | null
-  userId: string | null
+  actorUserId: string | null
+  billedToUserId: string | null
   provider: string | null
   model: string | null
+  operation: string | null
   inputTokens: number | null
   outputTokens: number | null
   totalTokens: number | null
@@ -72,13 +76,17 @@ export type LlmUsageEventCountAggregateOutputType = {
   id: number
   workspaceId: number
   caseId: number
-  userId: number
+  actorUserId: number
+  billedToUserId: number
   provider: number
   model: number
+  operation: number
   inputTokens: number
   outputTokens: number
   totalTokens: number
   estimatedCostUsd: number
+  requestFiles: number
+  metadata: number
   createdAt: number
   _all: number
 }
@@ -102,9 +110,11 @@ export type LlmUsageEventMinAggregateInputType = {
   id?: true
   workspaceId?: true
   caseId?: true
-  userId?: true
+  actorUserId?: true
+  billedToUserId?: true
   provider?: true
   model?: true
+  operation?: true
   inputTokens?: true
   outputTokens?: true
   totalTokens?: true
@@ -116,9 +126,11 @@ export type LlmUsageEventMaxAggregateInputType = {
   id?: true
   workspaceId?: true
   caseId?: true
-  userId?: true
+  actorUserId?: true
+  billedToUserId?: true
   provider?: true
   model?: true
+  operation?: true
   inputTokens?: true
   outputTokens?: true
   totalTokens?: true
@@ -130,13 +142,17 @@ export type LlmUsageEventCountAggregateInputType = {
   id?: true
   workspaceId?: true
   caseId?: true
-  userId?: true
+  actorUserId?: true
+  billedToUserId?: true
   provider?: true
   model?: true
+  operation?: true
   inputTokens?: true
   outputTokens?: true
   totalTokens?: true
   estimatedCostUsd?: true
+  requestFiles?: true
+  metadata?: true
   createdAt?: true
   _all?: true
 }
@@ -231,13 +247,17 @@ export type LlmUsageEventGroupByOutputType = {
   id: string
   workspaceId: string
   caseId: string | null
-  userId: string | null
+  actorUserId: string | null
+  billedToUserId: string
   provider: string
   model: string
+  operation: string | null
   inputTokens: number
   outputTokens: number
   totalTokens: number
   estimatedCostUsd: runtime.Decimal | null
+  requestFiles: runtime.JsonValue | null
+  metadata: runtime.JsonValue | null
   createdAt: Date
   _count: LlmUsageEventCountAggregateOutputType | null
   _avg: LlmUsageEventAvgAggregateOutputType | null
@@ -268,34 +288,44 @@ export type LlmUsageEventWhereInput = {
   id?: Prisma.UuidFilter<"LlmUsageEvent"> | string
   workspaceId?: Prisma.UuidFilter<"LlmUsageEvent"> | string
   caseId?: Prisma.UuidNullableFilter<"LlmUsageEvent"> | string | null
-  userId?: Prisma.UuidNullableFilter<"LlmUsageEvent"> | string | null
+  actorUserId?: Prisma.UuidNullableFilter<"LlmUsageEvent"> | string | null
+  billedToUserId?: Prisma.UuidFilter<"LlmUsageEvent"> | string
   provider?: Prisma.StringFilter<"LlmUsageEvent"> | string
   model?: Prisma.StringFilter<"LlmUsageEvent"> | string
+  operation?: Prisma.StringNullableFilter<"LlmUsageEvent"> | string | null
   inputTokens?: Prisma.IntFilter<"LlmUsageEvent"> | number
   outputTokens?: Prisma.IntFilter<"LlmUsageEvent"> | number
   totalTokens?: Prisma.IntFilter<"LlmUsageEvent"> | number
   estimatedCostUsd?: Prisma.DecimalNullableFilter<"LlmUsageEvent"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.JsonNullableFilter<"LlmUsageEvent">
+  metadata?: Prisma.JsonNullableFilter<"LlmUsageEvent">
   createdAt?: Prisma.DateTimeFilter<"LlmUsageEvent"> | Date | string
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
   case?: Prisma.XOR<Prisma.CaseNullableScalarRelationFilter, Prisma.CaseWhereInput> | null
-  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  actorUser?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  billedToUser?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
 export type LlmUsageEventOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
   caseId?: Prisma.SortOrderInput | Prisma.SortOrder
-  userId?: Prisma.SortOrderInput | Prisma.SortOrder
+  actorUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  billedToUserId?: Prisma.SortOrder
   provider?: Prisma.SortOrder
   model?: Prisma.SortOrder
+  operation?: Prisma.SortOrderInput | Prisma.SortOrder
   inputTokens?: Prisma.SortOrder
   outputTokens?: Prisma.SortOrder
   totalTokens?: Prisma.SortOrder
   estimatedCostUsd?: Prisma.SortOrderInput | Prisma.SortOrder
+  requestFiles?: Prisma.SortOrderInput | Prisma.SortOrder
+  metadata?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   workspace?: Prisma.WorkspaceOrderByWithRelationInput
   case?: Prisma.CaseOrderByWithRelationInput
-  user?: Prisma.UserOrderByWithRelationInput
+  actorUser?: Prisma.UserOrderByWithRelationInput
+  billedToUser?: Prisma.UserOrderByWithRelationInput
 }
 
 export type LlmUsageEventWhereUniqueInput = Prisma.AtLeast<{
@@ -305,30 +335,39 @@ export type LlmUsageEventWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.LlmUsageEventWhereInput | Prisma.LlmUsageEventWhereInput[]
   workspaceId?: Prisma.UuidFilter<"LlmUsageEvent"> | string
   caseId?: Prisma.UuidNullableFilter<"LlmUsageEvent"> | string | null
-  userId?: Prisma.UuidNullableFilter<"LlmUsageEvent"> | string | null
+  actorUserId?: Prisma.UuidNullableFilter<"LlmUsageEvent"> | string | null
+  billedToUserId?: Prisma.UuidFilter<"LlmUsageEvent"> | string
   provider?: Prisma.StringFilter<"LlmUsageEvent"> | string
   model?: Prisma.StringFilter<"LlmUsageEvent"> | string
+  operation?: Prisma.StringNullableFilter<"LlmUsageEvent"> | string | null
   inputTokens?: Prisma.IntFilter<"LlmUsageEvent"> | number
   outputTokens?: Prisma.IntFilter<"LlmUsageEvent"> | number
   totalTokens?: Prisma.IntFilter<"LlmUsageEvent"> | number
   estimatedCostUsd?: Prisma.DecimalNullableFilter<"LlmUsageEvent"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.JsonNullableFilter<"LlmUsageEvent">
+  metadata?: Prisma.JsonNullableFilter<"LlmUsageEvent">
   createdAt?: Prisma.DateTimeFilter<"LlmUsageEvent"> | Date | string
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
   case?: Prisma.XOR<Prisma.CaseNullableScalarRelationFilter, Prisma.CaseWhereInput> | null
-  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  actorUser?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  billedToUser?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id">
 
 export type LlmUsageEventOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
   caseId?: Prisma.SortOrderInput | Prisma.SortOrder
-  userId?: Prisma.SortOrderInput | Prisma.SortOrder
+  actorUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  billedToUserId?: Prisma.SortOrder
   provider?: Prisma.SortOrder
   model?: Prisma.SortOrder
+  operation?: Prisma.SortOrderInput | Prisma.SortOrder
   inputTokens?: Prisma.SortOrder
   outputTokens?: Prisma.SortOrder
   totalTokens?: Prisma.SortOrder
   estimatedCostUsd?: Prisma.SortOrderInput | Prisma.SortOrder
+  requestFiles?: Prisma.SortOrderInput | Prisma.SortOrder
+  metadata?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.LlmUsageEventCountOrderByAggregateInput
   _avg?: Prisma.LlmUsageEventAvgOrderByAggregateInput
@@ -344,13 +383,17 @@ export type LlmUsageEventScalarWhereWithAggregatesInput = {
   id?: Prisma.UuidWithAggregatesFilter<"LlmUsageEvent"> | string
   workspaceId?: Prisma.UuidWithAggregatesFilter<"LlmUsageEvent"> | string
   caseId?: Prisma.UuidNullableWithAggregatesFilter<"LlmUsageEvent"> | string | null
-  userId?: Prisma.UuidNullableWithAggregatesFilter<"LlmUsageEvent"> | string | null
+  actorUserId?: Prisma.UuidNullableWithAggregatesFilter<"LlmUsageEvent"> | string | null
+  billedToUserId?: Prisma.UuidWithAggregatesFilter<"LlmUsageEvent"> | string
   provider?: Prisma.StringWithAggregatesFilter<"LlmUsageEvent"> | string
   model?: Prisma.StringWithAggregatesFilter<"LlmUsageEvent"> | string
+  operation?: Prisma.StringNullableWithAggregatesFilter<"LlmUsageEvent"> | string | null
   inputTokens?: Prisma.IntWithAggregatesFilter<"LlmUsageEvent"> | number
   outputTokens?: Prisma.IntWithAggregatesFilter<"LlmUsageEvent"> | number
   totalTokens?: Prisma.IntWithAggregatesFilter<"LlmUsageEvent"> | number
   estimatedCostUsd?: Prisma.DecimalNullableWithAggregatesFilter<"LlmUsageEvent"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.JsonNullableWithAggregatesFilter<"LlmUsageEvent">
+  metadata?: Prisma.JsonNullableWithAggregatesFilter<"LlmUsageEvent">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"LlmUsageEvent"> | Date | string
 }
 
@@ -358,27 +401,35 @@ export type LlmUsageEventCreateInput = {
   id?: string
   provider: string
   model: string
+  operation?: string | null
   inputTokens?: number
   outputTokens?: number
   totalTokens?: number
   estimatedCostUsd?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutLlmUsageEventsInput
   case?: Prisma.CaseCreateNestedOneWithoutLlmUsageEventsInput
-  user?: Prisma.UserCreateNestedOneWithoutLlmUsageEventsInput
+  actorUser?: Prisma.UserCreateNestedOneWithoutActorUsageEventsInput
+  billedToUser: Prisma.UserCreateNestedOneWithoutBilledUsageEventsInput
 }
 
 export type LlmUsageEventUncheckedCreateInput = {
   id?: string
   workspaceId: string
   caseId?: string | null
-  userId?: string | null
+  actorUserId?: string | null
+  billedToUserId: string
   provider: string
   model: string
+  operation?: string | null
   inputTokens?: number
   outputTokens?: number
   totalTokens?: number
   estimatedCostUsd?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -386,27 +437,35 @@ export type LlmUsageEventUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   model?: Prisma.StringFieldUpdateOperationsInput | string
+  operation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   outputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   totalTokens?: Prisma.IntFieldUpdateOperationsInput | number
   estimatedCostUsd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutLlmUsageEventsNestedInput
   case?: Prisma.CaseUpdateOneWithoutLlmUsageEventsNestedInput
-  user?: Prisma.UserUpdateOneWithoutLlmUsageEventsNestedInput
+  actorUser?: Prisma.UserUpdateOneWithoutActorUsageEventsNestedInput
+  billedToUser?: Prisma.UserUpdateOneRequiredWithoutBilledUsageEventsNestedInput
 }
 
 export type LlmUsageEventUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billedToUserId?: Prisma.StringFieldUpdateOperationsInput | string
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   model?: Prisma.StringFieldUpdateOperationsInput | string
+  operation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   outputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   totalTokens?: Prisma.IntFieldUpdateOperationsInput | number
   estimatedCostUsd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -414,13 +473,17 @@ export type LlmUsageEventCreateManyInput = {
   id?: string
   workspaceId: string
   caseId?: string | null
-  userId?: string | null
+  actorUserId?: string | null
+  billedToUserId: string
   provider: string
   model: string
+  operation?: string | null
   inputTokens?: number
   outputTokens?: number
   totalTokens?: number
   estimatedCostUsd?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -428,10 +491,13 @@ export type LlmUsageEventUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   model?: Prisma.StringFieldUpdateOperationsInput | string
+  operation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   outputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   totalTokens?: Prisma.IntFieldUpdateOperationsInput | number
   estimatedCostUsd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -439,13 +505,17 @@ export type LlmUsageEventUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billedToUserId?: Prisma.StringFieldUpdateOperationsInput | string
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   model?: Prisma.StringFieldUpdateOperationsInput | string
+  operation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   outputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   totalTokens?: Prisma.IntFieldUpdateOperationsInput | number
   estimatedCostUsd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -463,13 +533,17 @@ export type LlmUsageEventCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  actorUserId?: Prisma.SortOrder
+  billedToUserId?: Prisma.SortOrder
   provider?: Prisma.SortOrder
   model?: Prisma.SortOrder
+  operation?: Prisma.SortOrder
   inputTokens?: Prisma.SortOrder
   outputTokens?: Prisma.SortOrder
   totalTokens?: Prisma.SortOrder
   estimatedCostUsd?: Prisma.SortOrder
+  requestFiles?: Prisma.SortOrder
+  metadata?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -484,9 +558,11 @@ export type LlmUsageEventMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  actorUserId?: Prisma.SortOrder
+  billedToUserId?: Prisma.SortOrder
   provider?: Prisma.SortOrder
   model?: Prisma.SortOrder
+  operation?: Prisma.SortOrder
   inputTokens?: Prisma.SortOrder
   outputTokens?: Prisma.SortOrder
   totalTokens?: Prisma.SortOrder
@@ -498,9 +574,11 @@ export type LlmUsageEventMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
   caseId?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  actorUserId?: Prisma.SortOrder
+  billedToUserId?: Prisma.SortOrder
   provider?: Prisma.SortOrder
   model?: Prisma.SortOrder
+  operation?: Prisma.SortOrder
   inputTokens?: Prisma.SortOrder
   outputTokens?: Prisma.SortOrder
   totalTokens?: Prisma.SortOrder
@@ -515,45 +593,87 @@ export type LlmUsageEventSumOrderByAggregateInput = {
   estimatedCostUsd?: Prisma.SortOrder
 }
 
-export type LlmUsageEventCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.LlmUsageEventCreateWithoutUserInput, Prisma.LlmUsageEventUncheckedCreateWithoutUserInput> | Prisma.LlmUsageEventCreateWithoutUserInput[] | Prisma.LlmUsageEventUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.LlmUsageEventCreateOrConnectWithoutUserInput | Prisma.LlmUsageEventCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.LlmUsageEventCreateManyUserInputEnvelope
+export type LlmUsageEventCreateNestedManyWithoutActorUserInput = {
+  create?: Prisma.XOR<Prisma.LlmUsageEventCreateWithoutActorUserInput, Prisma.LlmUsageEventUncheckedCreateWithoutActorUserInput> | Prisma.LlmUsageEventCreateWithoutActorUserInput[] | Prisma.LlmUsageEventUncheckedCreateWithoutActorUserInput[]
+  connectOrCreate?: Prisma.LlmUsageEventCreateOrConnectWithoutActorUserInput | Prisma.LlmUsageEventCreateOrConnectWithoutActorUserInput[]
+  createMany?: Prisma.LlmUsageEventCreateManyActorUserInputEnvelope
   connect?: Prisma.LlmUsageEventWhereUniqueInput | Prisma.LlmUsageEventWhereUniqueInput[]
 }
 
-export type LlmUsageEventUncheckedCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.LlmUsageEventCreateWithoutUserInput, Prisma.LlmUsageEventUncheckedCreateWithoutUserInput> | Prisma.LlmUsageEventCreateWithoutUserInput[] | Prisma.LlmUsageEventUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.LlmUsageEventCreateOrConnectWithoutUserInput | Prisma.LlmUsageEventCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.LlmUsageEventCreateManyUserInputEnvelope
+export type LlmUsageEventCreateNestedManyWithoutBilledToUserInput = {
+  create?: Prisma.XOR<Prisma.LlmUsageEventCreateWithoutBilledToUserInput, Prisma.LlmUsageEventUncheckedCreateWithoutBilledToUserInput> | Prisma.LlmUsageEventCreateWithoutBilledToUserInput[] | Prisma.LlmUsageEventUncheckedCreateWithoutBilledToUserInput[]
+  connectOrCreate?: Prisma.LlmUsageEventCreateOrConnectWithoutBilledToUserInput | Prisma.LlmUsageEventCreateOrConnectWithoutBilledToUserInput[]
+  createMany?: Prisma.LlmUsageEventCreateManyBilledToUserInputEnvelope
   connect?: Prisma.LlmUsageEventWhereUniqueInput | Prisma.LlmUsageEventWhereUniqueInput[]
 }
 
-export type LlmUsageEventUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.LlmUsageEventCreateWithoutUserInput, Prisma.LlmUsageEventUncheckedCreateWithoutUserInput> | Prisma.LlmUsageEventCreateWithoutUserInput[] | Prisma.LlmUsageEventUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.LlmUsageEventCreateOrConnectWithoutUserInput | Prisma.LlmUsageEventCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.LlmUsageEventUpsertWithWhereUniqueWithoutUserInput | Prisma.LlmUsageEventUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.LlmUsageEventCreateManyUserInputEnvelope
+export type LlmUsageEventUncheckedCreateNestedManyWithoutActorUserInput = {
+  create?: Prisma.XOR<Prisma.LlmUsageEventCreateWithoutActorUserInput, Prisma.LlmUsageEventUncheckedCreateWithoutActorUserInput> | Prisma.LlmUsageEventCreateWithoutActorUserInput[] | Prisma.LlmUsageEventUncheckedCreateWithoutActorUserInput[]
+  connectOrCreate?: Prisma.LlmUsageEventCreateOrConnectWithoutActorUserInput | Prisma.LlmUsageEventCreateOrConnectWithoutActorUserInput[]
+  createMany?: Prisma.LlmUsageEventCreateManyActorUserInputEnvelope
+  connect?: Prisma.LlmUsageEventWhereUniqueInput | Prisma.LlmUsageEventWhereUniqueInput[]
+}
+
+export type LlmUsageEventUncheckedCreateNestedManyWithoutBilledToUserInput = {
+  create?: Prisma.XOR<Prisma.LlmUsageEventCreateWithoutBilledToUserInput, Prisma.LlmUsageEventUncheckedCreateWithoutBilledToUserInput> | Prisma.LlmUsageEventCreateWithoutBilledToUserInput[] | Prisma.LlmUsageEventUncheckedCreateWithoutBilledToUserInput[]
+  connectOrCreate?: Prisma.LlmUsageEventCreateOrConnectWithoutBilledToUserInput | Prisma.LlmUsageEventCreateOrConnectWithoutBilledToUserInput[]
+  createMany?: Prisma.LlmUsageEventCreateManyBilledToUserInputEnvelope
+  connect?: Prisma.LlmUsageEventWhereUniqueInput | Prisma.LlmUsageEventWhereUniqueInput[]
+}
+
+export type LlmUsageEventUpdateManyWithoutActorUserNestedInput = {
+  create?: Prisma.XOR<Prisma.LlmUsageEventCreateWithoutActorUserInput, Prisma.LlmUsageEventUncheckedCreateWithoutActorUserInput> | Prisma.LlmUsageEventCreateWithoutActorUserInput[] | Prisma.LlmUsageEventUncheckedCreateWithoutActorUserInput[]
+  connectOrCreate?: Prisma.LlmUsageEventCreateOrConnectWithoutActorUserInput | Prisma.LlmUsageEventCreateOrConnectWithoutActorUserInput[]
+  upsert?: Prisma.LlmUsageEventUpsertWithWhereUniqueWithoutActorUserInput | Prisma.LlmUsageEventUpsertWithWhereUniqueWithoutActorUserInput[]
+  createMany?: Prisma.LlmUsageEventCreateManyActorUserInputEnvelope
   set?: Prisma.LlmUsageEventWhereUniqueInput | Prisma.LlmUsageEventWhereUniqueInput[]
   disconnect?: Prisma.LlmUsageEventWhereUniqueInput | Prisma.LlmUsageEventWhereUniqueInput[]
   delete?: Prisma.LlmUsageEventWhereUniqueInput | Prisma.LlmUsageEventWhereUniqueInput[]
   connect?: Prisma.LlmUsageEventWhereUniqueInput | Prisma.LlmUsageEventWhereUniqueInput[]
-  update?: Prisma.LlmUsageEventUpdateWithWhereUniqueWithoutUserInput | Prisma.LlmUsageEventUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.LlmUsageEventUpdateManyWithWhereWithoutUserInput | Prisma.LlmUsageEventUpdateManyWithWhereWithoutUserInput[]
+  update?: Prisma.LlmUsageEventUpdateWithWhereUniqueWithoutActorUserInput | Prisma.LlmUsageEventUpdateWithWhereUniqueWithoutActorUserInput[]
+  updateMany?: Prisma.LlmUsageEventUpdateManyWithWhereWithoutActorUserInput | Prisma.LlmUsageEventUpdateManyWithWhereWithoutActorUserInput[]
   deleteMany?: Prisma.LlmUsageEventScalarWhereInput | Prisma.LlmUsageEventScalarWhereInput[]
 }
 
-export type LlmUsageEventUncheckedUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.LlmUsageEventCreateWithoutUserInput, Prisma.LlmUsageEventUncheckedCreateWithoutUserInput> | Prisma.LlmUsageEventCreateWithoutUserInput[] | Prisma.LlmUsageEventUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.LlmUsageEventCreateOrConnectWithoutUserInput | Prisma.LlmUsageEventCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.LlmUsageEventUpsertWithWhereUniqueWithoutUserInput | Prisma.LlmUsageEventUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.LlmUsageEventCreateManyUserInputEnvelope
+export type LlmUsageEventUpdateManyWithoutBilledToUserNestedInput = {
+  create?: Prisma.XOR<Prisma.LlmUsageEventCreateWithoutBilledToUserInput, Prisma.LlmUsageEventUncheckedCreateWithoutBilledToUserInput> | Prisma.LlmUsageEventCreateWithoutBilledToUserInput[] | Prisma.LlmUsageEventUncheckedCreateWithoutBilledToUserInput[]
+  connectOrCreate?: Prisma.LlmUsageEventCreateOrConnectWithoutBilledToUserInput | Prisma.LlmUsageEventCreateOrConnectWithoutBilledToUserInput[]
+  upsert?: Prisma.LlmUsageEventUpsertWithWhereUniqueWithoutBilledToUserInput | Prisma.LlmUsageEventUpsertWithWhereUniqueWithoutBilledToUserInput[]
+  createMany?: Prisma.LlmUsageEventCreateManyBilledToUserInputEnvelope
   set?: Prisma.LlmUsageEventWhereUniqueInput | Prisma.LlmUsageEventWhereUniqueInput[]
   disconnect?: Prisma.LlmUsageEventWhereUniqueInput | Prisma.LlmUsageEventWhereUniqueInput[]
   delete?: Prisma.LlmUsageEventWhereUniqueInput | Prisma.LlmUsageEventWhereUniqueInput[]
   connect?: Prisma.LlmUsageEventWhereUniqueInput | Prisma.LlmUsageEventWhereUniqueInput[]
-  update?: Prisma.LlmUsageEventUpdateWithWhereUniqueWithoutUserInput | Prisma.LlmUsageEventUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.LlmUsageEventUpdateManyWithWhereWithoutUserInput | Prisma.LlmUsageEventUpdateManyWithWhereWithoutUserInput[]
+  update?: Prisma.LlmUsageEventUpdateWithWhereUniqueWithoutBilledToUserInput | Prisma.LlmUsageEventUpdateWithWhereUniqueWithoutBilledToUserInput[]
+  updateMany?: Prisma.LlmUsageEventUpdateManyWithWhereWithoutBilledToUserInput | Prisma.LlmUsageEventUpdateManyWithWhereWithoutBilledToUserInput[]
+  deleteMany?: Prisma.LlmUsageEventScalarWhereInput | Prisma.LlmUsageEventScalarWhereInput[]
+}
+
+export type LlmUsageEventUncheckedUpdateManyWithoutActorUserNestedInput = {
+  create?: Prisma.XOR<Prisma.LlmUsageEventCreateWithoutActorUserInput, Prisma.LlmUsageEventUncheckedCreateWithoutActorUserInput> | Prisma.LlmUsageEventCreateWithoutActorUserInput[] | Prisma.LlmUsageEventUncheckedCreateWithoutActorUserInput[]
+  connectOrCreate?: Prisma.LlmUsageEventCreateOrConnectWithoutActorUserInput | Prisma.LlmUsageEventCreateOrConnectWithoutActorUserInput[]
+  upsert?: Prisma.LlmUsageEventUpsertWithWhereUniqueWithoutActorUserInput | Prisma.LlmUsageEventUpsertWithWhereUniqueWithoutActorUserInput[]
+  createMany?: Prisma.LlmUsageEventCreateManyActorUserInputEnvelope
+  set?: Prisma.LlmUsageEventWhereUniqueInput | Prisma.LlmUsageEventWhereUniqueInput[]
+  disconnect?: Prisma.LlmUsageEventWhereUniqueInput | Prisma.LlmUsageEventWhereUniqueInput[]
+  delete?: Prisma.LlmUsageEventWhereUniqueInput | Prisma.LlmUsageEventWhereUniqueInput[]
+  connect?: Prisma.LlmUsageEventWhereUniqueInput | Prisma.LlmUsageEventWhereUniqueInput[]
+  update?: Prisma.LlmUsageEventUpdateWithWhereUniqueWithoutActorUserInput | Prisma.LlmUsageEventUpdateWithWhereUniqueWithoutActorUserInput[]
+  updateMany?: Prisma.LlmUsageEventUpdateManyWithWhereWithoutActorUserInput | Prisma.LlmUsageEventUpdateManyWithWhereWithoutActorUserInput[]
+  deleteMany?: Prisma.LlmUsageEventScalarWhereInput | Prisma.LlmUsageEventScalarWhereInput[]
+}
+
+export type LlmUsageEventUncheckedUpdateManyWithoutBilledToUserNestedInput = {
+  create?: Prisma.XOR<Prisma.LlmUsageEventCreateWithoutBilledToUserInput, Prisma.LlmUsageEventUncheckedCreateWithoutBilledToUserInput> | Prisma.LlmUsageEventCreateWithoutBilledToUserInput[] | Prisma.LlmUsageEventUncheckedCreateWithoutBilledToUserInput[]
+  connectOrCreate?: Prisma.LlmUsageEventCreateOrConnectWithoutBilledToUserInput | Prisma.LlmUsageEventCreateOrConnectWithoutBilledToUserInput[]
+  upsert?: Prisma.LlmUsageEventUpsertWithWhereUniqueWithoutBilledToUserInput | Prisma.LlmUsageEventUpsertWithWhereUniqueWithoutBilledToUserInput[]
+  createMany?: Prisma.LlmUsageEventCreateManyBilledToUserInputEnvelope
+  set?: Prisma.LlmUsageEventWhereUniqueInput | Prisma.LlmUsageEventWhereUniqueInput[]
+  disconnect?: Prisma.LlmUsageEventWhereUniqueInput | Prisma.LlmUsageEventWhereUniqueInput[]
+  delete?: Prisma.LlmUsageEventWhereUniqueInput | Prisma.LlmUsageEventWhereUniqueInput[]
+  connect?: Prisma.LlmUsageEventWhereUniqueInput | Prisma.LlmUsageEventWhereUniqueInput[]
+  update?: Prisma.LlmUsageEventUpdateWithWhereUniqueWithoutBilledToUserInput | Prisma.LlmUsageEventUpdateWithWhereUniqueWithoutBilledToUserInput[]
+  updateMany?: Prisma.LlmUsageEventUpdateManyWithWhereWithoutBilledToUserInput | Prisma.LlmUsageEventUpdateManyWithWhereWithoutBilledToUserInput[]
   deleteMany?: Prisma.LlmUsageEventScalarWhereInput | Prisma.LlmUsageEventScalarWhereInput[]
 }
 
@@ -641,14 +761,6 @@ export type LlmUsageEventUncheckedUpdateManyWithoutCaseNestedInput = {
   deleteMany?: Prisma.LlmUsageEventScalarWhereInput | Prisma.LlmUsageEventScalarWhereInput[]
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type NullableDecimalFieldUpdateOperationsInput = {
   set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -657,56 +769,108 @@ export type NullableDecimalFieldUpdateOperationsInput = {
   divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
-export type LlmUsageEventCreateWithoutUserInput = {
+export type LlmUsageEventCreateWithoutActorUserInput = {
   id?: string
   provider: string
   model: string
+  operation?: string | null
   inputTokens?: number
   outputTokens?: number
   totalTokens?: number
   estimatedCostUsd?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutLlmUsageEventsInput
   case?: Prisma.CaseCreateNestedOneWithoutLlmUsageEventsInput
+  billedToUser: Prisma.UserCreateNestedOneWithoutBilledUsageEventsInput
 }
 
-export type LlmUsageEventUncheckedCreateWithoutUserInput = {
+export type LlmUsageEventUncheckedCreateWithoutActorUserInput = {
   id?: string
   workspaceId: string
   caseId?: string | null
+  billedToUserId: string
   provider: string
   model: string
+  operation?: string | null
   inputTokens?: number
   outputTokens?: number
   totalTokens?: number
   estimatedCostUsd?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
-export type LlmUsageEventCreateOrConnectWithoutUserInput = {
+export type LlmUsageEventCreateOrConnectWithoutActorUserInput = {
   where: Prisma.LlmUsageEventWhereUniqueInput
-  create: Prisma.XOR<Prisma.LlmUsageEventCreateWithoutUserInput, Prisma.LlmUsageEventUncheckedCreateWithoutUserInput>
+  create: Prisma.XOR<Prisma.LlmUsageEventCreateWithoutActorUserInput, Prisma.LlmUsageEventUncheckedCreateWithoutActorUserInput>
 }
 
-export type LlmUsageEventCreateManyUserInputEnvelope = {
-  data: Prisma.LlmUsageEventCreateManyUserInput | Prisma.LlmUsageEventCreateManyUserInput[]
+export type LlmUsageEventCreateManyActorUserInputEnvelope = {
+  data: Prisma.LlmUsageEventCreateManyActorUserInput | Prisma.LlmUsageEventCreateManyActorUserInput[]
   skipDuplicates?: boolean
 }
 
-export type LlmUsageEventUpsertWithWhereUniqueWithoutUserInput = {
-  where: Prisma.LlmUsageEventWhereUniqueInput
-  update: Prisma.XOR<Prisma.LlmUsageEventUpdateWithoutUserInput, Prisma.LlmUsageEventUncheckedUpdateWithoutUserInput>
-  create: Prisma.XOR<Prisma.LlmUsageEventCreateWithoutUserInput, Prisma.LlmUsageEventUncheckedCreateWithoutUserInput>
+export type LlmUsageEventCreateWithoutBilledToUserInput = {
+  id?: string
+  provider: string
+  model: string
+  operation?: string | null
+  inputTokens?: number
+  outputTokens?: number
+  totalTokens?: number
+  estimatedCostUsd?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutLlmUsageEventsInput
+  case?: Prisma.CaseCreateNestedOneWithoutLlmUsageEventsInput
+  actorUser?: Prisma.UserCreateNestedOneWithoutActorUsageEventsInput
 }
 
-export type LlmUsageEventUpdateWithWhereUniqueWithoutUserInput = {
-  where: Prisma.LlmUsageEventWhereUniqueInput
-  data: Prisma.XOR<Prisma.LlmUsageEventUpdateWithoutUserInput, Prisma.LlmUsageEventUncheckedUpdateWithoutUserInput>
+export type LlmUsageEventUncheckedCreateWithoutBilledToUserInput = {
+  id?: string
+  workspaceId: string
+  caseId?: string | null
+  actorUserId?: string | null
+  provider: string
+  model: string
+  operation?: string | null
+  inputTokens?: number
+  outputTokens?: number
+  totalTokens?: number
+  estimatedCostUsd?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
 }
 
-export type LlmUsageEventUpdateManyWithWhereWithoutUserInput = {
+export type LlmUsageEventCreateOrConnectWithoutBilledToUserInput = {
+  where: Prisma.LlmUsageEventWhereUniqueInput
+  create: Prisma.XOR<Prisma.LlmUsageEventCreateWithoutBilledToUserInput, Prisma.LlmUsageEventUncheckedCreateWithoutBilledToUserInput>
+}
+
+export type LlmUsageEventCreateManyBilledToUserInputEnvelope = {
+  data: Prisma.LlmUsageEventCreateManyBilledToUserInput | Prisma.LlmUsageEventCreateManyBilledToUserInput[]
+  skipDuplicates?: boolean
+}
+
+export type LlmUsageEventUpsertWithWhereUniqueWithoutActorUserInput = {
+  where: Prisma.LlmUsageEventWhereUniqueInput
+  update: Prisma.XOR<Prisma.LlmUsageEventUpdateWithoutActorUserInput, Prisma.LlmUsageEventUncheckedUpdateWithoutActorUserInput>
+  create: Prisma.XOR<Prisma.LlmUsageEventCreateWithoutActorUserInput, Prisma.LlmUsageEventUncheckedCreateWithoutActorUserInput>
+}
+
+export type LlmUsageEventUpdateWithWhereUniqueWithoutActorUserInput = {
+  where: Prisma.LlmUsageEventWhereUniqueInput
+  data: Prisma.XOR<Prisma.LlmUsageEventUpdateWithoutActorUserInput, Prisma.LlmUsageEventUncheckedUpdateWithoutActorUserInput>
+}
+
+export type LlmUsageEventUpdateManyWithWhereWithoutActorUserInput = {
   where: Prisma.LlmUsageEventScalarWhereInput
-  data: Prisma.XOR<Prisma.LlmUsageEventUpdateManyMutationInput, Prisma.LlmUsageEventUncheckedUpdateManyWithoutUserInput>
+  data: Prisma.XOR<Prisma.LlmUsageEventUpdateManyMutationInput, Prisma.LlmUsageEventUncheckedUpdateManyWithoutActorUserInput>
 }
 
 export type LlmUsageEventScalarWhereInput = {
@@ -716,39 +880,67 @@ export type LlmUsageEventScalarWhereInput = {
   id?: Prisma.UuidFilter<"LlmUsageEvent"> | string
   workspaceId?: Prisma.UuidFilter<"LlmUsageEvent"> | string
   caseId?: Prisma.UuidNullableFilter<"LlmUsageEvent"> | string | null
-  userId?: Prisma.UuidNullableFilter<"LlmUsageEvent"> | string | null
+  actorUserId?: Prisma.UuidNullableFilter<"LlmUsageEvent"> | string | null
+  billedToUserId?: Prisma.UuidFilter<"LlmUsageEvent"> | string
   provider?: Prisma.StringFilter<"LlmUsageEvent"> | string
   model?: Prisma.StringFilter<"LlmUsageEvent"> | string
+  operation?: Prisma.StringNullableFilter<"LlmUsageEvent"> | string | null
   inputTokens?: Prisma.IntFilter<"LlmUsageEvent"> | number
   outputTokens?: Prisma.IntFilter<"LlmUsageEvent"> | number
   totalTokens?: Prisma.IntFilter<"LlmUsageEvent"> | number
   estimatedCostUsd?: Prisma.DecimalNullableFilter<"LlmUsageEvent"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.JsonNullableFilter<"LlmUsageEvent">
+  metadata?: Prisma.JsonNullableFilter<"LlmUsageEvent">
   createdAt?: Prisma.DateTimeFilter<"LlmUsageEvent"> | Date | string
+}
+
+export type LlmUsageEventUpsertWithWhereUniqueWithoutBilledToUserInput = {
+  where: Prisma.LlmUsageEventWhereUniqueInput
+  update: Prisma.XOR<Prisma.LlmUsageEventUpdateWithoutBilledToUserInput, Prisma.LlmUsageEventUncheckedUpdateWithoutBilledToUserInput>
+  create: Prisma.XOR<Prisma.LlmUsageEventCreateWithoutBilledToUserInput, Prisma.LlmUsageEventUncheckedCreateWithoutBilledToUserInput>
+}
+
+export type LlmUsageEventUpdateWithWhereUniqueWithoutBilledToUserInput = {
+  where: Prisma.LlmUsageEventWhereUniqueInput
+  data: Prisma.XOR<Prisma.LlmUsageEventUpdateWithoutBilledToUserInput, Prisma.LlmUsageEventUncheckedUpdateWithoutBilledToUserInput>
+}
+
+export type LlmUsageEventUpdateManyWithWhereWithoutBilledToUserInput = {
+  where: Prisma.LlmUsageEventScalarWhereInput
+  data: Prisma.XOR<Prisma.LlmUsageEventUpdateManyMutationInput, Prisma.LlmUsageEventUncheckedUpdateManyWithoutBilledToUserInput>
 }
 
 export type LlmUsageEventCreateWithoutWorkspaceInput = {
   id?: string
   provider: string
   model: string
+  operation?: string | null
   inputTokens?: number
   outputTokens?: number
   totalTokens?: number
   estimatedCostUsd?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   case?: Prisma.CaseCreateNestedOneWithoutLlmUsageEventsInput
-  user?: Prisma.UserCreateNestedOneWithoutLlmUsageEventsInput
+  actorUser?: Prisma.UserCreateNestedOneWithoutActorUsageEventsInput
+  billedToUser: Prisma.UserCreateNestedOneWithoutBilledUsageEventsInput
 }
 
 export type LlmUsageEventUncheckedCreateWithoutWorkspaceInput = {
   id?: string
   caseId?: string | null
-  userId?: string | null
+  actorUserId?: string | null
+  billedToUserId: string
   provider: string
   model: string
+  operation?: string | null
   inputTokens?: number
   outputTokens?: number
   totalTokens?: number
   estimatedCostUsd?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -782,25 +974,33 @@ export type LlmUsageEventCreateWithoutCaseInput = {
   id?: string
   provider: string
   model: string
+  operation?: string | null
   inputTokens?: number
   outputTokens?: number
   totalTokens?: number
   estimatedCostUsd?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutLlmUsageEventsInput
-  user?: Prisma.UserCreateNestedOneWithoutLlmUsageEventsInput
+  actorUser?: Prisma.UserCreateNestedOneWithoutActorUsageEventsInput
+  billedToUser: Prisma.UserCreateNestedOneWithoutBilledUsageEventsInput
 }
 
 export type LlmUsageEventUncheckedCreateWithoutCaseInput = {
   id?: string
   workspaceId: string
-  userId?: string | null
+  actorUserId?: string | null
+  billedToUserId: string
   provider: string
   model: string
+  operation?: string | null
   inputTokens?: number
   outputTokens?: number
   totalTokens?: number
   estimatedCostUsd?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -830,68 +1030,156 @@ export type LlmUsageEventUpdateManyWithWhereWithoutCaseInput = {
   data: Prisma.XOR<Prisma.LlmUsageEventUpdateManyMutationInput, Prisma.LlmUsageEventUncheckedUpdateManyWithoutCaseInput>
 }
 
-export type LlmUsageEventCreateManyUserInput = {
+export type LlmUsageEventCreateManyActorUserInput = {
   id?: string
   workspaceId: string
   caseId?: string | null
+  billedToUserId: string
   provider: string
   model: string
+  operation?: string | null
   inputTokens?: number
   outputTokens?: number
   totalTokens?: number
   estimatedCostUsd?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
-export type LlmUsageEventUpdateWithoutUserInput = {
+export type LlmUsageEventCreateManyBilledToUserInput = {
+  id?: string
+  workspaceId: string
+  caseId?: string | null
+  actorUserId?: string | null
+  provider: string
+  model: string
+  operation?: string | null
+  inputTokens?: number
+  outputTokens?: number
+  totalTokens?: number
+  estimatedCostUsd?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+}
+
+export type LlmUsageEventUpdateWithoutActorUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   model?: Prisma.StringFieldUpdateOperationsInput | string
+  operation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   outputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   totalTokens?: Prisma.IntFieldUpdateOperationsInput | number
   estimatedCostUsd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutLlmUsageEventsNestedInput
   case?: Prisma.CaseUpdateOneWithoutLlmUsageEventsNestedInput
+  billedToUser?: Prisma.UserUpdateOneRequiredWithoutBilledUsageEventsNestedInput
 }
 
-export type LlmUsageEventUncheckedUpdateWithoutUserInput = {
+export type LlmUsageEventUncheckedUpdateWithoutActorUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billedToUserId?: Prisma.StringFieldUpdateOperationsInput | string
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   model?: Prisma.StringFieldUpdateOperationsInput | string
+  operation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   outputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   totalTokens?: Prisma.IntFieldUpdateOperationsInput | number
   estimatedCostUsd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type LlmUsageEventUncheckedUpdateManyWithoutUserInput = {
+export type LlmUsageEventUncheckedUpdateManyWithoutActorUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billedToUserId?: Prisma.StringFieldUpdateOperationsInput | string
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   model?: Prisma.StringFieldUpdateOperationsInput | string
+  operation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   outputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   totalTokens?: Prisma.IntFieldUpdateOperationsInput | number
   estimatedCostUsd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type LlmUsageEventUpdateWithoutBilledToUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  provider?: Prisma.StringFieldUpdateOperationsInput | string
+  model?: Prisma.StringFieldUpdateOperationsInput | string
+  operation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inputTokens?: Prisma.IntFieldUpdateOperationsInput | number
+  outputTokens?: Prisma.IntFieldUpdateOperationsInput | number
+  totalTokens?: Prisma.IntFieldUpdateOperationsInput | number
+  estimatedCostUsd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutLlmUsageEventsNestedInput
+  case?: Prisma.CaseUpdateOneWithoutLlmUsageEventsNestedInput
+  actorUser?: Prisma.UserUpdateOneWithoutActorUsageEventsNestedInput
+}
+
+export type LlmUsageEventUncheckedUpdateWithoutBilledToUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  caseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provider?: Prisma.StringFieldUpdateOperationsInput | string
+  model?: Prisma.StringFieldUpdateOperationsInput | string
+  operation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inputTokens?: Prisma.IntFieldUpdateOperationsInput | number
+  outputTokens?: Prisma.IntFieldUpdateOperationsInput | number
+  totalTokens?: Prisma.IntFieldUpdateOperationsInput | number
+  estimatedCostUsd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type LlmUsageEventUncheckedUpdateManyWithoutBilledToUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  caseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provider?: Prisma.StringFieldUpdateOperationsInput | string
+  model?: Prisma.StringFieldUpdateOperationsInput | string
+  operation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inputTokens?: Prisma.IntFieldUpdateOperationsInput | number
+  outputTokens?: Prisma.IntFieldUpdateOperationsInput | number
+  totalTokens?: Prisma.IntFieldUpdateOperationsInput | number
+  estimatedCostUsd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LlmUsageEventCreateManyWorkspaceInput = {
   id?: string
   caseId?: string | null
-  userId?: string | null
+  actorUserId?: string | null
+  billedToUserId: string
   provider: string
   model: string
+  operation?: string | null
   inputTokens?: number
   outputTokens?: number
   totalTokens?: number
   estimatedCostUsd?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -899,51 +1187,67 @@ export type LlmUsageEventUpdateWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   model?: Prisma.StringFieldUpdateOperationsInput | string
+  operation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   outputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   totalTokens?: Prisma.IntFieldUpdateOperationsInput | number
   estimatedCostUsd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   case?: Prisma.CaseUpdateOneWithoutLlmUsageEventsNestedInput
-  user?: Prisma.UserUpdateOneWithoutLlmUsageEventsNestedInput
+  actorUser?: Prisma.UserUpdateOneWithoutActorUsageEventsNestedInput
+  billedToUser?: Prisma.UserUpdateOneRequiredWithoutBilledUsageEventsNestedInput
 }
 
 export type LlmUsageEventUncheckedUpdateWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billedToUserId?: Prisma.StringFieldUpdateOperationsInput | string
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   model?: Prisma.StringFieldUpdateOperationsInput | string
+  operation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   outputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   totalTokens?: Prisma.IntFieldUpdateOperationsInput | number
   estimatedCostUsd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LlmUsageEventUncheckedUpdateManyWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   caseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billedToUserId?: Prisma.StringFieldUpdateOperationsInput | string
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   model?: Prisma.StringFieldUpdateOperationsInput | string
+  operation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   outputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   totalTokens?: Prisma.IntFieldUpdateOperationsInput | number
   estimatedCostUsd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LlmUsageEventCreateManyCaseInput = {
   id?: string
   workspaceId: string
-  userId?: string | null
+  actorUserId?: string | null
+  billedToUserId: string
   provider: string
   model: string
+  operation?: string | null
   inputTokens?: number
   outputTokens?: number
   totalTokens?: number
   estimatedCostUsd?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -951,38 +1255,50 @@ export type LlmUsageEventUpdateWithoutCaseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   model?: Prisma.StringFieldUpdateOperationsInput | string
+  operation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   outputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   totalTokens?: Prisma.IntFieldUpdateOperationsInput | number
   estimatedCostUsd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutLlmUsageEventsNestedInput
-  user?: Prisma.UserUpdateOneWithoutLlmUsageEventsNestedInput
+  actorUser?: Prisma.UserUpdateOneWithoutActorUsageEventsNestedInput
+  billedToUser?: Prisma.UserUpdateOneRequiredWithoutBilledUsageEventsNestedInput
 }
 
 export type LlmUsageEventUncheckedUpdateWithoutCaseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billedToUserId?: Prisma.StringFieldUpdateOperationsInput | string
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   model?: Prisma.StringFieldUpdateOperationsInput | string
+  operation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   outputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   totalTokens?: Prisma.IntFieldUpdateOperationsInput | number
   estimatedCostUsd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LlmUsageEventUncheckedUpdateManyWithoutCaseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billedToUserId?: Prisma.StringFieldUpdateOperationsInput | string
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   model?: Prisma.StringFieldUpdateOperationsInput | string
+  operation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   outputTokens?: Prisma.IntFieldUpdateOperationsInput | number
   totalTokens?: Prisma.IntFieldUpdateOperationsInput | number
   estimatedCostUsd?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requestFiles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -992,82 +1308,104 @@ export type LlmUsageEventSelect<ExtArgs extends runtime.Types.Extensions.Interna
   id?: boolean
   workspaceId?: boolean
   caseId?: boolean
-  userId?: boolean
+  actorUserId?: boolean
+  billedToUserId?: boolean
   provider?: boolean
   model?: boolean
+  operation?: boolean
   inputTokens?: boolean
   outputTokens?: boolean
   totalTokens?: boolean
   estimatedCostUsd?: boolean
+  requestFiles?: boolean
+  metadata?: boolean
   createdAt?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   case?: boolean | Prisma.LlmUsageEvent$caseArgs<ExtArgs>
-  user?: boolean | Prisma.LlmUsageEvent$userArgs<ExtArgs>
+  actorUser?: boolean | Prisma.LlmUsageEvent$actorUserArgs<ExtArgs>
+  billedToUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["llmUsageEvent"]>
 
 export type LlmUsageEventSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   workspaceId?: boolean
   caseId?: boolean
-  userId?: boolean
+  actorUserId?: boolean
+  billedToUserId?: boolean
   provider?: boolean
   model?: boolean
+  operation?: boolean
   inputTokens?: boolean
   outputTokens?: boolean
   totalTokens?: boolean
   estimatedCostUsd?: boolean
+  requestFiles?: boolean
+  metadata?: boolean
   createdAt?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   case?: boolean | Prisma.LlmUsageEvent$caseArgs<ExtArgs>
-  user?: boolean | Prisma.LlmUsageEvent$userArgs<ExtArgs>
+  actorUser?: boolean | Prisma.LlmUsageEvent$actorUserArgs<ExtArgs>
+  billedToUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["llmUsageEvent"]>
 
 export type LlmUsageEventSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   workspaceId?: boolean
   caseId?: boolean
-  userId?: boolean
+  actorUserId?: boolean
+  billedToUserId?: boolean
   provider?: boolean
   model?: boolean
+  operation?: boolean
   inputTokens?: boolean
   outputTokens?: boolean
   totalTokens?: boolean
   estimatedCostUsd?: boolean
+  requestFiles?: boolean
+  metadata?: boolean
   createdAt?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   case?: boolean | Prisma.LlmUsageEvent$caseArgs<ExtArgs>
-  user?: boolean | Prisma.LlmUsageEvent$userArgs<ExtArgs>
+  actorUser?: boolean | Prisma.LlmUsageEvent$actorUserArgs<ExtArgs>
+  billedToUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["llmUsageEvent"]>
 
 export type LlmUsageEventSelectScalar = {
   id?: boolean
   workspaceId?: boolean
   caseId?: boolean
-  userId?: boolean
+  actorUserId?: boolean
+  billedToUserId?: boolean
   provider?: boolean
   model?: boolean
+  operation?: boolean
   inputTokens?: boolean
   outputTokens?: boolean
   totalTokens?: boolean
   estimatedCostUsd?: boolean
+  requestFiles?: boolean
+  metadata?: boolean
   createdAt?: boolean
 }
 
-export type LlmUsageEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "caseId" | "userId" | "provider" | "model" | "inputTokens" | "outputTokens" | "totalTokens" | "estimatedCostUsd" | "createdAt", ExtArgs["result"]["llmUsageEvent"]>
+export type LlmUsageEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "caseId" | "actorUserId" | "billedToUserId" | "provider" | "model" | "operation" | "inputTokens" | "outputTokens" | "totalTokens" | "estimatedCostUsd" | "requestFiles" | "metadata" | "createdAt", ExtArgs["result"]["llmUsageEvent"]>
 export type LlmUsageEventInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   case?: boolean | Prisma.LlmUsageEvent$caseArgs<ExtArgs>
-  user?: boolean | Prisma.LlmUsageEvent$userArgs<ExtArgs>
+  actorUser?: boolean | Prisma.LlmUsageEvent$actorUserArgs<ExtArgs>
+  billedToUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type LlmUsageEventIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   case?: boolean | Prisma.LlmUsageEvent$caseArgs<ExtArgs>
-  user?: boolean | Prisma.LlmUsageEvent$userArgs<ExtArgs>
+  actorUser?: boolean | Prisma.LlmUsageEvent$actorUserArgs<ExtArgs>
+  billedToUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type LlmUsageEventIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   case?: boolean | Prisma.LlmUsageEvent$caseArgs<ExtArgs>
-  user?: boolean | Prisma.LlmUsageEvent$userArgs<ExtArgs>
+  actorUser?: boolean | Prisma.LlmUsageEvent$actorUserArgs<ExtArgs>
+  billedToUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
 export type $LlmUsageEventPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1075,19 +1413,24 @@ export type $LlmUsageEventPayload<ExtArgs extends runtime.Types.Extensions.Inter
   objects: {
     workspace: Prisma.$WorkspacePayload<ExtArgs>
     case: Prisma.$CasePayload<ExtArgs> | null
-    user: Prisma.$UserPayload<ExtArgs> | null
+    actorUser: Prisma.$UserPayload<ExtArgs> | null
+    billedToUser: Prisma.$UserPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     workspaceId: string
     caseId: string | null
-    userId: string | null
+    actorUserId: string | null
+    billedToUserId: string
     provider: string
     model: string
+    operation: string | null
     inputTokens: number
     outputTokens: number
     totalTokens: number
     estimatedCostUsd: runtime.Decimal | null
+    requestFiles: runtime.JsonValue | null
+    metadata: runtime.JsonValue | null
     createdAt: Date
   }, ExtArgs["result"]["llmUsageEvent"]>
   composites: {}
@@ -1485,7 +1828,8 @@ export interface Prisma__LlmUsageEventClient<T, Null = never, ExtArgs extends ru
   readonly [Symbol.toStringTag]: "PrismaPromise"
   workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   case<T extends Prisma.LlmUsageEvent$caseArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LlmUsageEvent$caseArgs<ExtArgs>>): Prisma.Prisma__CaseClient<runtime.Types.Result.GetResult<Prisma.$CasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  user<T extends Prisma.LlmUsageEvent$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LlmUsageEvent$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  actorUser<T extends Prisma.LlmUsageEvent$actorUserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LlmUsageEvent$actorUserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  billedToUser<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1518,13 +1862,17 @@ export interface LlmUsageEventFieldRefs {
   readonly id: Prisma.FieldRef<"LlmUsageEvent", 'String'>
   readonly workspaceId: Prisma.FieldRef<"LlmUsageEvent", 'String'>
   readonly caseId: Prisma.FieldRef<"LlmUsageEvent", 'String'>
-  readonly userId: Prisma.FieldRef<"LlmUsageEvent", 'String'>
+  readonly actorUserId: Prisma.FieldRef<"LlmUsageEvent", 'String'>
+  readonly billedToUserId: Prisma.FieldRef<"LlmUsageEvent", 'String'>
   readonly provider: Prisma.FieldRef<"LlmUsageEvent", 'String'>
   readonly model: Prisma.FieldRef<"LlmUsageEvent", 'String'>
+  readonly operation: Prisma.FieldRef<"LlmUsageEvent", 'String'>
   readonly inputTokens: Prisma.FieldRef<"LlmUsageEvent", 'Int'>
   readonly outputTokens: Prisma.FieldRef<"LlmUsageEvent", 'Int'>
   readonly totalTokens: Prisma.FieldRef<"LlmUsageEvent", 'Int'>
   readonly estimatedCostUsd: Prisma.FieldRef<"LlmUsageEvent", 'Decimal'>
+  readonly requestFiles: Prisma.FieldRef<"LlmUsageEvent", 'Json'>
+  readonly metadata: Prisma.FieldRef<"LlmUsageEvent", 'Json'>
   readonly createdAt: Prisma.FieldRef<"LlmUsageEvent", 'DateTime'>
 }
     
@@ -1946,9 +2294,9 @@ export type LlmUsageEvent$caseArgs<ExtArgs extends runtime.Types.Extensions.Inte
 }
 
 /**
- * LlmUsageEvent.user
+ * LlmUsageEvent.actorUser
  */
-export type LlmUsageEvent$userArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type LlmUsageEvent$actorUserArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the User
    */

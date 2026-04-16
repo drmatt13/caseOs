@@ -9,8 +9,8 @@
  * 🟢 You can import this file directly.
  */
 import type * as runtime from "@prisma/client/runtime/client"
-import type * as $Enums from "../enums.ts"
-import type * as Prisma from "../internal/prismaNamespace.ts"
+import type * as $Enums from "../enums"
+import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model StripeEventLog
@@ -28,6 +28,7 @@ export type StripeEventLogMinAggregateOutputType = {
   id: string | null
   stripeEventId: string | null
   stripeEventType: string | null
+  userId: string | null
   workspaceId: string | null
   stripeCustomerId: string | null
   stripeSubscriptionId: string | null
@@ -41,6 +42,7 @@ export type StripeEventLogMaxAggregateOutputType = {
   id: string | null
   stripeEventId: string | null
   stripeEventType: string | null
+  userId: string | null
   workspaceId: string | null
   stripeCustomerId: string | null
   stripeSubscriptionId: string | null
@@ -54,6 +56,7 @@ export type StripeEventLogCountAggregateOutputType = {
   id: number
   stripeEventId: number
   stripeEventType: number
+  userId: number
   workspaceId: number
   stripeCustomerId: number
   stripeSubscriptionId: number
@@ -70,6 +73,7 @@ export type StripeEventLogMinAggregateInputType = {
   id?: true
   stripeEventId?: true
   stripeEventType?: true
+  userId?: true
   workspaceId?: true
   stripeCustomerId?: true
   stripeSubscriptionId?: true
@@ -83,6 +87,7 @@ export type StripeEventLogMaxAggregateInputType = {
   id?: true
   stripeEventId?: true
   stripeEventType?: true
+  userId?: true
   workspaceId?: true
   stripeCustomerId?: true
   stripeSubscriptionId?: true
@@ -96,6 +101,7 @@ export type StripeEventLogCountAggregateInputType = {
   id?: true
   stripeEventId?: true
   stripeEventType?: true
+  userId?: true
   workspaceId?: true
   stripeCustomerId?: true
   stripeSubscriptionId?: true
@@ -183,6 +189,7 @@ export type StripeEventLogGroupByOutputType = {
   id: string
   stripeEventId: string
   stripeEventType: string
+  userId: string | null
   workspaceId: string | null
   stripeCustomerId: string | null
   stripeSubscriptionId: string | null
@@ -218,6 +225,7 @@ export type StripeEventLogWhereInput = {
   id?: Prisma.UuidFilter<"StripeEventLog"> | string
   stripeEventId?: Prisma.StringFilter<"StripeEventLog"> | string
   stripeEventType?: Prisma.StringFilter<"StripeEventLog"> | string
+  userId?: Prisma.UuidNullableFilter<"StripeEventLog"> | string | null
   workspaceId?: Prisma.UuidNullableFilter<"StripeEventLog"> | string | null
   stripeCustomerId?: Prisma.StringNullableFilter<"StripeEventLog"> | string | null
   stripeSubscriptionId?: Prisma.StringNullableFilter<"StripeEventLog"> | string | null
@@ -226,6 +234,7 @@ export type StripeEventLogWhereInput = {
   eventCreatedAt?: Prisma.DateTimeNullableFilter<"StripeEventLog"> | Date | string | null
   receivedAt?: Prisma.DateTimeFilter<"StripeEventLog"> | Date | string
   payload?: Prisma.JsonFilter<"StripeEventLog">
+  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   workspace?: Prisma.XOR<Prisma.WorkspaceNullableScalarRelationFilter, Prisma.WorkspaceWhereInput> | null
 }
 
@@ -233,6 +242,7 @@ export type StripeEventLogOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   stripeEventId?: Prisma.SortOrder
   stripeEventType?: Prisma.SortOrder
+  userId?: Prisma.SortOrderInput | Prisma.SortOrder
   workspaceId?: Prisma.SortOrderInput | Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
   stripeSubscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -241,6 +251,7 @@ export type StripeEventLogOrderByWithRelationInput = {
   eventCreatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   receivedAt?: Prisma.SortOrder
   payload?: Prisma.SortOrder
+  user?: Prisma.UserOrderByWithRelationInput
   workspace?: Prisma.WorkspaceOrderByWithRelationInput
 }
 
@@ -251,6 +262,7 @@ export type StripeEventLogWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.StripeEventLogWhereInput[]
   NOT?: Prisma.StripeEventLogWhereInput | Prisma.StripeEventLogWhereInput[]
   stripeEventType?: Prisma.StringFilter<"StripeEventLog"> | string
+  userId?: Prisma.UuidNullableFilter<"StripeEventLog"> | string | null
   workspaceId?: Prisma.UuidNullableFilter<"StripeEventLog"> | string | null
   stripeCustomerId?: Prisma.StringNullableFilter<"StripeEventLog"> | string | null
   stripeSubscriptionId?: Prisma.StringNullableFilter<"StripeEventLog"> | string | null
@@ -259,6 +271,7 @@ export type StripeEventLogWhereUniqueInput = Prisma.AtLeast<{
   eventCreatedAt?: Prisma.DateTimeNullableFilter<"StripeEventLog"> | Date | string | null
   receivedAt?: Prisma.DateTimeFilter<"StripeEventLog"> | Date | string
   payload?: Prisma.JsonFilter<"StripeEventLog">
+  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   workspace?: Prisma.XOR<Prisma.WorkspaceNullableScalarRelationFilter, Prisma.WorkspaceWhereInput> | null
 }, "id" | "stripeEventId">
 
@@ -266,6 +279,7 @@ export type StripeEventLogOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   stripeEventId?: Prisma.SortOrder
   stripeEventType?: Prisma.SortOrder
+  userId?: Prisma.SortOrderInput | Prisma.SortOrder
   workspaceId?: Prisma.SortOrderInput | Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
   stripeSubscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -286,6 +300,7 @@ export type StripeEventLogScalarWhereWithAggregatesInput = {
   id?: Prisma.UuidWithAggregatesFilter<"StripeEventLog"> | string
   stripeEventId?: Prisma.StringWithAggregatesFilter<"StripeEventLog"> | string
   stripeEventType?: Prisma.StringWithAggregatesFilter<"StripeEventLog"> | string
+  userId?: Prisma.UuidNullableWithAggregatesFilter<"StripeEventLog"> | string | null
   workspaceId?: Prisma.UuidNullableWithAggregatesFilter<"StripeEventLog"> | string | null
   stripeCustomerId?: Prisma.StringNullableWithAggregatesFilter<"StripeEventLog"> | string | null
   stripeSubscriptionId?: Prisma.StringNullableWithAggregatesFilter<"StripeEventLog"> | string | null
@@ -307,6 +322,7 @@ export type StripeEventLogCreateInput = {
   eventCreatedAt?: Date | string | null
   receivedAt?: Date | string
   payload: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  user?: Prisma.UserCreateNestedOneWithoutStripeEventsInput
   workspace?: Prisma.WorkspaceCreateNestedOneWithoutStripeEventsInput
 }
 
@@ -314,6 +330,7 @@ export type StripeEventLogUncheckedCreateInput = {
   id?: string
   stripeEventId: string
   stripeEventType: string
+  userId?: string | null
   workspaceId?: string | null
   stripeCustomerId?: string | null
   stripeSubscriptionId?: string | null
@@ -335,6 +352,7 @@ export type StripeEventLogUpdateInput = {
   eventCreatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  user?: Prisma.UserUpdateOneWithoutStripeEventsNestedInput
   workspace?: Prisma.WorkspaceUpdateOneWithoutStripeEventsNestedInput
 }
 
@@ -342,6 +360,7 @@ export type StripeEventLogUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   stripeEventId?: Prisma.StringFieldUpdateOperationsInput | string
   stripeEventType?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -356,6 +375,7 @@ export type StripeEventLogCreateManyInput = {
   id?: string
   stripeEventId: string
   stripeEventType: string
+  userId?: string | null
   workspaceId?: string | null
   stripeCustomerId?: string | null
   stripeSubscriptionId?: string | null
@@ -383,6 +403,7 @@ export type StripeEventLogUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   stripeEventId?: Prisma.StringFieldUpdateOperationsInput | string
   stripeEventType?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -407,6 +428,7 @@ export type StripeEventLogCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   stripeEventId?: Prisma.SortOrder
   stripeEventType?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrder
   stripeSubscriptionId?: Prisma.SortOrder
@@ -421,6 +443,7 @@ export type StripeEventLogMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   stripeEventId?: Prisma.SortOrder
   stripeEventType?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrder
   stripeSubscriptionId?: Prisma.SortOrder
@@ -434,6 +457,7 @@ export type StripeEventLogMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   stripeEventId?: Prisma.SortOrder
   stripeEventType?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrder
   stripeSubscriptionId?: Prisma.SortOrder
@@ -441,6 +465,48 @@ export type StripeEventLogMinOrderByAggregateInput = {
   processedAt?: Prisma.SortOrder
   eventCreatedAt?: Prisma.SortOrder
   receivedAt?: Prisma.SortOrder
+}
+
+export type StripeEventLogCreateNestedManyWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.StripeEventLogCreateWithoutUserInput, Prisma.StripeEventLogUncheckedCreateWithoutUserInput> | Prisma.StripeEventLogCreateWithoutUserInput[] | Prisma.StripeEventLogUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.StripeEventLogCreateOrConnectWithoutUserInput | Prisma.StripeEventLogCreateOrConnectWithoutUserInput[]
+  createMany?: Prisma.StripeEventLogCreateManyUserInputEnvelope
+  connect?: Prisma.StripeEventLogWhereUniqueInput | Prisma.StripeEventLogWhereUniqueInput[]
+}
+
+export type StripeEventLogUncheckedCreateNestedManyWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.StripeEventLogCreateWithoutUserInput, Prisma.StripeEventLogUncheckedCreateWithoutUserInput> | Prisma.StripeEventLogCreateWithoutUserInput[] | Prisma.StripeEventLogUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.StripeEventLogCreateOrConnectWithoutUserInput | Prisma.StripeEventLogCreateOrConnectWithoutUserInput[]
+  createMany?: Prisma.StripeEventLogCreateManyUserInputEnvelope
+  connect?: Prisma.StripeEventLogWhereUniqueInput | Prisma.StripeEventLogWhereUniqueInput[]
+}
+
+export type StripeEventLogUpdateManyWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.StripeEventLogCreateWithoutUserInput, Prisma.StripeEventLogUncheckedCreateWithoutUserInput> | Prisma.StripeEventLogCreateWithoutUserInput[] | Prisma.StripeEventLogUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.StripeEventLogCreateOrConnectWithoutUserInput | Prisma.StripeEventLogCreateOrConnectWithoutUserInput[]
+  upsert?: Prisma.StripeEventLogUpsertWithWhereUniqueWithoutUserInput | Prisma.StripeEventLogUpsertWithWhereUniqueWithoutUserInput[]
+  createMany?: Prisma.StripeEventLogCreateManyUserInputEnvelope
+  set?: Prisma.StripeEventLogWhereUniqueInput | Prisma.StripeEventLogWhereUniqueInput[]
+  disconnect?: Prisma.StripeEventLogWhereUniqueInput | Prisma.StripeEventLogWhereUniqueInput[]
+  delete?: Prisma.StripeEventLogWhereUniqueInput | Prisma.StripeEventLogWhereUniqueInput[]
+  connect?: Prisma.StripeEventLogWhereUniqueInput | Prisma.StripeEventLogWhereUniqueInput[]
+  update?: Prisma.StripeEventLogUpdateWithWhereUniqueWithoutUserInput | Prisma.StripeEventLogUpdateWithWhereUniqueWithoutUserInput[]
+  updateMany?: Prisma.StripeEventLogUpdateManyWithWhereWithoutUserInput | Prisma.StripeEventLogUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.StripeEventLogScalarWhereInput | Prisma.StripeEventLogScalarWhereInput[]
+}
+
+export type StripeEventLogUncheckedUpdateManyWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.StripeEventLogCreateWithoutUserInput, Prisma.StripeEventLogUncheckedCreateWithoutUserInput> | Prisma.StripeEventLogCreateWithoutUserInput[] | Prisma.StripeEventLogUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.StripeEventLogCreateOrConnectWithoutUserInput | Prisma.StripeEventLogCreateOrConnectWithoutUserInput[]
+  upsert?: Prisma.StripeEventLogUpsertWithWhereUniqueWithoutUserInput | Prisma.StripeEventLogUpsertWithWhereUniqueWithoutUserInput[]
+  createMany?: Prisma.StripeEventLogCreateManyUserInputEnvelope
+  set?: Prisma.StripeEventLogWhereUniqueInput | Prisma.StripeEventLogWhereUniqueInput[]
+  disconnect?: Prisma.StripeEventLogWhereUniqueInput | Prisma.StripeEventLogWhereUniqueInput[]
+  delete?: Prisma.StripeEventLogWhereUniqueInput | Prisma.StripeEventLogWhereUniqueInput[]
+  connect?: Prisma.StripeEventLogWhereUniqueInput | Prisma.StripeEventLogWhereUniqueInput[]
+  update?: Prisma.StripeEventLogUpdateWithWhereUniqueWithoutUserInput | Prisma.StripeEventLogUpdateWithWhereUniqueWithoutUserInput[]
+  updateMany?: Prisma.StripeEventLogUpdateManyWithWhereWithoutUserInput | Prisma.StripeEventLogUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.StripeEventLogScalarWhereInput | Prisma.StripeEventLogScalarWhereInput[]
 }
 
 export type StripeEventLogCreateNestedManyWithoutWorkspaceInput = {
@@ -485,6 +551,78 @@ export type StripeEventLogUncheckedUpdateManyWithoutWorkspaceNestedInput = {
   deleteMany?: Prisma.StripeEventLogScalarWhereInput | Prisma.StripeEventLogScalarWhereInput[]
 }
 
+export type StripeEventLogCreateWithoutUserInput = {
+  id?: string
+  stripeEventId: string
+  stripeEventType: string
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  processed?: boolean
+  processedAt?: Date | string | null
+  eventCreatedAt?: Date | string | null
+  receivedAt?: Date | string
+  payload: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  workspace?: Prisma.WorkspaceCreateNestedOneWithoutStripeEventsInput
+}
+
+export type StripeEventLogUncheckedCreateWithoutUserInput = {
+  id?: string
+  stripeEventId: string
+  stripeEventType: string
+  workspaceId?: string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  processed?: boolean
+  processedAt?: Date | string | null
+  eventCreatedAt?: Date | string | null
+  receivedAt?: Date | string
+  payload: Prisma.JsonNullValueInput | runtime.InputJsonValue
+}
+
+export type StripeEventLogCreateOrConnectWithoutUserInput = {
+  where: Prisma.StripeEventLogWhereUniqueInput
+  create: Prisma.XOR<Prisma.StripeEventLogCreateWithoutUserInput, Prisma.StripeEventLogUncheckedCreateWithoutUserInput>
+}
+
+export type StripeEventLogCreateManyUserInputEnvelope = {
+  data: Prisma.StripeEventLogCreateManyUserInput | Prisma.StripeEventLogCreateManyUserInput[]
+  skipDuplicates?: boolean
+}
+
+export type StripeEventLogUpsertWithWhereUniqueWithoutUserInput = {
+  where: Prisma.StripeEventLogWhereUniqueInput
+  update: Prisma.XOR<Prisma.StripeEventLogUpdateWithoutUserInput, Prisma.StripeEventLogUncheckedUpdateWithoutUserInput>
+  create: Prisma.XOR<Prisma.StripeEventLogCreateWithoutUserInput, Prisma.StripeEventLogUncheckedCreateWithoutUserInput>
+}
+
+export type StripeEventLogUpdateWithWhereUniqueWithoutUserInput = {
+  where: Prisma.StripeEventLogWhereUniqueInput
+  data: Prisma.XOR<Prisma.StripeEventLogUpdateWithoutUserInput, Prisma.StripeEventLogUncheckedUpdateWithoutUserInput>
+}
+
+export type StripeEventLogUpdateManyWithWhereWithoutUserInput = {
+  where: Prisma.StripeEventLogScalarWhereInput
+  data: Prisma.XOR<Prisma.StripeEventLogUpdateManyMutationInput, Prisma.StripeEventLogUncheckedUpdateManyWithoutUserInput>
+}
+
+export type StripeEventLogScalarWhereInput = {
+  AND?: Prisma.StripeEventLogScalarWhereInput | Prisma.StripeEventLogScalarWhereInput[]
+  OR?: Prisma.StripeEventLogScalarWhereInput[]
+  NOT?: Prisma.StripeEventLogScalarWhereInput | Prisma.StripeEventLogScalarWhereInput[]
+  id?: Prisma.UuidFilter<"StripeEventLog"> | string
+  stripeEventId?: Prisma.StringFilter<"StripeEventLog"> | string
+  stripeEventType?: Prisma.StringFilter<"StripeEventLog"> | string
+  userId?: Prisma.UuidNullableFilter<"StripeEventLog"> | string | null
+  workspaceId?: Prisma.UuidNullableFilter<"StripeEventLog"> | string | null
+  stripeCustomerId?: Prisma.StringNullableFilter<"StripeEventLog"> | string | null
+  stripeSubscriptionId?: Prisma.StringNullableFilter<"StripeEventLog"> | string | null
+  processed?: Prisma.BoolFilter<"StripeEventLog"> | boolean
+  processedAt?: Prisma.DateTimeNullableFilter<"StripeEventLog"> | Date | string | null
+  eventCreatedAt?: Prisma.DateTimeNullableFilter<"StripeEventLog"> | Date | string | null
+  receivedAt?: Prisma.DateTimeFilter<"StripeEventLog"> | Date | string
+  payload?: Prisma.JsonFilter<"StripeEventLog">
+}
+
 export type StripeEventLogCreateWithoutWorkspaceInput = {
   id?: string
   stripeEventId: string
@@ -496,12 +634,14 @@ export type StripeEventLogCreateWithoutWorkspaceInput = {
   eventCreatedAt?: Date | string | null
   receivedAt?: Date | string
   payload: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  user?: Prisma.UserCreateNestedOneWithoutStripeEventsInput
 }
 
 export type StripeEventLogUncheckedCreateWithoutWorkspaceInput = {
   id?: string
   stripeEventId: string
   stripeEventType: string
+  userId?: string | null
   stripeCustomerId?: string | null
   stripeSubscriptionId?: string | null
   processed?: boolean
@@ -537,27 +677,67 @@ export type StripeEventLogUpdateManyWithWhereWithoutWorkspaceInput = {
   data: Prisma.XOR<Prisma.StripeEventLogUpdateManyMutationInput, Prisma.StripeEventLogUncheckedUpdateManyWithoutWorkspaceInput>
 }
 
-export type StripeEventLogScalarWhereInput = {
-  AND?: Prisma.StripeEventLogScalarWhereInput | Prisma.StripeEventLogScalarWhereInput[]
-  OR?: Prisma.StripeEventLogScalarWhereInput[]
-  NOT?: Prisma.StripeEventLogScalarWhereInput | Prisma.StripeEventLogScalarWhereInput[]
-  id?: Prisma.UuidFilter<"StripeEventLog"> | string
-  stripeEventId?: Prisma.StringFilter<"StripeEventLog"> | string
-  stripeEventType?: Prisma.StringFilter<"StripeEventLog"> | string
-  workspaceId?: Prisma.UuidNullableFilter<"StripeEventLog"> | string | null
-  stripeCustomerId?: Prisma.StringNullableFilter<"StripeEventLog"> | string | null
-  stripeSubscriptionId?: Prisma.StringNullableFilter<"StripeEventLog"> | string | null
-  processed?: Prisma.BoolFilter<"StripeEventLog"> | boolean
-  processedAt?: Prisma.DateTimeNullableFilter<"StripeEventLog"> | Date | string | null
-  eventCreatedAt?: Prisma.DateTimeNullableFilter<"StripeEventLog"> | Date | string | null
-  receivedAt?: Prisma.DateTimeFilter<"StripeEventLog"> | Date | string
-  payload?: Prisma.JsonFilter<"StripeEventLog">
+export type StripeEventLogCreateManyUserInput = {
+  id?: string
+  stripeEventId: string
+  stripeEventType: string
+  workspaceId?: string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  processed?: boolean
+  processedAt?: Date | string | null
+  eventCreatedAt?: Date | string | null
+  receivedAt?: Date | string
+  payload: Prisma.JsonNullValueInput | runtime.InputJsonValue
+}
+
+export type StripeEventLogUpdateWithoutUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeEventId?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeEventType?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  processed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  processedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  eventCreatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  workspace?: Prisma.WorkspaceUpdateOneWithoutStripeEventsNestedInput
+}
+
+export type StripeEventLogUncheckedUpdateWithoutUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeEventId?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeEventType?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  processed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  processedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  eventCreatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+}
+
+export type StripeEventLogUncheckedUpdateManyWithoutUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeEventId?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeEventType?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  processed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  processedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  eventCreatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
 }
 
 export type StripeEventLogCreateManyWorkspaceInput = {
   id?: string
   stripeEventId: string
   stripeEventType: string
+  userId?: string | null
   stripeCustomerId?: string | null
   stripeSubscriptionId?: string | null
   processed?: boolean
@@ -578,12 +758,14 @@ export type StripeEventLogUpdateWithoutWorkspaceInput = {
   eventCreatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  user?: Prisma.UserUpdateOneWithoutStripeEventsNestedInput
 }
 
 export type StripeEventLogUncheckedUpdateWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   stripeEventId?: Prisma.StringFieldUpdateOperationsInput | string
   stripeEventType?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   processed?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -597,6 +779,7 @@ export type StripeEventLogUncheckedUpdateManyWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   stripeEventId?: Prisma.StringFieldUpdateOperationsInput | string
   stripeEventType?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   processed?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -612,6 +795,7 @@ export type StripeEventLogSelect<ExtArgs extends runtime.Types.Extensions.Intern
   id?: boolean
   stripeEventId?: boolean
   stripeEventType?: boolean
+  userId?: boolean
   workspaceId?: boolean
   stripeCustomerId?: boolean
   stripeSubscriptionId?: boolean
@@ -620,6 +804,7 @@ export type StripeEventLogSelect<ExtArgs extends runtime.Types.Extensions.Intern
   eventCreatedAt?: boolean
   receivedAt?: boolean
   payload?: boolean
+  user?: boolean | Prisma.StripeEventLog$userArgs<ExtArgs>
   workspace?: boolean | Prisma.StripeEventLog$workspaceArgs<ExtArgs>
 }, ExtArgs["result"]["stripeEventLog"]>
 
@@ -627,6 +812,7 @@ export type StripeEventLogSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   id?: boolean
   stripeEventId?: boolean
   stripeEventType?: boolean
+  userId?: boolean
   workspaceId?: boolean
   stripeCustomerId?: boolean
   stripeSubscriptionId?: boolean
@@ -635,6 +821,7 @@ export type StripeEventLogSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   eventCreatedAt?: boolean
   receivedAt?: boolean
   payload?: boolean
+  user?: boolean | Prisma.StripeEventLog$userArgs<ExtArgs>
   workspace?: boolean | Prisma.StripeEventLog$workspaceArgs<ExtArgs>
 }, ExtArgs["result"]["stripeEventLog"]>
 
@@ -642,6 +829,7 @@ export type StripeEventLogSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   id?: boolean
   stripeEventId?: boolean
   stripeEventType?: boolean
+  userId?: boolean
   workspaceId?: boolean
   stripeCustomerId?: boolean
   stripeSubscriptionId?: boolean
@@ -650,6 +838,7 @@ export type StripeEventLogSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   eventCreatedAt?: boolean
   receivedAt?: boolean
   payload?: boolean
+  user?: boolean | Prisma.StripeEventLog$userArgs<ExtArgs>
   workspace?: boolean | Prisma.StripeEventLog$workspaceArgs<ExtArgs>
 }, ExtArgs["result"]["stripeEventLog"]>
 
@@ -657,6 +846,7 @@ export type StripeEventLogSelectScalar = {
   id?: boolean
   stripeEventId?: boolean
   stripeEventType?: boolean
+  userId?: boolean
   workspaceId?: boolean
   stripeCustomerId?: boolean
   stripeSubscriptionId?: boolean
@@ -667,26 +857,31 @@ export type StripeEventLogSelectScalar = {
   payload?: boolean
 }
 
-export type StripeEventLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "stripeEventId" | "stripeEventType" | "workspaceId" | "stripeCustomerId" | "stripeSubscriptionId" | "processed" | "processedAt" | "eventCreatedAt" | "receivedAt" | "payload", ExtArgs["result"]["stripeEventLog"]>
+export type StripeEventLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "stripeEventId" | "stripeEventType" | "userId" | "workspaceId" | "stripeCustomerId" | "stripeSubscriptionId" | "processed" | "processedAt" | "eventCreatedAt" | "receivedAt" | "payload", ExtArgs["result"]["stripeEventLog"]>
 export type StripeEventLogInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  user?: boolean | Prisma.StripeEventLog$userArgs<ExtArgs>
   workspace?: boolean | Prisma.StripeEventLog$workspaceArgs<ExtArgs>
 }
 export type StripeEventLogIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  user?: boolean | Prisma.StripeEventLog$userArgs<ExtArgs>
   workspace?: boolean | Prisma.StripeEventLog$workspaceArgs<ExtArgs>
 }
 export type StripeEventLogIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  user?: boolean | Prisma.StripeEventLog$userArgs<ExtArgs>
   workspace?: boolean | Prisma.StripeEventLog$workspaceArgs<ExtArgs>
 }
 
 export type $StripeEventLogPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "StripeEventLog"
   objects: {
+    user: Prisma.$UserPayload<ExtArgs> | null
     workspace: Prisma.$WorkspacePayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     stripeEventId: string
     stripeEventType: string
+    userId: string | null
     workspaceId: string | null
     stripeCustomerId: string | null
     stripeSubscriptionId: string | null
@@ -1089,6 +1284,7 @@ readonly fields: StripeEventLogFieldRefs;
  */
 export interface Prisma__StripeEventLogClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  user<T extends Prisma.StripeEventLog$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StripeEventLog$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   workspace<T extends Prisma.StripeEventLog$workspaceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StripeEventLog$workspaceArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1122,6 +1318,7 @@ export interface StripeEventLogFieldRefs {
   readonly id: Prisma.FieldRef<"StripeEventLog", 'String'>
   readonly stripeEventId: Prisma.FieldRef<"StripeEventLog", 'String'>
   readonly stripeEventType: Prisma.FieldRef<"StripeEventLog", 'String'>
+  readonly userId: Prisma.FieldRef<"StripeEventLog", 'String'>
   readonly workspaceId: Prisma.FieldRef<"StripeEventLog", 'String'>
   readonly stripeCustomerId: Prisma.FieldRef<"StripeEventLog", 'String'>
   readonly stripeSubscriptionId: Prisma.FieldRef<"StripeEventLog", 'String'>
@@ -1528,6 +1725,25 @@ export type StripeEventLogDeleteManyArgs<ExtArgs extends runtime.Types.Extension
    * Limit how many StripeEventLogs to delete.
    */
   limit?: number
+}
+
+/**
+ * StripeEventLog.user
+ */
+export type StripeEventLog$userArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**

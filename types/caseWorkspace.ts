@@ -222,7 +222,7 @@ export type PostureRecord = WorkspaceRecordBase & {
 export type TaskRecord = WorkspaceRecordBase & {
   taskStatus?: "open" | "in_progress" | "blocked" | "done";
   priority?: "low" | "medium" | "high";
-  dueDate?: string;
+  dueDate?: Date;
 };
 
 export type TestimonyRecord = WorkspaceRecordBase & {
@@ -231,7 +231,7 @@ export type TestimonyRecord = WorkspaceRecordBase & {
 };
 
 export type TimelineRecord = WorkspaceRecordBase & {
-  eventDate?: string;
+  eventDate: Date;
   dateConfidence?: "exact" | "approximate" | "unknown";
 };
 

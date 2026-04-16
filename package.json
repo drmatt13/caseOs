@@ -2,7 +2,8 @@
   "name": "my-monorepo",
   "private": true,
   "workspaces": [
+    "client-app",
     "packages/*",
-    "aws-cdk-app/lambda_functions/*"
+    "cdk-app/lambda_functions/*"
   ]
 }

@@ -17,8 +17,8 @@
 
 import * as runtime from "@prisma/client/runtime/index-browser"
 
-export type * from '../models.ts'
-export type * from './prismaNamespace.ts'
+export type * from '../models'
+export type * from './prismaNamespace'
 
 export const Decimal = runtime.Decimal
 
@@ -55,13 +55,16 @@ export const ModelName = {
   Workspace: 'Workspace',
   WorkspaceMembership: 'WorkspaceMembership',
   WorkspaceInvitation: 'WorkspaceInvitation',
-  WorkspaceSubscription: 'WorkspaceSubscription',
-  WorkspacePaymentMethod: 'WorkspacePaymentMethod',
-  StripeEventLog: 'StripeEventLog',
   Case: 'Case',
+  CaseDocumentIndex: 'CaseDocumentIndex',
+  CaseRecordIndex: 'CaseRecordIndex',
+  CaseViewIndex: 'CaseViewIndex',
+  CaseStateManifest: 'CaseStateManifest',
   LlmUsageEvent: 'LlmUsageEvent',
   WorkspaceUsageMonthly: 'WorkspaceUsageMonthly',
-  TierLimit: 'TierLimit'
+  UserUsageMonthly: 'UserUsageMonthly',
+  StripeEventLog: 'StripeEventLog',
+  AccountTierLimit: 'AccountTierLimit'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -84,10 +87,27 @@ export const UserScalarFieldEnum = {
   id: 'id',
   cognitoSub: 'cognitoSub',
   email: 'email',
+  billingEmail: 'billingEmail',
   displayName: 'displayName',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  profilePicture: 'profilePicture',
+  userName: 'userName',
   isPlatformAdmin: 'isPlatformAdmin',
-  canCreateWorkspaces: 'canCreateWorkspaces',
+  accountTier: 'accountTier',
   accountStatus: 'accountStatus',
+  stripeCustomerId: 'stripeCustomerId',
+  stripeSubscriptionId: 'stripeSubscriptionId',
+  stripePriceId: 'stripePriceId',
+  stripeProductId: 'stripeProductId',
+  stripeDefaultPaymentMethodId: 'stripeDefaultPaymentMethodId',
+  subscriptionStatus: 'subscriptionStatus',
+  billingInterval: 'billingInterval',
+  cancelAtPeriodEnd: 'cancelAtPeriodEnd',
+  currentPeriodStart: 'currentPeriodStart',
+  currentPeriodEnd: 'currentPeriodEnd',
+  trialStartsAt: 'trialStartsAt',
+  trialEndsAt: 'trialEndsAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -98,12 +118,10 @@ export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof User
 export const WorkspaceScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  createdByUserId: 'createdByUserId',
-  tier: 'tier',
+  ownerUserId: 'ownerUserId',
+  storageBucket: 'storageBucket',
+  storagePrefix: 'storagePrefix',
   status: 'status',
-  billingEmail: 'billingEmail',
-  stripeCustomerId: 'stripeCustomerId',
-  stripeDefaultPaymentMethodId: 'stripeDefaultPaymentMethodId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -126,65 +144,201 @@ export type WorkspaceMembershipScalarFieldEnum = (typeof WorkspaceMembershipScal
 export const WorkspaceInvitationScalarFieldEnum = {
   id: 'id',
   workspaceId: 'workspaceId',
-  invitedByUserId: 'invitedByUserId',
   email: 'email',
   role: 'role',
   invitationToken: 'invitationToken',
   status: 'status',
   expiresAt: 'expiresAt',
-  acceptedByUserId: 'acceptedByUserId',
-  acceptedAt: 'acceptedAt',
   createdAt: 'createdAt'
 } as const
 
 export type WorkspaceInvitationScalarFieldEnum = (typeof WorkspaceInvitationScalarFieldEnum)[keyof typeof WorkspaceInvitationScalarFieldEnum]
 
 
-export const WorkspaceSubscriptionScalarFieldEnum = {
+export const CaseScalarFieldEnum = {
   id: 'id',
   workspaceId: 'workspaceId',
-  stripeCustomerId: 'stripeCustomerId',
-  stripeSubscriptionId: 'stripeSubscriptionId',
-  stripePriceId: 'stripePriceId',
-  stripeProductId: 'stripeProductId',
-  tier: 'tier',
-  subscriptionStatus: 'subscriptionStatus',
-  billingInterval: 'billingInterval',
-  cancelAtPeriodEnd: 'cancelAtPeriodEnd',
-  currentPeriodStart: 'currentPeriodStart',
-  currentPeriodEnd: 'currentPeriodEnd',
-  trialStart: 'trialStart',
-  trialEnd: 'trialEnd',
-  cancelledAt: 'cancelledAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type WorkspaceSubscriptionScalarFieldEnum = (typeof WorkspaceSubscriptionScalarFieldEnum)[keyof typeof WorkspaceSubscriptionScalarFieldEnum]
-
-
-export const WorkspacePaymentMethodScalarFieldEnum = {
-  id: 'id',
-  workspaceId: 'workspaceId',
-  stripeCustomerId: 'stripeCustomerId',
-  stripePaymentMethodId: 'stripePaymentMethodId',
-  brand: 'brand',
-  last4: 'last4',
-  expMonth: 'expMonth',
-  expYear: 'expYear',
-  isDefault: 'isDefault',
+  createdByUserId: 'createdByUserId',
+  title: 'title',
+  description: 'description',
   status: 'status',
+  intake: 'intake',
+  currentManifestNumber: 'currentManifestNumber',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type WorkspacePaymentMethodScalarFieldEnum = (typeof WorkspacePaymentMethodScalarFieldEnum)[keyof typeof WorkspacePaymentMethodScalarFieldEnum]
+export type CaseScalarFieldEnum = (typeof CaseScalarFieldEnum)[keyof typeof CaseScalarFieldEnum]
+
+
+export const CaseDocumentIndexScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  caseId: 'caseId',
+  uploadedByUserId: 'uploadedByUserId',
+  category: 'category',
+  fileName: 'fileName',
+  storageBucket: 'storageBucket',
+  storageKey: 'storageKey',
+  mimeType: 'mimeType',
+  mimeFamily: 'mimeFamily',
+  fileSizeBytes: 'fileSizeBytes',
+  checksumSha256: 'checksumSha256',
+  eTag: 'eTag',
+  externalFileId: 'externalFileId',
+  userDescription: 'userDescription',
+  whyThisMatters: 'whyThisMatters',
+  llmSummary: 'llmSummary',
+  status: 'status',
+  createdBy: 'createdBy',
+  version: 'version',
+  relevantDate: 'relevantDate',
+  dateConfidence: 'dateConfidence',
+  referencedBy: 'referencedBy',
+  searchText: 'searchText',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CaseDocumentIndexScalarFieldEnum = (typeof CaseDocumentIndexScalarFieldEnum)[keyof typeof CaseDocumentIndexScalarFieldEnum]
+
+
+export const CaseRecordIndexScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  caseId: 'caseId',
+  manifestId: 'manifestId',
+  recordType: 'recordType',
+  recordCategory: 'recordCategory',
+  title: 'title',
+  storageBucket: 'storageBucket',
+  storageKey: 'storageKey',
+  mimeType: 'mimeType',
+  fileSizeBytes: 'fileSizeBytes',
+  checksumSha256: 'checksumSha256',
+  eTag: 'eTag',
+  version: 'version',
+  confidence: 'confidence',
+  createdBy: 'createdBy',
+  createdByUserId: 'createdByUserId',
+  recordStatus: 'recordStatus',
+  recordVisibility: 'recordVisibility',
+  typedMeta: 'typedMeta',
+  references: 'references',
+  referencedBy: 'referencedBy',
+  supersedes: 'supersedes',
+  supersededBy: 'supersededBy',
+  searchText: 'searchText',
+  eventDate: 'eventDate',
+  dueDate: 'dueDate',
+  dateConfidence: 'dateConfidence',
+  lastUpdatedAt: 'lastUpdatedAt',
+  lastUpdatedByUserId: 'lastUpdatedByUserId',
+  createdAt: 'createdAt'
+} as const
+
+export type CaseRecordIndexScalarFieldEnum = (typeof CaseRecordIndexScalarFieldEnum)[keyof typeof CaseRecordIndexScalarFieldEnum]
+
+
+export const CaseViewIndexScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  caseId: 'caseId',
+  manifestId: 'manifestId',
+  viewType: 'viewType',
+  title: 'title',
+  storageBucket: 'storageBucket',
+  storageKey: 'storageKey',
+  mimeType: 'mimeType',
+  mimeFamily: 'mimeFamily',
+  fileSizeBytes: 'fileSizeBytes',
+  checksumSha256: 'checksumSha256',
+  eTag: 'eTag',
+  version: 'version',
+  sourceHash: 'sourceHash',
+  searchText: 'searchText',
+  generatedBy: 'generatedBy',
+  createdBy: 'createdBy',
+  createdByUserId: 'createdByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CaseViewIndexScalarFieldEnum = (typeof CaseViewIndexScalarFieldEnum)[keyof typeof CaseViewIndexScalarFieldEnum]
+
+
+export const CaseStateManifestScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  caseId: 'caseId',
+  createdByUserId: 'createdByUserId',
+  manifestKind: 'manifestKind',
+  manifestNumber: 'manifestNumber',
+  storageBucket: 'storageBucket',
+  storageKey: 'storageKey',
+  checksumSha256: 'checksumSha256',
+  sourceHash: 'sourceHash',
+  isCurrent: 'isCurrent',
+  notes: 'notes',
+  createdAt: 'createdAt'
+} as const
+
+export type CaseStateManifestScalarFieldEnum = (typeof CaseStateManifestScalarFieldEnum)[keyof typeof CaseStateManifestScalarFieldEnum]
+
+
+export const LlmUsageEventScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  caseId: 'caseId',
+  actorUserId: 'actorUserId',
+  billedToUserId: 'billedToUserId',
+  provider: 'provider',
+  model: 'model',
+  operation: 'operation',
+  inputTokens: 'inputTokens',
+  outputTokens: 'outputTokens',
+  totalTokens: 'totalTokens',
+  estimatedCostUsd: 'estimatedCostUsd',
+  requestFiles: 'requestFiles',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type LlmUsageEventScalarFieldEnum = (typeof LlmUsageEventScalarFieldEnum)[keyof typeof LlmUsageEventScalarFieldEnum]
+
+
+export const WorkspaceUsageMonthlyScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  billedToUserId: 'billedToUserId',
+  usageMonth: 'usageMonth',
+  totalInputTokens: 'totalInputTokens',
+  totalOutputTokens: 'totalOutputTokens',
+  totalTokens: 'totalTokens',
+  totalEstimatedCostUsd: 'totalEstimatedCostUsd'
+} as const
+
+export type WorkspaceUsageMonthlyScalarFieldEnum = (typeof WorkspaceUsageMonthlyScalarFieldEnum)[keyof typeof WorkspaceUsageMonthlyScalarFieldEnum]
+
+
+export const UserUsageMonthlyScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  usageMonth: 'usageMonth',
+  totalInputTokens: 'totalInputTokens',
+  totalOutputTokens: 'totalOutputTokens',
+  totalTokens: 'totalTokens',
+  totalEstimatedCostUsd: 'totalEstimatedCostUsd'
+} as const
+
+export type UserUsageMonthlyScalarFieldEnum = (typeof UserUsageMonthlyScalarFieldEnum)[keyof typeof UserUsageMonthlyScalarFieldEnum]
 
 
 export const StripeEventLogScalarFieldEnum = {
   id: 'id',
   stripeEventId: 'stripeEventId',
   stripeEventType: 'stripeEventType',
+  userId: 'userId',
   workspaceId: 'workspaceId',
   stripeCustomerId: 'stripeCustomerId',
   stripeSubscriptionId: 'stripeSubscriptionId',
@@ -198,53 +352,9 @@ export const StripeEventLogScalarFieldEnum = {
 export type StripeEventLogScalarFieldEnum = (typeof StripeEventLogScalarFieldEnum)[keyof typeof StripeEventLogScalarFieldEnum]
 
 
-export const CaseScalarFieldEnum = {
-  id: 'id',
-  workspaceId: 'workspaceId',
-  createdByUserId: 'createdByUserId',
-  title: 'title',
-  description: 'description',
-  status: 'status',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type CaseScalarFieldEnum = (typeof CaseScalarFieldEnum)[keyof typeof CaseScalarFieldEnum]
-
-
-export const LlmUsageEventScalarFieldEnum = {
-  id: 'id',
-  workspaceId: 'workspaceId',
-  caseId: 'caseId',
-  userId: 'userId',
-  provider: 'provider',
-  model: 'model',
-  inputTokens: 'inputTokens',
-  outputTokens: 'outputTokens',
-  totalTokens: 'totalTokens',
-  estimatedCostUsd: 'estimatedCostUsd',
-  createdAt: 'createdAt'
-} as const
-
-export type LlmUsageEventScalarFieldEnum = (typeof LlmUsageEventScalarFieldEnum)[keyof typeof LlmUsageEventScalarFieldEnum]
-
-
-export const WorkspaceUsageMonthlyScalarFieldEnum = {
-  id: 'id',
-  workspaceId: 'workspaceId',
-  usageMonth: 'usageMonth',
-  totalInputTokens: 'totalInputTokens',
-  totalOutputTokens: 'totalOutputTokens',
-  totalTokens: 'totalTokens',
-  totalEstimatedCostUsd: 'totalEstimatedCostUsd'
-} as const
-
-export type WorkspaceUsageMonthlyScalarFieldEnum = (typeof WorkspaceUsageMonthlyScalarFieldEnum)[keyof typeof WorkspaceUsageMonthlyScalarFieldEnum]
-
-
-export const TierLimitScalarFieldEnum = {
+export const AccountTierLimitScalarFieldEnum = {
   tier: 'tier',
-  maxWorkspacesCreated: 'maxWorkspacesCreated',
+  maxWorkspacesOwned: 'maxWorkspacesOwned',
   maxMembersPerWorkspace: 'maxMembersPerWorkspace',
   maxCasesPerWorkspace: 'maxCasesPerWorkspace',
   monthlyTokenLimit: 'monthlyTokenLimit',
@@ -252,7 +362,7 @@ export const TierLimitScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TierLimitScalarFieldEnum = (typeof TierLimitScalarFieldEnum)[keyof typeof TierLimitScalarFieldEnum]
+export type AccountTierLimitScalarFieldEnum = (typeof AccountTierLimitScalarFieldEnum)[keyof typeof AccountTierLimitScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -261,6 +371,14 @@ export const SortOrder = {
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const JsonNullValueInput = {

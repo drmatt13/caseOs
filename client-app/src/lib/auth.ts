@@ -1,6 +1,5 @@
 import { redirect } from "@tanstack/react-router";
 import { createIsomorphicFn } from "@tanstack/react-start";
-import { UserSchema } from "#/schemas/user";
 import {
   ConfirmSignUpCommand,
   CognitoIdentityProviderClient,
@@ -8,11 +7,14 @@ import {
   ResendConfirmationCodeCommand,
   SignUpCommand,
 } from "@aws-sdk/client-cognito-identity-provider";
-import type { User } from "#/schemas/user";
+
+import { userSchema } from "@repo/database/src/table.schemas";
+import { SignInResponseSchema } from "@repo/database/src/api.schemas";
+import z from "zod";
 
 const API_URL = import.meta.env.VITE_API_GATEWAY_URL;
 
-type VerifyUserResult = { user: User | null };
+type VerifyUserResult = { user: z.infer<typeof userSchema> | null };
 
 const AUTH_SYNC_STORAGE_KEY = "caseos:auth-sync";
 const AUTH_SYNC_CHANNEL_NAME = "caseos-auth-sync";
@@ -92,7 +94,7 @@ export function invalidateAuthCache(options: AuthCacheOptions = {}): void {
 }
 
 export function primeAuthCache(
-  user: User | null,
+  user: z.infer<typeof userSchema> | null,
   options: AuthCacheOptions = {},
 ): void {
   const value = { user };
@@ -126,7 +128,7 @@ async function verifyUserOnServer(): Promise<VerifyUserResult> {
       return { user: null };
     }
 
-    const parsed = UserSchema.safeParse(data.user);
+    const parsed = userSchema.safeParse(data.user);
     return parsed.success ? { user: parsed.data } : { user: null };
   } catch {
     // API unreachable — treat as unauthenticated
@@ -161,7 +163,7 @@ async function verifyUserOnClient(): Promise<VerifyUserResult> {
         return { user: null };
       }
 
-      const parsed = UserSchema.safeParse(data.user);
+      const parsed = userSchema.safeParse(data.user);
       return parsed.success ? { user: parsed.data } : { user: null };
     } catch {
       // API unreachable — treat as unauthenticated
@@ -176,7 +178,9 @@ async function verifyUserOnClient(): Promise<VerifyUserResult> {
   return result;
 }
 
-export async function verifyUser(): Promise<{ user: User | null }> {
+export async function verifyUser(): Promise<{
+  user: z.infer<typeof userSchema> | null;
+}> {
   if (isBrowserRuntime()) {
     return verifyUserOnClient();
   }
@@ -184,7 +188,9 @@ export async function verifyUser(): Promise<{ user: User | null }> {
   return verifyUserOnServer();
 }
 
-export async function requireAuth() {
+export async function requireAuth(): Promise<{
+  user: z.infer<typeof userSchema>;
+}> {
   const { user } = await verifyUser();
   if (!user) {
     throw redirect({
@@ -335,7 +341,7 @@ export async function resendConfirmationCodeUser(usernameOrEmail: string) {
 export async function signInUser(
   email: string,
   password: string,
-): Promise<{ success: boolean; user?: User; error?: string }> {
+): Promise<z.infer<typeof SignInResponseSchema>> {
   const response = await fetch(`${API_URL}/sign-in`, {
     method: "POST",
     credentials: "include",
@@ -346,19 +352,13 @@ export async function signInUser(
     }),
   });
 
-  const data = await response.json();
+  const data: z.infer<typeof SignInResponseSchema> = await response.json();
 
   if (!response.ok) {
     return { success: false, error: data.error ?? "Sign in failed" };
   }
 
-  const parsed = UserSchema.safeParse(data.user);
-  if (parsed.success) {
-    primeAuthCache(parsed.data, { broadcast: true });
-    return { success: true, user: parsed.data };
-  }
-
   primeAuthCache(null, { broadcast: true });
 
-  return { success: true, user: data.user };
+  return { success: true };
 }

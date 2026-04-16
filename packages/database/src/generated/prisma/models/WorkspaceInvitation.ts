@@ -9,8 +9,8 @@
  * 🟢 You can import this file directly.
  */
 import type * as runtime from "@prisma/client/runtime/client"
-import type * as $Enums from "../enums.ts"
-import type * as Prisma from "../internal/prismaNamespace.ts"
+import type * as $Enums from "../enums"
+import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model WorkspaceInvitation
@@ -27,42 +27,33 @@ export type AggregateWorkspaceInvitation = {
 export type WorkspaceInvitationMinAggregateOutputType = {
   id: string | null
   workspaceId: string | null
-  invitedByUserId: string | null
   email: string | null
   role: $Enums.InvitationRole | null
   invitationToken: string | null
   status: $Enums.InvitationStatus | null
   expiresAt: Date | null
-  acceptedByUserId: string | null
-  acceptedAt: Date | null
   createdAt: Date | null
 }
 
 export type WorkspaceInvitationMaxAggregateOutputType = {
   id: string | null
   workspaceId: string | null
-  invitedByUserId: string | null
   email: string | null
   role: $Enums.InvitationRole | null
   invitationToken: string | null
   status: $Enums.InvitationStatus | null
   expiresAt: Date | null
-  acceptedByUserId: string | null
-  acceptedAt: Date | null
   createdAt: Date | null
 }
 
 export type WorkspaceInvitationCountAggregateOutputType = {
   id: number
   workspaceId: number
-  invitedByUserId: number
   email: number
   role: number
   invitationToken: number
   status: number
   expiresAt: number
-  acceptedByUserId: number
-  acceptedAt: number
   createdAt: number
   _all: number
 }
@@ -71,42 +62,33 @@ export type WorkspaceInvitationCountAggregateOutputType = {
 export type WorkspaceInvitationMinAggregateInputType = {
   id?: true
   workspaceId?: true
-  invitedByUserId?: true
   email?: true
   role?: true
   invitationToken?: true
   status?: true
   expiresAt?: true
-  acceptedByUserId?: true
-  acceptedAt?: true
   createdAt?: true
 }
 
 export type WorkspaceInvitationMaxAggregateInputType = {
   id?: true
   workspaceId?: true
-  invitedByUserId?: true
   email?: true
   role?: true
   invitationToken?: true
   status?: true
   expiresAt?: true
-  acceptedByUserId?: true
-  acceptedAt?: true
   createdAt?: true
 }
 
 export type WorkspaceInvitationCountAggregateInputType = {
   id?: true
   workspaceId?: true
-  invitedByUserId?: true
   email?: true
   role?: true
   invitationToken?: true
   status?: true
   expiresAt?: true
-  acceptedByUserId?: true
-  acceptedAt?: true
   createdAt?: true
   _all?: true
 }
@@ -186,14 +168,11 @@ export type WorkspaceInvitationGroupByArgs<ExtArgs extends runtime.Types.Extensi
 export type WorkspaceInvitationGroupByOutputType = {
   id: string
   workspaceId: string
-  invitedByUserId: string
   email: string
   role: $Enums.InvitationRole
   invitationToken: string
   status: $Enums.InvitationStatus
   expiresAt: Date
-  acceptedByUserId: string | null
-  acceptedAt: Date | null
   createdAt: Date
   _count: WorkspaceInvitationCountAggregateOutputType | null
   _min: WorkspaceInvitationMinAggregateOutputType | null
@@ -221,35 +200,25 @@ export type WorkspaceInvitationWhereInput = {
   NOT?: Prisma.WorkspaceInvitationWhereInput | Prisma.WorkspaceInvitationWhereInput[]
   id?: Prisma.UuidFilter<"WorkspaceInvitation"> | string
   workspaceId?: Prisma.UuidFilter<"WorkspaceInvitation"> | string
-  invitedByUserId?: Prisma.UuidFilter<"WorkspaceInvitation"> | string
   email?: Prisma.StringFilter<"WorkspaceInvitation"> | string
   role?: Prisma.EnumInvitationRoleFilter<"WorkspaceInvitation"> | $Enums.InvitationRole
   invitationToken?: Prisma.StringFilter<"WorkspaceInvitation"> | string
   status?: Prisma.EnumInvitationStatusFilter<"WorkspaceInvitation"> | $Enums.InvitationStatus
   expiresAt?: Prisma.DateTimeFilter<"WorkspaceInvitation"> | Date | string
-  acceptedByUserId?: Prisma.UuidNullableFilter<"WorkspaceInvitation"> | string | null
-  acceptedAt?: Prisma.DateTimeNullableFilter<"WorkspaceInvitation"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"WorkspaceInvitation"> | Date | string
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
-  invitedByUser?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  acceptedByUser?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
 
 export type WorkspaceInvitationOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
-  invitedByUserId?: Prisma.SortOrder
   email?: Prisma.SortOrder
   role?: Prisma.SortOrder
   invitationToken?: Prisma.SortOrder
   status?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
-  acceptedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
-  acceptedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   workspace?: Prisma.WorkspaceOrderByWithRelationInput
-  invitedByUser?: Prisma.UserOrderByWithRelationInput
-  acceptedByUser?: Prisma.UserOrderByWithRelationInput
 }
 
 export type WorkspaceInvitationWhereUniqueInput = Prisma.AtLeast<{
@@ -259,30 +228,22 @@ export type WorkspaceInvitationWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.WorkspaceInvitationWhereInput[]
   NOT?: Prisma.WorkspaceInvitationWhereInput | Prisma.WorkspaceInvitationWhereInput[]
   workspaceId?: Prisma.UuidFilter<"WorkspaceInvitation"> | string
-  invitedByUserId?: Prisma.UuidFilter<"WorkspaceInvitation"> | string
   email?: Prisma.StringFilter<"WorkspaceInvitation"> | string
   role?: Prisma.EnumInvitationRoleFilter<"WorkspaceInvitation"> | $Enums.InvitationRole
   status?: Prisma.EnumInvitationStatusFilter<"WorkspaceInvitation"> | $Enums.InvitationStatus
   expiresAt?: Prisma.DateTimeFilter<"WorkspaceInvitation"> | Date | string
-  acceptedByUserId?: Prisma.UuidNullableFilter<"WorkspaceInvitation"> | string | null
-  acceptedAt?: Prisma.DateTimeNullableFilter<"WorkspaceInvitation"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"WorkspaceInvitation"> | Date | string
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
-  invitedByUser?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  acceptedByUser?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }, "id" | "invitationToken">
 
 export type WorkspaceInvitationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
-  invitedByUserId?: Prisma.SortOrder
   email?: Prisma.SortOrder
   role?: Prisma.SortOrder
   invitationToken?: Prisma.SortOrder
   status?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
-  acceptedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
-  acceptedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.WorkspaceInvitationCountOrderByAggregateInput
   _max?: Prisma.WorkspaceInvitationMaxOrderByAggregateInput
@@ -295,14 +256,11 @@ export type WorkspaceInvitationScalarWhereWithAggregatesInput = {
   NOT?: Prisma.WorkspaceInvitationScalarWhereWithAggregatesInput | Prisma.WorkspaceInvitationScalarWhereWithAggregatesInput[]
   id?: Prisma.UuidWithAggregatesFilter<"WorkspaceInvitation"> | string
   workspaceId?: Prisma.UuidWithAggregatesFilter<"WorkspaceInvitation"> | string
-  invitedByUserId?: Prisma.UuidWithAggregatesFilter<"WorkspaceInvitation"> | string
   email?: Prisma.StringWithAggregatesFilter<"WorkspaceInvitation"> | string
   role?: Prisma.EnumInvitationRoleWithAggregatesFilter<"WorkspaceInvitation"> | $Enums.InvitationRole
   invitationToken?: Prisma.StringWithAggregatesFilter<"WorkspaceInvitation"> | string
   status?: Prisma.EnumInvitationStatusWithAggregatesFilter<"WorkspaceInvitation"> | $Enums.InvitationStatus
   expiresAt?: Prisma.DateTimeWithAggregatesFilter<"WorkspaceInvitation"> | Date | string
-  acceptedByUserId?: Prisma.UuidNullableWithAggregatesFilter<"WorkspaceInvitation"> | string | null
-  acceptedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"WorkspaceInvitation"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"WorkspaceInvitation"> | Date | string
 }
 
@@ -313,24 +271,18 @@ export type WorkspaceInvitationCreateInput = {
   invitationToken: string
   status?: $Enums.InvitationStatus
   expiresAt: Date | string
-  acceptedAt?: Date | string | null
   createdAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutInvitationsInput
-  invitedByUser: Prisma.UserCreateNestedOneWithoutWorkspaceInvitationsInput
-  acceptedByUser?: Prisma.UserCreateNestedOneWithoutAcceptedInvitationsInput
 }
 
 export type WorkspaceInvitationUncheckedCreateInput = {
   id?: string
   workspaceId: string
-  invitedByUserId: string
   email: string
   role?: $Enums.InvitationRole
   invitationToken: string
   status?: $Enums.InvitationStatus
   expiresAt: Date | string
-  acceptedByUserId?: string | null
-  acceptedAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -341,38 +293,29 @@ export type WorkspaceInvitationUpdateInput = {
   invitationToken?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutInvitationsNestedInput
-  invitedByUser?: Prisma.UserUpdateOneRequiredWithoutWorkspaceInvitationsNestedInput
-  acceptedByUser?: Prisma.UserUpdateOneWithoutAcceptedInvitationsNestedInput
 }
 
 export type WorkspaceInvitationUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
-  invitedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumInvitationRoleFieldUpdateOperationsInput | $Enums.InvitationRole
   invitationToken?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  acceptedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type WorkspaceInvitationCreateManyInput = {
   id?: string
   workspaceId: string
-  invitedByUserId: string
   email: string
   role?: $Enums.InvitationRole
   invitationToken: string
   status?: $Enums.InvitationStatus
   expiresAt: Date | string
-  acceptedByUserId?: string | null
-  acceptedAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -383,21 +326,17 @@ export type WorkspaceInvitationUpdateManyMutationInput = {
   invitationToken?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type WorkspaceInvitationUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
-  invitedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumInvitationRoleFieldUpdateOperationsInput | $Enums.InvitationRole
   invitationToken?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  acceptedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -414,127 +353,34 @@ export type WorkspaceInvitationOrderByRelationAggregateInput = {
 export type WorkspaceInvitationCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
-  invitedByUserId?: Prisma.SortOrder
   email?: Prisma.SortOrder
   role?: Prisma.SortOrder
   invitationToken?: Prisma.SortOrder
   status?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
-  acceptedByUserId?: Prisma.SortOrder
-  acceptedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
 export type WorkspaceInvitationMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
-  invitedByUserId?: Prisma.SortOrder
   email?: Prisma.SortOrder
   role?: Prisma.SortOrder
   invitationToken?: Prisma.SortOrder
   status?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
-  acceptedByUserId?: Prisma.SortOrder
-  acceptedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
 export type WorkspaceInvitationMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
-  invitedByUserId?: Prisma.SortOrder
   email?: Prisma.SortOrder
   role?: Prisma.SortOrder
   invitationToken?: Prisma.SortOrder
   status?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
-  acceptedByUserId?: Prisma.SortOrder
-  acceptedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-}
-
-export type WorkspaceInvitationCreateNestedManyWithoutInvitedByUserInput = {
-  create?: Prisma.XOR<Prisma.WorkspaceInvitationCreateWithoutInvitedByUserInput, Prisma.WorkspaceInvitationUncheckedCreateWithoutInvitedByUserInput> | Prisma.WorkspaceInvitationCreateWithoutInvitedByUserInput[] | Prisma.WorkspaceInvitationUncheckedCreateWithoutInvitedByUserInput[]
-  connectOrCreate?: Prisma.WorkspaceInvitationCreateOrConnectWithoutInvitedByUserInput | Prisma.WorkspaceInvitationCreateOrConnectWithoutInvitedByUserInput[]
-  createMany?: Prisma.WorkspaceInvitationCreateManyInvitedByUserInputEnvelope
-  connect?: Prisma.WorkspaceInvitationWhereUniqueInput | Prisma.WorkspaceInvitationWhereUniqueInput[]
-}
-
-export type WorkspaceInvitationCreateNestedManyWithoutAcceptedByUserInput = {
-  create?: Prisma.XOR<Prisma.WorkspaceInvitationCreateWithoutAcceptedByUserInput, Prisma.WorkspaceInvitationUncheckedCreateWithoutAcceptedByUserInput> | Prisma.WorkspaceInvitationCreateWithoutAcceptedByUserInput[] | Prisma.WorkspaceInvitationUncheckedCreateWithoutAcceptedByUserInput[]
-  connectOrCreate?: Prisma.WorkspaceInvitationCreateOrConnectWithoutAcceptedByUserInput | Prisma.WorkspaceInvitationCreateOrConnectWithoutAcceptedByUserInput[]
-  createMany?: Prisma.WorkspaceInvitationCreateManyAcceptedByUserInputEnvelope
-  connect?: Prisma.WorkspaceInvitationWhereUniqueInput | Prisma.WorkspaceInvitationWhereUniqueInput[]
-}
-
-export type WorkspaceInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput = {
-  create?: Prisma.XOR<Prisma.WorkspaceInvitationCreateWithoutInvitedByUserInput, Prisma.WorkspaceInvitationUncheckedCreateWithoutInvitedByUserInput> | Prisma.WorkspaceInvitationCreateWithoutInvitedByUserInput[] | Prisma.WorkspaceInvitationUncheckedCreateWithoutInvitedByUserInput[]
-  connectOrCreate?: Prisma.WorkspaceInvitationCreateOrConnectWithoutInvitedByUserInput | Prisma.WorkspaceInvitationCreateOrConnectWithoutInvitedByUserInput[]
-  createMany?: Prisma.WorkspaceInvitationCreateManyInvitedByUserInputEnvelope
-  connect?: Prisma.WorkspaceInvitationWhereUniqueInput | Prisma.WorkspaceInvitationWhereUniqueInput[]
-}
-
-export type WorkspaceInvitationUncheckedCreateNestedManyWithoutAcceptedByUserInput = {
-  create?: Prisma.XOR<Prisma.WorkspaceInvitationCreateWithoutAcceptedByUserInput, Prisma.WorkspaceInvitationUncheckedCreateWithoutAcceptedByUserInput> | Prisma.WorkspaceInvitationCreateWithoutAcceptedByUserInput[] | Prisma.WorkspaceInvitationUncheckedCreateWithoutAcceptedByUserInput[]
-  connectOrCreate?: Prisma.WorkspaceInvitationCreateOrConnectWithoutAcceptedByUserInput | Prisma.WorkspaceInvitationCreateOrConnectWithoutAcceptedByUserInput[]
-  createMany?: Prisma.WorkspaceInvitationCreateManyAcceptedByUserInputEnvelope
-  connect?: Prisma.WorkspaceInvitationWhereUniqueInput | Prisma.WorkspaceInvitationWhereUniqueInput[]
-}
-
-export type WorkspaceInvitationUpdateManyWithoutInvitedByUserNestedInput = {
-  create?: Prisma.XOR<Prisma.WorkspaceInvitationCreateWithoutInvitedByUserInput, Prisma.WorkspaceInvitationUncheckedCreateWithoutInvitedByUserInput> | Prisma.WorkspaceInvitationCreateWithoutInvitedByUserInput[] | Prisma.WorkspaceInvitationUncheckedCreateWithoutInvitedByUserInput[]
-  connectOrCreate?: Prisma.WorkspaceInvitationCreateOrConnectWithoutInvitedByUserInput | Prisma.WorkspaceInvitationCreateOrConnectWithoutInvitedByUserInput[]
-  upsert?: Prisma.WorkspaceInvitationUpsertWithWhereUniqueWithoutInvitedByUserInput | Prisma.WorkspaceInvitationUpsertWithWhereUniqueWithoutInvitedByUserInput[]
-  createMany?: Prisma.WorkspaceInvitationCreateManyInvitedByUserInputEnvelope
-  set?: Prisma.WorkspaceInvitationWhereUniqueInput | Prisma.WorkspaceInvitationWhereUniqueInput[]
-  disconnect?: Prisma.WorkspaceInvitationWhereUniqueInput | Prisma.WorkspaceInvitationWhereUniqueInput[]
-  delete?: Prisma.WorkspaceInvitationWhereUniqueInput | Prisma.WorkspaceInvitationWhereUniqueInput[]
-  connect?: Prisma.WorkspaceInvitationWhereUniqueInput | Prisma.WorkspaceInvitationWhereUniqueInput[]
-  update?: Prisma.WorkspaceInvitationUpdateWithWhereUniqueWithoutInvitedByUserInput | Prisma.WorkspaceInvitationUpdateWithWhereUniqueWithoutInvitedByUserInput[]
-  updateMany?: Prisma.WorkspaceInvitationUpdateManyWithWhereWithoutInvitedByUserInput | Prisma.WorkspaceInvitationUpdateManyWithWhereWithoutInvitedByUserInput[]
-  deleteMany?: Prisma.WorkspaceInvitationScalarWhereInput | Prisma.WorkspaceInvitationScalarWhereInput[]
-}
-
-export type WorkspaceInvitationUpdateManyWithoutAcceptedByUserNestedInput = {
-  create?: Prisma.XOR<Prisma.WorkspaceInvitationCreateWithoutAcceptedByUserInput, Prisma.WorkspaceInvitationUncheckedCreateWithoutAcceptedByUserInput> | Prisma.WorkspaceInvitationCreateWithoutAcceptedByUserInput[] | Prisma.WorkspaceInvitationUncheckedCreateWithoutAcceptedByUserInput[]
-  connectOrCreate?: Prisma.WorkspaceInvitationCreateOrConnectWithoutAcceptedByUserInput | Prisma.WorkspaceInvitationCreateOrConnectWithoutAcceptedByUserInput[]
-  upsert?: Prisma.WorkspaceInvitationUpsertWithWhereUniqueWithoutAcceptedByUserInput | Prisma.WorkspaceInvitationUpsertWithWhereUniqueWithoutAcceptedByUserInput[]
-  createMany?: Prisma.WorkspaceInvitationCreateManyAcceptedByUserInputEnvelope
-  set?: Prisma.WorkspaceInvitationWhereUniqueInput | Prisma.WorkspaceInvitationWhereUniqueInput[]
-  disconnect?: Prisma.WorkspaceInvitationWhereUniqueInput | Prisma.WorkspaceInvitationWhereUniqueInput[]
-  delete?: Prisma.WorkspaceInvitationWhereUniqueInput | Prisma.WorkspaceInvitationWhereUniqueInput[]
-  connect?: Prisma.WorkspaceInvitationWhereUniqueInput | Prisma.WorkspaceInvitationWhereUniqueInput[]
-  update?: Prisma.WorkspaceInvitationUpdateWithWhereUniqueWithoutAcceptedByUserInput | Prisma.WorkspaceInvitationUpdateWithWhereUniqueWithoutAcceptedByUserInput[]
-  updateMany?: Prisma.WorkspaceInvitationUpdateManyWithWhereWithoutAcceptedByUserInput | Prisma.WorkspaceInvitationUpdateManyWithWhereWithoutAcceptedByUserInput[]
-  deleteMany?: Prisma.WorkspaceInvitationScalarWhereInput | Prisma.WorkspaceInvitationScalarWhereInput[]
-}
-
-export type WorkspaceInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput = {
-  create?: Prisma.XOR<Prisma.WorkspaceInvitationCreateWithoutInvitedByUserInput, Prisma.WorkspaceInvitationUncheckedCreateWithoutInvitedByUserInput> | Prisma.WorkspaceInvitationCreateWithoutInvitedByUserInput[] | Prisma.WorkspaceInvitationUncheckedCreateWithoutInvitedByUserInput[]
-  connectOrCreate?: Prisma.WorkspaceInvitationCreateOrConnectWithoutInvitedByUserInput | Prisma.WorkspaceInvitationCreateOrConnectWithoutInvitedByUserInput[]
-  upsert?: Prisma.WorkspaceInvitationUpsertWithWhereUniqueWithoutInvitedByUserInput | Prisma.WorkspaceInvitationUpsertWithWhereUniqueWithoutInvitedByUserInput[]
-  createMany?: Prisma.WorkspaceInvitationCreateManyInvitedByUserInputEnvelope
-  set?: Prisma.WorkspaceInvitationWhereUniqueInput | Prisma.WorkspaceInvitationWhereUniqueInput[]
-  disconnect?: Prisma.WorkspaceInvitationWhereUniqueInput | Prisma.WorkspaceInvitationWhereUniqueInput[]
-  delete?: Prisma.WorkspaceInvitationWhereUniqueInput | Prisma.WorkspaceInvitationWhereUniqueInput[]
-  connect?: Prisma.WorkspaceInvitationWhereUniqueInput | Prisma.WorkspaceInvitationWhereUniqueInput[]
-  update?: Prisma.WorkspaceInvitationUpdateWithWhereUniqueWithoutInvitedByUserInput | Prisma.WorkspaceInvitationUpdateWithWhereUniqueWithoutInvitedByUserInput[]
-  updateMany?: Prisma.WorkspaceInvitationUpdateManyWithWhereWithoutInvitedByUserInput | Prisma.WorkspaceInvitationUpdateManyWithWhereWithoutInvitedByUserInput[]
-  deleteMany?: Prisma.WorkspaceInvitationScalarWhereInput | Prisma.WorkspaceInvitationScalarWhereInput[]
-}
-
-export type WorkspaceInvitationUncheckedUpdateManyWithoutAcceptedByUserNestedInput = {
-  create?: Prisma.XOR<Prisma.WorkspaceInvitationCreateWithoutAcceptedByUserInput, Prisma.WorkspaceInvitationUncheckedCreateWithoutAcceptedByUserInput> | Prisma.WorkspaceInvitationCreateWithoutAcceptedByUserInput[] | Prisma.WorkspaceInvitationUncheckedCreateWithoutAcceptedByUserInput[]
-  connectOrCreate?: Prisma.WorkspaceInvitationCreateOrConnectWithoutAcceptedByUserInput | Prisma.WorkspaceInvitationCreateOrConnectWithoutAcceptedByUserInput[]
-  upsert?: Prisma.WorkspaceInvitationUpsertWithWhereUniqueWithoutAcceptedByUserInput | Prisma.WorkspaceInvitationUpsertWithWhereUniqueWithoutAcceptedByUserInput[]
-  createMany?: Prisma.WorkspaceInvitationCreateManyAcceptedByUserInputEnvelope
-  set?: Prisma.WorkspaceInvitationWhereUniqueInput | Prisma.WorkspaceInvitationWhereUniqueInput[]
-  disconnect?: Prisma.WorkspaceInvitationWhereUniqueInput | Prisma.WorkspaceInvitationWhereUniqueInput[]
-  delete?: Prisma.WorkspaceInvitationWhereUniqueInput | Prisma.WorkspaceInvitationWhereUniqueInput[]
-  connect?: Prisma.WorkspaceInvitationWhereUniqueInput | Prisma.WorkspaceInvitationWhereUniqueInput[]
-  update?: Prisma.WorkspaceInvitationUpdateWithWhereUniqueWithoutAcceptedByUserInput | Prisma.WorkspaceInvitationUpdateWithWhereUniqueWithoutAcceptedByUserInput[]
-  updateMany?: Prisma.WorkspaceInvitationUpdateManyWithWhereWithoutAcceptedByUserInput | Prisma.WorkspaceInvitationUpdateManyWithWhereWithoutAcceptedByUserInput[]
-  deleteMany?: Prisma.WorkspaceInvitationScalarWhereInput | Prisma.WorkspaceInvitationScalarWhereInput[]
 }
 
 export type WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput = {
@@ -587,131 +433,6 @@ export type EnumInvitationStatusFieldUpdateOperationsInput = {
   set?: $Enums.InvitationStatus
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
-export type WorkspaceInvitationCreateWithoutInvitedByUserInput = {
-  id?: string
-  email: string
-  role?: $Enums.InvitationRole
-  invitationToken: string
-  status?: $Enums.InvitationStatus
-  expiresAt: Date | string
-  acceptedAt?: Date | string | null
-  createdAt?: Date | string
-  workspace: Prisma.WorkspaceCreateNestedOneWithoutInvitationsInput
-  acceptedByUser?: Prisma.UserCreateNestedOneWithoutAcceptedInvitationsInput
-}
-
-export type WorkspaceInvitationUncheckedCreateWithoutInvitedByUserInput = {
-  id?: string
-  workspaceId: string
-  email: string
-  role?: $Enums.InvitationRole
-  invitationToken: string
-  status?: $Enums.InvitationStatus
-  expiresAt: Date | string
-  acceptedByUserId?: string | null
-  acceptedAt?: Date | string | null
-  createdAt?: Date | string
-}
-
-export type WorkspaceInvitationCreateOrConnectWithoutInvitedByUserInput = {
-  where: Prisma.WorkspaceInvitationWhereUniqueInput
-  create: Prisma.XOR<Prisma.WorkspaceInvitationCreateWithoutInvitedByUserInput, Prisma.WorkspaceInvitationUncheckedCreateWithoutInvitedByUserInput>
-}
-
-export type WorkspaceInvitationCreateManyInvitedByUserInputEnvelope = {
-  data: Prisma.WorkspaceInvitationCreateManyInvitedByUserInput | Prisma.WorkspaceInvitationCreateManyInvitedByUserInput[]
-  skipDuplicates?: boolean
-}
-
-export type WorkspaceInvitationCreateWithoutAcceptedByUserInput = {
-  id?: string
-  email: string
-  role?: $Enums.InvitationRole
-  invitationToken: string
-  status?: $Enums.InvitationStatus
-  expiresAt: Date | string
-  acceptedAt?: Date | string | null
-  createdAt?: Date | string
-  workspace: Prisma.WorkspaceCreateNestedOneWithoutInvitationsInput
-  invitedByUser: Prisma.UserCreateNestedOneWithoutWorkspaceInvitationsInput
-}
-
-export type WorkspaceInvitationUncheckedCreateWithoutAcceptedByUserInput = {
-  id?: string
-  workspaceId: string
-  invitedByUserId: string
-  email: string
-  role?: $Enums.InvitationRole
-  invitationToken: string
-  status?: $Enums.InvitationStatus
-  expiresAt: Date | string
-  acceptedAt?: Date | string | null
-  createdAt?: Date | string
-}
-
-export type WorkspaceInvitationCreateOrConnectWithoutAcceptedByUserInput = {
-  where: Prisma.WorkspaceInvitationWhereUniqueInput
-  create: Prisma.XOR<Prisma.WorkspaceInvitationCreateWithoutAcceptedByUserInput, Prisma.WorkspaceInvitationUncheckedCreateWithoutAcceptedByUserInput>
-}
-
-export type WorkspaceInvitationCreateManyAcceptedByUserInputEnvelope = {
-  data: Prisma.WorkspaceInvitationCreateManyAcceptedByUserInput | Prisma.WorkspaceInvitationCreateManyAcceptedByUserInput[]
-  skipDuplicates?: boolean
-}
-
-export type WorkspaceInvitationUpsertWithWhereUniqueWithoutInvitedByUserInput = {
-  where: Prisma.WorkspaceInvitationWhereUniqueInput
-  update: Prisma.XOR<Prisma.WorkspaceInvitationUpdateWithoutInvitedByUserInput, Prisma.WorkspaceInvitationUncheckedUpdateWithoutInvitedByUserInput>
-  create: Prisma.XOR<Prisma.WorkspaceInvitationCreateWithoutInvitedByUserInput, Prisma.WorkspaceInvitationUncheckedCreateWithoutInvitedByUserInput>
-}
-
-export type WorkspaceInvitationUpdateWithWhereUniqueWithoutInvitedByUserInput = {
-  where: Prisma.WorkspaceInvitationWhereUniqueInput
-  data: Prisma.XOR<Prisma.WorkspaceInvitationUpdateWithoutInvitedByUserInput, Prisma.WorkspaceInvitationUncheckedUpdateWithoutInvitedByUserInput>
-}
-
-export type WorkspaceInvitationUpdateManyWithWhereWithoutInvitedByUserInput = {
-  where: Prisma.WorkspaceInvitationScalarWhereInput
-  data: Prisma.XOR<Prisma.WorkspaceInvitationUpdateManyMutationInput, Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutInvitedByUserInput>
-}
-
-export type WorkspaceInvitationScalarWhereInput = {
-  AND?: Prisma.WorkspaceInvitationScalarWhereInput | Prisma.WorkspaceInvitationScalarWhereInput[]
-  OR?: Prisma.WorkspaceInvitationScalarWhereInput[]
-  NOT?: Prisma.WorkspaceInvitationScalarWhereInput | Prisma.WorkspaceInvitationScalarWhereInput[]
-  id?: Prisma.UuidFilter<"WorkspaceInvitation"> | string
-  workspaceId?: Prisma.UuidFilter<"WorkspaceInvitation"> | string
-  invitedByUserId?: Prisma.UuidFilter<"WorkspaceInvitation"> | string
-  email?: Prisma.StringFilter<"WorkspaceInvitation"> | string
-  role?: Prisma.EnumInvitationRoleFilter<"WorkspaceInvitation"> | $Enums.InvitationRole
-  invitationToken?: Prisma.StringFilter<"WorkspaceInvitation"> | string
-  status?: Prisma.EnumInvitationStatusFilter<"WorkspaceInvitation"> | $Enums.InvitationStatus
-  expiresAt?: Prisma.DateTimeFilter<"WorkspaceInvitation"> | Date | string
-  acceptedByUserId?: Prisma.UuidNullableFilter<"WorkspaceInvitation"> | string | null
-  acceptedAt?: Prisma.DateTimeNullableFilter<"WorkspaceInvitation"> | Date | string | null
-  createdAt?: Prisma.DateTimeFilter<"WorkspaceInvitation"> | Date | string
-}
-
-export type WorkspaceInvitationUpsertWithWhereUniqueWithoutAcceptedByUserInput = {
-  where: Prisma.WorkspaceInvitationWhereUniqueInput
-  update: Prisma.XOR<Prisma.WorkspaceInvitationUpdateWithoutAcceptedByUserInput, Prisma.WorkspaceInvitationUncheckedUpdateWithoutAcceptedByUserInput>
-  create: Prisma.XOR<Prisma.WorkspaceInvitationCreateWithoutAcceptedByUserInput, Prisma.WorkspaceInvitationUncheckedCreateWithoutAcceptedByUserInput>
-}
-
-export type WorkspaceInvitationUpdateWithWhereUniqueWithoutAcceptedByUserInput = {
-  where: Prisma.WorkspaceInvitationWhereUniqueInput
-  data: Prisma.XOR<Prisma.WorkspaceInvitationUpdateWithoutAcceptedByUserInput, Prisma.WorkspaceInvitationUncheckedUpdateWithoutAcceptedByUserInput>
-}
-
-export type WorkspaceInvitationUpdateManyWithWhereWithoutAcceptedByUserInput = {
-  where: Prisma.WorkspaceInvitationScalarWhereInput
-  data: Prisma.XOR<Prisma.WorkspaceInvitationUpdateManyMutationInput, Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutAcceptedByUserInput>
-}
-
 export type WorkspaceInvitationCreateWithoutWorkspaceInput = {
   id?: string
   email: string
@@ -719,22 +440,16 @@ export type WorkspaceInvitationCreateWithoutWorkspaceInput = {
   invitationToken: string
   status?: $Enums.InvitationStatus
   expiresAt: Date | string
-  acceptedAt?: Date | string | null
   createdAt?: Date | string
-  invitedByUser: Prisma.UserCreateNestedOneWithoutWorkspaceInvitationsInput
-  acceptedByUser?: Prisma.UserCreateNestedOneWithoutAcceptedInvitationsInput
 }
 
 export type WorkspaceInvitationUncheckedCreateWithoutWorkspaceInput = {
   id?: string
-  invitedByUserId: string
   email: string
   role?: $Enums.InvitationRole
   invitationToken: string
   status?: $Enums.InvitationStatus
   expiresAt: Date | string
-  acceptedByUserId?: string | null
-  acceptedAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -764,120 +479,27 @@ export type WorkspaceInvitationUpdateManyWithWhereWithoutWorkspaceInput = {
   data: Prisma.XOR<Prisma.WorkspaceInvitationUpdateManyMutationInput, Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceInput>
 }
 
-export type WorkspaceInvitationCreateManyInvitedByUserInput = {
-  id?: string
-  workspaceId: string
-  email: string
-  role?: $Enums.InvitationRole
-  invitationToken: string
-  status?: $Enums.InvitationStatus
-  expiresAt: Date | string
-  acceptedByUserId?: string | null
-  acceptedAt?: Date | string | null
-  createdAt?: Date | string
-}
-
-export type WorkspaceInvitationCreateManyAcceptedByUserInput = {
-  id?: string
-  workspaceId: string
-  invitedByUserId: string
-  email: string
-  role?: $Enums.InvitationRole
-  invitationToken: string
-  status?: $Enums.InvitationStatus
-  expiresAt: Date | string
-  acceptedAt?: Date | string | null
-  createdAt?: Date | string
-}
-
-export type WorkspaceInvitationUpdateWithoutInvitedByUserInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumInvitationRoleFieldUpdateOperationsInput | $Enums.InvitationRole
-  invitationToken?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
-  expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutInvitationsNestedInput
-  acceptedByUser?: Prisma.UserUpdateOneWithoutAcceptedInvitationsNestedInput
-}
-
-export type WorkspaceInvitationUncheckedUpdateWithoutInvitedByUserInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumInvitationRoleFieldUpdateOperationsInput | $Enums.InvitationRole
-  invitationToken?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
-  expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  acceptedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type WorkspaceInvitationUncheckedUpdateManyWithoutInvitedByUserInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumInvitationRoleFieldUpdateOperationsInput | $Enums.InvitationRole
-  invitationToken?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
-  expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  acceptedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type WorkspaceInvitationUpdateWithoutAcceptedByUserInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumInvitationRoleFieldUpdateOperationsInput | $Enums.InvitationRole
-  invitationToken?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
-  expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutInvitationsNestedInput
-  invitedByUser?: Prisma.UserUpdateOneRequiredWithoutWorkspaceInvitationsNestedInput
-}
-
-export type WorkspaceInvitationUncheckedUpdateWithoutAcceptedByUserInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
-  invitedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumInvitationRoleFieldUpdateOperationsInput | $Enums.InvitationRole
-  invitationToken?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
-  expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type WorkspaceInvitationUncheckedUpdateManyWithoutAcceptedByUserInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
-  invitedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumInvitationRoleFieldUpdateOperationsInput | $Enums.InvitationRole
-  invitationToken?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
-  expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+export type WorkspaceInvitationScalarWhereInput = {
+  AND?: Prisma.WorkspaceInvitationScalarWhereInput | Prisma.WorkspaceInvitationScalarWhereInput[]
+  OR?: Prisma.WorkspaceInvitationScalarWhereInput[]
+  NOT?: Prisma.WorkspaceInvitationScalarWhereInput | Prisma.WorkspaceInvitationScalarWhereInput[]
+  id?: Prisma.UuidFilter<"WorkspaceInvitation"> | string
+  workspaceId?: Prisma.UuidFilter<"WorkspaceInvitation"> | string
+  email?: Prisma.StringFilter<"WorkspaceInvitation"> | string
+  role?: Prisma.EnumInvitationRoleFilter<"WorkspaceInvitation"> | $Enums.InvitationRole
+  invitationToken?: Prisma.StringFilter<"WorkspaceInvitation"> | string
+  status?: Prisma.EnumInvitationStatusFilter<"WorkspaceInvitation"> | $Enums.InvitationStatus
+  expiresAt?: Prisma.DateTimeFilter<"WorkspaceInvitation"> | Date | string
+  createdAt?: Prisma.DateTimeFilter<"WorkspaceInvitation"> | Date | string
 }
 
 export type WorkspaceInvitationCreateManyWorkspaceInput = {
   id?: string
-  invitedByUserId: string
   email: string
   role?: $Enums.InvitationRole
   invitationToken: string
   status?: $Enums.InvitationStatus
   expiresAt: Date | string
-  acceptedByUserId?: string | null
-  acceptedAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -888,35 +510,26 @@ export type WorkspaceInvitationUpdateWithoutWorkspaceInput = {
   invitationToken?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  invitedByUser?: Prisma.UserUpdateOneRequiredWithoutWorkspaceInvitationsNestedInput
-  acceptedByUser?: Prisma.UserUpdateOneWithoutAcceptedInvitationsNestedInput
 }
 
 export type WorkspaceInvitationUncheckedUpdateWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  invitedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumInvitationRoleFieldUpdateOperationsInput | $Enums.InvitationRole
   invitationToken?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  acceptedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  invitedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumInvitationRoleFieldUpdateOperationsInput | $Enums.InvitationRole
   invitationToken?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  acceptedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -925,103 +538,74 @@ export type WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceInput = {
 export type WorkspaceInvitationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   workspaceId?: boolean
-  invitedByUserId?: boolean
   email?: boolean
   role?: boolean
   invitationToken?: boolean
   status?: boolean
   expiresAt?: boolean
-  acceptedByUserId?: boolean
-  acceptedAt?: boolean
   createdAt?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
-  invitedByUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  acceptedByUser?: boolean | Prisma.WorkspaceInvitation$acceptedByUserArgs<ExtArgs>
 }, ExtArgs["result"]["workspaceInvitation"]>
 
 export type WorkspaceInvitationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   workspaceId?: boolean
-  invitedByUserId?: boolean
   email?: boolean
   role?: boolean
   invitationToken?: boolean
   status?: boolean
   expiresAt?: boolean
-  acceptedByUserId?: boolean
-  acceptedAt?: boolean
   createdAt?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
-  invitedByUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  acceptedByUser?: boolean | Prisma.WorkspaceInvitation$acceptedByUserArgs<ExtArgs>
 }, ExtArgs["result"]["workspaceInvitation"]>
 
 export type WorkspaceInvitationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   workspaceId?: boolean
-  invitedByUserId?: boolean
   email?: boolean
   role?: boolean
   invitationToken?: boolean
   status?: boolean
   expiresAt?: boolean
-  acceptedByUserId?: boolean
-  acceptedAt?: boolean
   createdAt?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
-  invitedByUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  acceptedByUser?: boolean | Prisma.WorkspaceInvitation$acceptedByUserArgs<ExtArgs>
 }, ExtArgs["result"]["workspaceInvitation"]>
 
 export type WorkspaceInvitationSelectScalar = {
   id?: boolean
   workspaceId?: boolean
-  invitedByUserId?: boolean
   email?: boolean
   role?: boolean
   invitationToken?: boolean
   status?: boolean
   expiresAt?: boolean
-  acceptedByUserId?: boolean
-  acceptedAt?: boolean
   createdAt?: boolean
 }
 
-export type WorkspaceInvitationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "invitedByUserId" | "email" | "role" | "invitationToken" | "status" | "expiresAt" | "acceptedByUserId" | "acceptedAt" | "createdAt", ExtArgs["result"]["workspaceInvitation"]>
+export type WorkspaceInvitationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "email" | "role" | "invitationToken" | "status" | "expiresAt" | "createdAt", ExtArgs["result"]["workspaceInvitation"]>
 export type WorkspaceInvitationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
-  invitedByUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  acceptedByUser?: boolean | Prisma.WorkspaceInvitation$acceptedByUserArgs<ExtArgs>
 }
 export type WorkspaceInvitationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
-  invitedByUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  acceptedByUser?: boolean | Prisma.WorkspaceInvitation$acceptedByUserArgs<ExtArgs>
 }
 export type WorkspaceInvitationIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
-  invitedByUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  acceptedByUser?: boolean | Prisma.WorkspaceInvitation$acceptedByUserArgs<ExtArgs>
 }
 
 export type $WorkspaceInvitationPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "WorkspaceInvitation"
   objects: {
     workspace: Prisma.$WorkspacePayload<ExtArgs>
-    invitedByUser: Prisma.$UserPayload<ExtArgs>
-    acceptedByUser: Prisma.$UserPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     workspaceId: string
-    invitedByUserId: string
     email: string
     role: $Enums.InvitationRole
     invitationToken: string
     status: $Enums.InvitationStatus
     expiresAt: Date
-    acceptedByUserId: string | null
-    acceptedAt: Date | null
     createdAt: Date
   }, ExtArgs["result"]["workspaceInvitation"]>
   composites: {}
@@ -1418,8 +1002,6 @@ readonly fields: WorkspaceInvitationFieldRefs;
 export interface Prisma__WorkspaceInvitationClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  invitedByUser<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  acceptedByUser<T extends Prisma.WorkspaceInvitation$acceptedByUserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceInvitation$acceptedByUserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1451,14 +1033,11 @@ export interface Prisma__WorkspaceInvitationClient<T, Null = never, ExtArgs exte
 export interface WorkspaceInvitationFieldRefs {
   readonly id: Prisma.FieldRef<"WorkspaceInvitation", 'String'>
   readonly workspaceId: Prisma.FieldRef<"WorkspaceInvitation", 'String'>
-  readonly invitedByUserId: Prisma.FieldRef<"WorkspaceInvitation", 'String'>
   readonly email: Prisma.FieldRef<"WorkspaceInvitation", 'String'>
   readonly role: Prisma.FieldRef<"WorkspaceInvitation", 'InvitationRole'>
   readonly invitationToken: Prisma.FieldRef<"WorkspaceInvitation", 'String'>
   readonly status: Prisma.FieldRef<"WorkspaceInvitation", 'InvitationStatus'>
   readonly expiresAt: Prisma.FieldRef<"WorkspaceInvitation", 'DateTime'>
-  readonly acceptedByUserId: Prisma.FieldRef<"WorkspaceInvitation", 'String'>
-  readonly acceptedAt: Prisma.FieldRef<"WorkspaceInvitation", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"WorkspaceInvitation", 'DateTime'>
 }
     
@@ -1858,25 +1437,6 @@ export type WorkspaceInvitationDeleteManyArgs<ExtArgs extends runtime.Types.Exte
    * Limit how many WorkspaceInvitations to delete.
    */
   limit?: number
-}
-
-/**
- * WorkspaceInvitation.acceptedByUser
- */
-export type WorkspaceInvitation$acceptedByUserArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the User
-   */
-  select?: Prisma.UserSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the User
-   */
-  omit?: Prisma.UserOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.UserInclude<ExtArgs> | null
-  where?: Prisma.UserWhereInput
 }
 
 /**

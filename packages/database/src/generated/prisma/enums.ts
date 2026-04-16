@@ -9,6 +9,16 @@
 * 🟢 You can import this file directly.
 */
 
+export const AccountTier = {
+  FREE: 'FREE',
+  TRIAL: 'TRIAL',
+  PRO: 'PRO',
+  ENTERPRISE: 'ENTERPRISE'
+} as const
+
+export type AccountTier = (typeof AccountTier)[keyof typeof AccountTier]
+
+
 export const AccountStatus = {
   ACTIVE: 'ACTIVE',
   DISABLED: 'DISABLED'
@@ -17,20 +27,10 @@ export const AccountStatus = {
 export type AccountStatus = (typeof AccountStatus)[keyof typeof AccountStatus]
 
 
-export const WorkspaceTier = {
-  FREE: 'FREE',
-  TRIAL: 'TRIAL',
-  PRO: 'PRO',
-  ENTERPRISE: 'ENTERPRISE'
-} as const
-
-export type WorkspaceTier = (typeof WorkspaceTier)[keyof typeof WorkspaceTier]
-
-
 export const WorkspaceStatus = {
   ACTIVE: 'ACTIVE',
-  SUSPENDED: 'SUSPENDED',
-  CANCELLED: 'CANCELLED'
+  ARCHIVED: 'ARCHIVED',
+  SUSPENDED: 'SUSPENDED'
 } as const
 
 export type WorkspaceStatus = (typeof WorkspaceStatus)[keyof typeof WorkspaceStatus]
@@ -47,7 +47,6 @@ export type MembershipRole = (typeof MembershipRole)[keyof typeof MembershipRole
 
 export const MembershipStatus = {
   ACTIVE: 'ACTIVE',
-  INVITED: 'INVITED',
   SUSPENDED: 'SUSPENDED'
 } as const
 
@@ -64,7 +63,6 @@ export type InvitationRole = (typeof InvitationRole)[keyof typeof InvitationRole
 
 export const InvitationStatus = {
   PENDING: 'PENDING',
-  ACCEPTED: 'ACCEPTED',
   REVOKED: 'REVOKED',
   EXPIRED: 'EXPIRED'
 } as const
@@ -103,9 +101,115 @@ export const BillingInterval = {
 export type BillingInterval = (typeof BillingInterval)[keyof typeof BillingInterval]
 
 
-export const PaymentMethodStatus = {
-  ACTIVE: 'ACTIVE',
-  DETACHED: 'DETACHED'
+export const ActorType = {
+  HUMAN: 'HUMAN',
+  AGENT: 'AGENT'
 } as const
 
-export type PaymentMethodStatus = (typeof PaymentMethodStatus)[keyof typeof PaymentMethodStatus]
+export type ActorType = (typeof ActorType)[keyof typeof ActorType]
+
+
+export const DocumentStatus = {
+  UPLOADED: 'UPLOADED',
+  PROCESSED: 'PROCESSED',
+  ERROR: 'ERROR'
+} as const
+
+export type DocumentStatus = (typeof DocumentStatus)[keyof typeof DocumentStatus]
+
+
+export const DocumentCategory = {
+  EVIDENCE: 'EVIDENCE',
+  RESEARCH: 'RESEARCH',
+  CLIENT_STATEMENT: 'CLIENT_STATEMENT',
+  WITNESS_STATEMENT: 'WITNESS_STATEMENT',
+  TRANSCRIPT: 'TRANSCRIPT',
+  OTHER: 'OTHER'
+} as const
+
+export type DocumentCategory = (typeof DocumentCategory)[keyof typeof DocumentCategory]
+
+
+export const DateConfidence = {
+  EXACT: 'EXACT',
+  APPROXIMATE: 'APPROXIMATE',
+  UNKNOWN: 'UNKNOWN'
+} as const
+
+export type DateConfidence = (typeof DateConfidence)[keyof typeof DateConfidence]
+
+
+export const CaseRecordType = {
+  ARGUMENT: 'ARGUMENT',
+  CASE_NOTE: 'CASE_NOTE',
+  FACT: 'FACT',
+  ISSUE: 'ISSUE',
+  LEGAL_PRECEDENT: 'LEGAL_PRECEDENT',
+  OBJECTIVE: 'OBJECTIVE',
+  POSTURE: 'POSTURE',
+  TASK: 'TASK',
+  TESTIMONY: 'TESTIMONY',
+  TIMELINE: 'TIMELINE'
+} as const
+
+export type CaseRecordType = (typeof CaseRecordType)[keyof typeof CaseRecordType]
+
+
+export const RecordStatus = {
+  PROPOSED: 'PROPOSED',
+  ACCEPTED: 'ACCEPTED',
+  REJECTED: 'REJECTED',
+  SUPERSEDED: 'SUPERSEDED'
+} as const
+
+export type RecordStatus = (typeof RecordStatus)[keyof typeof RecordStatus]
+
+
+export const RecordVisibility = {
+  HIDDEN: 'HIDDEN',
+  VISIBLE: 'VISIBLE'
+} as const
+
+export type RecordVisibility = (typeof RecordVisibility)[keyof typeof RecordVisibility]
+
+
+export const CaseViewType = {
+  ARGUMENTS: 'ARGUMENTS',
+  CASE_NOTES: 'CASE_NOTES',
+  FACTS: 'FACTS',
+  ISSUES: 'ISSUES',
+  LEGAL_PRECEDENT: 'LEGAL_PRECEDENT',
+  OBJECTIVES: 'OBJECTIVES',
+  POSTURE: 'POSTURE',
+  TASKS: 'TASKS',
+  TESTIMONY: 'TESTIMONY',
+  TIMELINE: 'TIMELINE',
+  AGENT_CONFIG: 'AGENT_CONFIG',
+  CASE_SUMMARY: 'CASE_SUMMARY',
+  DOCUMENTS_INDEX: 'DOCUMENTS_INDEX'
+} as const
+
+export type CaseViewType = (typeof CaseViewType)[keyof typeof CaseViewType]
+
+
+export const ManifestKind = {
+  WORKSPACE_STATE: 'WORKSPACE_STATE',
+  CASE_STATE: 'CASE_STATE',
+  SNAPSHOT: 'SNAPSHOT'
+} as const
+
+export type ManifestKind = (typeof ManifestKind)[keyof typeof ManifestKind]
+
+
+export const FileMimeFamily = {
+  JSON: 'JSON',
+  MARKDOWN: 'MARKDOWN',
+  TEXT: 'TEXT',
+  PDF: 'PDF',
+  IMAGE: 'IMAGE',
+  AUDIO: 'AUDIO',
+  VIDEO: 'VIDEO',
+  OTHER: 'OTHER'
+} as const
+
+export type FileMimeFamily = (typeof FileMimeFamily)[keyof typeof FileMimeFamily]

@@ -9,8 +9,8 @@
  * 🟢 You can import this file directly.
  */
 import type * as runtime from "@prisma/client/runtime/client"
-import type * as $Enums from "../enums.ts"
-import type * as Prisma from "../internal/prismaNamespace.ts"
+import type * as $Enums from "../enums"
+import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model User
@@ -28,10 +28,27 @@ export type UserMinAggregateOutputType = {
   id: string | null
   cognitoSub: string | null
   email: string | null
+  billingEmail: string | null
   displayName: string | null
+  firstName: string | null
+  lastName: string | null
+  profilePicture: string | null
+  userName: string | null
   isPlatformAdmin: boolean | null
-  canCreateWorkspaces: boolean | null
+  accountTier: $Enums.AccountTier | null
   accountStatus: $Enums.AccountStatus | null
+  stripeCustomerId: string | null
+  stripeSubscriptionId: string | null
+  stripePriceId: string | null
+  stripeProductId: string | null
+  stripeDefaultPaymentMethodId: string | null
+  subscriptionStatus: $Enums.SubscriptionStatus | null
+  billingInterval: $Enums.BillingInterval | null
+  cancelAtPeriodEnd: boolean | null
+  currentPeriodStart: Date | null
+  currentPeriodEnd: Date | null
+  trialStartsAt: Date | null
+  trialEndsAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -40,10 +57,27 @@ export type UserMaxAggregateOutputType = {
   id: string | null
   cognitoSub: string | null
   email: string | null
+  billingEmail: string | null
   displayName: string | null
+  firstName: string | null
+  lastName: string | null
+  profilePicture: string | null
+  userName: string | null
   isPlatformAdmin: boolean | null
-  canCreateWorkspaces: boolean | null
+  accountTier: $Enums.AccountTier | null
   accountStatus: $Enums.AccountStatus | null
+  stripeCustomerId: string | null
+  stripeSubscriptionId: string | null
+  stripePriceId: string | null
+  stripeProductId: string | null
+  stripeDefaultPaymentMethodId: string | null
+  subscriptionStatus: $Enums.SubscriptionStatus | null
+  billingInterval: $Enums.BillingInterval | null
+  cancelAtPeriodEnd: boolean | null
+  currentPeriodStart: Date | null
+  currentPeriodEnd: Date | null
+  trialStartsAt: Date | null
+  trialEndsAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -52,10 +86,27 @@ export type UserCountAggregateOutputType = {
   id: number
   cognitoSub: number
   email: number
+  billingEmail: number
   displayName: number
+  firstName: number
+  lastName: number
+  profilePicture: number
+  userName: number
   isPlatformAdmin: number
-  canCreateWorkspaces: number
+  accountTier: number
   accountStatus: number
+  stripeCustomerId: number
+  stripeSubscriptionId: number
+  stripePriceId: number
+  stripeProductId: number
+  stripeDefaultPaymentMethodId: number
+  subscriptionStatus: number
+  billingInterval: number
+  cancelAtPeriodEnd: number
+  currentPeriodStart: number
+  currentPeriodEnd: number
+  trialStartsAt: number
+  trialEndsAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -66,10 +117,27 @@ export type UserMinAggregateInputType = {
   id?: true
   cognitoSub?: true
   email?: true
+  billingEmail?: true
   displayName?: true
+  firstName?: true
+  lastName?: true
+  profilePicture?: true
+  userName?: true
   isPlatformAdmin?: true
-  canCreateWorkspaces?: true
+  accountTier?: true
   accountStatus?: true
+  stripeCustomerId?: true
+  stripeSubscriptionId?: true
+  stripePriceId?: true
+  stripeProductId?: true
+  stripeDefaultPaymentMethodId?: true
+  subscriptionStatus?: true
+  billingInterval?: true
+  cancelAtPeriodEnd?: true
+  currentPeriodStart?: true
+  currentPeriodEnd?: true
+  trialStartsAt?: true
+  trialEndsAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -78,10 +146,27 @@ export type UserMaxAggregateInputType = {
   id?: true
   cognitoSub?: true
   email?: true
+  billingEmail?: true
   displayName?: true
+  firstName?: true
+  lastName?: true
+  profilePicture?: true
+  userName?: true
   isPlatformAdmin?: true
-  canCreateWorkspaces?: true
+  accountTier?: true
   accountStatus?: true
+  stripeCustomerId?: true
+  stripeSubscriptionId?: true
+  stripePriceId?: true
+  stripeProductId?: true
+  stripeDefaultPaymentMethodId?: true
+  subscriptionStatus?: true
+  billingInterval?: true
+  cancelAtPeriodEnd?: true
+  currentPeriodStart?: true
+  currentPeriodEnd?: true
+  trialStartsAt?: true
+  trialEndsAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -90,10 +175,27 @@ export type UserCountAggregateInputType = {
   id?: true
   cognitoSub?: true
   email?: true
+  billingEmail?: true
   displayName?: true
+  firstName?: true
+  lastName?: true
+  profilePicture?: true
+  userName?: true
   isPlatformAdmin?: true
-  canCreateWorkspaces?: true
+  accountTier?: true
   accountStatus?: true
+  stripeCustomerId?: true
+  stripeSubscriptionId?: true
+  stripePriceId?: true
+  stripeProductId?: true
+  stripeDefaultPaymentMethodId?: true
+  subscriptionStatus?: true
+  billingInterval?: true
+  cancelAtPeriodEnd?: true
+  currentPeriodStart?: true
+  currentPeriodEnd?: true
+  trialStartsAt?: true
+  trialEndsAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -175,10 +277,27 @@ export type UserGroupByOutputType = {
   id: string
   cognitoSub: string
   email: string
+  billingEmail: string | null
   displayName: string | null
+  firstName: string | null
+  lastName: string | null
+  profilePicture: string | null
+  userName: string | null
   isPlatformAdmin: boolean
-  canCreateWorkspaces: boolean
+  accountTier: $Enums.AccountTier
   accountStatus: $Enums.AccountStatus
+  stripeCustomerId: string | null
+  stripeSubscriptionId: string | null
+  stripePriceId: string | null
+  stripeProductId: string | null
+  stripeDefaultPaymentMethodId: string | null
+  subscriptionStatus: $Enums.SubscriptionStatus
+  billingInterval: $Enums.BillingInterval | null
+  cancelAtPeriodEnd: boolean
+  currentPeriodStart: Date | null
+  currentPeriodEnd: Date | null
+  trialStartsAt: Date | null
+  trialEndsAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -208,67 +327,156 @@ export type UserWhereInput = {
   id?: Prisma.UuidFilter<"User"> | string
   cognitoSub?: Prisma.StringFilter<"User"> | string
   email?: Prisma.StringFilter<"User"> | string
+  billingEmail?: Prisma.StringNullableFilter<"User"> | string | null
   displayName?: Prisma.StringNullableFilter<"User"> | string | null
+  firstName?: Prisma.StringNullableFilter<"User"> | string | null
+  lastName?: Prisma.StringNullableFilter<"User"> | string | null
+  profilePicture?: Prisma.StringNullableFilter<"User"> | string | null
+  userName?: Prisma.StringNullableFilter<"User"> | string | null
   isPlatformAdmin?: Prisma.BoolFilter<"User"> | boolean
-  canCreateWorkspaces?: Prisma.BoolFilter<"User"> | boolean
+  accountTier?: Prisma.EnumAccountTierFilter<"User"> | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFilter<"User"> | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.StringNullableFilter<"User"> | string | null
+  stripeSubscriptionId?: Prisma.StringNullableFilter<"User"> | string | null
+  stripePriceId?: Prisma.StringNullableFilter<"User"> | string | null
+  stripeProductId?: Prisma.StringNullableFilter<"User"> | string | null
+  stripeDefaultPaymentMethodId?: Prisma.StringNullableFilter<"User"> | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFilter<"User"> | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.EnumBillingIntervalNullableFilter<"User"> | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFilter<"User"> | boolean
+  currentPeriodStart?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  currentPeriodEnd?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  trialStartsAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  trialEndsAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
-  createdWorkspaces?: Prisma.WorkspaceListRelationFilter
+  ownedWorkspaces?: Prisma.WorkspaceListRelationFilter
   workspaceMemberships?: Prisma.WorkspaceMembershipListRelationFilter
-  workspaceInvitations?: Prisma.WorkspaceInvitationListRelationFilter
-  acceptedInvitations?: Prisma.WorkspaceInvitationListRelationFilter
   createdCases?: Prisma.CaseListRelationFilter
-  llmUsageEvents?: Prisma.LlmUsageEventListRelationFilter
+  uploadedDocuments?: Prisma.CaseDocumentIndexListRelationFilter
+  createdRecordIndexes?: Prisma.CaseRecordIndexListRelationFilter
+  updatedRecordIndexes?: Prisma.CaseRecordIndexListRelationFilter
+  createdViewIndexes?: Prisma.CaseViewIndexListRelationFilter
+  manifestsCreated?: Prisma.CaseStateManifestListRelationFilter
+  actorUsageEvents?: Prisma.LlmUsageEventListRelationFilter
+  billedUsageEvents?: Prisma.LlmUsageEventListRelationFilter
+  stripeEvents?: Prisma.StripeEventLogListRelationFilter
+  individualUsageMonthly?: Prisma.UserUsageMonthlyListRelationFilter
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   cognitoSub?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  billingEmail?: Prisma.SortOrderInput | Prisma.SortOrder
   displayName?: Prisma.SortOrderInput | Prisma.SortOrder
+  firstName?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastName?: Prisma.SortOrderInput | Prisma.SortOrder
+  profilePicture?: Prisma.SortOrderInput | Prisma.SortOrder
+  userName?: Prisma.SortOrderInput | Prisma.SortOrder
   isPlatformAdmin?: Prisma.SortOrder
-  canCreateWorkspaces?: Prisma.SortOrder
+  accountTier?: Prisma.SortOrder
   accountStatus?: Prisma.SortOrder
+  stripeCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stripeSubscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stripePriceId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stripeProductId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stripeDefaultPaymentMethodId?: Prisma.SortOrderInput | Prisma.SortOrder
+  subscriptionStatus?: Prisma.SortOrder
+  billingInterval?: Prisma.SortOrderInput | Prisma.SortOrder
+  cancelAtPeriodEnd?: Prisma.SortOrder
+  currentPeriodStart?: Prisma.SortOrderInput | Prisma.SortOrder
+  currentPeriodEnd?: Prisma.SortOrderInput | Prisma.SortOrder
+  trialStartsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  trialEndsAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  createdWorkspaces?: Prisma.WorkspaceOrderByRelationAggregateInput
+  ownedWorkspaces?: Prisma.WorkspaceOrderByRelationAggregateInput
   workspaceMemberships?: Prisma.WorkspaceMembershipOrderByRelationAggregateInput
-  workspaceInvitations?: Prisma.WorkspaceInvitationOrderByRelationAggregateInput
-  acceptedInvitations?: Prisma.WorkspaceInvitationOrderByRelationAggregateInput
   createdCases?: Prisma.CaseOrderByRelationAggregateInput
-  llmUsageEvents?: Prisma.LlmUsageEventOrderByRelationAggregateInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexOrderByRelationAggregateInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexOrderByRelationAggregateInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexOrderByRelationAggregateInput
+  createdViewIndexes?: Prisma.CaseViewIndexOrderByRelationAggregateInput
+  manifestsCreated?: Prisma.CaseStateManifestOrderByRelationAggregateInput
+  actorUsageEvents?: Prisma.LlmUsageEventOrderByRelationAggregateInput
+  billedUsageEvents?: Prisma.LlmUsageEventOrderByRelationAggregateInput
+  stripeEvents?: Prisma.StripeEventLogOrderByRelationAggregateInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyOrderByRelationAggregateInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   cognitoSub?: string
   email?: string
+  userName?: string
+  stripeCustomerId?: string
+  stripeSubscriptionId?: string
   AND?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
+  billingEmail?: Prisma.StringNullableFilter<"User"> | string | null
   displayName?: Prisma.StringNullableFilter<"User"> | string | null
+  firstName?: Prisma.StringNullableFilter<"User"> | string | null
+  lastName?: Prisma.StringNullableFilter<"User"> | string | null
+  profilePicture?: Prisma.StringNullableFilter<"User"> | string | null
   isPlatformAdmin?: Prisma.BoolFilter<"User"> | boolean
-  canCreateWorkspaces?: Prisma.BoolFilter<"User"> | boolean
+  accountTier?: Prisma.EnumAccountTierFilter<"User"> | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFilter<"User"> | $Enums.AccountStatus
+  stripePriceId?: Prisma.StringNullableFilter<"User"> | string | null
+  stripeProductId?: Prisma.StringNullableFilter<"User"> | string | null
+  stripeDefaultPaymentMethodId?: Prisma.StringNullableFilter<"User"> | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFilter<"User"> | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.EnumBillingIntervalNullableFilter<"User"> | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFilter<"User"> | boolean
+  currentPeriodStart?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  currentPeriodEnd?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  trialStartsAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  trialEndsAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
-  createdWorkspaces?: Prisma.WorkspaceListRelationFilter
+  ownedWorkspaces?: Prisma.WorkspaceListRelationFilter
   workspaceMemberships?: Prisma.WorkspaceMembershipListRelationFilter
-  workspaceInvitations?: Prisma.WorkspaceInvitationListRelationFilter
-  acceptedInvitations?: Prisma.WorkspaceInvitationListRelationFilter
   createdCases?: Prisma.CaseListRelationFilter
-  llmUsageEvents?: Prisma.LlmUsageEventListRelationFilter
-}, "id" | "cognitoSub" | "email">
+  uploadedDocuments?: Prisma.CaseDocumentIndexListRelationFilter
+  createdRecordIndexes?: Prisma.CaseRecordIndexListRelationFilter
+  updatedRecordIndexes?: Prisma.CaseRecordIndexListRelationFilter
+  createdViewIndexes?: Prisma.CaseViewIndexListRelationFilter
+  manifestsCreated?: Prisma.CaseStateManifestListRelationFilter
+  actorUsageEvents?: Prisma.LlmUsageEventListRelationFilter
+  billedUsageEvents?: Prisma.LlmUsageEventListRelationFilter
+  stripeEvents?: Prisma.StripeEventLogListRelationFilter
+  individualUsageMonthly?: Prisma.UserUsageMonthlyListRelationFilter
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyListRelationFilter
+}, "id" | "cognitoSub" | "email" | "userName" | "stripeCustomerId" | "stripeSubscriptionId">
 
 export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   cognitoSub?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  billingEmail?: Prisma.SortOrderInput | Prisma.SortOrder
   displayName?: Prisma.SortOrderInput | Prisma.SortOrder
+  firstName?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastName?: Prisma.SortOrderInput | Prisma.SortOrder
+  profilePicture?: Prisma.SortOrderInput | Prisma.SortOrder
+  userName?: Prisma.SortOrderInput | Prisma.SortOrder
   isPlatformAdmin?: Prisma.SortOrder
-  canCreateWorkspaces?: Prisma.SortOrder
+  accountTier?: Prisma.SortOrder
   accountStatus?: Prisma.SortOrder
+  stripeCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stripeSubscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stripePriceId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stripeProductId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stripeDefaultPaymentMethodId?: Prisma.SortOrderInput | Prisma.SortOrder
+  subscriptionStatus?: Prisma.SortOrder
+  billingInterval?: Prisma.SortOrderInput | Prisma.SortOrder
+  cancelAtPeriodEnd?: Prisma.SortOrder
+  currentPeriodStart?: Prisma.SortOrderInput | Prisma.SortOrder
+  currentPeriodEnd?: Prisma.SortOrderInput | Prisma.SortOrder
+  trialStartsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  trialEndsAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -283,10 +491,27 @@ export type UserScalarWhereWithAggregatesInput = {
   id?: Prisma.UuidWithAggregatesFilter<"User"> | string
   cognitoSub?: Prisma.StringWithAggregatesFilter<"User"> | string
   email?: Prisma.StringWithAggregatesFilter<"User"> | string
+  billingEmail?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   displayName?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  firstName?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  lastName?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  profilePicture?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  userName?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   isPlatformAdmin?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
-  canCreateWorkspaces?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  accountTier?: Prisma.EnumAccountTierWithAggregatesFilter<"User"> | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusWithAggregatesFilter<"User"> | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  stripeSubscriptionId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  stripePriceId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  stripeProductId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  stripeDefaultPaymentMethodId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusWithAggregatesFilter<"User"> | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.EnumBillingIntervalNullableWithAggregatesFilter<"User"> | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  currentPeriodStart?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  currentPeriodEnd?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  trialStartsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  trialEndsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -295,82 +520,195 @@ export type UserCreateInput = {
   id?: string
   cognitoSub: string
   email: string
+  billingEmail?: string | null
   displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
   isPlatformAdmin?: boolean
-  canCreateWorkspaces?: boolean
+  accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  createdWorkspaces?: Prisma.WorkspaceCreateNestedManyWithoutCreatedByInput
+  ownedWorkspaces?: Prisma.WorkspaceCreateNestedManyWithoutOwnerInput
   workspaceMemberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutUserInput
-  workspaceInvitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutInvitedByUserInput
-  acceptedInvitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutAcceptedByUserInput
   createdCases?: Prisma.CaseCreateNestedManyWithoutCreatedByUserInput
-  llmUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutUserInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexCreateNestedManyWithoutUploadedByUserInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutCreatedByUserInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutLastUpdatedByUserInput
+  createdViewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutCreatedByUserInput
+  manifestsCreated?: Prisma.CaseStateManifestCreateNestedManyWithoutCreatedByUserInput
+  actorUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutActorUserInput
+  billedUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutBilledToUserInput
+  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutUserInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyCreateNestedManyWithoutUserInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyCreateNestedManyWithoutBilledToUserInput
 }
 
 export type UserUncheckedCreateInput = {
   id?: string
   cognitoSub: string
   email: string
+  billingEmail?: string | null
   displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
   isPlatformAdmin?: boolean
-  canCreateWorkspaces?: boolean
+  accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  createdWorkspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutCreatedByInput
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
   workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutUserInput
-  workspaceInvitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
-  acceptedInvitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutAcceptedByUserInput
   createdCases?: Prisma.CaseUncheckedCreateNestedManyWithoutCreatedByUserInput
-  llmUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutUserInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutUploadedByUserInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutLastUpdatedByUserInput
+  createdViewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutCreatedByUserInput
+  manifestsCreated?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutCreatedByUserInput
+  actorUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutActorUserInput
+  billedUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutBilledToUserInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutUserInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUncheckedCreateNestedManyWithoutUserInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUncheckedCreateNestedManyWithoutBilledToUserInput
 }
 
 export type UserUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  canCreateWorkspaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdWorkspaces?: Prisma.WorkspaceUpdateManyWithoutCreatedByNestedInput
+  ownedWorkspaces?: Prisma.WorkspaceUpdateManyWithoutOwnerNestedInput
   workspaceMemberships?: Prisma.WorkspaceMembershipUpdateManyWithoutUserNestedInput
-  workspaceInvitations?: Prisma.WorkspaceInvitationUpdateManyWithoutInvitedByUserNestedInput
-  acceptedInvitations?: Prisma.WorkspaceInvitationUpdateManyWithoutAcceptedByUserNestedInput
   createdCases?: Prisma.CaseUpdateManyWithoutCreatedByUserNestedInput
-  llmUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutUserNestedInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUpdateManyWithoutUploadedByUserNestedInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutCreatedByUserNestedInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutLastUpdatedByUserNestedInput
+  createdViewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutCreatedByUserNestedInput
+  manifestsCreated?: Prisma.CaseStateManifestUpdateManyWithoutCreatedByUserNestedInput
+  actorUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutActorUserNestedInput
+  billedUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutBilledToUserNestedInput
+  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutUserNestedInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUpdateManyWithoutUserNestedInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUpdateManyWithoutBilledToUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  canCreateWorkspaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdWorkspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutCreatedByNestedInput
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
   workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutUserNestedInput
-  workspaceInvitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
-  acceptedInvitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutAcceptedByUserNestedInput
   createdCases?: Prisma.CaseUncheckedUpdateManyWithoutCreatedByUserNestedInput
-  llmUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutUserNestedInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutUploadedByUserNestedInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutLastUpdatedByUserNestedInput
+  createdViewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  manifestsCreated?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  actorUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutActorUserNestedInput
+  billedUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutBilledToUserNestedInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutUserNestedInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUncheckedUpdateManyWithoutUserNestedInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutBilledToUserNestedInput
 }
 
 export type UserCreateManyInput = {
   id?: string
   cognitoSub: string
   email: string
+  billingEmail?: string | null
   displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
   isPlatformAdmin?: boolean
-  canCreateWorkspaces?: boolean
+  accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -379,10 +717,27 @@ export type UserUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  canCreateWorkspaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -391,10 +746,27 @@ export type UserUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  canCreateWorkspaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -403,10 +775,27 @@ export type UserCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   cognitoSub?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  billingEmail?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
+  firstName?: Prisma.SortOrder
+  lastName?: Prisma.SortOrder
+  profilePicture?: Prisma.SortOrder
+  userName?: Prisma.SortOrder
   isPlatformAdmin?: Prisma.SortOrder
-  canCreateWorkspaces?: Prisma.SortOrder
+  accountTier?: Prisma.SortOrder
   accountStatus?: Prisma.SortOrder
+  stripeCustomerId?: Prisma.SortOrder
+  stripeSubscriptionId?: Prisma.SortOrder
+  stripePriceId?: Prisma.SortOrder
+  stripeProductId?: Prisma.SortOrder
+  stripeDefaultPaymentMethodId?: Prisma.SortOrder
+  subscriptionStatus?: Prisma.SortOrder
+  billingInterval?: Prisma.SortOrder
+  cancelAtPeriodEnd?: Prisma.SortOrder
+  currentPeriodStart?: Prisma.SortOrder
+  currentPeriodEnd?: Prisma.SortOrder
+  trialStartsAt?: Prisma.SortOrder
+  trialEndsAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -415,10 +804,27 @@ export type UserMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   cognitoSub?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  billingEmail?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
+  firstName?: Prisma.SortOrder
+  lastName?: Prisma.SortOrder
+  profilePicture?: Prisma.SortOrder
+  userName?: Prisma.SortOrder
   isPlatformAdmin?: Prisma.SortOrder
-  canCreateWorkspaces?: Prisma.SortOrder
+  accountTier?: Prisma.SortOrder
   accountStatus?: Prisma.SortOrder
+  stripeCustomerId?: Prisma.SortOrder
+  stripeSubscriptionId?: Prisma.SortOrder
+  stripePriceId?: Prisma.SortOrder
+  stripeProductId?: Prisma.SortOrder
+  stripeDefaultPaymentMethodId?: Prisma.SortOrder
+  subscriptionStatus?: Prisma.SortOrder
+  billingInterval?: Prisma.SortOrder
+  cancelAtPeriodEnd?: Prisma.SortOrder
+  currentPeriodStart?: Prisma.SortOrder
+  currentPeriodEnd?: Prisma.SortOrder
+  trialStartsAt?: Prisma.SortOrder
+  trialEndsAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -427,10 +833,27 @@ export type UserMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   cognitoSub?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  billingEmail?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
+  firstName?: Prisma.SortOrder
+  lastName?: Prisma.SortOrder
+  profilePicture?: Prisma.SortOrder
+  userName?: Prisma.SortOrder
   isPlatformAdmin?: Prisma.SortOrder
-  canCreateWorkspaces?: Prisma.SortOrder
+  accountTier?: Prisma.SortOrder
   accountStatus?: Prisma.SortOrder
+  stripeCustomerId?: Prisma.SortOrder
+  stripeSubscriptionId?: Prisma.SortOrder
+  stripePriceId?: Prisma.SortOrder
+  stripeProductId?: Prisma.SortOrder
+  stripeDefaultPaymentMethodId?: Prisma.SortOrder
+  subscriptionStatus?: Prisma.SortOrder
+  billingInterval?: Prisma.SortOrder
+  cancelAtPeriodEnd?: Prisma.SortOrder
+  currentPeriodStart?: Prisma.SortOrder
+  currentPeriodEnd?: Prisma.SortOrder
+  trialStartsAt?: Prisma.SortOrder
+  trialEndsAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -457,26 +880,42 @@ export type BoolFieldUpdateOperationsInput = {
   set?: boolean
 }
 
+export type EnumAccountTierFieldUpdateOperationsInput = {
+  set?: $Enums.AccountTier
+}
+
 export type EnumAccountStatusFieldUpdateOperationsInput = {
   set?: $Enums.AccountStatus
+}
+
+export type EnumSubscriptionStatusFieldUpdateOperationsInput = {
+  set?: $Enums.SubscriptionStatus
+}
+
+export type NullableEnumBillingIntervalFieldUpdateOperationsInput = {
+  set?: $Enums.BillingInterval | null
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
 }
 
-export type UserCreateNestedOneWithoutCreatedWorkspacesInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedWorkspacesInput, Prisma.UserUncheckedCreateWithoutCreatedWorkspacesInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedWorkspacesInput
+export type UserCreateNestedOneWithoutOwnedWorkspacesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOwnedWorkspacesInput, Prisma.UserUncheckedCreateWithoutOwnedWorkspacesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOwnedWorkspacesInput
   connect?: Prisma.UserWhereUniqueInput
 }
 
-export type UserUpdateOneRequiredWithoutCreatedWorkspacesNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedWorkspacesInput, Prisma.UserUncheckedCreateWithoutCreatedWorkspacesInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedWorkspacesInput
-  upsert?: Prisma.UserUpsertWithoutCreatedWorkspacesInput
+export type UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOwnedWorkspacesInput, Prisma.UserUncheckedCreateWithoutOwnedWorkspacesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOwnedWorkspacesInput
+  upsert?: Prisma.UserUpsertWithoutOwnedWorkspacesInput
   connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatedWorkspacesInput, Prisma.UserUpdateWithoutCreatedWorkspacesInput>, Prisma.UserUncheckedUpdateWithoutCreatedWorkspacesInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutOwnedWorkspacesInput, Prisma.UserUpdateWithoutOwnedWorkspacesInput>, Prisma.UserUncheckedUpdateWithoutOwnedWorkspacesInput>
 }
 
 export type UserCreateNestedOneWithoutWorkspaceMembershipsInput = {
@@ -493,36 +932,6 @@ export type UserUpdateOneRequiredWithoutWorkspaceMembershipsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutWorkspaceMembershipsInput, Prisma.UserUpdateWithoutWorkspaceMembershipsInput>, Prisma.UserUncheckedUpdateWithoutWorkspaceMembershipsInput>
 }
 
-export type UserCreateNestedOneWithoutWorkspaceInvitationsInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutWorkspaceInvitationsInput, Prisma.UserUncheckedCreateWithoutWorkspaceInvitationsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutWorkspaceInvitationsInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserCreateNestedOneWithoutAcceptedInvitationsInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutAcceptedInvitationsInput, Prisma.UserUncheckedCreateWithoutAcceptedInvitationsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAcceptedInvitationsInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneRequiredWithoutWorkspaceInvitationsNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutWorkspaceInvitationsInput, Prisma.UserUncheckedCreateWithoutWorkspaceInvitationsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutWorkspaceInvitationsInput
-  upsert?: Prisma.UserUpsertWithoutWorkspaceInvitationsInput
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutWorkspaceInvitationsInput, Prisma.UserUpdateWithoutWorkspaceInvitationsInput>, Prisma.UserUncheckedUpdateWithoutWorkspaceInvitationsInput>
-}
-
-export type UserUpdateOneWithoutAcceptedInvitationsNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutAcceptedInvitationsInput, Prisma.UserUncheckedCreateWithoutAcceptedInvitationsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAcceptedInvitationsInput
-  upsert?: Prisma.UserUpsertWithoutAcceptedInvitationsInput
-  disconnect?: Prisma.UserWhereInput | boolean
-  delete?: Prisma.UserWhereInput | boolean
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAcceptedInvitationsInput, Prisma.UserUpdateWithoutAcceptedInvitationsInput>, Prisma.UserUncheckedUpdateWithoutAcceptedInvitationsInput>
-}
-
 export type UserCreateNestedOneWithoutCreatedCasesInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedCasesInput, Prisma.UserUncheckedCreateWithoutCreatedCasesInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedCasesInput
@@ -537,138 +946,420 @@ export type UserUpdateOneRequiredWithoutCreatedCasesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatedCasesInput, Prisma.UserUpdateWithoutCreatedCasesInput>, Prisma.UserUncheckedUpdateWithoutCreatedCasesInput>
 }
 
-export type UserCreateNestedOneWithoutLlmUsageEventsInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutLlmUsageEventsInput, Prisma.UserUncheckedCreateWithoutLlmUsageEventsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLlmUsageEventsInput
+export type UserCreateNestedOneWithoutUploadedDocumentsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUploadedDocumentsInput, Prisma.UserUncheckedCreateWithoutUploadedDocumentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUploadedDocumentsInput
   connect?: Prisma.UserWhereUniqueInput
 }
 
-export type UserUpdateOneWithoutLlmUsageEventsNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutLlmUsageEventsInput, Prisma.UserUncheckedCreateWithoutLlmUsageEventsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLlmUsageEventsInput
-  upsert?: Prisma.UserUpsertWithoutLlmUsageEventsInput
+export type UserUpdateOneWithoutUploadedDocumentsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUploadedDocumentsInput, Prisma.UserUncheckedCreateWithoutUploadedDocumentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUploadedDocumentsInput
+  upsert?: Prisma.UserUpsertWithoutUploadedDocumentsInput
   disconnect?: Prisma.UserWhereInput | boolean
   delete?: Prisma.UserWhereInput | boolean
   connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutLlmUsageEventsInput, Prisma.UserUpdateWithoutLlmUsageEventsInput>, Prisma.UserUncheckedUpdateWithoutLlmUsageEventsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutUploadedDocumentsInput, Prisma.UserUpdateWithoutUploadedDocumentsInput>, Prisma.UserUncheckedUpdateWithoutUploadedDocumentsInput>
 }
 
-export type UserCreateWithoutCreatedWorkspacesInput = {
+export type UserCreateNestedOneWithoutCreatedRecordIndexesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedRecordIndexesInput, Prisma.UserUncheckedCreateWithoutCreatedRecordIndexesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedRecordIndexesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutUpdatedRecordIndexesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUpdatedRecordIndexesInput, Prisma.UserUncheckedCreateWithoutUpdatedRecordIndexesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUpdatedRecordIndexesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutCreatedRecordIndexesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedRecordIndexesInput, Prisma.UserUncheckedCreateWithoutCreatedRecordIndexesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedRecordIndexesInput
+  upsert?: Prisma.UserUpsertWithoutCreatedRecordIndexesInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatedRecordIndexesInput, Prisma.UserUpdateWithoutCreatedRecordIndexesInput>, Prisma.UserUncheckedUpdateWithoutCreatedRecordIndexesInput>
+}
+
+export type UserUpdateOneWithoutUpdatedRecordIndexesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUpdatedRecordIndexesInput, Prisma.UserUncheckedCreateWithoutUpdatedRecordIndexesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUpdatedRecordIndexesInput
+  upsert?: Prisma.UserUpsertWithoutUpdatedRecordIndexesInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutUpdatedRecordIndexesInput, Prisma.UserUpdateWithoutUpdatedRecordIndexesInput>, Prisma.UserUncheckedUpdateWithoutUpdatedRecordIndexesInput>
+}
+
+export type UserCreateNestedOneWithoutCreatedViewIndexesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedViewIndexesInput, Prisma.UserUncheckedCreateWithoutCreatedViewIndexesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedViewIndexesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutCreatedViewIndexesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedViewIndexesInput, Prisma.UserUncheckedCreateWithoutCreatedViewIndexesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedViewIndexesInput
+  upsert?: Prisma.UserUpsertWithoutCreatedViewIndexesInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatedViewIndexesInput, Prisma.UserUpdateWithoutCreatedViewIndexesInput>, Prisma.UserUncheckedUpdateWithoutCreatedViewIndexesInput>
+}
+
+export type UserCreateNestedOneWithoutManifestsCreatedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutManifestsCreatedInput, Prisma.UserUncheckedCreateWithoutManifestsCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutManifestsCreatedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutManifestsCreatedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutManifestsCreatedInput, Prisma.UserUncheckedCreateWithoutManifestsCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutManifestsCreatedInput
+  upsert?: Prisma.UserUpsertWithoutManifestsCreatedInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutManifestsCreatedInput, Prisma.UserUpdateWithoutManifestsCreatedInput>, Prisma.UserUncheckedUpdateWithoutManifestsCreatedInput>
+}
+
+export type UserCreateNestedOneWithoutActorUsageEventsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutActorUsageEventsInput, Prisma.UserUncheckedCreateWithoutActorUsageEventsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutActorUsageEventsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutBilledUsageEventsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutBilledUsageEventsInput, Prisma.UserUncheckedCreateWithoutBilledUsageEventsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutBilledUsageEventsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutActorUsageEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutActorUsageEventsInput, Prisma.UserUncheckedCreateWithoutActorUsageEventsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutActorUsageEventsInput
+  upsert?: Prisma.UserUpsertWithoutActorUsageEventsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutActorUsageEventsInput, Prisma.UserUpdateWithoutActorUsageEventsInput>, Prisma.UserUncheckedUpdateWithoutActorUsageEventsInput>
+}
+
+export type UserUpdateOneRequiredWithoutBilledUsageEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutBilledUsageEventsInput, Prisma.UserUncheckedCreateWithoutBilledUsageEventsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutBilledUsageEventsInput
+  upsert?: Prisma.UserUpsertWithoutBilledUsageEventsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutBilledUsageEventsInput, Prisma.UserUpdateWithoutBilledUsageEventsInput>, Prisma.UserUncheckedUpdateWithoutBilledUsageEventsInput>
+}
+
+export type UserCreateNestedOneWithoutWorkspaceBilledUsageMonthlyInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutWorkspaceBilledUsageMonthlyInput, Prisma.UserUncheckedCreateWithoutWorkspaceBilledUsageMonthlyInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutWorkspaceBilledUsageMonthlyInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutWorkspaceBilledUsageMonthlyNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutWorkspaceBilledUsageMonthlyInput, Prisma.UserUncheckedCreateWithoutWorkspaceBilledUsageMonthlyInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutWorkspaceBilledUsageMonthlyInput
+  upsert?: Prisma.UserUpsertWithoutWorkspaceBilledUsageMonthlyInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutWorkspaceBilledUsageMonthlyInput, Prisma.UserUpdateWithoutWorkspaceBilledUsageMonthlyInput>, Prisma.UserUncheckedUpdateWithoutWorkspaceBilledUsageMonthlyInput>
+}
+
+export type UserCreateNestedOneWithoutIndividualUsageMonthlyInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutIndividualUsageMonthlyInput, Prisma.UserUncheckedCreateWithoutIndividualUsageMonthlyInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutIndividualUsageMonthlyInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutIndividualUsageMonthlyNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutIndividualUsageMonthlyInput, Prisma.UserUncheckedCreateWithoutIndividualUsageMonthlyInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutIndividualUsageMonthlyInput
+  upsert?: Prisma.UserUpsertWithoutIndividualUsageMonthlyInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutIndividualUsageMonthlyInput, Prisma.UserUpdateWithoutIndividualUsageMonthlyInput>, Prisma.UserUncheckedUpdateWithoutIndividualUsageMonthlyInput>
+}
+
+export type UserCreateNestedOneWithoutStripeEventsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutStripeEventsInput, Prisma.UserUncheckedCreateWithoutStripeEventsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutStripeEventsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutStripeEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutStripeEventsInput, Prisma.UserUncheckedCreateWithoutStripeEventsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutStripeEventsInput
+  upsert?: Prisma.UserUpsertWithoutStripeEventsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutStripeEventsInput, Prisma.UserUpdateWithoutStripeEventsInput>, Prisma.UserUncheckedUpdateWithoutStripeEventsInput>
+}
+
+export type UserCreateWithoutOwnedWorkspacesInput = {
   id?: string
   cognitoSub: string
   email: string
+  billingEmail?: string | null
   displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
   isPlatformAdmin?: boolean
-  canCreateWorkspaces?: boolean
+  accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workspaceMemberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutUserInput
-  workspaceInvitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutInvitedByUserInput
-  acceptedInvitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutAcceptedByUserInput
   createdCases?: Prisma.CaseCreateNestedManyWithoutCreatedByUserInput
-  llmUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutUserInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexCreateNestedManyWithoutUploadedByUserInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutCreatedByUserInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutLastUpdatedByUserInput
+  createdViewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutCreatedByUserInput
+  manifestsCreated?: Prisma.CaseStateManifestCreateNestedManyWithoutCreatedByUserInput
+  actorUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutActorUserInput
+  billedUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutBilledToUserInput
+  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutUserInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyCreateNestedManyWithoutUserInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyCreateNestedManyWithoutBilledToUserInput
 }
 
-export type UserUncheckedCreateWithoutCreatedWorkspacesInput = {
+export type UserUncheckedCreateWithoutOwnedWorkspacesInput = {
   id?: string
   cognitoSub: string
   email: string
+  billingEmail?: string | null
   displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
   isPlatformAdmin?: boolean
-  canCreateWorkspaces?: boolean
+  accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutUserInput
-  workspaceInvitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
-  acceptedInvitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutAcceptedByUserInput
   createdCases?: Prisma.CaseUncheckedCreateNestedManyWithoutCreatedByUserInput
-  llmUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutUserInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutUploadedByUserInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutLastUpdatedByUserInput
+  createdViewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutCreatedByUserInput
+  manifestsCreated?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutCreatedByUserInput
+  actorUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutActorUserInput
+  billedUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutBilledToUserInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutUserInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUncheckedCreateNestedManyWithoutUserInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUncheckedCreateNestedManyWithoutBilledToUserInput
 }
 
-export type UserCreateOrConnectWithoutCreatedWorkspacesInput = {
+export type UserCreateOrConnectWithoutOwnedWorkspacesInput = {
   where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedWorkspacesInput, Prisma.UserUncheckedCreateWithoutCreatedWorkspacesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutOwnedWorkspacesInput, Prisma.UserUncheckedCreateWithoutOwnedWorkspacesInput>
 }
 
-export type UserUpsertWithoutCreatedWorkspacesInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutCreatedWorkspacesInput, Prisma.UserUncheckedUpdateWithoutCreatedWorkspacesInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedWorkspacesInput, Prisma.UserUncheckedCreateWithoutCreatedWorkspacesInput>
+export type UserUpsertWithoutOwnedWorkspacesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutOwnedWorkspacesInput, Prisma.UserUncheckedUpdateWithoutOwnedWorkspacesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutOwnedWorkspacesInput, Prisma.UserUncheckedCreateWithoutOwnedWorkspacesInput>
   where?: Prisma.UserWhereInput
 }
 
-export type UserUpdateToOneWithWhereWithoutCreatedWorkspacesInput = {
+export type UserUpdateToOneWithWhereWithoutOwnedWorkspacesInput = {
   where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutCreatedWorkspacesInput, Prisma.UserUncheckedUpdateWithoutCreatedWorkspacesInput>
+  data: Prisma.XOR<Prisma.UserUpdateWithoutOwnedWorkspacesInput, Prisma.UserUncheckedUpdateWithoutOwnedWorkspacesInput>
 }
 
-export type UserUpdateWithoutCreatedWorkspacesInput = {
+export type UserUpdateWithoutOwnedWorkspacesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  canCreateWorkspaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspaceMemberships?: Prisma.WorkspaceMembershipUpdateManyWithoutUserNestedInput
-  workspaceInvitations?: Prisma.WorkspaceInvitationUpdateManyWithoutInvitedByUserNestedInput
-  acceptedInvitations?: Prisma.WorkspaceInvitationUpdateManyWithoutAcceptedByUserNestedInput
   createdCases?: Prisma.CaseUpdateManyWithoutCreatedByUserNestedInput
-  llmUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutUserNestedInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUpdateManyWithoutUploadedByUserNestedInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutCreatedByUserNestedInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutLastUpdatedByUserNestedInput
+  createdViewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutCreatedByUserNestedInput
+  manifestsCreated?: Prisma.CaseStateManifestUpdateManyWithoutCreatedByUserNestedInput
+  actorUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutActorUserNestedInput
+  billedUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutBilledToUserNestedInput
+  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutUserNestedInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUpdateManyWithoutUserNestedInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUpdateManyWithoutBilledToUserNestedInput
 }
 
-export type UserUncheckedUpdateWithoutCreatedWorkspacesInput = {
+export type UserUncheckedUpdateWithoutOwnedWorkspacesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  canCreateWorkspaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutUserNestedInput
-  workspaceInvitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
-  acceptedInvitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutAcceptedByUserNestedInput
   createdCases?: Prisma.CaseUncheckedUpdateManyWithoutCreatedByUserNestedInput
-  llmUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutUserNestedInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutUploadedByUserNestedInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutLastUpdatedByUserNestedInput
+  createdViewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  manifestsCreated?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  actorUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutActorUserNestedInput
+  billedUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutBilledToUserNestedInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutUserNestedInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUncheckedUpdateManyWithoutUserNestedInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutBilledToUserNestedInput
 }
 
 export type UserCreateWithoutWorkspaceMembershipsInput = {
   id?: string
   cognitoSub: string
   email: string
+  billingEmail?: string | null
   displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
   isPlatformAdmin?: boolean
-  canCreateWorkspaces?: boolean
+  accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  createdWorkspaces?: Prisma.WorkspaceCreateNestedManyWithoutCreatedByInput
-  workspaceInvitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutInvitedByUserInput
-  acceptedInvitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutAcceptedByUserInput
+  ownedWorkspaces?: Prisma.WorkspaceCreateNestedManyWithoutOwnerInput
   createdCases?: Prisma.CaseCreateNestedManyWithoutCreatedByUserInput
-  llmUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutUserInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexCreateNestedManyWithoutUploadedByUserInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutCreatedByUserInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutLastUpdatedByUserInput
+  createdViewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutCreatedByUserInput
+  manifestsCreated?: Prisma.CaseStateManifestCreateNestedManyWithoutCreatedByUserInput
+  actorUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutActorUserInput
+  billedUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutBilledToUserInput
+  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutUserInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyCreateNestedManyWithoutUserInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyCreateNestedManyWithoutBilledToUserInput
 }
 
 export type UserUncheckedCreateWithoutWorkspaceMembershipsInput = {
   id?: string
   cognitoSub: string
   email: string
+  billingEmail?: string | null
   displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
   isPlatformAdmin?: boolean
-  canCreateWorkspaces?: boolean
+  accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  createdWorkspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutCreatedByInput
-  workspaceInvitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
-  acceptedInvitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutAcceptedByUserInput
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
   createdCases?: Prisma.CaseUncheckedCreateNestedManyWithoutCreatedByUserInput
-  llmUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutUserInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutUploadedByUserInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutLastUpdatedByUserInput
+  createdViewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutCreatedByUserInput
+  manifestsCreated?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutCreatedByUserInput
+  actorUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutActorUserInput
+  billedUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutBilledToUserInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutUserInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUncheckedCreateNestedManyWithoutUserInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUncheckedCreateNestedManyWithoutBilledToUserInput
 }
 
 export type UserCreateOrConnectWithoutWorkspaceMembershipsInput = {
@@ -691,236 +1382,164 @@ export type UserUpdateWithoutWorkspaceMembershipsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  canCreateWorkspaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdWorkspaces?: Prisma.WorkspaceUpdateManyWithoutCreatedByNestedInput
-  workspaceInvitations?: Prisma.WorkspaceInvitationUpdateManyWithoutInvitedByUserNestedInput
-  acceptedInvitations?: Prisma.WorkspaceInvitationUpdateManyWithoutAcceptedByUserNestedInput
+  ownedWorkspaces?: Prisma.WorkspaceUpdateManyWithoutOwnerNestedInput
   createdCases?: Prisma.CaseUpdateManyWithoutCreatedByUserNestedInput
-  llmUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutUserNestedInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUpdateManyWithoutUploadedByUserNestedInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutCreatedByUserNestedInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutLastUpdatedByUserNestedInput
+  createdViewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutCreatedByUserNestedInput
+  manifestsCreated?: Prisma.CaseStateManifestUpdateManyWithoutCreatedByUserNestedInput
+  actorUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutActorUserNestedInput
+  billedUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutBilledToUserNestedInput
+  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutUserNestedInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUpdateManyWithoutUserNestedInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUpdateManyWithoutBilledToUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutWorkspaceMembershipsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  canCreateWorkspaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdWorkspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutCreatedByNestedInput
-  workspaceInvitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
-  acceptedInvitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutAcceptedByUserNestedInput
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
   createdCases?: Prisma.CaseUncheckedUpdateManyWithoutCreatedByUserNestedInput
-  llmUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutUserNestedInput
-}
-
-export type UserCreateWithoutWorkspaceInvitationsInput = {
-  id?: string
-  cognitoSub: string
-  email: string
-  displayName?: string | null
-  isPlatformAdmin?: boolean
-  canCreateWorkspaces?: boolean
-  accountStatus?: $Enums.AccountStatus
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  createdWorkspaces?: Prisma.WorkspaceCreateNestedManyWithoutCreatedByInput
-  workspaceMemberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutUserInput
-  acceptedInvitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutAcceptedByUserInput
-  createdCases?: Prisma.CaseCreateNestedManyWithoutCreatedByUserInput
-  llmUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutUserInput
-}
-
-export type UserUncheckedCreateWithoutWorkspaceInvitationsInput = {
-  id?: string
-  cognitoSub: string
-  email: string
-  displayName?: string | null
-  isPlatformAdmin?: boolean
-  canCreateWorkspaces?: boolean
-  accountStatus?: $Enums.AccountStatus
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  createdWorkspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutCreatedByInput
-  workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutUserInput
-  acceptedInvitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutAcceptedByUserInput
-  createdCases?: Prisma.CaseUncheckedCreateNestedManyWithoutCreatedByUserInput
-  llmUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutUserInput
-}
-
-export type UserCreateOrConnectWithoutWorkspaceInvitationsInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutWorkspaceInvitationsInput, Prisma.UserUncheckedCreateWithoutWorkspaceInvitationsInput>
-}
-
-export type UserCreateWithoutAcceptedInvitationsInput = {
-  id?: string
-  cognitoSub: string
-  email: string
-  displayName?: string | null
-  isPlatformAdmin?: boolean
-  canCreateWorkspaces?: boolean
-  accountStatus?: $Enums.AccountStatus
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  createdWorkspaces?: Prisma.WorkspaceCreateNestedManyWithoutCreatedByInput
-  workspaceMemberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutUserInput
-  workspaceInvitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutInvitedByUserInput
-  createdCases?: Prisma.CaseCreateNestedManyWithoutCreatedByUserInput
-  llmUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutUserInput
-}
-
-export type UserUncheckedCreateWithoutAcceptedInvitationsInput = {
-  id?: string
-  cognitoSub: string
-  email: string
-  displayName?: string | null
-  isPlatformAdmin?: boolean
-  canCreateWorkspaces?: boolean
-  accountStatus?: $Enums.AccountStatus
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  createdWorkspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutCreatedByInput
-  workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutUserInput
-  workspaceInvitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
-  createdCases?: Prisma.CaseUncheckedCreateNestedManyWithoutCreatedByUserInput
-  llmUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutUserInput
-}
-
-export type UserCreateOrConnectWithoutAcceptedInvitationsInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutAcceptedInvitationsInput, Prisma.UserUncheckedCreateWithoutAcceptedInvitationsInput>
-}
-
-export type UserUpsertWithoutWorkspaceInvitationsInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutWorkspaceInvitationsInput, Prisma.UserUncheckedUpdateWithoutWorkspaceInvitationsInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutWorkspaceInvitationsInput, Prisma.UserUncheckedCreateWithoutWorkspaceInvitationsInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutWorkspaceInvitationsInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutWorkspaceInvitationsInput, Prisma.UserUncheckedUpdateWithoutWorkspaceInvitationsInput>
-}
-
-export type UserUpdateWithoutWorkspaceInvitationsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  canCreateWorkspaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdWorkspaces?: Prisma.WorkspaceUpdateManyWithoutCreatedByNestedInput
-  workspaceMemberships?: Prisma.WorkspaceMembershipUpdateManyWithoutUserNestedInput
-  acceptedInvitations?: Prisma.WorkspaceInvitationUpdateManyWithoutAcceptedByUserNestedInput
-  createdCases?: Prisma.CaseUpdateManyWithoutCreatedByUserNestedInput
-  llmUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutUserNestedInput
-}
-
-export type UserUncheckedUpdateWithoutWorkspaceInvitationsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  canCreateWorkspaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdWorkspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutCreatedByNestedInput
-  workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutUserNestedInput
-  acceptedInvitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutAcceptedByUserNestedInput
-  createdCases?: Prisma.CaseUncheckedUpdateManyWithoutCreatedByUserNestedInput
-  llmUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutUserNestedInput
-}
-
-export type UserUpsertWithoutAcceptedInvitationsInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutAcceptedInvitationsInput, Prisma.UserUncheckedUpdateWithoutAcceptedInvitationsInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutAcceptedInvitationsInput, Prisma.UserUncheckedCreateWithoutAcceptedInvitationsInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutAcceptedInvitationsInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutAcceptedInvitationsInput, Prisma.UserUncheckedUpdateWithoutAcceptedInvitationsInput>
-}
-
-export type UserUpdateWithoutAcceptedInvitationsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  canCreateWorkspaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdWorkspaces?: Prisma.WorkspaceUpdateManyWithoutCreatedByNestedInput
-  workspaceMemberships?: Prisma.WorkspaceMembershipUpdateManyWithoutUserNestedInput
-  workspaceInvitations?: Prisma.WorkspaceInvitationUpdateManyWithoutInvitedByUserNestedInput
-  createdCases?: Prisma.CaseUpdateManyWithoutCreatedByUserNestedInput
-  llmUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutUserNestedInput
-}
-
-export type UserUncheckedUpdateWithoutAcceptedInvitationsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  canCreateWorkspaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdWorkspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutCreatedByNestedInput
-  workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutUserNestedInput
-  workspaceInvitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
-  createdCases?: Prisma.CaseUncheckedUpdateManyWithoutCreatedByUserNestedInput
-  llmUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutUserNestedInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutUploadedByUserNestedInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutLastUpdatedByUserNestedInput
+  createdViewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  manifestsCreated?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  actorUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutActorUserNestedInput
+  billedUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutBilledToUserNestedInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutUserNestedInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUncheckedUpdateManyWithoutUserNestedInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutBilledToUserNestedInput
 }
 
 export type UserCreateWithoutCreatedCasesInput = {
   id?: string
   cognitoSub: string
   email: string
+  billingEmail?: string | null
   displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
   isPlatformAdmin?: boolean
-  canCreateWorkspaces?: boolean
+  accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  createdWorkspaces?: Prisma.WorkspaceCreateNestedManyWithoutCreatedByInput
+  ownedWorkspaces?: Prisma.WorkspaceCreateNestedManyWithoutOwnerInput
   workspaceMemberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutUserInput
-  workspaceInvitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutInvitedByUserInput
-  acceptedInvitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutAcceptedByUserInput
-  llmUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutUserInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexCreateNestedManyWithoutUploadedByUserInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutCreatedByUserInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutLastUpdatedByUserInput
+  createdViewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutCreatedByUserInput
+  manifestsCreated?: Prisma.CaseStateManifestCreateNestedManyWithoutCreatedByUserInput
+  actorUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutActorUserInput
+  billedUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutBilledToUserInput
+  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutUserInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyCreateNestedManyWithoutUserInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyCreateNestedManyWithoutBilledToUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedCasesInput = {
   id?: string
   cognitoSub: string
   email: string
+  billingEmail?: string | null
   displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
   isPlatformAdmin?: boolean
-  canCreateWorkspaces?: boolean
+  accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  createdWorkspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutCreatedByInput
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
   workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutUserInput
-  workspaceInvitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
-  acceptedInvitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutAcceptedByUserInput
-  llmUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutUserInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutUploadedByUserInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutLastUpdatedByUserInput
+  createdViewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutCreatedByUserInput
+  manifestsCreated?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutCreatedByUserInput
+  actorUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutActorUserInput
+  billedUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutBilledToUserInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutUserInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUncheckedCreateNestedManyWithoutUserInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUncheckedCreateNestedManyWithoutBilledToUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedCasesInput = {
@@ -943,118 +1562,1882 @@ export type UserUpdateWithoutCreatedCasesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  canCreateWorkspaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdWorkspaces?: Prisma.WorkspaceUpdateManyWithoutCreatedByNestedInput
+  ownedWorkspaces?: Prisma.WorkspaceUpdateManyWithoutOwnerNestedInput
   workspaceMemberships?: Prisma.WorkspaceMembershipUpdateManyWithoutUserNestedInput
-  workspaceInvitations?: Prisma.WorkspaceInvitationUpdateManyWithoutInvitedByUserNestedInput
-  acceptedInvitations?: Prisma.WorkspaceInvitationUpdateManyWithoutAcceptedByUserNestedInput
-  llmUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutUserNestedInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUpdateManyWithoutUploadedByUserNestedInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutCreatedByUserNestedInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutLastUpdatedByUserNestedInput
+  createdViewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutCreatedByUserNestedInput
+  manifestsCreated?: Prisma.CaseStateManifestUpdateManyWithoutCreatedByUserNestedInput
+  actorUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutActorUserNestedInput
+  billedUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutBilledToUserNestedInput
+  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutUserNestedInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUpdateManyWithoutUserNestedInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUpdateManyWithoutBilledToUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedCasesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  canCreateWorkspaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdWorkspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutCreatedByNestedInput
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
   workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutUserNestedInput
-  workspaceInvitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
-  acceptedInvitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutAcceptedByUserNestedInput
-  llmUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutUserNestedInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutUploadedByUserNestedInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutLastUpdatedByUserNestedInput
+  createdViewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  manifestsCreated?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  actorUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutActorUserNestedInput
+  billedUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutBilledToUserNestedInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutUserNestedInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUncheckedUpdateManyWithoutUserNestedInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutBilledToUserNestedInput
 }
 
-export type UserCreateWithoutLlmUsageEventsInput = {
+export type UserCreateWithoutUploadedDocumentsInput = {
   id?: string
   cognitoSub: string
   email: string
+  billingEmail?: string | null
   displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
   isPlatformAdmin?: boolean
-  canCreateWorkspaces?: boolean
+  accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  createdWorkspaces?: Prisma.WorkspaceCreateNestedManyWithoutCreatedByInput
+  ownedWorkspaces?: Prisma.WorkspaceCreateNestedManyWithoutOwnerInput
   workspaceMemberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutUserInput
-  workspaceInvitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutInvitedByUserInput
-  acceptedInvitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutAcceptedByUserInput
   createdCases?: Prisma.CaseCreateNestedManyWithoutCreatedByUserInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutCreatedByUserInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutLastUpdatedByUserInput
+  createdViewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutCreatedByUserInput
+  manifestsCreated?: Prisma.CaseStateManifestCreateNestedManyWithoutCreatedByUserInput
+  actorUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutActorUserInput
+  billedUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutBilledToUserInput
+  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutUserInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyCreateNestedManyWithoutUserInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyCreateNestedManyWithoutBilledToUserInput
 }
 
-export type UserUncheckedCreateWithoutLlmUsageEventsInput = {
+export type UserUncheckedCreateWithoutUploadedDocumentsInput = {
   id?: string
   cognitoSub: string
   email: string
+  billingEmail?: string | null
   displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
   isPlatformAdmin?: boolean
-  canCreateWorkspaces?: boolean
+  accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  createdWorkspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutCreatedByInput
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
   workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutUserInput
-  workspaceInvitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
-  acceptedInvitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutAcceptedByUserInput
   createdCases?: Prisma.CaseUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutLastUpdatedByUserInput
+  createdViewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutCreatedByUserInput
+  manifestsCreated?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutCreatedByUserInput
+  actorUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutActorUserInput
+  billedUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutBilledToUserInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutUserInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUncheckedCreateNestedManyWithoutUserInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUncheckedCreateNestedManyWithoutBilledToUserInput
 }
 
-export type UserCreateOrConnectWithoutLlmUsageEventsInput = {
+export type UserCreateOrConnectWithoutUploadedDocumentsInput = {
   where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutLlmUsageEventsInput, Prisma.UserUncheckedCreateWithoutLlmUsageEventsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutUploadedDocumentsInput, Prisma.UserUncheckedCreateWithoutUploadedDocumentsInput>
 }
 
-export type UserUpsertWithoutLlmUsageEventsInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutLlmUsageEventsInput, Prisma.UserUncheckedUpdateWithoutLlmUsageEventsInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutLlmUsageEventsInput, Prisma.UserUncheckedCreateWithoutLlmUsageEventsInput>
+export type UserUpsertWithoutUploadedDocumentsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutUploadedDocumentsInput, Prisma.UserUncheckedUpdateWithoutUploadedDocumentsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutUploadedDocumentsInput, Prisma.UserUncheckedCreateWithoutUploadedDocumentsInput>
   where?: Prisma.UserWhereInput
 }
 
-export type UserUpdateToOneWithWhereWithoutLlmUsageEventsInput = {
+export type UserUpdateToOneWithWhereWithoutUploadedDocumentsInput = {
   where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutLlmUsageEventsInput, Prisma.UserUncheckedUpdateWithoutLlmUsageEventsInput>
+  data: Prisma.XOR<Prisma.UserUpdateWithoutUploadedDocumentsInput, Prisma.UserUncheckedUpdateWithoutUploadedDocumentsInput>
 }
 
-export type UserUpdateWithoutLlmUsageEventsInput = {
+export type UserUpdateWithoutUploadedDocumentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  canCreateWorkspaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdWorkspaces?: Prisma.WorkspaceUpdateManyWithoutCreatedByNestedInput
+  ownedWorkspaces?: Prisma.WorkspaceUpdateManyWithoutOwnerNestedInput
   workspaceMemberships?: Prisma.WorkspaceMembershipUpdateManyWithoutUserNestedInput
-  workspaceInvitations?: Prisma.WorkspaceInvitationUpdateManyWithoutInvitedByUserNestedInput
-  acceptedInvitations?: Prisma.WorkspaceInvitationUpdateManyWithoutAcceptedByUserNestedInput
   createdCases?: Prisma.CaseUpdateManyWithoutCreatedByUserNestedInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutCreatedByUserNestedInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutLastUpdatedByUserNestedInput
+  createdViewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutCreatedByUserNestedInput
+  manifestsCreated?: Prisma.CaseStateManifestUpdateManyWithoutCreatedByUserNestedInput
+  actorUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutActorUserNestedInput
+  billedUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutBilledToUserNestedInput
+  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutUserNestedInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUpdateManyWithoutUserNestedInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUpdateManyWithoutBilledToUserNestedInput
 }
 
-export type UserUncheckedUpdateWithoutLlmUsageEventsInput = {
+export type UserUncheckedUpdateWithoutUploadedDocumentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  canCreateWorkspaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdWorkspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutCreatedByNestedInput
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
   workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutUserNestedInput
-  workspaceInvitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
-  acceptedInvitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutAcceptedByUserNestedInput
   createdCases?: Prisma.CaseUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutLastUpdatedByUserNestedInput
+  createdViewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  manifestsCreated?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  actorUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutActorUserNestedInput
+  billedUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutBilledToUserNestedInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutUserNestedInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUncheckedUpdateManyWithoutUserNestedInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutBilledToUserNestedInput
+}
+
+export type UserCreateWithoutCreatedRecordIndexesInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  billingEmail?: string | null
+  displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
+  isPlatformAdmin?: boolean
+  accountTier?: $Enums.AccountTier
+  accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  ownedWorkspaces?: Prisma.WorkspaceCreateNestedManyWithoutOwnerInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutUserInput
+  createdCases?: Prisma.CaseCreateNestedManyWithoutCreatedByUserInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexCreateNestedManyWithoutUploadedByUserInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutLastUpdatedByUserInput
+  createdViewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutCreatedByUserInput
+  manifestsCreated?: Prisma.CaseStateManifestCreateNestedManyWithoutCreatedByUserInput
+  actorUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutActorUserInput
+  billedUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutBilledToUserInput
+  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutUserInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyCreateNestedManyWithoutUserInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyCreateNestedManyWithoutBilledToUserInput
+}
+
+export type UserUncheckedCreateWithoutCreatedRecordIndexesInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  billingEmail?: string | null
+  displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
+  isPlatformAdmin?: boolean
+  accountTier?: $Enums.AccountTier
+  accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutUserInput
+  createdCases?: Prisma.CaseUncheckedCreateNestedManyWithoutCreatedByUserInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutUploadedByUserInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutLastUpdatedByUserInput
+  createdViewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutCreatedByUserInput
+  manifestsCreated?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutCreatedByUserInput
+  actorUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutActorUserInput
+  billedUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutBilledToUserInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutUserInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUncheckedCreateNestedManyWithoutUserInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUncheckedCreateNestedManyWithoutBilledToUserInput
+}
+
+export type UserCreateOrConnectWithoutCreatedRecordIndexesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedRecordIndexesInput, Prisma.UserUncheckedCreateWithoutCreatedRecordIndexesInput>
+}
+
+export type UserCreateWithoutUpdatedRecordIndexesInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  billingEmail?: string | null
+  displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
+  isPlatformAdmin?: boolean
+  accountTier?: $Enums.AccountTier
+  accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  ownedWorkspaces?: Prisma.WorkspaceCreateNestedManyWithoutOwnerInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutUserInput
+  createdCases?: Prisma.CaseCreateNestedManyWithoutCreatedByUserInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexCreateNestedManyWithoutUploadedByUserInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutCreatedByUserInput
+  createdViewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutCreatedByUserInput
+  manifestsCreated?: Prisma.CaseStateManifestCreateNestedManyWithoutCreatedByUserInput
+  actorUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutActorUserInput
+  billedUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutBilledToUserInput
+  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutUserInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyCreateNestedManyWithoutUserInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyCreateNestedManyWithoutBilledToUserInput
+}
+
+export type UserUncheckedCreateWithoutUpdatedRecordIndexesInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  billingEmail?: string | null
+  displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
+  isPlatformAdmin?: boolean
+  accountTier?: $Enums.AccountTier
+  accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutUserInput
+  createdCases?: Prisma.CaseUncheckedCreateNestedManyWithoutCreatedByUserInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutUploadedByUserInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdViewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutCreatedByUserInput
+  manifestsCreated?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutCreatedByUserInput
+  actorUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutActorUserInput
+  billedUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutBilledToUserInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutUserInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUncheckedCreateNestedManyWithoutUserInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUncheckedCreateNestedManyWithoutBilledToUserInput
+}
+
+export type UserCreateOrConnectWithoutUpdatedRecordIndexesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutUpdatedRecordIndexesInput, Prisma.UserUncheckedCreateWithoutUpdatedRecordIndexesInput>
+}
+
+export type UserUpsertWithoutCreatedRecordIndexesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCreatedRecordIndexesInput, Prisma.UserUncheckedUpdateWithoutCreatedRecordIndexesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedRecordIndexesInput, Prisma.UserUncheckedCreateWithoutCreatedRecordIndexesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCreatedRecordIndexesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCreatedRecordIndexesInput, Prisma.UserUncheckedUpdateWithoutCreatedRecordIndexesInput>
+}
+
+export type UserUpdateWithoutCreatedRecordIndexesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownedWorkspaces?: Prisma.WorkspaceUpdateManyWithoutOwnerNestedInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipUpdateManyWithoutUserNestedInput
+  createdCases?: Prisma.CaseUpdateManyWithoutCreatedByUserNestedInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUpdateManyWithoutUploadedByUserNestedInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutLastUpdatedByUserNestedInput
+  createdViewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutCreatedByUserNestedInput
+  manifestsCreated?: Prisma.CaseStateManifestUpdateManyWithoutCreatedByUserNestedInput
+  actorUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutActorUserNestedInput
+  billedUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutBilledToUserNestedInput
+  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutUserNestedInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUpdateManyWithoutUserNestedInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUpdateManyWithoutBilledToUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCreatedRecordIndexesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutUserNestedInput
+  createdCases?: Prisma.CaseUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutUploadedByUserNestedInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutLastUpdatedByUserNestedInput
+  createdViewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  manifestsCreated?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  actorUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutActorUserNestedInput
+  billedUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutBilledToUserNestedInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutUserNestedInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUncheckedUpdateManyWithoutUserNestedInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutBilledToUserNestedInput
+}
+
+export type UserUpsertWithoutUpdatedRecordIndexesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutUpdatedRecordIndexesInput, Prisma.UserUncheckedUpdateWithoutUpdatedRecordIndexesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutUpdatedRecordIndexesInput, Prisma.UserUncheckedCreateWithoutUpdatedRecordIndexesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutUpdatedRecordIndexesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutUpdatedRecordIndexesInput, Prisma.UserUncheckedUpdateWithoutUpdatedRecordIndexesInput>
+}
+
+export type UserUpdateWithoutUpdatedRecordIndexesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownedWorkspaces?: Prisma.WorkspaceUpdateManyWithoutOwnerNestedInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipUpdateManyWithoutUserNestedInput
+  createdCases?: Prisma.CaseUpdateManyWithoutCreatedByUserNestedInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUpdateManyWithoutUploadedByUserNestedInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutCreatedByUserNestedInput
+  createdViewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutCreatedByUserNestedInput
+  manifestsCreated?: Prisma.CaseStateManifestUpdateManyWithoutCreatedByUserNestedInput
+  actorUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutActorUserNestedInput
+  billedUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutBilledToUserNestedInput
+  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutUserNestedInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUpdateManyWithoutUserNestedInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUpdateManyWithoutBilledToUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutUpdatedRecordIndexesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutUserNestedInput
+  createdCases?: Prisma.CaseUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutUploadedByUserNestedInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdViewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  manifestsCreated?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  actorUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutActorUserNestedInput
+  billedUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutBilledToUserNestedInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutUserNestedInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUncheckedUpdateManyWithoutUserNestedInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutBilledToUserNestedInput
+}
+
+export type UserCreateWithoutCreatedViewIndexesInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  billingEmail?: string | null
+  displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
+  isPlatformAdmin?: boolean
+  accountTier?: $Enums.AccountTier
+  accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  ownedWorkspaces?: Prisma.WorkspaceCreateNestedManyWithoutOwnerInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutUserInput
+  createdCases?: Prisma.CaseCreateNestedManyWithoutCreatedByUserInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexCreateNestedManyWithoutUploadedByUserInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutCreatedByUserInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutLastUpdatedByUserInput
+  manifestsCreated?: Prisma.CaseStateManifestCreateNestedManyWithoutCreatedByUserInput
+  actorUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutActorUserInput
+  billedUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutBilledToUserInput
+  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutUserInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyCreateNestedManyWithoutUserInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyCreateNestedManyWithoutBilledToUserInput
+}
+
+export type UserUncheckedCreateWithoutCreatedViewIndexesInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  billingEmail?: string | null
+  displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
+  isPlatformAdmin?: boolean
+  accountTier?: $Enums.AccountTier
+  accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutUserInput
+  createdCases?: Prisma.CaseUncheckedCreateNestedManyWithoutCreatedByUserInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutUploadedByUserInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutLastUpdatedByUserInput
+  manifestsCreated?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutCreatedByUserInput
+  actorUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutActorUserInput
+  billedUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutBilledToUserInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutUserInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUncheckedCreateNestedManyWithoutUserInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUncheckedCreateNestedManyWithoutBilledToUserInput
+}
+
+export type UserCreateOrConnectWithoutCreatedViewIndexesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedViewIndexesInput, Prisma.UserUncheckedCreateWithoutCreatedViewIndexesInput>
+}
+
+export type UserUpsertWithoutCreatedViewIndexesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCreatedViewIndexesInput, Prisma.UserUncheckedUpdateWithoutCreatedViewIndexesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedViewIndexesInput, Prisma.UserUncheckedCreateWithoutCreatedViewIndexesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCreatedViewIndexesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCreatedViewIndexesInput, Prisma.UserUncheckedUpdateWithoutCreatedViewIndexesInput>
+}
+
+export type UserUpdateWithoutCreatedViewIndexesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownedWorkspaces?: Prisma.WorkspaceUpdateManyWithoutOwnerNestedInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipUpdateManyWithoutUserNestedInput
+  createdCases?: Prisma.CaseUpdateManyWithoutCreatedByUserNestedInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUpdateManyWithoutUploadedByUserNestedInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutCreatedByUserNestedInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutLastUpdatedByUserNestedInput
+  manifestsCreated?: Prisma.CaseStateManifestUpdateManyWithoutCreatedByUserNestedInput
+  actorUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutActorUserNestedInput
+  billedUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutBilledToUserNestedInput
+  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutUserNestedInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUpdateManyWithoutUserNestedInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUpdateManyWithoutBilledToUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCreatedViewIndexesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutUserNestedInput
+  createdCases?: Prisma.CaseUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutUploadedByUserNestedInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutLastUpdatedByUserNestedInput
+  manifestsCreated?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  actorUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutActorUserNestedInput
+  billedUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutBilledToUserNestedInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutUserNestedInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUncheckedUpdateManyWithoutUserNestedInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutBilledToUserNestedInput
+}
+
+export type UserCreateWithoutManifestsCreatedInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  billingEmail?: string | null
+  displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
+  isPlatformAdmin?: boolean
+  accountTier?: $Enums.AccountTier
+  accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  ownedWorkspaces?: Prisma.WorkspaceCreateNestedManyWithoutOwnerInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutUserInput
+  createdCases?: Prisma.CaseCreateNestedManyWithoutCreatedByUserInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexCreateNestedManyWithoutUploadedByUserInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutCreatedByUserInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutLastUpdatedByUserInput
+  createdViewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutCreatedByUserInput
+  actorUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutActorUserInput
+  billedUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutBilledToUserInput
+  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutUserInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyCreateNestedManyWithoutUserInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyCreateNestedManyWithoutBilledToUserInput
+}
+
+export type UserUncheckedCreateWithoutManifestsCreatedInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  billingEmail?: string | null
+  displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
+  isPlatformAdmin?: boolean
+  accountTier?: $Enums.AccountTier
+  accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutUserInput
+  createdCases?: Prisma.CaseUncheckedCreateNestedManyWithoutCreatedByUserInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutUploadedByUserInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutLastUpdatedByUserInput
+  createdViewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutCreatedByUserInput
+  actorUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutActorUserInput
+  billedUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutBilledToUserInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutUserInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUncheckedCreateNestedManyWithoutUserInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUncheckedCreateNestedManyWithoutBilledToUserInput
+}
+
+export type UserCreateOrConnectWithoutManifestsCreatedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutManifestsCreatedInput, Prisma.UserUncheckedCreateWithoutManifestsCreatedInput>
+}
+
+export type UserUpsertWithoutManifestsCreatedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutManifestsCreatedInput, Prisma.UserUncheckedUpdateWithoutManifestsCreatedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutManifestsCreatedInput, Prisma.UserUncheckedCreateWithoutManifestsCreatedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutManifestsCreatedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutManifestsCreatedInput, Prisma.UserUncheckedUpdateWithoutManifestsCreatedInput>
+}
+
+export type UserUpdateWithoutManifestsCreatedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownedWorkspaces?: Prisma.WorkspaceUpdateManyWithoutOwnerNestedInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipUpdateManyWithoutUserNestedInput
+  createdCases?: Prisma.CaseUpdateManyWithoutCreatedByUserNestedInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUpdateManyWithoutUploadedByUserNestedInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutCreatedByUserNestedInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutLastUpdatedByUserNestedInput
+  createdViewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutCreatedByUserNestedInput
+  actorUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutActorUserNestedInput
+  billedUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutBilledToUserNestedInput
+  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutUserNestedInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUpdateManyWithoutUserNestedInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUpdateManyWithoutBilledToUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutManifestsCreatedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutUserNestedInput
+  createdCases?: Prisma.CaseUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutUploadedByUserNestedInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutLastUpdatedByUserNestedInput
+  createdViewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  actorUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutActorUserNestedInput
+  billedUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutBilledToUserNestedInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutUserNestedInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUncheckedUpdateManyWithoutUserNestedInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutBilledToUserNestedInput
+}
+
+export type UserCreateWithoutActorUsageEventsInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  billingEmail?: string | null
+  displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
+  isPlatformAdmin?: boolean
+  accountTier?: $Enums.AccountTier
+  accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  ownedWorkspaces?: Prisma.WorkspaceCreateNestedManyWithoutOwnerInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutUserInput
+  createdCases?: Prisma.CaseCreateNestedManyWithoutCreatedByUserInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexCreateNestedManyWithoutUploadedByUserInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutCreatedByUserInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutLastUpdatedByUserInput
+  createdViewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutCreatedByUserInput
+  manifestsCreated?: Prisma.CaseStateManifestCreateNestedManyWithoutCreatedByUserInput
+  billedUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutBilledToUserInput
+  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutUserInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyCreateNestedManyWithoutUserInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyCreateNestedManyWithoutBilledToUserInput
+}
+
+export type UserUncheckedCreateWithoutActorUsageEventsInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  billingEmail?: string | null
+  displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
+  isPlatformAdmin?: boolean
+  accountTier?: $Enums.AccountTier
+  accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutUserInput
+  createdCases?: Prisma.CaseUncheckedCreateNestedManyWithoutCreatedByUserInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutUploadedByUserInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutLastUpdatedByUserInput
+  createdViewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutCreatedByUserInput
+  manifestsCreated?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutCreatedByUserInput
+  billedUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutBilledToUserInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutUserInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUncheckedCreateNestedManyWithoutUserInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUncheckedCreateNestedManyWithoutBilledToUserInput
+}
+
+export type UserCreateOrConnectWithoutActorUsageEventsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutActorUsageEventsInput, Prisma.UserUncheckedCreateWithoutActorUsageEventsInput>
+}
+
+export type UserCreateWithoutBilledUsageEventsInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  billingEmail?: string | null
+  displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
+  isPlatformAdmin?: boolean
+  accountTier?: $Enums.AccountTier
+  accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  ownedWorkspaces?: Prisma.WorkspaceCreateNestedManyWithoutOwnerInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutUserInput
+  createdCases?: Prisma.CaseCreateNestedManyWithoutCreatedByUserInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexCreateNestedManyWithoutUploadedByUserInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutCreatedByUserInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutLastUpdatedByUserInput
+  createdViewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutCreatedByUserInput
+  manifestsCreated?: Prisma.CaseStateManifestCreateNestedManyWithoutCreatedByUserInput
+  actorUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutActorUserInput
+  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutUserInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyCreateNestedManyWithoutUserInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyCreateNestedManyWithoutBilledToUserInput
+}
+
+export type UserUncheckedCreateWithoutBilledUsageEventsInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  billingEmail?: string | null
+  displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
+  isPlatformAdmin?: boolean
+  accountTier?: $Enums.AccountTier
+  accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutUserInput
+  createdCases?: Prisma.CaseUncheckedCreateNestedManyWithoutCreatedByUserInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutUploadedByUserInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutLastUpdatedByUserInput
+  createdViewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutCreatedByUserInput
+  manifestsCreated?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutCreatedByUserInput
+  actorUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutActorUserInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutUserInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUncheckedCreateNestedManyWithoutUserInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUncheckedCreateNestedManyWithoutBilledToUserInput
+}
+
+export type UserCreateOrConnectWithoutBilledUsageEventsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutBilledUsageEventsInput, Prisma.UserUncheckedCreateWithoutBilledUsageEventsInput>
+}
+
+export type UserUpsertWithoutActorUsageEventsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutActorUsageEventsInput, Prisma.UserUncheckedUpdateWithoutActorUsageEventsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutActorUsageEventsInput, Prisma.UserUncheckedCreateWithoutActorUsageEventsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutActorUsageEventsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutActorUsageEventsInput, Prisma.UserUncheckedUpdateWithoutActorUsageEventsInput>
+}
+
+export type UserUpdateWithoutActorUsageEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownedWorkspaces?: Prisma.WorkspaceUpdateManyWithoutOwnerNestedInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipUpdateManyWithoutUserNestedInput
+  createdCases?: Prisma.CaseUpdateManyWithoutCreatedByUserNestedInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUpdateManyWithoutUploadedByUserNestedInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutCreatedByUserNestedInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutLastUpdatedByUserNestedInput
+  createdViewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutCreatedByUserNestedInput
+  manifestsCreated?: Prisma.CaseStateManifestUpdateManyWithoutCreatedByUserNestedInput
+  billedUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutBilledToUserNestedInput
+  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutUserNestedInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUpdateManyWithoutUserNestedInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUpdateManyWithoutBilledToUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutActorUsageEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutUserNestedInput
+  createdCases?: Prisma.CaseUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutUploadedByUserNestedInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutLastUpdatedByUserNestedInput
+  createdViewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  manifestsCreated?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  billedUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutBilledToUserNestedInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutUserNestedInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUncheckedUpdateManyWithoutUserNestedInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutBilledToUserNestedInput
+}
+
+export type UserUpsertWithoutBilledUsageEventsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutBilledUsageEventsInput, Prisma.UserUncheckedUpdateWithoutBilledUsageEventsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutBilledUsageEventsInput, Prisma.UserUncheckedCreateWithoutBilledUsageEventsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutBilledUsageEventsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutBilledUsageEventsInput, Prisma.UserUncheckedUpdateWithoutBilledUsageEventsInput>
+}
+
+export type UserUpdateWithoutBilledUsageEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownedWorkspaces?: Prisma.WorkspaceUpdateManyWithoutOwnerNestedInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipUpdateManyWithoutUserNestedInput
+  createdCases?: Prisma.CaseUpdateManyWithoutCreatedByUserNestedInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUpdateManyWithoutUploadedByUserNestedInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutCreatedByUserNestedInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutLastUpdatedByUserNestedInput
+  createdViewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutCreatedByUserNestedInput
+  manifestsCreated?: Prisma.CaseStateManifestUpdateManyWithoutCreatedByUserNestedInput
+  actorUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutActorUserNestedInput
+  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutUserNestedInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUpdateManyWithoutUserNestedInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUpdateManyWithoutBilledToUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutBilledUsageEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutUserNestedInput
+  createdCases?: Prisma.CaseUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutUploadedByUserNestedInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutLastUpdatedByUserNestedInput
+  createdViewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  manifestsCreated?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  actorUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutActorUserNestedInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutUserNestedInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUncheckedUpdateManyWithoutUserNestedInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutBilledToUserNestedInput
+}
+
+export type UserCreateWithoutWorkspaceBilledUsageMonthlyInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  billingEmail?: string | null
+  displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
+  isPlatformAdmin?: boolean
+  accountTier?: $Enums.AccountTier
+  accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  ownedWorkspaces?: Prisma.WorkspaceCreateNestedManyWithoutOwnerInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutUserInput
+  createdCases?: Prisma.CaseCreateNestedManyWithoutCreatedByUserInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexCreateNestedManyWithoutUploadedByUserInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutCreatedByUserInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutLastUpdatedByUserInput
+  createdViewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutCreatedByUserInput
+  manifestsCreated?: Prisma.CaseStateManifestCreateNestedManyWithoutCreatedByUserInput
+  actorUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutActorUserInput
+  billedUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutBilledToUserInput
+  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutUserInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutWorkspaceBilledUsageMonthlyInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  billingEmail?: string | null
+  displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
+  isPlatformAdmin?: boolean
+  accountTier?: $Enums.AccountTier
+  accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutUserInput
+  createdCases?: Prisma.CaseUncheckedCreateNestedManyWithoutCreatedByUserInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutUploadedByUserInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutLastUpdatedByUserInput
+  createdViewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutCreatedByUserInput
+  manifestsCreated?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutCreatedByUserInput
+  actorUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutActorUserInput
+  billedUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutBilledToUserInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutUserInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutWorkspaceBilledUsageMonthlyInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutWorkspaceBilledUsageMonthlyInput, Prisma.UserUncheckedCreateWithoutWorkspaceBilledUsageMonthlyInput>
+}
+
+export type UserUpsertWithoutWorkspaceBilledUsageMonthlyInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutWorkspaceBilledUsageMonthlyInput, Prisma.UserUncheckedUpdateWithoutWorkspaceBilledUsageMonthlyInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutWorkspaceBilledUsageMonthlyInput, Prisma.UserUncheckedCreateWithoutWorkspaceBilledUsageMonthlyInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutWorkspaceBilledUsageMonthlyInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutWorkspaceBilledUsageMonthlyInput, Prisma.UserUncheckedUpdateWithoutWorkspaceBilledUsageMonthlyInput>
+}
+
+export type UserUpdateWithoutWorkspaceBilledUsageMonthlyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownedWorkspaces?: Prisma.WorkspaceUpdateManyWithoutOwnerNestedInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipUpdateManyWithoutUserNestedInput
+  createdCases?: Prisma.CaseUpdateManyWithoutCreatedByUserNestedInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUpdateManyWithoutUploadedByUserNestedInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutCreatedByUserNestedInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutLastUpdatedByUserNestedInput
+  createdViewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutCreatedByUserNestedInput
+  manifestsCreated?: Prisma.CaseStateManifestUpdateManyWithoutCreatedByUserNestedInput
+  actorUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutActorUserNestedInput
+  billedUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutBilledToUserNestedInput
+  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutUserNestedInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutWorkspaceBilledUsageMonthlyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutUserNestedInput
+  createdCases?: Prisma.CaseUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutUploadedByUserNestedInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutLastUpdatedByUserNestedInput
+  createdViewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  manifestsCreated?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  actorUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutActorUserNestedInput
+  billedUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutBilledToUserNestedInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutUserNestedInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutIndividualUsageMonthlyInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  billingEmail?: string | null
+  displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
+  isPlatformAdmin?: boolean
+  accountTier?: $Enums.AccountTier
+  accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  ownedWorkspaces?: Prisma.WorkspaceCreateNestedManyWithoutOwnerInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutUserInput
+  createdCases?: Prisma.CaseCreateNestedManyWithoutCreatedByUserInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexCreateNestedManyWithoutUploadedByUserInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutCreatedByUserInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutLastUpdatedByUserInput
+  createdViewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutCreatedByUserInput
+  manifestsCreated?: Prisma.CaseStateManifestCreateNestedManyWithoutCreatedByUserInput
+  actorUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutActorUserInput
+  billedUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutBilledToUserInput
+  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutUserInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyCreateNestedManyWithoutBilledToUserInput
+}
+
+export type UserUncheckedCreateWithoutIndividualUsageMonthlyInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  billingEmail?: string | null
+  displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
+  isPlatformAdmin?: boolean
+  accountTier?: $Enums.AccountTier
+  accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutUserInput
+  createdCases?: Prisma.CaseUncheckedCreateNestedManyWithoutCreatedByUserInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutUploadedByUserInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutLastUpdatedByUserInput
+  createdViewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutCreatedByUserInput
+  manifestsCreated?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutCreatedByUserInput
+  actorUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutActorUserInput
+  billedUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutBilledToUserInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutUserInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUncheckedCreateNestedManyWithoutBilledToUserInput
+}
+
+export type UserCreateOrConnectWithoutIndividualUsageMonthlyInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutIndividualUsageMonthlyInput, Prisma.UserUncheckedCreateWithoutIndividualUsageMonthlyInput>
+}
+
+export type UserUpsertWithoutIndividualUsageMonthlyInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutIndividualUsageMonthlyInput, Prisma.UserUncheckedUpdateWithoutIndividualUsageMonthlyInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutIndividualUsageMonthlyInput, Prisma.UserUncheckedCreateWithoutIndividualUsageMonthlyInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutIndividualUsageMonthlyInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutIndividualUsageMonthlyInput, Prisma.UserUncheckedUpdateWithoutIndividualUsageMonthlyInput>
+}
+
+export type UserUpdateWithoutIndividualUsageMonthlyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownedWorkspaces?: Prisma.WorkspaceUpdateManyWithoutOwnerNestedInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipUpdateManyWithoutUserNestedInput
+  createdCases?: Prisma.CaseUpdateManyWithoutCreatedByUserNestedInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUpdateManyWithoutUploadedByUserNestedInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutCreatedByUserNestedInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutLastUpdatedByUserNestedInput
+  createdViewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutCreatedByUserNestedInput
+  manifestsCreated?: Prisma.CaseStateManifestUpdateManyWithoutCreatedByUserNestedInput
+  actorUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutActorUserNestedInput
+  billedUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutBilledToUserNestedInput
+  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutUserNestedInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUpdateManyWithoutBilledToUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutIndividualUsageMonthlyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutUserNestedInput
+  createdCases?: Prisma.CaseUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutUploadedByUserNestedInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutLastUpdatedByUserNestedInput
+  createdViewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  manifestsCreated?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  actorUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutActorUserNestedInput
+  billedUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutBilledToUserNestedInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutUserNestedInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutBilledToUserNestedInput
+}
+
+export type UserCreateWithoutStripeEventsInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  billingEmail?: string | null
+  displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
+  isPlatformAdmin?: boolean
+  accountTier?: $Enums.AccountTier
+  accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  ownedWorkspaces?: Prisma.WorkspaceCreateNestedManyWithoutOwnerInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutUserInput
+  createdCases?: Prisma.CaseCreateNestedManyWithoutCreatedByUserInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexCreateNestedManyWithoutUploadedByUserInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutCreatedByUserInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutLastUpdatedByUserInput
+  createdViewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutCreatedByUserInput
+  manifestsCreated?: Prisma.CaseStateManifestCreateNestedManyWithoutCreatedByUserInput
+  actorUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutActorUserInput
+  billedUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutBilledToUserInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyCreateNestedManyWithoutUserInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyCreateNestedManyWithoutBilledToUserInput
+}
+
+export type UserUncheckedCreateWithoutStripeEventsInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  billingEmail?: string | null
+  displayName?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  profilePicture?: string | null
+  userName?: string | null
+  isPlatformAdmin?: boolean
+  accountTier?: $Enums.AccountTier
+  accountStatus?: $Enums.AccountStatus
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripePriceId?: string | null
+  stripeProductId?: string | null
+  stripeDefaultPaymentMethodId?: string | null
+  subscriptionStatus?: $Enums.SubscriptionStatus
+  billingInterval?: $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  trialStartsAt?: Date | string | null
+  trialEndsAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutUserInput
+  createdCases?: Prisma.CaseUncheckedCreateNestedManyWithoutCreatedByUserInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutUploadedByUserInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutLastUpdatedByUserInput
+  createdViewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutCreatedByUserInput
+  manifestsCreated?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutCreatedByUserInput
+  actorUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutActorUserInput
+  billedUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutBilledToUserInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUncheckedCreateNestedManyWithoutUserInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUncheckedCreateNestedManyWithoutBilledToUserInput
+}
+
+export type UserCreateOrConnectWithoutStripeEventsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutStripeEventsInput, Prisma.UserUncheckedCreateWithoutStripeEventsInput>
+}
+
+export type UserUpsertWithoutStripeEventsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutStripeEventsInput, Prisma.UserUncheckedUpdateWithoutStripeEventsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutStripeEventsInput, Prisma.UserUncheckedCreateWithoutStripeEventsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutStripeEventsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutStripeEventsInput, Prisma.UserUncheckedUpdateWithoutStripeEventsInput>
+}
+
+export type UserUpdateWithoutStripeEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownedWorkspaces?: Prisma.WorkspaceUpdateManyWithoutOwnerNestedInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipUpdateManyWithoutUserNestedInput
+  createdCases?: Prisma.CaseUpdateManyWithoutCreatedByUserNestedInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUpdateManyWithoutUploadedByUserNestedInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutCreatedByUserNestedInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutLastUpdatedByUserNestedInput
+  createdViewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutCreatedByUserNestedInput
+  manifestsCreated?: Prisma.CaseStateManifestUpdateManyWithoutCreatedByUserNestedInput
+  actorUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutActorUserNestedInput
+  billedUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutBilledToUserNestedInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUpdateManyWithoutUserNestedInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUpdateManyWithoutBilledToUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutStripeEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
+  accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  billingInterval?: Prisma.NullableEnumBillingIntervalFieldUpdateOperationsInput | $Enums.BillingInterval | null
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+  workspaceMemberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutUserNestedInput
+  createdCases?: Prisma.CaseUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  uploadedDocuments?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutUploadedByUserNestedInput
+  createdRecordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedRecordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutLastUpdatedByUserNestedInput
+  createdViewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  manifestsCreated?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  actorUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutActorUserNestedInput
+  billedUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutBilledToUserNestedInput
+  individualUsageMonthly?: Prisma.UserUsageMonthlyUncheckedUpdateManyWithoutUserNestedInput
+  workspaceBilledUsageMonthly?: Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutBilledToUserNestedInput
 }
 
 
@@ -1063,21 +3446,35 @@ export type UserUncheckedUpdateWithoutLlmUsageEventsInput = {
  */
 
 export type UserCountOutputType = {
-  createdWorkspaces: number
+  ownedWorkspaces: number
   workspaceMemberships: number
-  workspaceInvitations: number
-  acceptedInvitations: number
   createdCases: number
-  llmUsageEvents: number
+  uploadedDocuments: number
+  createdRecordIndexes: number
+  updatedRecordIndexes: number
+  createdViewIndexes: number
+  manifestsCreated: number
+  actorUsageEvents: number
+  billedUsageEvents: number
+  stripeEvents: number
+  individualUsageMonthly: number
+  workspaceBilledUsageMonthly: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  createdWorkspaces?: boolean | UserCountOutputTypeCountCreatedWorkspacesArgs
+  ownedWorkspaces?: boolean | UserCountOutputTypeCountOwnedWorkspacesArgs
   workspaceMemberships?: boolean | UserCountOutputTypeCountWorkspaceMembershipsArgs
-  workspaceInvitations?: boolean | UserCountOutputTypeCountWorkspaceInvitationsArgs
-  acceptedInvitations?: boolean | UserCountOutputTypeCountAcceptedInvitationsArgs
   createdCases?: boolean | UserCountOutputTypeCountCreatedCasesArgs
-  llmUsageEvents?: boolean | UserCountOutputTypeCountLlmUsageEventsArgs
+  uploadedDocuments?: boolean | UserCountOutputTypeCountUploadedDocumentsArgs
+  createdRecordIndexes?: boolean | UserCountOutputTypeCountCreatedRecordIndexesArgs
+  updatedRecordIndexes?: boolean | UserCountOutputTypeCountUpdatedRecordIndexesArgs
+  createdViewIndexes?: boolean | UserCountOutputTypeCountCreatedViewIndexesArgs
+  manifestsCreated?: boolean | UserCountOutputTypeCountManifestsCreatedArgs
+  actorUsageEvents?: boolean | UserCountOutputTypeCountActorUsageEventsArgs
+  billedUsageEvents?: boolean | UserCountOutputTypeCountBilledUsageEventsArgs
+  stripeEvents?: boolean | UserCountOutputTypeCountStripeEventsArgs
+  individualUsageMonthly?: boolean | UserCountOutputTypeCountIndividualUsageMonthlyArgs
+  workspaceBilledUsageMonthly?: boolean | UserCountOutputTypeCountWorkspaceBilledUsageMonthlyArgs
 }
 
 /**
@@ -1093,7 +3490,7 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountCreatedWorkspacesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type UserCountOutputTypeCountOwnedWorkspacesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.WorkspaceWhereInput
 }
 
@@ -1107,20 +3504,6 @@ export type UserCountOutputTypeCountWorkspaceMembershipsArgs<ExtArgs extends run
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountWorkspaceInvitationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.WorkspaceInvitationWhereInput
-}
-
-/**
- * UserCountOutputType without action
- */
-export type UserCountOutputTypeCountAcceptedInvitationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.WorkspaceInvitationWhereInput
-}
-
-/**
- * UserCountOutputType without action
- */
 export type UserCountOutputTypeCountCreatedCasesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.CaseWhereInput
 }
@@ -1128,8 +3511,71 @@ export type UserCountOutputTypeCountCreatedCasesArgs<ExtArgs extends runtime.Typ
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountLlmUsageEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type UserCountOutputTypeCountUploadedDocumentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CaseDocumentIndexWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCreatedRecordIndexesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CaseRecordIndexWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountUpdatedRecordIndexesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CaseRecordIndexWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCreatedViewIndexesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CaseViewIndexWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountManifestsCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CaseStateManifestWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountActorUsageEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.LlmUsageEventWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountBilledUsageEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LlmUsageEventWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountStripeEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.StripeEventLogWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountIndividualUsageMonthlyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserUsageMonthlyWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountWorkspaceBilledUsageMonthlyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WorkspaceUsageMonthlyWhereInput
 }
 
 
@@ -1137,18 +3583,42 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   id?: boolean
   cognitoSub?: boolean
   email?: boolean
+  billingEmail?: boolean
   displayName?: boolean
+  firstName?: boolean
+  lastName?: boolean
+  profilePicture?: boolean
+  userName?: boolean
   isPlatformAdmin?: boolean
-  canCreateWorkspaces?: boolean
+  accountTier?: boolean
   accountStatus?: boolean
+  stripeCustomerId?: boolean
+  stripeSubscriptionId?: boolean
+  stripePriceId?: boolean
+  stripeProductId?: boolean
+  stripeDefaultPaymentMethodId?: boolean
+  subscriptionStatus?: boolean
+  billingInterval?: boolean
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: boolean
+  currentPeriodEnd?: boolean
+  trialStartsAt?: boolean
+  trialEndsAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  createdWorkspaces?: boolean | Prisma.User$createdWorkspacesArgs<ExtArgs>
+  ownedWorkspaces?: boolean | Prisma.User$ownedWorkspacesArgs<ExtArgs>
   workspaceMemberships?: boolean | Prisma.User$workspaceMembershipsArgs<ExtArgs>
-  workspaceInvitations?: boolean | Prisma.User$workspaceInvitationsArgs<ExtArgs>
-  acceptedInvitations?: boolean | Prisma.User$acceptedInvitationsArgs<ExtArgs>
   createdCases?: boolean | Prisma.User$createdCasesArgs<ExtArgs>
-  llmUsageEvents?: boolean | Prisma.User$llmUsageEventsArgs<ExtArgs>
+  uploadedDocuments?: boolean | Prisma.User$uploadedDocumentsArgs<ExtArgs>
+  createdRecordIndexes?: boolean | Prisma.User$createdRecordIndexesArgs<ExtArgs>
+  updatedRecordIndexes?: boolean | Prisma.User$updatedRecordIndexesArgs<ExtArgs>
+  createdViewIndexes?: boolean | Prisma.User$createdViewIndexesArgs<ExtArgs>
+  manifestsCreated?: boolean | Prisma.User$manifestsCreatedArgs<ExtArgs>
+  actorUsageEvents?: boolean | Prisma.User$actorUsageEventsArgs<ExtArgs>
+  billedUsageEvents?: boolean | Prisma.User$billedUsageEventsArgs<ExtArgs>
+  stripeEvents?: boolean | Prisma.User$stripeEventsArgs<ExtArgs>
+  individualUsageMonthly?: boolean | Prisma.User$individualUsageMonthlyArgs<ExtArgs>
+  workspaceBilledUsageMonthly?: boolean | Prisma.User$workspaceBilledUsageMonthlyArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1156,10 +3626,27 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   id?: boolean
   cognitoSub?: boolean
   email?: boolean
+  billingEmail?: boolean
   displayName?: boolean
+  firstName?: boolean
+  lastName?: boolean
+  profilePicture?: boolean
+  userName?: boolean
   isPlatformAdmin?: boolean
-  canCreateWorkspaces?: boolean
+  accountTier?: boolean
   accountStatus?: boolean
+  stripeCustomerId?: boolean
+  stripeSubscriptionId?: boolean
+  stripePriceId?: boolean
+  stripeProductId?: boolean
+  stripeDefaultPaymentMethodId?: boolean
+  subscriptionStatus?: boolean
+  billingInterval?: boolean
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: boolean
+  currentPeriodEnd?: boolean
+  trialStartsAt?: boolean
+  trialEndsAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -1168,10 +3655,27 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   id?: boolean
   cognitoSub?: boolean
   email?: boolean
+  billingEmail?: boolean
   displayName?: boolean
+  firstName?: boolean
+  lastName?: boolean
+  profilePicture?: boolean
+  userName?: boolean
   isPlatformAdmin?: boolean
-  canCreateWorkspaces?: boolean
+  accountTier?: boolean
   accountStatus?: boolean
+  stripeCustomerId?: boolean
+  stripeSubscriptionId?: boolean
+  stripePriceId?: boolean
+  stripeProductId?: boolean
+  stripeDefaultPaymentMethodId?: boolean
+  subscriptionStatus?: boolean
+  billingInterval?: boolean
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: boolean
+  currentPeriodEnd?: boolean
+  trialStartsAt?: boolean
+  trialEndsAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -1180,22 +3684,46 @@ export type UserSelectScalar = {
   id?: boolean
   cognitoSub?: boolean
   email?: boolean
+  billingEmail?: boolean
   displayName?: boolean
+  firstName?: boolean
+  lastName?: boolean
+  profilePicture?: boolean
+  userName?: boolean
   isPlatformAdmin?: boolean
-  canCreateWorkspaces?: boolean
+  accountTier?: boolean
   accountStatus?: boolean
+  stripeCustomerId?: boolean
+  stripeSubscriptionId?: boolean
+  stripePriceId?: boolean
+  stripeProductId?: boolean
+  stripeDefaultPaymentMethodId?: boolean
+  subscriptionStatus?: boolean
+  billingInterval?: boolean
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart?: boolean
+  currentPeriodEnd?: boolean
+  trialStartsAt?: boolean
+  trialEndsAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "cognitoSub" | "email" | "displayName" | "isPlatformAdmin" | "canCreateWorkspaces" | "accountStatus" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "cognitoSub" | "email" | "billingEmail" | "displayName" | "firstName" | "lastName" | "profilePicture" | "userName" | "isPlatformAdmin" | "accountTier" | "accountStatus" | "stripeCustomerId" | "stripeSubscriptionId" | "stripePriceId" | "stripeProductId" | "stripeDefaultPaymentMethodId" | "subscriptionStatus" | "billingInterval" | "cancelAtPeriodEnd" | "currentPeriodStart" | "currentPeriodEnd" | "trialStartsAt" | "trialEndsAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  createdWorkspaces?: boolean | Prisma.User$createdWorkspacesArgs<ExtArgs>
+  ownedWorkspaces?: boolean | Prisma.User$ownedWorkspacesArgs<ExtArgs>
   workspaceMemberships?: boolean | Prisma.User$workspaceMembershipsArgs<ExtArgs>
-  workspaceInvitations?: boolean | Prisma.User$workspaceInvitationsArgs<ExtArgs>
-  acceptedInvitations?: boolean | Prisma.User$acceptedInvitationsArgs<ExtArgs>
   createdCases?: boolean | Prisma.User$createdCasesArgs<ExtArgs>
-  llmUsageEvents?: boolean | Prisma.User$llmUsageEventsArgs<ExtArgs>
+  uploadedDocuments?: boolean | Prisma.User$uploadedDocumentsArgs<ExtArgs>
+  createdRecordIndexes?: boolean | Prisma.User$createdRecordIndexesArgs<ExtArgs>
+  updatedRecordIndexes?: boolean | Prisma.User$updatedRecordIndexesArgs<ExtArgs>
+  createdViewIndexes?: boolean | Prisma.User$createdViewIndexesArgs<ExtArgs>
+  manifestsCreated?: boolean | Prisma.User$manifestsCreatedArgs<ExtArgs>
+  actorUsageEvents?: boolean | Prisma.User$actorUsageEventsArgs<ExtArgs>
+  billedUsageEvents?: boolean | Prisma.User$billedUsageEventsArgs<ExtArgs>
+  stripeEvents?: boolean | Prisma.User$stripeEventsArgs<ExtArgs>
+  individualUsageMonthly?: boolean | Prisma.User$individualUsageMonthlyArgs<ExtArgs>
+  workspaceBilledUsageMonthly?: boolean | Prisma.User$workspaceBilledUsageMonthlyArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1204,21 +3732,45 @@ export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
   objects: {
-    createdWorkspaces: Prisma.$WorkspacePayload<ExtArgs>[]
+    ownedWorkspaces: Prisma.$WorkspacePayload<ExtArgs>[]
     workspaceMemberships: Prisma.$WorkspaceMembershipPayload<ExtArgs>[]
-    workspaceInvitations: Prisma.$WorkspaceInvitationPayload<ExtArgs>[]
-    acceptedInvitations: Prisma.$WorkspaceInvitationPayload<ExtArgs>[]
     createdCases: Prisma.$CasePayload<ExtArgs>[]
-    llmUsageEvents: Prisma.$LlmUsageEventPayload<ExtArgs>[]
+    uploadedDocuments: Prisma.$CaseDocumentIndexPayload<ExtArgs>[]
+    createdRecordIndexes: Prisma.$CaseRecordIndexPayload<ExtArgs>[]
+    updatedRecordIndexes: Prisma.$CaseRecordIndexPayload<ExtArgs>[]
+    createdViewIndexes: Prisma.$CaseViewIndexPayload<ExtArgs>[]
+    manifestsCreated: Prisma.$CaseStateManifestPayload<ExtArgs>[]
+    actorUsageEvents: Prisma.$LlmUsageEventPayload<ExtArgs>[]
+    billedUsageEvents: Prisma.$LlmUsageEventPayload<ExtArgs>[]
+    stripeEvents: Prisma.$StripeEventLogPayload<ExtArgs>[]
+    individualUsageMonthly: Prisma.$UserUsageMonthlyPayload<ExtArgs>[]
+    workspaceBilledUsageMonthly: Prisma.$WorkspaceUsageMonthlyPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     cognitoSub: string
     email: string
+    billingEmail: string | null
     displayName: string | null
+    firstName: string | null
+    lastName: string | null
+    profilePicture: string | null
+    userName: string | null
     isPlatformAdmin: boolean
-    canCreateWorkspaces: boolean
+    accountTier: $Enums.AccountTier
     accountStatus: $Enums.AccountStatus
+    stripeCustomerId: string | null
+    stripeSubscriptionId: string | null
+    stripePriceId: string | null
+    stripeProductId: string | null
+    stripeDefaultPaymentMethodId: string | null
+    subscriptionStatus: $Enums.SubscriptionStatus
+    billingInterval: $Enums.BillingInterval | null
+    cancelAtPeriodEnd: boolean
+    currentPeriodStart: Date | null
+    currentPeriodEnd: Date | null
+    trialStartsAt: Date | null
+    trialEndsAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -1615,12 +4167,19 @@ readonly fields: UserFieldRefs;
  */
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  createdWorkspaces<T extends Prisma.User$createdWorkspacesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdWorkspacesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ownedWorkspaces<T extends Prisma.User$ownedWorkspacesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ownedWorkspacesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   workspaceMemberships<T extends Prisma.User$workspaceMembershipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$workspaceMembershipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkspaceMembershipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  workspaceInvitations<T extends Prisma.User$workspaceInvitationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$workspaceInvitationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  acceptedInvitations<T extends Prisma.User$acceptedInvitationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$acceptedInvitationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdCases<T extends Prisma.User$createdCasesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdCasesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  llmUsageEvents<T extends Prisma.User$llmUsageEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$llmUsageEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LlmUsageEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  uploadedDocuments<T extends Prisma.User$uploadedDocumentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$uploadedDocumentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseDocumentIndexPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  createdRecordIndexes<T extends Prisma.User$createdRecordIndexesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdRecordIndexesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseRecordIndexPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  updatedRecordIndexes<T extends Prisma.User$updatedRecordIndexesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$updatedRecordIndexesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseRecordIndexPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  createdViewIndexes<T extends Prisma.User$createdViewIndexesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdViewIndexesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseViewIndexPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  manifestsCreated<T extends Prisma.User$manifestsCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$manifestsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseStateManifestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  actorUsageEvents<T extends Prisma.User$actorUsageEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$actorUsageEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LlmUsageEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  billedUsageEvents<T extends Prisma.User$billedUsageEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$billedUsageEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LlmUsageEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  stripeEvents<T extends Prisma.User$stripeEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$stripeEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StripeEventLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  individualUsageMonthly<T extends Prisma.User$individualUsageMonthlyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$individualUsageMonthlyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserUsageMonthlyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  workspaceBilledUsageMonthly<T extends Prisma.User$workspaceBilledUsageMonthlyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$workspaceBilledUsageMonthlyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkspaceUsageMonthlyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1653,10 +4212,27 @@ export interface UserFieldRefs {
   readonly id: Prisma.FieldRef<"User", 'String'>
   readonly cognitoSub: Prisma.FieldRef<"User", 'String'>
   readonly email: Prisma.FieldRef<"User", 'String'>
+  readonly billingEmail: Prisma.FieldRef<"User", 'String'>
   readonly displayName: Prisma.FieldRef<"User", 'String'>
+  readonly firstName: Prisma.FieldRef<"User", 'String'>
+  readonly lastName: Prisma.FieldRef<"User", 'String'>
+  readonly profilePicture: Prisma.FieldRef<"User", 'String'>
+  readonly userName: Prisma.FieldRef<"User", 'String'>
   readonly isPlatformAdmin: Prisma.FieldRef<"User", 'Boolean'>
-  readonly canCreateWorkspaces: Prisma.FieldRef<"User", 'Boolean'>
+  readonly accountTier: Prisma.FieldRef<"User", 'AccountTier'>
   readonly accountStatus: Prisma.FieldRef<"User", 'AccountStatus'>
+  readonly stripeCustomerId: Prisma.FieldRef<"User", 'String'>
+  readonly stripeSubscriptionId: Prisma.FieldRef<"User", 'String'>
+  readonly stripePriceId: Prisma.FieldRef<"User", 'String'>
+  readonly stripeProductId: Prisma.FieldRef<"User", 'String'>
+  readonly stripeDefaultPaymentMethodId: Prisma.FieldRef<"User", 'String'>
+  readonly subscriptionStatus: Prisma.FieldRef<"User", 'SubscriptionStatus'>
+  readonly billingInterval: Prisma.FieldRef<"User", 'BillingInterval'>
+  readonly cancelAtPeriodEnd: Prisma.FieldRef<"User", 'Boolean'>
+  readonly currentPeriodStart: Prisma.FieldRef<"User", 'DateTime'>
+  readonly currentPeriodEnd: Prisma.FieldRef<"User", 'DateTime'>
+  readonly trialStartsAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly trialEndsAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }
@@ -2052,9 +4628,9 @@ export type UserDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
- * User.createdWorkspaces
+ * User.ownedWorkspaces
  */
-export type User$createdWorkspacesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type User$ownedWorkspacesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Workspace
    */
@@ -2100,54 +4676,6 @@ export type User$workspaceMembershipsArgs<ExtArgs extends runtime.Types.Extensio
 }
 
 /**
- * User.workspaceInvitations
- */
-export type User$workspaceInvitationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the WorkspaceInvitation
-   */
-  select?: Prisma.WorkspaceInvitationSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the WorkspaceInvitation
-   */
-  omit?: Prisma.WorkspaceInvitationOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.WorkspaceInvitationInclude<ExtArgs> | null
-  where?: Prisma.WorkspaceInvitationWhereInput
-  orderBy?: Prisma.WorkspaceInvitationOrderByWithRelationInput | Prisma.WorkspaceInvitationOrderByWithRelationInput[]
-  cursor?: Prisma.WorkspaceInvitationWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.WorkspaceInvitationScalarFieldEnum | Prisma.WorkspaceInvitationScalarFieldEnum[]
-}
-
-/**
- * User.acceptedInvitations
- */
-export type User$acceptedInvitationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the WorkspaceInvitation
-   */
-  select?: Prisma.WorkspaceInvitationSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the WorkspaceInvitation
-   */
-  omit?: Prisma.WorkspaceInvitationOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.WorkspaceInvitationInclude<ExtArgs> | null
-  where?: Prisma.WorkspaceInvitationWhereInput
-  orderBy?: Prisma.WorkspaceInvitationOrderByWithRelationInput | Prisma.WorkspaceInvitationOrderByWithRelationInput[]
-  cursor?: Prisma.WorkspaceInvitationWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.WorkspaceInvitationScalarFieldEnum | Prisma.WorkspaceInvitationScalarFieldEnum[]
-}
-
-/**
  * User.createdCases
  */
 export type User$createdCasesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2172,9 +4700,129 @@ export type User$createdCasesArgs<ExtArgs extends runtime.Types.Extensions.Inter
 }
 
 /**
- * User.llmUsageEvents
+ * User.uploadedDocuments
  */
-export type User$llmUsageEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type User$uploadedDocumentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseDocumentIndex
+   */
+  select?: Prisma.CaseDocumentIndexSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseDocumentIndex
+   */
+  omit?: Prisma.CaseDocumentIndexOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseDocumentIndexInclude<ExtArgs> | null
+  where?: Prisma.CaseDocumentIndexWhereInput
+  orderBy?: Prisma.CaseDocumentIndexOrderByWithRelationInput | Prisma.CaseDocumentIndexOrderByWithRelationInput[]
+  cursor?: Prisma.CaseDocumentIndexWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CaseDocumentIndexScalarFieldEnum | Prisma.CaseDocumentIndexScalarFieldEnum[]
+}
+
+/**
+ * User.createdRecordIndexes
+ */
+export type User$createdRecordIndexesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseRecordIndex
+   */
+  select?: Prisma.CaseRecordIndexSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseRecordIndex
+   */
+  omit?: Prisma.CaseRecordIndexOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseRecordIndexInclude<ExtArgs> | null
+  where?: Prisma.CaseRecordIndexWhereInput
+  orderBy?: Prisma.CaseRecordIndexOrderByWithRelationInput | Prisma.CaseRecordIndexOrderByWithRelationInput[]
+  cursor?: Prisma.CaseRecordIndexWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CaseRecordIndexScalarFieldEnum | Prisma.CaseRecordIndexScalarFieldEnum[]
+}
+
+/**
+ * User.updatedRecordIndexes
+ */
+export type User$updatedRecordIndexesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseRecordIndex
+   */
+  select?: Prisma.CaseRecordIndexSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseRecordIndex
+   */
+  omit?: Prisma.CaseRecordIndexOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseRecordIndexInclude<ExtArgs> | null
+  where?: Prisma.CaseRecordIndexWhereInput
+  orderBy?: Prisma.CaseRecordIndexOrderByWithRelationInput | Prisma.CaseRecordIndexOrderByWithRelationInput[]
+  cursor?: Prisma.CaseRecordIndexWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CaseRecordIndexScalarFieldEnum | Prisma.CaseRecordIndexScalarFieldEnum[]
+}
+
+/**
+ * User.createdViewIndexes
+ */
+export type User$createdViewIndexesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseViewIndex
+   */
+  select?: Prisma.CaseViewIndexSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseViewIndex
+   */
+  omit?: Prisma.CaseViewIndexOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseViewIndexInclude<ExtArgs> | null
+  where?: Prisma.CaseViewIndexWhereInput
+  orderBy?: Prisma.CaseViewIndexOrderByWithRelationInput | Prisma.CaseViewIndexOrderByWithRelationInput[]
+  cursor?: Prisma.CaseViewIndexWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CaseViewIndexScalarFieldEnum | Prisma.CaseViewIndexScalarFieldEnum[]
+}
+
+/**
+ * User.manifestsCreated
+ */
+export type User$manifestsCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseStateManifest
+   */
+  select?: Prisma.CaseStateManifestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseStateManifest
+   */
+  omit?: Prisma.CaseStateManifestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseStateManifestInclude<ExtArgs> | null
+  where?: Prisma.CaseStateManifestWhereInput
+  orderBy?: Prisma.CaseStateManifestOrderByWithRelationInput | Prisma.CaseStateManifestOrderByWithRelationInput[]
+  cursor?: Prisma.CaseStateManifestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CaseStateManifestScalarFieldEnum | Prisma.CaseStateManifestScalarFieldEnum[]
+}
+
+/**
+ * User.actorUsageEvents
+ */
+export type User$actorUsageEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the LlmUsageEvent
    */
@@ -2193,6 +4841,102 @@ export type User$llmUsageEventsArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.LlmUsageEventScalarFieldEnum | Prisma.LlmUsageEventScalarFieldEnum[]
+}
+
+/**
+ * User.billedUsageEvents
+ */
+export type User$billedUsageEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LlmUsageEvent
+   */
+  select?: Prisma.LlmUsageEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LlmUsageEvent
+   */
+  omit?: Prisma.LlmUsageEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LlmUsageEventInclude<ExtArgs> | null
+  where?: Prisma.LlmUsageEventWhereInput
+  orderBy?: Prisma.LlmUsageEventOrderByWithRelationInput | Prisma.LlmUsageEventOrderByWithRelationInput[]
+  cursor?: Prisma.LlmUsageEventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LlmUsageEventScalarFieldEnum | Prisma.LlmUsageEventScalarFieldEnum[]
+}
+
+/**
+ * User.stripeEvents
+ */
+export type User$stripeEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the StripeEventLog
+   */
+  select?: Prisma.StripeEventLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the StripeEventLog
+   */
+  omit?: Prisma.StripeEventLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StripeEventLogInclude<ExtArgs> | null
+  where?: Prisma.StripeEventLogWhereInput
+  orderBy?: Prisma.StripeEventLogOrderByWithRelationInput | Prisma.StripeEventLogOrderByWithRelationInput[]
+  cursor?: Prisma.StripeEventLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.StripeEventLogScalarFieldEnum | Prisma.StripeEventLogScalarFieldEnum[]
+}
+
+/**
+ * User.individualUsageMonthly
+ */
+export type User$individualUsageMonthlyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserUsageMonthly
+   */
+  select?: Prisma.UserUsageMonthlySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserUsageMonthly
+   */
+  omit?: Prisma.UserUsageMonthlyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserUsageMonthlyInclude<ExtArgs> | null
+  where?: Prisma.UserUsageMonthlyWhereInput
+  orderBy?: Prisma.UserUsageMonthlyOrderByWithRelationInput | Prisma.UserUsageMonthlyOrderByWithRelationInput[]
+  cursor?: Prisma.UserUsageMonthlyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserUsageMonthlyScalarFieldEnum | Prisma.UserUsageMonthlyScalarFieldEnum[]
+}
+
+/**
+ * User.workspaceBilledUsageMonthly
+ */
+export type User$workspaceBilledUsageMonthlyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WorkspaceUsageMonthly
+   */
+  select?: Prisma.WorkspaceUsageMonthlySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WorkspaceUsageMonthly
+   */
+  omit?: Prisma.WorkspaceUsageMonthlyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkspaceUsageMonthlyInclude<ExtArgs> | null
+  where?: Prisma.WorkspaceUsageMonthlyWhereInput
+  orderBy?: Prisma.WorkspaceUsageMonthlyOrderByWithRelationInput | Prisma.WorkspaceUsageMonthlyOrderByWithRelationInput[]
+  cursor?: Prisma.WorkspaceUsageMonthlyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WorkspaceUsageMonthlyScalarFieldEnum | Prisma.WorkspaceUsageMonthlyScalarFieldEnum[]
 }
 
 /**

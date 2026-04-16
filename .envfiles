@@ -6,8 +6,7 @@
 
 /local-api-dev-server
   - USER_POOL_CLIENT_ID=your_user_pool_client_id_here
-  - DATABASE_URL=your_database_url_here
+  - DATABASE_URL=your_database_url_here # Use pgbouncer within your application
 
 /packages/database
-  - DATABASE_URL=your_database_url_here
-  - DIRECT_URL=your_direct_database_url_here
+  - DATABASE_URL=your_database_url_here # Dont use pgbouncer within prisma itself

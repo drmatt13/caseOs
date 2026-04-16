@@ -12,16 +12,14 @@
 
 import * as process from 'node:process'
 import * as path from 'node:path'
-import { fileURLToPath } from 'node:url'
-globalThis['__dirname'] = path.dirname(fileURLToPath(import.meta.url))
 
 import * as runtime from "@prisma/client/runtime/client"
-import * as $Enums from "./enums.ts"
-import * as $Class from "./internal/class.ts"
-import * as Prisma from "./internal/prismaNamespace.ts"
+import * as $Enums from "./enums"
+import * as $Class from "./internal/class"
+import * as Prisma from "./internal/prismaNamespace"
 
-export * as $Enums from './enums.ts'
-export * from "./enums.ts"
+export * as $Enums from './enums'
+export * from "./enums"
 /**
  * ## Prisma Client
  * 
@@ -62,25 +60,30 @@ export type WorkspaceMembership = Prisma.WorkspaceMembershipModel
  */
 export type WorkspaceInvitation = Prisma.WorkspaceInvitationModel
 /**
- * Model WorkspaceSubscription
- * 
- */
-export type WorkspaceSubscription = Prisma.WorkspaceSubscriptionModel
-/**
- * Model WorkspacePaymentMethod
- * 
- */
-export type WorkspacePaymentMethod = Prisma.WorkspacePaymentMethodModel
-/**
- * Model StripeEventLog
- * 
- */
-export type StripeEventLog = Prisma.StripeEventLogModel
-/**
  * Model Case
  * 
  */
 export type Case = Prisma.CaseModel
+/**
+ * Model CaseDocumentIndex
+ * 
+ */
+export type CaseDocumentIndex = Prisma.CaseDocumentIndexModel
+/**
+ * Model CaseRecordIndex
+ * 
+ */
+export type CaseRecordIndex = Prisma.CaseRecordIndexModel
+/**
+ * Model CaseViewIndex
+ * 
+ */
+export type CaseViewIndex = Prisma.CaseViewIndexModel
+/**
+ * Model CaseStateManifest
+ * 
+ */
+export type CaseStateManifest = Prisma.CaseStateManifestModel
 /**
  * Model LlmUsageEvent
  * 
@@ -92,7 +95,17 @@ export type LlmUsageEvent = Prisma.LlmUsageEventModel
  */
 export type WorkspaceUsageMonthly = Prisma.WorkspaceUsageMonthlyModel
 /**
- * Model TierLimit
+ * Model UserUsageMonthly
  * 
  */
-export type TierLimit = Prisma.TierLimitModel
+export type UserUsageMonthly = Prisma.UserUsageMonthlyModel
+/**
+ * Model StripeEventLog
+ * 
+ */
+export type StripeEventLog = Prisma.StripeEventLogModel
+/**
+ * Model AccountTierLimit
+ * 
+ */
+export type AccountTierLimit = Prisma.AccountTierLimitModel

@@ -9,8 +9,8 @@
  * 🟢 You can import this file directly.
  */
 import type * as runtime from "@prisma/client/runtime/client"
-import type * as $Enums from "../enums.ts"
-import type * as Prisma from "../internal/prismaNamespace.ts"
+import type * as $Enums from "../enums"
+import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model Workspace
@@ -27,12 +27,10 @@ export type AggregateWorkspace = {
 export type WorkspaceMinAggregateOutputType = {
   id: string | null
   name: string | null
-  createdByUserId: string | null
-  tier: $Enums.WorkspaceTier | null
+  ownerUserId: string | null
+  storageBucket: string | null
+  storagePrefix: string | null
   status: $Enums.WorkspaceStatus | null
-  billingEmail: string | null
-  stripeCustomerId: string | null
-  stripeDefaultPaymentMethodId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -40,12 +38,10 @@ export type WorkspaceMinAggregateOutputType = {
 export type WorkspaceMaxAggregateOutputType = {
   id: string | null
   name: string | null
-  createdByUserId: string | null
-  tier: $Enums.WorkspaceTier | null
+  ownerUserId: string | null
+  storageBucket: string | null
+  storagePrefix: string | null
   status: $Enums.WorkspaceStatus | null
-  billingEmail: string | null
-  stripeCustomerId: string | null
-  stripeDefaultPaymentMethodId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -53,12 +49,10 @@ export type WorkspaceMaxAggregateOutputType = {
 export type WorkspaceCountAggregateOutputType = {
   id: number
   name: number
-  createdByUserId: number
-  tier: number
+  ownerUserId: number
+  storageBucket: number
+  storagePrefix: number
   status: number
-  billingEmail: number
-  stripeCustomerId: number
-  stripeDefaultPaymentMethodId: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -68,12 +62,10 @@ export type WorkspaceCountAggregateOutputType = {
 export type WorkspaceMinAggregateInputType = {
   id?: true
   name?: true
-  createdByUserId?: true
-  tier?: true
+  ownerUserId?: true
+  storageBucket?: true
+  storagePrefix?: true
   status?: true
-  billingEmail?: true
-  stripeCustomerId?: true
-  stripeDefaultPaymentMethodId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -81,12 +73,10 @@ export type WorkspaceMinAggregateInputType = {
 export type WorkspaceMaxAggregateInputType = {
   id?: true
   name?: true
-  createdByUserId?: true
-  tier?: true
+  ownerUserId?: true
+  storageBucket?: true
+  storagePrefix?: true
   status?: true
-  billingEmail?: true
-  stripeCustomerId?: true
-  stripeDefaultPaymentMethodId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -94,12 +84,10 @@ export type WorkspaceMaxAggregateInputType = {
 export type WorkspaceCountAggregateInputType = {
   id?: true
   name?: true
-  createdByUserId?: true
-  tier?: true
+  ownerUserId?: true
+  storageBucket?: true
+  storagePrefix?: true
   status?: true
-  billingEmail?: true
-  stripeCustomerId?: true
-  stripeDefaultPaymentMethodId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -180,12 +168,10 @@ export type WorkspaceGroupByArgs<ExtArgs extends runtime.Types.Extensions.Intern
 export type WorkspaceGroupByOutputType = {
   id: string
   name: string
-  createdByUserId: string
-  tier: $Enums.WorkspaceTier
+  ownerUserId: string
+  storageBucket: string
+  storagePrefix: string
   status: $Enums.WorkspaceStatus
-  billingEmail: string | null
-  stripeCustomerId: string | null
-  stripeDefaultPaymentMethodId: string | null
   createdAt: Date
   updatedAt: Date
   _count: WorkspaceCountAggregateOutputType | null
@@ -214,81 +200,79 @@ export type WorkspaceWhereInput = {
   NOT?: Prisma.WorkspaceWhereInput | Prisma.WorkspaceWhereInput[]
   id?: Prisma.UuidFilter<"Workspace"> | string
   name?: Prisma.StringFilter<"Workspace"> | string
-  createdByUserId?: Prisma.UuidFilter<"Workspace"> | string
-  tier?: Prisma.EnumWorkspaceTierFilter<"Workspace"> | $Enums.WorkspaceTier
+  ownerUserId?: Prisma.UuidFilter<"Workspace"> | string
+  storageBucket?: Prisma.StringFilter<"Workspace"> | string
+  storagePrefix?: Prisma.StringFilter<"Workspace"> | string
   status?: Prisma.EnumWorkspaceStatusFilter<"Workspace"> | $Enums.WorkspaceStatus
-  billingEmail?: Prisma.StringNullableFilter<"Workspace"> | string | null
-  stripeCustomerId?: Prisma.StringNullableFilter<"Workspace"> | string | null
-  stripeDefaultPaymentMethodId?: Prisma.StringNullableFilter<"Workspace"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Workspace"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Workspace"> | Date | string
-  createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   memberships?: Prisma.WorkspaceMembershipListRelationFilter
   invitations?: Prisma.WorkspaceInvitationListRelationFilter
-  subscription?: Prisma.XOR<Prisma.WorkspaceSubscriptionNullableScalarRelationFilter, Prisma.WorkspaceSubscriptionWhereInput> | null
-  paymentMethods?: Prisma.WorkspacePaymentMethodListRelationFilter
-  stripeEvents?: Prisma.StripeEventLogListRelationFilter
   cases?: Prisma.CaseListRelationFilter
+  documentIndexes?: Prisma.CaseDocumentIndexListRelationFilter
+  recordIndexes?: Prisma.CaseRecordIndexListRelationFilter
+  viewIndexes?: Prisma.CaseViewIndexListRelationFilter
+  manifests?: Prisma.CaseStateManifestListRelationFilter
   llmUsageEvents?: Prisma.LlmUsageEventListRelationFilter
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyListRelationFilter
+  stripeEvents?: Prisma.StripeEventLogListRelationFilter
 }
 
 export type WorkspaceOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  createdByUserId?: Prisma.SortOrder
-  tier?: Prisma.SortOrder
+  ownerUserId?: Prisma.SortOrder
+  storageBucket?: Prisma.SortOrder
+  storagePrefix?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  billingEmail?: Prisma.SortOrderInput | Prisma.SortOrder
-  stripeCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
-  stripeDefaultPaymentMethodId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  createdBy?: Prisma.UserOrderByWithRelationInput
+  owner?: Prisma.UserOrderByWithRelationInput
   memberships?: Prisma.WorkspaceMembershipOrderByRelationAggregateInput
   invitations?: Prisma.WorkspaceInvitationOrderByRelationAggregateInput
-  subscription?: Prisma.WorkspaceSubscriptionOrderByWithRelationInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodOrderByRelationAggregateInput
-  stripeEvents?: Prisma.StripeEventLogOrderByRelationAggregateInput
   cases?: Prisma.CaseOrderByRelationAggregateInput
+  documentIndexes?: Prisma.CaseDocumentIndexOrderByRelationAggregateInput
+  recordIndexes?: Prisma.CaseRecordIndexOrderByRelationAggregateInput
+  viewIndexes?: Prisma.CaseViewIndexOrderByRelationAggregateInput
+  manifests?: Prisma.CaseStateManifestOrderByRelationAggregateInput
   llmUsageEvents?: Prisma.LlmUsageEventOrderByRelationAggregateInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyOrderByRelationAggregateInput
+  stripeEvents?: Prisma.StripeEventLogOrderByRelationAggregateInput
 }
 
 export type WorkspaceWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  stripeCustomerId?: string
+  storagePrefix?: string
   AND?: Prisma.WorkspaceWhereInput | Prisma.WorkspaceWhereInput[]
   OR?: Prisma.WorkspaceWhereInput[]
   NOT?: Prisma.WorkspaceWhereInput | Prisma.WorkspaceWhereInput[]
   name?: Prisma.StringFilter<"Workspace"> | string
-  createdByUserId?: Prisma.UuidFilter<"Workspace"> | string
-  tier?: Prisma.EnumWorkspaceTierFilter<"Workspace"> | $Enums.WorkspaceTier
+  ownerUserId?: Prisma.UuidFilter<"Workspace"> | string
+  storageBucket?: Prisma.StringFilter<"Workspace"> | string
   status?: Prisma.EnumWorkspaceStatusFilter<"Workspace"> | $Enums.WorkspaceStatus
-  billingEmail?: Prisma.StringNullableFilter<"Workspace"> | string | null
-  stripeDefaultPaymentMethodId?: Prisma.StringNullableFilter<"Workspace"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Workspace"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Workspace"> | Date | string
-  createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   memberships?: Prisma.WorkspaceMembershipListRelationFilter
   invitations?: Prisma.WorkspaceInvitationListRelationFilter
-  subscription?: Prisma.XOR<Prisma.WorkspaceSubscriptionNullableScalarRelationFilter, Prisma.WorkspaceSubscriptionWhereInput> | null
-  paymentMethods?: Prisma.WorkspacePaymentMethodListRelationFilter
-  stripeEvents?: Prisma.StripeEventLogListRelationFilter
   cases?: Prisma.CaseListRelationFilter
+  documentIndexes?: Prisma.CaseDocumentIndexListRelationFilter
+  recordIndexes?: Prisma.CaseRecordIndexListRelationFilter
+  viewIndexes?: Prisma.CaseViewIndexListRelationFilter
+  manifests?: Prisma.CaseStateManifestListRelationFilter
   llmUsageEvents?: Prisma.LlmUsageEventListRelationFilter
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyListRelationFilter
-}, "id" | "stripeCustomerId">
+  stripeEvents?: Prisma.StripeEventLogListRelationFilter
+}, "id" | "storagePrefix">
 
 export type WorkspaceOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  createdByUserId?: Prisma.SortOrder
-  tier?: Prisma.SortOrder
+  ownerUserId?: Prisma.SortOrder
+  storageBucket?: Prisma.SortOrder
+  storagePrefix?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  billingEmail?: Prisma.SortOrderInput | Prisma.SortOrder
-  stripeCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
-  stripeDefaultPaymentMethodId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.WorkspaceCountOrderByAggregateInput
@@ -302,12 +286,10 @@ export type WorkspaceScalarWhereWithAggregatesInput = {
   NOT?: Prisma.WorkspaceScalarWhereWithAggregatesInput | Prisma.WorkspaceScalarWhereWithAggregatesInput[]
   id?: Prisma.UuidWithAggregatesFilter<"Workspace"> | string
   name?: Prisma.StringWithAggregatesFilter<"Workspace"> | string
-  createdByUserId?: Prisma.UuidWithAggregatesFilter<"Workspace"> | string
-  tier?: Prisma.EnumWorkspaceTierWithAggregatesFilter<"Workspace"> | $Enums.WorkspaceTier
+  ownerUserId?: Prisma.UuidWithAggregatesFilter<"Workspace"> | string
+  storageBucket?: Prisma.StringWithAggregatesFilter<"Workspace"> | string
+  storagePrefix?: Prisma.StringWithAggregatesFilter<"Workspace"> | string
   status?: Prisma.EnumWorkspaceStatusWithAggregatesFilter<"Workspace"> | $Enums.WorkspaceStatus
-  billingEmail?: Prisma.StringNullableWithAggregatesFilter<"Workspace"> | string | null
-  stripeCustomerId?: Prisma.StringNullableWithAggregatesFilter<"Workspace"> | string | null
-  stripeDefaultPaymentMethodId?: Prisma.StringNullableWithAggregatesFilter<"Workspace"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Workspace"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Workspace"> | Date | string
 }
@@ -315,96 +297,94 @@ export type WorkspaceScalarWhereWithAggregatesInput = {
 export type WorkspaceCreateInput = {
   id?: string
   name: string
-  tier?: $Enums.WorkspaceTier
+  storageBucket: string
+  storagePrefix: string
   status?: $Enums.WorkspaceStatus
-  billingEmail?: string | null
-  stripeCustomerId?: string | null
-  stripeDefaultPaymentMethodId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  createdBy: Prisma.UserCreateNestedOneWithoutCreatedWorkspacesInput
+  owner: Prisma.UserCreateNestedOneWithoutOwnedWorkspacesInput
   memberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutWorkspaceInput
   invitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
-  subscription?: Prisma.WorkspaceSubscriptionCreateNestedOneWithoutWorkspaceInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodCreateNestedManyWithoutWorkspaceInput
-  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutWorkspaceInput
   cases?: Prisma.CaseCreateNestedManyWithoutWorkspaceInput
+  documentIndexes?: Prisma.CaseDocumentIndexCreateNestedManyWithoutWorkspaceInput
+  recordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutWorkspaceInput
+  viewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutWorkspaceInput
+  manifests?: Prisma.CaseStateManifestCreateNestedManyWithoutWorkspaceInput
   llmUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutWorkspaceInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyCreateNestedManyWithoutWorkspaceInput
+  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateInput = {
   id?: string
   name: string
-  createdByUserId: string
-  tier?: $Enums.WorkspaceTier
+  ownerUserId: string
+  storageBucket: string
+  storagePrefix: string
   status?: $Enums.WorkspaceStatus
-  billingEmail?: string | null
-  stripeCustomerId?: string | null
-  stripeDefaultPaymentMethodId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutWorkspaceInput
   invitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
-  subscription?: Prisma.WorkspaceSubscriptionUncheckedCreateNestedOneWithoutWorkspaceInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodUncheckedCreateNestedManyWithoutWorkspaceInput
-  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutWorkspaceInput
   cases?: Prisma.CaseUncheckedCreateNestedManyWithoutWorkspaceInput
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  manifests?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutWorkspaceInput
   llmUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyUncheckedCreateNestedManyWithoutWorkspaceInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  tier?: Prisma.EnumWorkspaceTierFieldUpdateOperationsInput | $Enums.WorkspaceTier
+  storageBucket?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePrefix?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
-  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedWorkspacesNestedInput
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
   memberships?: Prisma.WorkspaceMembershipUpdateManyWithoutWorkspaceNestedInput
   invitations?: Prisma.WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
-  subscription?: Prisma.WorkspaceSubscriptionUpdateOneWithoutWorkspaceNestedInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodUpdateManyWithoutWorkspaceNestedInput
-  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutWorkspaceNestedInput
   cases?: Prisma.CaseUpdateManyWithoutWorkspaceNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUpdateManyWithoutWorkspaceNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutWorkspaceNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutWorkspaceNestedInput
+  manifests?: Prisma.CaseStateManifestUpdateManyWithoutWorkspaceNestedInput
   llmUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutWorkspaceNestedInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyUpdateManyWithoutWorkspaceNestedInput
+  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
-  tier?: Prisma.EnumWorkspaceTierFieldUpdateOperationsInput | $Enums.WorkspaceTier
+  ownerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  storageBucket?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePrefix?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
-  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutWorkspaceNestedInput
   invitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
-  subscription?: Prisma.WorkspaceSubscriptionUncheckedUpdateOneWithoutWorkspaceNestedInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodUncheckedUpdateManyWithoutWorkspaceNestedInput
-  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutWorkspaceNestedInput
   cases?: Prisma.CaseUncheckedUpdateManyWithoutWorkspaceNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  manifests?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutWorkspaceNestedInput
   llmUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutWorkspaceNestedInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateManyInput = {
   id?: string
   name: string
-  createdByUserId: string
-  tier?: $Enums.WorkspaceTier
+  ownerUserId: string
+  storageBucket: string
+  storagePrefix: string
   status?: $Enums.WorkspaceStatus
-  billingEmail?: string | null
-  stripeCustomerId?: string | null
-  stripeDefaultPaymentMethodId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -412,11 +392,9 @@ export type WorkspaceCreateManyInput = {
 export type WorkspaceUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  tier?: Prisma.EnumWorkspaceTierFieldUpdateOperationsInput | $Enums.WorkspaceTier
+  storageBucket?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePrefix?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
-  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -424,12 +402,10 @@ export type WorkspaceUpdateManyMutationInput = {
 export type WorkspaceUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
-  tier?: Prisma.EnumWorkspaceTierFieldUpdateOperationsInput | $Enums.WorkspaceTier
+  ownerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  storageBucket?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePrefix?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
-  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -447,12 +423,10 @@ export type WorkspaceOrderByRelationAggregateInput = {
 export type WorkspaceCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  createdByUserId?: Prisma.SortOrder
-  tier?: Prisma.SortOrder
+  ownerUserId?: Prisma.SortOrder
+  storageBucket?: Prisma.SortOrder
+  storagePrefix?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  billingEmail?: Prisma.SortOrder
-  stripeCustomerId?: Prisma.SortOrder
-  stripeDefaultPaymentMethodId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -460,12 +434,10 @@ export type WorkspaceCountOrderByAggregateInput = {
 export type WorkspaceMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  createdByUserId?: Prisma.SortOrder
-  tier?: Prisma.SortOrder
+  ownerUserId?: Prisma.SortOrder
+  storageBucket?: Prisma.SortOrder
+  storagePrefix?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  billingEmail?: Prisma.SortOrder
-  stripeCustomerId?: Prisma.SortOrder
-  stripeDefaultPaymentMethodId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -473,12 +445,10 @@ export type WorkspaceMaxOrderByAggregateInput = {
 export type WorkspaceMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  createdByUserId?: Prisma.SortOrder
-  tier?: Prisma.SortOrder
+  ownerUserId?: Prisma.SortOrder
+  storageBucket?: Prisma.SortOrder
+  storagePrefix?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  billingEmail?: Prisma.SortOrder
-  stripeCustomerId?: Prisma.SortOrder
-  stripeDefaultPaymentMethodId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -493,50 +463,46 @@ export type WorkspaceNullableScalarRelationFilter = {
   isNot?: Prisma.WorkspaceWhereInput | null
 }
 
-export type WorkspaceCreateNestedManyWithoutCreatedByInput = {
-  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutCreatedByInput, Prisma.WorkspaceUncheckedCreateWithoutCreatedByInput> | Prisma.WorkspaceCreateWithoutCreatedByInput[] | Prisma.WorkspaceUncheckedCreateWithoutCreatedByInput[]
-  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutCreatedByInput | Prisma.WorkspaceCreateOrConnectWithoutCreatedByInput[]
-  createMany?: Prisma.WorkspaceCreateManyCreatedByInputEnvelope
+export type WorkspaceCreateNestedManyWithoutOwnerInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutOwnerInput, Prisma.WorkspaceUncheckedCreateWithoutOwnerInput> | Prisma.WorkspaceCreateWithoutOwnerInput[] | Prisma.WorkspaceUncheckedCreateWithoutOwnerInput[]
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutOwnerInput | Prisma.WorkspaceCreateOrConnectWithoutOwnerInput[]
+  createMany?: Prisma.WorkspaceCreateManyOwnerInputEnvelope
   connect?: Prisma.WorkspaceWhereUniqueInput | Prisma.WorkspaceWhereUniqueInput[]
 }
 
-export type WorkspaceUncheckedCreateNestedManyWithoutCreatedByInput = {
-  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutCreatedByInput, Prisma.WorkspaceUncheckedCreateWithoutCreatedByInput> | Prisma.WorkspaceCreateWithoutCreatedByInput[] | Prisma.WorkspaceUncheckedCreateWithoutCreatedByInput[]
-  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutCreatedByInput | Prisma.WorkspaceCreateOrConnectWithoutCreatedByInput[]
-  createMany?: Prisma.WorkspaceCreateManyCreatedByInputEnvelope
+export type WorkspaceUncheckedCreateNestedManyWithoutOwnerInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutOwnerInput, Prisma.WorkspaceUncheckedCreateWithoutOwnerInput> | Prisma.WorkspaceCreateWithoutOwnerInput[] | Prisma.WorkspaceUncheckedCreateWithoutOwnerInput[]
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutOwnerInput | Prisma.WorkspaceCreateOrConnectWithoutOwnerInput[]
+  createMany?: Prisma.WorkspaceCreateManyOwnerInputEnvelope
   connect?: Prisma.WorkspaceWhereUniqueInput | Prisma.WorkspaceWhereUniqueInput[]
 }
 
-export type WorkspaceUpdateManyWithoutCreatedByNestedInput = {
-  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutCreatedByInput, Prisma.WorkspaceUncheckedCreateWithoutCreatedByInput> | Prisma.WorkspaceCreateWithoutCreatedByInput[] | Prisma.WorkspaceUncheckedCreateWithoutCreatedByInput[]
-  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutCreatedByInput | Prisma.WorkspaceCreateOrConnectWithoutCreatedByInput[]
-  upsert?: Prisma.WorkspaceUpsertWithWhereUniqueWithoutCreatedByInput | Prisma.WorkspaceUpsertWithWhereUniqueWithoutCreatedByInput[]
-  createMany?: Prisma.WorkspaceCreateManyCreatedByInputEnvelope
+export type WorkspaceUpdateManyWithoutOwnerNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutOwnerInput, Prisma.WorkspaceUncheckedCreateWithoutOwnerInput> | Prisma.WorkspaceCreateWithoutOwnerInput[] | Prisma.WorkspaceUncheckedCreateWithoutOwnerInput[]
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutOwnerInput | Prisma.WorkspaceCreateOrConnectWithoutOwnerInput[]
+  upsert?: Prisma.WorkspaceUpsertWithWhereUniqueWithoutOwnerInput | Prisma.WorkspaceUpsertWithWhereUniqueWithoutOwnerInput[]
+  createMany?: Prisma.WorkspaceCreateManyOwnerInputEnvelope
   set?: Prisma.WorkspaceWhereUniqueInput | Prisma.WorkspaceWhereUniqueInput[]
   disconnect?: Prisma.WorkspaceWhereUniqueInput | Prisma.WorkspaceWhereUniqueInput[]
   delete?: Prisma.WorkspaceWhereUniqueInput | Prisma.WorkspaceWhereUniqueInput[]
   connect?: Prisma.WorkspaceWhereUniqueInput | Prisma.WorkspaceWhereUniqueInput[]
-  update?: Prisma.WorkspaceUpdateWithWhereUniqueWithoutCreatedByInput | Prisma.WorkspaceUpdateWithWhereUniqueWithoutCreatedByInput[]
-  updateMany?: Prisma.WorkspaceUpdateManyWithWhereWithoutCreatedByInput | Prisma.WorkspaceUpdateManyWithWhereWithoutCreatedByInput[]
+  update?: Prisma.WorkspaceUpdateWithWhereUniqueWithoutOwnerInput | Prisma.WorkspaceUpdateWithWhereUniqueWithoutOwnerInput[]
+  updateMany?: Prisma.WorkspaceUpdateManyWithWhereWithoutOwnerInput | Prisma.WorkspaceUpdateManyWithWhereWithoutOwnerInput[]
   deleteMany?: Prisma.WorkspaceScalarWhereInput | Prisma.WorkspaceScalarWhereInput[]
 }
 
-export type WorkspaceUncheckedUpdateManyWithoutCreatedByNestedInput = {
-  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutCreatedByInput, Prisma.WorkspaceUncheckedCreateWithoutCreatedByInput> | Prisma.WorkspaceCreateWithoutCreatedByInput[] | Prisma.WorkspaceUncheckedCreateWithoutCreatedByInput[]
-  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutCreatedByInput | Prisma.WorkspaceCreateOrConnectWithoutCreatedByInput[]
-  upsert?: Prisma.WorkspaceUpsertWithWhereUniqueWithoutCreatedByInput | Prisma.WorkspaceUpsertWithWhereUniqueWithoutCreatedByInput[]
-  createMany?: Prisma.WorkspaceCreateManyCreatedByInputEnvelope
+export type WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutOwnerInput, Prisma.WorkspaceUncheckedCreateWithoutOwnerInput> | Prisma.WorkspaceCreateWithoutOwnerInput[] | Prisma.WorkspaceUncheckedCreateWithoutOwnerInput[]
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutOwnerInput | Prisma.WorkspaceCreateOrConnectWithoutOwnerInput[]
+  upsert?: Prisma.WorkspaceUpsertWithWhereUniqueWithoutOwnerInput | Prisma.WorkspaceUpsertWithWhereUniqueWithoutOwnerInput[]
+  createMany?: Prisma.WorkspaceCreateManyOwnerInputEnvelope
   set?: Prisma.WorkspaceWhereUniqueInput | Prisma.WorkspaceWhereUniqueInput[]
   disconnect?: Prisma.WorkspaceWhereUniqueInput | Prisma.WorkspaceWhereUniqueInput[]
   delete?: Prisma.WorkspaceWhereUniqueInput | Prisma.WorkspaceWhereUniqueInput[]
   connect?: Prisma.WorkspaceWhereUniqueInput | Prisma.WorkspaceWhereUniqueInput[]
-  update?: Prisma.WorkspaceUpdateWithWhereUniqueWithoutCreatedByInput | Prisma.WorkspaceUpdateWithWhereUniqueWithoutCreatedByInput[]
-  updateMany?: Prisma.WorkspaceUpdateManyWithWhereWithoutCreatedByInput | Prisma.WorkspaceUpdateManyWithWhereWithoutCreatedByInput[]
+  update?: Prisma.WorkspaceUpdateWithWhereUniqueWithoutOwnerInput | Prisma.WorkspaceUpdateWithWhereUniqueWithoutOwnerInput[]
+  updateMany?: Prisma.WorkspaceUpdateManyWithWhereWithoutOwnerInput | Prisma.WorkspaceUpdateManyWithWhereWithoutOwnerInput[]
   deleteMany?: Prisma.WorkspaceScalarWhereInput | Prisma.WorkspaceScalarWhereInput[]
-}
-
-export type EnumWorkspaceTierFieldUpdateOperationsInput = {
-  set?: $Enums.WorkspaceTier
 }
 
 export type EnumWorkspaceStatusFieldUpdateOperationsInput = {
@@ -571,50 +537,6 @@ export type WorkspaceUpdateOneRequiredWithoutInvitationsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutInvitationsInput, Prisma.WorkspaceUpdateWithoutInvitationsInput>, Prisma.WorkspaceUncheckedUpdateWithoutInvitationsInput>
 }
 
-export type WorkspaceCreateNestedOneWithoutSubscriptionInput = {
-  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutSubscriptionInput, Prisma.WorkspaceUncheckedCreateWithoutSubscriptionInput>
-  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutSubscriptionInput
-  connect?: Prisma.WorkspaceWhereUniqueInput
-}
-
-export type WorkspaceUpdateOneRequiredWithoutSubscriptionNestedInput = {
-  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutSubscriptionInput, Prisma.WorkspaceUncheckedCreateWithoutSubscriptionInput>
-  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutSubscriptionInput
-  upsert?: Prisma.WorkspaceUpsertWithoutSubscriptionInput
-  connect?: Prisma.WorkspaceWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutSubscriptionInput, Prisma.WorkspaceUpdateWithoutSubscriptionInput>, Prisma.WorkspaceUncheckedUpdateWithoutSubscriptionInput>
-}
-
-export type WorkspaceCreateNestedOneWithoutPaymentMethodsInput = {
-  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutPaymentMethodsInput, Prisma.WorkspaceUncheckedCreateWithoutPaymentMethodsInput>
-  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutPaymentMethodsInput
-  connect?: Prisma.WorkspaceWhereUniqueInput
-}
-
-export type WorkspaceUpdateOneRequiredWithoutPaymentMethodsNestedInput = {
-  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutPaymentMethodsInput, Prisma.WorkspaceUncheckedCreateWithoutPaymentMethodsInput>
-  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutPaymentMethodsInput
-  upsert?: Prisma.WorkspaceUpsertWithoutPaymentMethodsInput
-  connect?: Prisma.WorkspaceWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutPaymentMethodsInput, Prisma.WorkspaceUpdateWithoutPaymentMethodsInput>, Prisma.WorkspaceUncheckedUpdateWithoutPaymentMethodsInput>
-}
-
-export type WorkspaceCreateNestedOneWithoutStripeEventsInput = {
-  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutStripeEventsInput, Prisma.WorkspaceUncheckedCreateWithoutStripeEventsInput>
-  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutStripeEventsInput
-  connect?: Prisma.WorkspaceWhereUniqueInput
-}
-
-export type WorkspaceUpdateOneWithoutStripeEventsNestedInput = {
-  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutStripeEventsInput, Prisma.WorkspaceUncheckedCreateWithoutStripeEventsInput>
-  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutStripeEventsInput
-  upsert?: Prisma.WorkspaceUpsertWithoutStripeEventsInput
-  disconnect?: Prisma.WorkspaceWhereInput | boolean
-  delete?: Prisma.WorkspaceWhereInput | boolean
-  connect?: Prisma.WorkspaceWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutStripeEventsInput, Prisma.WorkspaceUpdateWithoutStripeEventsInput>, Prisma.WorkspaceUncheckedUpdateWithoutStripeEventsInput>
-}
-
 export type WorkspaceCreateNestedOneWithoutCasesInput = {
   create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutCasesInput, Prisma.WorkspaceUncheckedCreateWithoutCasesInput>
   connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutCasesInput
@@ -627,6 +549,62 @@ export type WorkspaceUpdateOneRequiredWithoutCasesNestedInput = {
   upsert?: Prisma.WorkspaceUpsertWithoutCasesInput
   connect?: Prisma.WorkspaceWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutCasesInput, Prisma.WorkspaceUpdateWithoutCasesInput>, Prisma.WorkspaceUncheckedUpdateWithoutCasesInput>
+}
+
+export type WorkspaceCreateNestedOneWithoutDocumentIndexesInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutDocumentIndexesInput, Prisma.WorkspaceUncheckedCreateWithoutDocumentIndexesInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutDocumentIndexesInput
+  connect?: Prisma.WorkspaceWhereUniqueInput
+}
+
+export type WorkspaceUpdateOneRequiredWithoutDocumentIndexesNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutDocumentIndexesInput, Prisma.WorkspaceUncheckedCreateWithoutDocumentIndexesInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutDocumentIndexesInput
+  upsert?: Prisma.WorkspaceUpsertWithoutDocumentIndexesInput
+  connect?: Prisma.WorkspaceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutDocumentIndexesInput, Prisma.WorkspaceUpdateWithoutDocumentIndexesInput>, Prisma.WorkspaceUncheckedUpdateWithoutDocumentIndexesInput>
+}
+
+export type WorkspaceCreateNestedOneWithoutRecordIndexesInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutRecordIndexesInput, Prisma.WorkspaceUncheckedCreateWithoutRecordIndexesInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutRecordIndexesInput
+  connect?: Prisma.WorkspaceWhereUniqueInput
+}
+
+export type WorkspaceUpdateOneRequiredWithoutRecordIndexesNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutRecordIndexesInput, Prisma.WorkspaceUncheckedCreateWithoutRecordIndexesInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutRecordIndexesInput
+  upsert?: Prisma.WorkspaceUpsertWithoutRecordIndexesInput
+  connect?: Prisma.WorkspaceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutRecordIndexesInput, Prisma.WorkspaceUpdateWithoutRecordIndexesInput>, Prisma.WorkspaceUncheckedUpdateWithoutRecordIndexesInput>
+}
+
+export type WorkspaceCreateNestedOneWithoutViewIndexesInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutViewIndexesInput, Prisma.WorkspaceUncheckedCreateWithoutViewIndexesInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutViewIndexesInput
+  connect?: Prisma.WorkspaceWhereUniqueInput
+}
+
+export type WorkspaceUpdateOneRequiredWithoutViewIndexesNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutViewIndexesInput, Prisma.WorkspaceUncheckedCreateWithoutViewIndexesInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutViewIndexesInput
+  upsert?: Prisma.WorkspaceUpsertWithoutViewIndexesInput
+  connect?: Prisma.WorkspaceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutViewIndexesInput, Prisma.WorkspaceUpdateWithoutViewIndexesInput>, Prisma.WorkspaceUncheckedUpdateWithoutViewIndexesInput>
+}
+
+export type WorkspaceCreateNestedOneWithoutManifestsInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutManifestsInput, Prisma.WorkspaceUncheckedCreateWithoutManifestsInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutManifestsInput
+  connect?: Prisma.WorkspaceWhereUniqueInput
+}
+
+export type WorkspaceUpdateOneRequiredWithoutManifestsNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutManifestsInput, Prisma.WorkspaceUncheckedCreateWithoutManifestsInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutManifestsInput
+  upsert?: Prisma.WorkspaceUpsertWithoutManifestsInput
+  connect?: Prisma.WorkspaceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutManifestsInput, Prisma.WorkspaceUpdateWithoutManifestsInput>, Prisma.WorkspaceUncheckedUpdateWithoutManifestsInput>
 }
 
 export type WorkspaceCreateNestedOneWithoutLlmUsageEventsInput = {
@@ -657,70 +635,86 @@ export type WorkspaceUpdateOneRequiredWithoutMonthlyUsageNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutMonthlyUsageInput, Prisma.WorkspaceUpdateWithoutMonthlyUsageInput>, Prisma.WorkspaceUncheckedUpdateWithoutMonthlyUsageInput>
 }
 
-export type WorkspaceCreateWithoutCreatedByInput = {
+export type WorkspaceCreateNestedOneWithoutStripeEventsInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutStripeEventsInput, Prisma.WorkspaceUncheckedCreateWithoutStripeEventsInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutStripeEventsInput
+  connect?: Prisma.WorkspaceWhereUniqueInput
+}
+
+export type WorkspaceUpdateOneWithoutStripeEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutStripeEventsInput, Prisma.WorkspaceUncheckedCreateWithoutStripeEventsInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutStripeEventsInput
+  upsert?: Prisma.WorkspaceUpsertWithoutStripeEventsInput
+  disconnect?: Prisma.WorkspaceWhereInput | boolean
+  delete?: Prisma.WorkspaceWhereInput | boolean
+  connect?: Prisma.WorkspaceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutStripeEventsInput, Prisma.WorkspaceUpdateWithoutStripeEventsInput>, Prisma.WorkspaceUncheckedUpdateWithoutStripeEventsInput>
+}
+
+export type WorkspaceCreateWithoutOwnerInput = {
   id?: string
   name: string
-  tier?: $Enums.WorkspaceTier
+  storageBucket: string
+  storagePrefix: string
   status?: $Enums.WorkspaceStatus
-  billingEmail?: string | null
-  stripeCustomerId?: string | null
-  stripeDefaultPaymentMethodId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutWorkspaceInput
   invitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
-  subscription?: Prisma.WorkspaceSubscriptionCreateNestedOneWithoutWorkspaceInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodCreateNestedManyWithoutWorkspaceInput
-  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutWorkspaceInput
   cases?: Prisma.CaseCreateNestedManyWithoutWorkspaceInput
+  documentIndexes?: Prisma.CaseDocumentIndexCreateNestedManyWithoutWorkspaceInput
+  recordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutWorkspaceInput
+  viewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutWorkspaceInput
+  manifests?: Prisma.CaseStateManifestCreateNestedManyWithoutWorkspaceInput
   llmUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutWorkspaceInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyCreateNestedManyWithoutWorkspaceInput
+  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutWorkspaceInput
 }
 
-export type WorkspaceUncheckedCreateWithoutCreatedByInput = {
+export type WorkspaceUncheckedCreateWithoutOwnerInput = {
   id?: string
   name: string
-  tier?: $Enums.WorkspaceTier
+  storageBucket: string
+  storagePrefix: string
   status?: $Enums.WorkspaceStatus
-  billingEmail?: string | null
-  stripeCustomerId?: string | null
-  stripeDefaultPaymentMethodId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutWorkspaceInput
   invitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
-  subscription?: Prisma.WorkspaceSubscriptionUncheckedCreateNestedOneWithoutWorkspaceInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodUncheckedCreateNestedManyWithoutWorkspaceInput
-  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutWorkspaceInput
   cases?: Prisma.CaseUncheckedCreateNestedManyWithoutWorkspaceInput
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  manifests?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutWorkspaceInput
   llmUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyUncheckedCreateNestedManyWithoutWorkspaceInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
-export type WorkspaceCreateOrConnectWithoutCreatedByInput = {
+export type WorkspaceCreateOrConnectWithoutOwnerInput = {
   where: Prisma.WorkspaceWhereUniqueInput
-  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutCreatedByInput, Prisma.WorkspaceUncheckedCreateWithoutCreatedByInput>
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutOwnerInput, Prisma.WorkspaceUncheckedCreateWithoutOwnerInput>
 }
 
-export type WorkspaceCreateManyCreatedByInputEnvelope = {
-  data: Prisma.WorkspaceCreateManyCreatedByInput | Prisma.WorkspaceCreateManyCreatedByInput[]
+export type WorkspaceCreateManyOwnerInputEnvelope = {
+  data: Prisma.WorkspaceCreateManyOwnerInput | Prisma.WorkspaceCreateManyOwnerInput[]
   skipDuplicates?: boolean
 }
 
-export type WorkspaceUpsertWithWhereUniqueWithoutCreatedByInput = {
+export type WorkspaceUpsertWithWhereUniqueWithoutOwnerInput = {
   where: Prisma.WorkspaceWhereUniqueInput
-  update: Prisma.XOR<Prisma.WorkspaceUpdateWithoutCreatedByInput, Prisma.WorkspaceUncheckedUpdateWithoutCreatedByInput>
-  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutCreatedByInput, Prisma.WorkspaceUncheckedCreateWithoutCreatedByInput>
+  update: Prisma.XOR<Prisma.WorkspaceUpdateWithoutOwnerInput, Prisma.WorkspaceUncheckedUpdateWithoutOwnerInput>
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutOwnerInput, Prisma.WorkspaceUncheckedCreateWithoutOwnerInput>
 }
 
-export type WorkspaceUpdateWithWhereUniqueWithoutCreatedByInput = {
+export type WorkspaceUpdateWithWhereUniqueWithoutOwnerInput = {
   where: Prisma.WorkspaceWhereUniqueInput
-  data: Prisma.XOR<Prisma.WorkspaceUpdateWithoutCreatedByInput, Prisma.WorkspaceUncheckedUpdateWithoutCreatedByInput>
+  data: Prisma.XOR<Prisma.WorkspaceUpdateWithoutOwnerInput, Prisma.WorkspaceUncheckedUpdateWithoutOwnerInput>
 }
 
-export type WorkspaceUpdateManyWithWhereWithoutCreatedByInput = {
+export type WorkspaceUpdateManyWithWhereWithoutOwnerInput = {
   where: Prisma.WorkspaceScalarWhereInput
-  data: Prisma.XOR<Prisma.WorkspaceUpdateManyMutationInput, Prisma.WorkspaceUncheckedUpdateManyWithoutCreatedByInput>
+  data: Prisma.XOR<Prisma.WorkspaceUpdateManyMutationInput, Prisma.WorkspaceUncheckedUpdateManyWithoutOwnerInput>
 }
 
 export type WorkspaceScalarWhereInput = {
@@ -729,12 +723,10 @@ export type WorkspaceScalarWhereInput = {
   NOT?: Prisma.WorkspaceScalarWhereInput | Prisma.WorkspaceScalarWhereInput[]
   id?: Prisma.UuidFilter<"Workspace"> | string
   name?: Prisma.StringFilter<"Workspace"> | string
-  createdByUserId?: Prisma.UuidFilter<"Workspace"> | string
-  tier?: Prisma.EnumWorkspaceTierFilter<"Workspace"> | $Enums.WorkspaceTier
+  ownerUserId?: Prisma.UuidFilter<"Workspace"> | string
+  storageBucket?: Prisma.StringFilter<"Workspace"> | string
+  storagePrefix?: Prisma.StringFilter<"Workspace"> | string
   status?: Prisma.EnumWorkspaceStatusFilter<"Workspace"> | $Enums.WorkspaceStatus
-  billingEmail?: Prisma.StringNullableFilter<"Workspace"> | string | null
-  stripeCustomerId?: Prisma.StringNullableFilter<"Workspace"> | string | null
-  stripeDefaultPaymentMethodId?: Prisma.StringNullableFilter<"Workspace"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Workspace"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Workspace"> | Date | string
 }
@@ -742,41 +734,41 @@ export type WorkspaceScalarWhereInput = {
 export type WorkspaceCreateWithoutMembershipsInput = {
   id?: string
   name: string
-  tier?: $Enums.WorkspaceTier
+  storageBucket: string
+  storagePrefix: string
   status?: $Enums.WorkspaceStatus
-  billingEmail?: string | null
-  stripeCustomerId?: string | null
-  stripeDefaultPaymentMethodId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  createdBy: Prisma.UserCreateNestedOneWithoutCreatedWorkspacesInput
+  owner: Prisma.UserCreateNestedOneWithoutOwnedWorkspacesInput
   invitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
-  subscription?: Prisma.WorkspaceSubscriptionCreateNestedOneWithoutWorkspaceInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodCreateNestedManyWithoutWorkspaceInput
-  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutWorkspaceInput
   cases?: Prisma.CaseCreateNestedManyWithoutWorkspaceInput
+  documentIndexes?: Prisma.CaseDocumentIndexCreateNestedManyWithoutWorkspaceInput
+  recordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutWorkspaceInput
+  viewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutWorkspaceInput
+  manifests?: Prisma.CaseStateManifestCreateNestedManyWithoutWorkspaceInput
   llmUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutWorkspaceInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyCreateNestedManyWithoutWorkspaceInput
+  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutMembershipsInput = {
   id?: string
   name: string
-  createdByUserId: string
-  tier?: $Enums.WorkspaceTier
+  ownerUserId: string
+  storageBucket: string
+  storagePrefix: string
   status?: $Enums.WorkspaceStatus
-  billingEmail?: string | null
-  stripeCustomerId?: string | null
-  stripeDefaultPaymentMethodId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   invitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
-  subscription?: Prisma.WorkspaceSubscriptionUncheckedCreateNestedOneWithoutWorkspaceInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodUncheckedCreateNestedManyWithoutWorkspaceInput
-  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutWorkspaceInput
   cases?: Prisma.CaseUncheckedCreateNestedManyWithoutWorkspaceInput
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  manifests?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutWorkspaceInput
   llmUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyUncheckedCreateNestedManyWithoutWorkspaceInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutMembershipsInput = {
@@ -798,81 +790,81 @@ export type WorkspaceUpdateToOneWithWhereWithoutMembershipsInput = {
 export type WorkspaceUpdateWithoutMembershipsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  tier?: Prisma.EnumWorkspaceTierFieldUpdateOperationsInput | $Enums.WorkspaceTier
+  storageBucket?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePrefix?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
-  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedWorkspacesNestedInput
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
   invitations?: Prisma.WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
-  subscription?: Prisma.WorkspaceSubscriptionUpdateOneWithoutWorkspaceNestedInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodUpdateManyWithoutWorkspaceNestedInput
-  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutWorkspaceNestedInput
   cases?: Prisma.CaseUpdateManyWithoutWorkspaceNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUpdateManyWithoutWorkspaceNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutWorkspaceNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutWorkspaceNestedInput
+  manifests?: Prisma.CaseStateManifestUpdateManyWithoutWorkspaceNestedInput
   llmUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutWorkspaceNestedInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyUpdateManyWithoutWorkspaceNestedInput
+  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutMembershipsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
-  tier?: Prisma.EnumWorkspaceTierFieldUpdateOperationsInput | $Enums.WorkspaceTier
+  ownerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  storageBucket?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePrefix?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
-  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
-  subscription?: Prisma.WorkspaceSubscriptionUncheckedUpdateOneWithoutWorkspaceNestedInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodUncheckedUpdateManyWithoutWorkspaceNestedInput
-  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutWorkspaceNestedInput
   cases?: Prisma.CaseUncheckedUpdateManyWithoutWorkspaceNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  manifests?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutWorkspaceNestedInput
   llmUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutWorkspaceNestedInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutInvitationsInput = {
   id?: string
   name: string
-  tier?: $Enums.WorkspaceTier
+  storageBucket: string
+  storagePrefix: string
   status?: $Enums.WorkspaceStatus
-  billingEmail?: string | null
-  stripeCustomerId?: string | null
-  stripeDefaultPaymentMethodId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  createdBy: Prisma.UserCreateNestedOneWithoutCreatedWorkspacesInput
+  owner: Prisma.UserCreateNestedOneWithoutOwnedWorkspacesInput
   memberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutWorkspaceInput
-  subscription?: Prisma.WorkspaceSubscriptionCreateNestedOneWithoutWorkspaceInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodCreateNestedManyWithoutWorkspaceInput
-  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutWorkspaceInput
   cases?: Prisma.CaseCreateNestedManyWithoutWorkspaceInput
+  documentIndexes?: Prisma.CaseDocumentIndexCreateNestedManyWithoutWorkspaceInput
+  recordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutWorkspaceInput
+  viewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutWorkspaceInput
+  manifests?: Prisma.CaseStateManifestCreateNestedManyWithoutWorkspaceInput
   llmUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutWorkspaceInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyCreateNestedManyWithoutWorkspaceInput
+  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutInvitationsInput = {
   id?: string
   name: string
-  createdByUserId: string
-  tier?: $Enums.WorkspaceTier
+  ownerUserId: string
+  storageBucket: string
+  storagePrefix: string
   status?: $Enums.WorkspaceStatus
-  billingEmail?: string | null
-  stripeCustomerId?: string | null
-  stripeDefaultPaymentMethodId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutWorkspaceInput
-  subscription?: Prisma.WorkspaceSubscriptionUncheckedCreateNestedOneWithoutWorkspaceInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodUncheckedCreateNestedManyWithoutWorkspaceInput
-  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutWorkspaceInput
   cases?: Prisma.CaseUncheckedCreateNestedManyWithoutWorkspaceInput
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  manifests?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutWorkspaceInput
   llmUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyUncheckedCreateNestedManyWithoutWorkspaceInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutInvitationsInput = {
@@ -894,251 +886,731 @@ export type WorkspaceUpdateToOneWithWhereWithoutInvitationsInput = {
 export type WorkspaceUpdateWithoutInvitationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  tier?: Prisma.EnumWorkspaceTierFieldUpdateOperationsInput | $Enums.WorkspaceTier
+  storageBucket?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePrefix?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
-  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedWorkspacesNestedInput
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
   memberships?: Prisma.WorkspaceMembershipUpdateManyWithoutWorkspaceNestedInput
-  subscription?: Prisma.WorkspaceSubscriptionUpdateOneWithoutWorkspaceNestedInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodUpdateManyWithoutWorkspaceNestedInput
-  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutWorkspaceNestedInput
   cases?: Prisma.CaseUpdateManyWithoutWorkspaceNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUpdateManyWithoutWorkspaceNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutWorkspaceNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutWorkspaceNestedInput
+  manifests?: Prisma.CaseStateManifestUpdateManyWithoutWorkspaceNestedInput
   llmUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutWorkspaceNestedInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyUpdateManyWithoutWorkspaceNestedInput
+  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutInvitationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
-  tier?: Prisma.EnumWorkspaceTierFieldUpdateOperationsInput | $Enums.WorkspaceTier
+  ownerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  storageBucket?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePrefix?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
-  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutWorkspaceNestedInput
-  subscription?: Prisma.WorkspaceSubscriptionUncheckedUpdateOneWithoutWorkspaceNestedInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodUncheckedUpdateManyWithoutWorkspaceNestedInput
-  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutWorkspaceNestedInput
   cases?: Prisma.CaseUncheckedUpdateManyWithoutWorkspaceNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  manifests?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutWorkspaceNestedInput
   llmUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutWorkspaceNestedInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
-export type WorkspaceCreateWithoutSubscriptionInput = {
+export type WorkspaceCreateWithoutCasesInput = {
   id?: string
   name: string
-  tier?: $Enums.WorkspaceTier
+  storageBucket: string
+  storagePrefix: string
   status?: $Enums.WorkspaceStatus
-  billingEmail?: string | null
-  stripeCustomerId?: string | null
-  stripeDefaultPaymentMethodId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  createdBy: Prisma.UserCreateNestedOneWithoutCreatedWorkspacesInput
+  owner: Prisma.UserCreateNestedOneWithoutOwnedWorkspacesInput
   memberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutWorkspaceInput
   invitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodCreateNestedManyWithoutWorkspaceInput
-  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutWorkspaceInput
-  cases?: Prisma.CaseCreateNestedManyWithoutWorkspaceInput
+  documentIndexes?: Prisma.CaseDocumentIndexCreateNestedManyWithoutWorkspaceInput
+  recordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutWorkspaceInput
+  viewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutWorkspaceInput
+  manifests?: Prisma.CaseStateManifestCreateNestedManyWithoutWorkspaceInput
   llmUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutWorkspaceInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyCreateNestedManyWithoutWorkspaceInput
+  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutWorkspaceInput
 }
 
-export type WorkspaceUncheckedCreateWithoutSubscriptionInput = {
+export type WorkspaceUncheckedCreateWithoutCasesInput = {
   id?: string
   name: string
-  createdByUserId: string
-  tier?: $Enums.WorkspaceTier
+  ownerUserId: string
+  storageBucket: string
+  storagePrefix: string
   status?: $Enums.WorkspaceStatus
-  billingEmail?: string | null
-  stripeCustomerId?: string | null
-  stripeDefaultPaymentMethodId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutWorkspaceInput
   invitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodUncheckedCreateNestedManyWithoutWorkspaceInput
-  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutWorkspaceInput
-  cases?: Prisma.CaseUncheckedCreateNestedManyWithoutWorkspaceInput
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  manifests?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutWorkspaceInput
   llmUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyUncheckedCreateNestedManyWithoutWorkspaceInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
-export type WorkspaceCreateOrConnectWithoutSubscriptionInput = {
+export type WorkspaceCreateOrConnectWithoutCasesInput = {
   where: Prisma.WorkspaceWhereUniqueInput
-  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutSubscriptionInput, Prisma.WorkspaceUncheckedCreateWithoutSubscriptionInput>
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutCasesInput, Prisma.WorkspaceUncheckedCreateWithoutCasesInput>
 }
 
-export type WorkspaceUpsertWithoutSubscriptionInput = {
-  update: Prisma.XOR<Prisma.WorkspaceUpdateWithoutSubscriptionInput, Prisma.WorkspaceUncheckedUpdateWithoutSubscriptionInput>
-  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutSubscriptionInput, Prisma.WorkspaceUncheckedCreateWithoutSubscriptionInput>
+export type WorkspaceUpsertWithoutCasesInput = {
+  update: Prisma.XOR<Prisma.WorkspaceUpdateWithoutCasesInput, Prisma.WorkspaceUncheckedUpdateWithoutCasesInput>
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutCasesInput, Prisma.WorkspaceUncheckedCreateWithoutCasesInput>
   where?: Prisma.WorkspaceWhereInput
 }
 
-export type WorkspaceUpdateToOneWithWhereWithoutSubscriptionInput = {
+export type WorkspaceUpdateToOneWithWhereWithoutCasesInput = {
   where?: Prisma.WorkspaceWhereInput
-  data: Prisma.XOR<Prisma.WorkspaceUpdateWithoutSubscriptionInput, Prisma.WorkspaceUncheckedUpdateWithoutSubscriptionInput>
+  data: Prisma.XOR<Prisma.WorkspaceUpdateWithoutCasesInput, Prisma.WorkspaceUncheckedUpdateWithoutCasesInput>
 }
 
-export type WorkspaceUpdateWithoutSubscriptionInput = {
+export type WorkspaceUpdateWithoutCasesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  tier?: Prisma.EnumWorkspaceTierFieldUpdateOperationsInput | $Enums.WorkspaceTier
+  storageBucket?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePrefix?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
-  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedWorkspacesNestedInput
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
   memberships?: Prisma.WorkspaceMembershipUpdateManyWithoutWorkspaceNestedInput
   invitations?: Prisma.WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodUpdateManyWithoutWorkspaceNestedInput
-  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutWorkspaceNestedInput
-  cases?: Prisma.CaseUpdateManyWithoutWorkspaceNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUpdateManyWithoutWorkspaceNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutWorkspaceNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutWorkspaceNestedInput
+  manifests?: Prisma.CaseStateManifestUpdateManyWithoutWorkspaceNestedInput
   llmUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutWorkspaceNestedInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyUpdateManyWithoutWorkspaceNestedInput
+  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutWorkspaceNestedInput
 }
 
-export type WorkspaceUncheckedUpdateWithoutSubscriptionInput = {
+export type WorkspaceUncheckedUpdateWithoutCasesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
-  tier?: Prisma.EnumWorkspaceTierFieldUpdateOperationsInput | $Enums.WorkspaceTier
+  ownerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  storageBucket?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePrefix?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
-  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutWorkspaceNestedInput
   invitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodUncheckedUpdateManyWithoutWorkspaceNestedInput
-  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutWorkspaceNestedInput
-  cases?: Prisma.CaseUncheckedUpdateManyWithoutWorkspaceNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  manifests?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutWorkspaceNestedInput
   llmUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutWorkspaceNestedInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
-export type WorkspaceCreateWithoutPaymentMethodsInput = {
+export type WorkspaceCreateWithoutDocumentIndexesInput = {
   id?: string
   name: string
-  tier?: $Enums.WorkspaceTier
+  storageBucket: string
+  storagePrefix: string
   status?: $Enums.WorkspaceStatus
-  billingEmail?: string | null
-  stripeCustomerId?: string | null
-  stripeDefaultPaymentMethodId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  createdBy: Prisma.UserCreateNestedOneWithoutCreatedWorkspacesInput
+  owner: Prisma.UserCreateNestedOneWithoutOwnedWorkspacesInput
   memberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutWorkspaceInput
   invitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
-  subscription?: Prisma.WorkspaceSubscriptionCreateNestedOneWithoutWorkspaceInput
-  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutWorkspaceInput
   cases?: Prisma.CaseCreateNestedManyWithoutWorkspaceInput
+  recordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutWorkspaceInput
+  viewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutWorkspaceInput
+  manifests?: Prisma.CaseStateManifestCreateNestedManyWithoutWorkspaceInput
   llmUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutWorkspaceInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyCreateNestedManyWithoutWorkspaceInput
+  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutWorkspaceInput
 }
 
-export type WorkspaceUncheckedCreateWithoutPaymentMethodsInput = {
+export type WorkspaceUncheckedCreateWithoutDocumentIndexesInput = {
   id?: string
   name: string
-  createdByUserId: string
-  tier?: $Enums.WorkspaceTier
+  ownerUserId: string
+  storageBucket: string
+  storagePrefix: string
   status?: $Enums.WorkspaceStatus
-  billingEmail?: string | null
-  stripeCustomerId?: string | null
-  stripeDefaultPaymentMethodId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutWorkspaceInput
   invitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
-  subscription?: Prisma.WorkspaceSubscriptionUncheckedCreateNestedOneWithoutWorkspaceInput
-  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutWorkspaceInput
   cases?: Prisma.CaseUncheckedCreateNestedManyWithoutWorkspaceInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  manifests?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutWorkspaceInput
   llmUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyUncheckedCreateNestedManyWithoutWorkspaceInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
-export type WorkspaceCreateOrConnectWithoutPaymentMethodsInput = {
+export type WorkspaceCreateOrConnectWithoutDocumentIndexesInput = {
   where: Prisma.WorkspaceWhereUniqueInput
-  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutPaymentMethodsInput, Prisma.WorkspaceUncheckedCreateWithoutPaymentMethodsInput>
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutDocumentIndexesInput, Prisma.WorkspaceUncheckedCreateWithoutDocumentIndexesInput>
 }
 
-export type WorkspaceUpsertWithoutPaymentMethodsInput = {
-  update: Prisma.XOR<Prisma.WorkspaceUpdateWithoutPaymentMethodsInput, Prisma.WorkspaceUncheckedUpdateWithoutPaymentMethodsInput>
-  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutPaymentMethodsInput, Prisma.WorkspaceUncheckedCreateWithoutPaymentMethodsInput>
+export type WorkspaceUpsertWithoutDocumentIndexesInput = {
+  update: Prisma.XOR<Prisma.WorkspaceUpdateWithoutDocumentIndexesInput, Prisma.WorkspaceUncheckedUpdateWithoutDocumentIndexesInput>
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutDocumentIndexesInput, Prisma.WorkspaceUncheckedCreateWithoutDocumentIndexesInput>
   where?: Prisma.WorkspaceWhereInput
 }
 
-export type WorkspaceUpdateToOneWithWhereWithoutPaymentMethodsInput = {
+export type WorkspaceUpdateToOneWithWhereWithoutDocumentIndexesInput = {
   where?: Prisma.WorkspaceWhereInput
-  data: Prisma.XOR<Prisma.WorkspaceUpdateWithoutPaymentMethodsInput, Prisma.WorkspaceUncheckedUpdateWithoutPaymentMethodsInput>
+  data: Prisma.XOR<Prisma.WorkspaceUpdateWithoutDocumentIndexesInput, Prisma.WorkspaceUncheckedUpdateWithoutDocumentIndexesInput>
 }
 
-export type WorkspaceUpdateWithoutPaymentMethodsInput = {
+export type WorkspaceUpdateWithoutDocumentIndexesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  tier?: Prisma.EnumWorkspaceTierFieldUpdateOperationsInput | $Enums.WorkspaceTier
+  storageBucket?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePrefix?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
-  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedWorkspacesNestedInput
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
   memberships?: Prisma.WorkspaceMembershipUpdateManyWithoutWorkspaceNestedInput
   invitations?: Prisma.WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
-  subscription?: Prisma.WorkspaceSubscriptionUpdateOneWithoutWorkspaceNestedInput
-  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutWorkspaceNestedInput
   cases?: Prisma.CaseUpdateManyWithoutWorkspaceNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutWorkspaceNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutWorkspaceNestedInput
+  manifests?: Prisma.CaseStateManifestUpdateManyWithoutWorkspaceNestedInput
   llmUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutWorkspaceNestedInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyUpdateManyWithoutWorkspaceNestedInput
+  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutWorkspaceNestedInput
 }
 
-export type WorkspaceUncheckedUpdateWithoutPaymentMethodsInput = {
+export type WorkspaceUncheckedUpdateWithoutDocumentIndexesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
-  tier?: Prisma.EnumWorkspaceTierFieldUpdateOperationsInput | $Enums.WorkspaceTier
+  ownerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  storageBucket?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePrefix?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
-  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutWorkspaceNestedInput
   invitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
-  subscription?: Prisma.WorkspaceSubscriptionUncheckedUpdateOneWithoutWorkspaceNestedInput
-  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutWorkspaceNestedInput
   cases?: Prisma.CaseUncheckedUpdateManyWithoutWorkspaceNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  manifests?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutWorkspaceNestedInput
   llmUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutWorkspaceNestedInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutWorkspaceNestedInput
+}
+
+export type WorkspaceCreateWithoutRecordIndexesInput = {
+  id?: string
+  name: string
+  storageBucket: string
+  storagePrefix: string
+  status?: $Enums.WorkspaceStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  owner: Prisma.UserCreateNestedOneWithoutOwnedWorkspacesInput
+  memberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutWorkspaceInput
+  invitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
+  cases?: Prisma.CaseCreateNestedManyWithoutWorkspaceInput
+  documentIndexes?: Prisma.CaseDocumentIndexCreateNestedManyWithoutWorkspaceInput
+  viewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutWorkspaceInput
+  manifests?: Prisma.CaseStateManifestCreateNestedManyWithoutWorkspaceInput
+  llmUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutWorkspaceInput
+  monthlyUsage?: Prisma.WorkspaceUsageMonthlyCreateNestedManyWithoutWorkspaceInput
+  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutWorkspaceInput
+}
+
+export type WorkspaceUncheckedCreateWithoutRecordIndexesInput = {
+  id?: string
+  name: string
+  ownerUserId: string
+  storageBucket: string
+  storagePrefix: string
+  status?: $Enums.WorkspaceStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutWorkspaceInput
+  invitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
+  cases?: Prisma.CaseUncheckedCreateNestedManyWithoutWorkspaceInput
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  manifests?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutWorkspaceInput
+  llmUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
+  monthlyUsage?: Prisma.WorkspaceUsageMonthlyUncheckedCreateNestedManyWithoutWorkspaceInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutWorkspaceInput
+}
+
+export type WorkspaceCreateOrConnectWithoutRecordIndexesInput = {
+  where: Prisma.WorkspaceWhereUniqueInput
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutRecordIndexesInput, Prisma.WorkspaceUncheckedCreateWithoutRecordIndexesInput>
+}
+
+export type WorkspaceUpsertWithoutRecordIndexesInput = {
+  update: Prisma.XOR<Prisma.WorkspaceUpdateWithoutRecordIndexesInput, Prisma.WorkspaceUncheckedUpdateWithoutRecordIndexesInput>
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutRecordIndexesInput, Prisma.WorkspaceUncheckedCreateWithoutRecordIndexesInput>
+  where?: Prisma.WorkspaceWhereInput
+}
+
+export type WorkspaceUpdateToOneWithWhereWithoutRecordIndexesInput = {
+  where?: Prisma.WorkspaceWhereInput
+  data: Prisma.XOR<Prisma.WorkspaceUpdateWithoutRecordIndexesInput, Prisma.WorkspaceUncheckedUpdateWithoutRecordIndexesInput>
+}
+
+export type WorkspaceUpdateWithoutRecordIndexesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  storageBucket?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
+  memberships?: Prisma.WorkspaceMembershipUpdateManyWithoutWorkspaceNestedInput
+  invitations?: Prisma.WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
+  cases?: Prisma.CaseUpdateManyWithoutWorkspaceNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUpdateManyWithoutWorkspaceNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutWorkspaceNestedInput
+  manifests?: Prisma.CaseStateManifestUpdateManyWithoutWorkspaceNestedInput
+  llmUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutWorkspaceNestedInput
+  monthlyUsage?: Prisma.WorkspaceUsageMonthlyUpdateManyWithoutWorkspaceNestedInput
+  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutWorkspaceNestedInput
+}
+
+export type WorkspaceUncheckedUpdateWithoutRecordIndexesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  storageBucket?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutWorkspaceNestedInput
+  invitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
+  cases?: Prisma.CaseUncheckedUpdateManyWithoutWorkspaceNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  manifests?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutWorkspaceNestedInput
+  llmUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
+  monthlyUsage?: Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutWorkspaceNestedInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutWorkspaceNestedInput
+}
+
+export type WorkspaceCreateWithoutViewIndexesInput = {
+  id?: string
+  name: string
+  storageBucket: string
+  storagePrefix: string
+  status?: $Enums.WorkspaceStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  owner: Prisma.UserCreateNestedOneWithoutOwnedWorkspacesInput
+  memberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutWorkspaceInput
+  invitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
+  cases?: Prisma.CaseCreateNestedManyWithoutWorkspaceInput
+  documentIndexes?: Prisma.CaseDocumentIndexCreateNestedManyWithoutWorkspaceInput
+  recordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutWorkspaceInput
+  manifests?: Prisma.CaseStateManifestCreateNestedManyWithoutWorkspaceInput
+  llmUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutWorkspaceInput
+  monthlyUsage?: Prisma.WorkspaceUsageMonthlyCreateNestedManyWithoutWorkspaceInput
+  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutWorkspaceInput
+}
+
+export type WorkspaceUncheckedCreateWithoutViewIndexesInput = {
+  id?: string
+  name: string
+  ownerUserId: string
+  storageBucket: string
+  storagePrefix: string
+  status?: $Enums.WorkspaceStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutWorkspaceInput
+  invitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
+  cases?: Prisma.CaseUncheckedCreateNestedManyWithoutWorkspaceInput
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  manifests?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutWorkspaceInput
+  llmUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
+  monthlyUsage?: Prisma.WorkspaceUsageMonthlyUncheckedCreateNestedManyWithoutWorkspaceInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutWorkspaceInput
+}
+
+export type WorkspaceCreateOrConnectWithoutViewIndexesInput = {
+  where: Prisma.WorkspaceWhereUniqueInput
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutViewIndexesInput, Prisma.WorkspaceUncheckedCreateWithoutViewIndexesInput>
+}
+
+export type WorkspaceUpsertWithoutViewIndexesInput = {
+  update: Prisma.XOR<Prisma.WorkspaceUpdateWithoutViewIndexesInput, Prisma.WorkspaceUncheckedUpdateWithoutViewIndexesInput>
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutViewIndexesInput, Prisma.WorkspaceUncheckedCreateWithoutViewIndexesInput>
+  where?: Prisma.WorkspaceWhereInput
+}
+
+export type WorkspaceUpdateToOneWithWhereWithoutViewIndexesInput = {
+  where?: Prisma.WorkspaceWhereInput
+  data: Prisma.XOR<Prisma.WorkspaceUpdateWithoutViewIndexesInput, Prisma.WorkspaceUncheckedUpdateWithoutViewIndexesInput>
+}
+
+export type WorkspaceUpdateWithoutViewIndexesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  storageBucket?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
+  memberships?: Prisma.WorkspaceMembershipUpdateManyWithoutWorkspaceNestedInput
+  invitations?: Prisma.WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
+  cases?: Prisma.CaseUpdateManyWithoutWorkspaceNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUpdateManyWithoutWorkspaceNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutWorkspaceNestedInput
+  manifests?: Prisma.CaseStateManifestUpdateManyWithoutWorkspaceNestedInput
+  llmUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutWorkspaceNestedInput
+  monthlyUsage?: Prisma.WorkspaceUsageMonthlyUpdateManyWithoutWorkspaceNestedInput
+  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutWorkspaceNestedInput
+}
+
+export type WorkspaceUncheckedUpdateWithoutViewIndexesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  storageBucket?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutWorkspaceNestedInput
+  invitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
+  cases?: Prisma.CaseUncheckedUpdateManyWithoutWorkspaceNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  manifests?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutWorkspaceNestedInput
+  llmUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
+  monthlyUsage?: Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutWorkspaceNestedInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutWorkspaceNestedInput
+}
+
+export type WorkspaceCreateWithoutManifestsInput = {
+  id?: string
+  name: string
+  storageBucket: string
+  storagePrefix: string
+  status?: $Enums.WorkspaceStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  owner: Prisma.UserCreateNestedOneWithoutOwnedWorkspacesInput
+  memberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutWorkspaceInput
+  invitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
+  cases?: Prisma.CaseCreateNestedManyWithoutWorkspaceInput
+  documentIndexes?: Prisma.CaseDocumentIndexCreateNestedManyWithoutWorkspaceInput
+  recordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutWorkspaceInput
+  viewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutWorkspaceInput
+  llmUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutWorkspaceInput
+  monthlyUsage?: Prisma.WorkspaceUsageMonthlyCreateNestedManyWithoutWorkspaceInput
+  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutWorkspaceInput
+}
+
+export type WorkspaceUncheckedCreateWithoutManifestsInput = {
+  id?: string
+  name: string
+  ownerUserId: string
+  storageBucket: string
+  storagePrefix: string
+  status?: $Enums.WorkspaceStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutWorkspaceInput
+  invitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
+  cases?: Prisma.CaseUncheckedCreateNestedManyWithoutWorkspaceInput
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  llmUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
+  monthlyUsage?: Prisma.WorkspaceUsageMonthlyUncheckedCreateNestedManyWithoutWorkspaceInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutWorkspaceInput
+}
+
+export type WorkspaceCreateOrConnectWithoutManifestsInput = {
+  where: Prisma.WorkspaceWhereUniqueInput
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutManifestsInput, Prisma.WorkspaceUncheckedCreateWithoutManifestsInput>
+}
+
+export type WorkspaceUpsertWithoutManifestsInput = {
+  update: Prisma.XOR<Prisma.WorkspaceUpdateWithoutManifestsInput, Prisma.WorkspaceUncheckedUpdateWithoutManifestsInput>
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutManifestsInput, Prisma.WorkspaceUncheckedCreateWithoutManifestsInput>
+  where?: Prisma.WorkspaceWhereInput
+}
+
+export type WorkspaceUpdateToOneWithWhereWithoutManifestsInput = {
+  where?: Prisma.WorkspaceWhereInput
+  data: Prisma.XOR<Prisma.WorkspaceUpdateWithoutManifestsInput, Prisma.WorkspaceUncheckedUpdateWithoutManifestsInput>
+}
+
+export type WorkspaceUpdateWithoutManifestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  storageBucket?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
+  memberships?: Prisma.WorkspaceMembershipUpdateManyWithoutWorkspaceNestedInput
+  invitations?: Prisma.WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
+  cases?: Prisma.CaseUpdateManyWithoutWorkspaceNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUpdateManyWithoutWorkspaceNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutWorkspaceNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutWorkspaceNestedInput
+  llmUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutWorkspaceNestedInput
+  monthlyUsage?: Prisma.WorkspaceUsageMonthlyUpdateManyWithoutWorkspaceNestedInput
+  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutWorkspaceNestedInput
+}
+
+export type WorkspaceUncheckedUpdateWithoutManifestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  storageBucket?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutWorkspaceNestedInput
+  invitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
+  cases?: Prisma.CaseUncheckedUpdateManyWithoutWorkspaceNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  llmUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
+  monthlyUsage?: Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutWorkspaceNestedInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutWorkspaceNestedInput
+}
+
+export type WorkspaceCreateWithoutLlmUsageEventsInput = {
+  id?: string
+  name: string
+  storageBucket: string
+  storagePrefix: string
+  status?: $Enums.WorkspaceStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  owner: Prisma.UserCreateNestedOneWithoutOwnedWorkspacesInput
+  memberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutWorkspaceInput
+  invitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
+  cases?: Prisma.CaseCreateNestedManyWithoutWorkspaceInput
+  documentIndexes?: Prisma.CaseDocumentIndexCreateNestedManyWithoutWorkspaceInput
+  recordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutWorkspaceInput
+  viewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutWorkspaceInput
+  manifests?: Prisma.CaseStateManifestCreateNestedManyWithoutWorkspaceInput
+  monthlyUsage?: Prisma.WorkspaceUsageMonthlyCreateNestedManyWithoutWorkspaceInput
+  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutWorkspaceInput
+}
+
+export type WorkspaceUncheckedCreateWithoutLlmUsageEventsInput = {
+  id?: string
+  name: string
+  ownerUserId: string
+  storageBucket: string
+  storagePrefix: string
+  status?: $Enums.WorkspaceStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutWorkspaceInput
+  invitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
+  cases?: Prisma.CaseUncheckedCreateNestedManyWithoutWorkspaceInput
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  manifests?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutWorkspaceInput
+  monthlyUsage?: Prisma.WorkspaceUsageMonthlyUncheckedCreateNestedManyWithoutWorkspaceInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutWorkspaceInput
+}
+
+export type WorkspaceCreateOrConnectWithoutLlmUsageEventsInput = {
+  where: Prisma.WorkspaceWhereUniqueInput
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutLlmUsageEventsInput, Prisma.WorkspaceUncheckedCreateWithoutLlmUsageEventsInput>
+}
+
+export type WorkspaceUpsertWithoutLlmUsageEventsInput = {
+  update: Prisma.XOR<Prisma.WorkspaceUpdateWithoutLlmUsageEventsInput, Prisma.WorkspaceUncheckedUpdateWithoutLlmUsageEventsInput>
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutLlmUsageEventsInput, Prisma.WorkspaceUncheckedCreateWithoutLlmUsageEventsInput>
+  where?: Prisma.WorkspaceWhereInput
+}
+
+export type WorkspaceUpdateToOneWithWhereWithoutLlmUsageEventsInput = {
+  where?: Prisma.WorkspaceWhereInput
+  data: Prisma.XOR<Prisma.WorkspaceUpdateWithoutLlmUsageEventsInput, Prisma.WorkspaceUncheckedUpdateWithoutLlmUsageEventsInput>
+}
+
+export type WorkspaceUpdateWithoutLlmUsageEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  storageBucket?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
+  memberships?: Prisma.WorkspaceMembershipUpdateManyWithoutWorkspaceNestedInput
+  invitations?: Prisma.WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
+  cases?: Prisma.CaseUpdateManyWithoutWorkspaceNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUpdateManyWithoutWorkspaceNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutWorkspaceNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutWorkspaceNestedInput
+  manifests?: Prisma.CaseStateManifestUpdateManyWithoutWorkspaceNestedInput
+  monthlyUsage?: Prisma.WorkspaceUsageMonthlyUpdateManyWithoutWorkspaceNestedInput
+  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutWorkspaceNestedInput
+}
+
+export type WorkspaceUncheckedUpdateWithoutLlmUsageEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  storageBucket?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutWorkspaceNestedInput
+  invitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
+  cases?: Prisma.CaseUncheckedUpdateManyWithoutWorkspaceNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  manifests?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutWorkspaceNestedInput
+  monthlyUsage?: Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutWorkspaceNestedInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutWorkspaceNestedInput
+}
+
+export type WorkspaceCreateWithoutMonthlyUsageInput = {
+  id?: string
+  name: string
+  storageBucket: string
+  storagePrefix: string
+  status?: $Enums.WorkspaceStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  owner: Prisma.UserCreateNestedOneWithoutOwnedWorkspacesInput
+  memberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutWorkspaceInput
+  invitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
+  cases?: Prisma.CaseCreateNestedManyWithoutWorkspaceInput
+  documentIndexes?: Prisma.CaseDocumentIndexCreateNestedManyWithoutWorkspaceInput
+  recordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutWorkspaceInput
+  viewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutWorkspaceInput
+  manifests?: Prisma.CaseStateManifestCreateNestedManyWithoutWorkspaceInput
+  llmUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutWorkspaceInput
+  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutWorkspaceInput
+}
+
+export type WorkspaceUncheckedCreateWithoutMonthlyUsageInput = {
+  id?: string
+  name: string
+  ownerUserId: string
+  storageBucket: string
+  storagePrefix: string
+  status?: $Enums.WorkspaceStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutWorkspaceInput
+  invitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
+  cases?: Prisma.CaseUncheckedCreateNestedManyWithoutWorkspaceInput
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  manifests?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutWorkspaceInput
+  llmUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutWorkspaceInput
+}
+
+export type WorkspaceCreateOrConnectWithoutMonthlyUsageInput = {
+  where: Prisma.WorkspaceWhereUniqueInput
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutMonthlyUsageInput, Prisma.WorkspaceUncheckedCreateWithoutMonthlyUsageInput>
+}
+
+export type WorkspaceUpsertWithoutMonthlyUsageInput = {
+  update: Prisma.XOR<Prisma.WorkspaceUpdateWithoutMonthlyUsageInput, Prisma.WorkspaceUncheckedUpdateWithoutMonthlyUsageInput>
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutMonthlyUsageInput, Prisma.WorkspaceUncheckedCreateWithoutMonthlyUsageInput>
+  where?: Prisma.WorkspaceWhereInput
+}
+
+export type WorkspaceUpdateToOneWithWhereWithoutMonthlyUsageInput = {
+  where?: Prisma.WorkspaceWhereInput
+  data: Prisma.XOR<Prisma.WorkspaceUpdateWithoutMonthlyUsageInput, Prisma.WorkspaceUncheckedUpdateWithoutMonthlyUsageInput>
+}
+
+export type WorkspaceUpdateWithoutMonthlyUsageInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  storageBucket?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
+  memberships?: Prisma.WorkspaceMembershipUpdateManyWithoutWorkspaceNestedInput
+  invitations?: Prisma.WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
+  cases?: Prisma.CaseUpdateManyWithoutWorkspaceNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUpdateManyWithoutWorkspaceNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutWorkspaceNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutWorkspaceNestedInput
+  manifests?: Prisma.CaseStateManifestUpdateManyWithoutWorkspaceNestedInput
+  llmUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutWorkspaceNestedInput
+  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutWorkspaceNestedInput
+}
+
+export type WorkspaceUncheckedUpdateWithoutMonthlyUsageInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  storageBucket?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutWorkspaceNestedInput
+  invitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
+  cases?: Prisma.CaseUncheckedUpdateManyWithoutWorkspaceNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  manifests?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutWorkspaceNestedInput
+  llmUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
+  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutStripeEventsInput = {
   id?: string
   name: string
-  tier?: $Enums.WorkspaceTier
+  storageBucket: string
+  storagePrefix: string
   status?: $Enums.WorkspaceStatus
-  billingEmail?: string | null
-  stripeCustomerId?: string | null
-  stripeDefaultPaymentMethodId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  createdBy: Prisma.UserCreateNestedOneWithoutCreatedWorkspacesInput
+  owner: Prisma.UserCreateNestedOneWithoutOwnedWorkspacesInput
   memberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutWorkspaceInput
   invitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
-  subscription?: Prisma.WorkspaceSubscriptionCreateNestedOneWithoutWorkspaceInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodCreateNestedManyWithoutWorkspaceInput
   cases?: Prisma.CaseCreateNestedManyWithoutWorkspaceInput
+  documentIndexes?: Prisma.CaseDocumentIndexCreateNestedManyWithoutWorkspaceInput
+  recordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutWorkspaceInput
+  viewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutWorkspaceInput
+  manifests?: Prisma.CaseStateManifestCreateNestedManyWithoutWorkspaceInput
   llmUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutWorkspaceInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyCreateNestedManyWithoutWorkspaceInput
 }
@@ -1146,19 +1618,19 @@ export type WorkspaceCreateWithoutStripeEventsInput = {
 export type WorkspaceUncheckedCreateWithoutStripeEventsInput = {
   id?: string
   name: string
-  createdByUserId: string
-  tier?: $Enums.WorkspaceTier
+  ownerUserId: string
+  storageBucket: string
+  storagePrefix: string
   status?: $Enums.WorkspaceStatus
-  billingEmail?: string | null
-  stripeCustomerId?: string | null
-  stripeDefaultPaymentMethodId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutWorkspaceInput
   invitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
-  subscription?: Prisma.WorkspaceSubscriptionUncheckedCreateNestedOneWithoutWorkspaceInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodUncheckedCreateNestedManyWithoutWorkspaceInput
   cases?: Prisma.CaseUncheckedCreateNestedManyWithoutWorkspaceInput
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutWorkspaceInput
+  manifests?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutWorkspaceInput
   llmUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyUncheckedCreateNestedManyWithoutWorkspaceInput
 }
@@ -1182,19 +1654,19 @@ export type WorkspaceUpdateToOneWithWhereWithoutStripeEventsInput = {
 export type WorkspaceUpdateWithoutStripeEventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  tier?: Prisma.EnumWorkspaceTierFieldUpdateOperationsInput | $Enums.WorkspaceTier
+  storageBucket?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePrefix?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
-  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedWorkspacesNestedInput
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
   memberships?: Prisma.WorkspaceMembershipUpdateManyWithoutWorkspaceNestedInput
   invitations?: Prisma.WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
-  subscription?: Prisma.WorkspaceSubscriptionUpdateOneWithoutWorkspaceNestedInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodUpdateManyWithoutWorkspaceNestedInput
   cases?: Prisma.CaseUpdateManyWithoutWorkspaceNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUpdateManyWithoutWorkspaceNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutWorkspaceNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutWorkspaceNestedInput
+  manifests?: Prisma.CaseStateManifestUpdateManyWithoutWorkspaceNestedInput
   llmUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutWorkspaceNestedInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyUpdateManyWithoutWorkspaceNestedInput
 }
@@ -1202,371 +1674,79 @@ export type WorkspaceUpdateWithoutStripeEventsInput = {
 export type WorkspaceUncheckedUpdateWithoutStripeEventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
-  tier?: Prisma.EnumWorkspaceTierFieldUpdateOperationsInput | $Enums.WorkspaceTier
+  ownerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  storageBucket?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePrefix?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
-  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutWorkspaceNestedInput
   invitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
-  subscription?: Prisma.WorkspaceSubscriptionUncheckedUpdateOneWithoutWorkspaceNestedInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodUncheckedUpdateManyWithoutWorkspaceNestedInput
   cases?: Prisma.CaseUncheckedUpdateManyWithoutWorkspaceNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  manifests?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutWorkspaceNestedInput
   llmUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
-export type WorkspaceCreateWithoutCasesInput = {
+export type WorkspaceCreateManyOwnerInput = {
   id?: string
   name: string
-  tier?: $Enums.WorkspaceTier
+  storageBucket: string
+  storagePrefix: string
   status?: $Enums.WorkspaceStatus
-  billingEmail?: string | null
-  stripeCustomerId?: string | null
-  stripeDefaultPaymentMethodId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  createdBy: Prisma.UserCreateNestedOneWithoutCreatedWorkspacesInput
-  memberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
-  subscription?: Prisma.WorkspaceSubscriptionCreateNestedOneWithoutWorkspaceInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodCreateNestedManyWithoutWorkspaceInput
-  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutWorkspaceInput
-  llmUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutWorkspaceInput
-  monthlyUsage?: Prisma.WorkspaceUsageMonthlyCreateNestedManyWithoutWorkspaceInput
 }
 
-export type WorkspaceUncheckedCreateWithoutCasesInput = {
-  id?: string
-  name: string
-  createdByUserId: string
-  tier?: $Enums.WorkspaceTier
-  status?: $Enums.WorkspaceStatus
-  billingEmail?: string | null
-  stripeCustomerId?: string | null
-  stripeDefaultPaymentMethodId?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  memberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
-  subscription?: Prisma.WorkspaceSubscriptionUncheckedCreateNestedOneWithoutWorkspaceInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodUncheckedCreateNestedManyWithoutWorkspaceInput
-  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutWorkspaceInput
-  llmUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
-  monthlyUsage?: Prisma.WorkspaceUsageMonthlyUncheckedCreateNestedManyWithoutWorkspaceInput
-}
-
-export type WorkspaceCreateOrConnectWithoutCasesInput = {
-  where: Prisma.WorkspaceWhereUniqueInput
-  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutCasesInput, Prisma.WorkspaceUncheckedCreateWithoutCasesInput>
-}
-
-export type WorkspaceUpsertWithoutCasesInput = {
-  update: Prisma.XOR<Prisma.WorkspaceUpdateWithoutCasesInput, Prisma.WorkspaceUncheckedUpdateWithoutCasesInput>
-  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutCasesInput, Prisma.WorkspaceUncheckedCreateWithoutCasesInput>
-  where?: Prisma.WorkspaceWhereInput
-}
-
-export type WorkspaceUpdateToOneWithWhereWithoutCasesInput = {
-  where?: Prisma.WorkspaceWhereInput
-  data: Prisma.XOR<Prisma.WorkspaceUpdateWithoutCasesInput, Prisma.WorkspaceUncheckedUpdateWithoutCasesInput>
-}
-
-export type WorkspaceUpdateWithoutCasesInput = {
+export type WorkspaceUpdateWithoutOwnerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  tier?: Prisma.EnumWorkspaceTierFieldUpdateOperationsInput | $Enums.WorkspaceTier
+  storageBucket?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePrefix?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
-  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedWorkspacesNestedInput
   memberships?: Prisma.WorkspaceMembershipUpdateManyWithoutWorkspaceNestedInput
   invitations?: Prisma.WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
-  subscription?: Prisma.WorkspaceSubscriptionUpdateOneWithoutWorkspaceNestedInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodUpdateManyWithoutWorkspaceNestedInput
-  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutWorkspaceNestedInput
+  cases?: Prisma.CaseUpdateManyWithoutWorkspaceNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUpdateManyWithoutWorkspaceNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutWorkspaceNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutWorkspaceNestedInput
+  manifests?: Prisma.CaseStateManifestUpdateManyWithoutWorkspaceNestedInput
   llmUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutWorkspaceNestedInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyUpdateManyWithoutWorkspaceNestedInput
+  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutWorkspaceNestedInput
 }
 
-export type WorkspaceUncheckedUpdateWithoutCasesInput = {
+export type WorkspaceUncheckedUpdateWithoutOwnerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
-  tier?: Prisma.EnumWorkspaceTierFieldUpdateOperationsInput | $Enums.WorkspaceTier
+  storageBucket?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePrefix?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
-  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutWorkspaceNestedInput
   invitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
-  subscription?: Prisma.WorkspaceSubscriptionUncheckedUpdateOneWithoutWorkspaceNestedInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodUncheckedUpdateManyWithoutWorkspaceNestedInput
-  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutWorkspaceNestedInput
+  cases?: Prisma.CaseUncheckedUpdateManyWithoutWorkspaceNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutWorkspaceNestedInput
+  manifests?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutWorkspaceNestedInput
   llmUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
   monthlyUsage?: Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutWorkspaceNestedInput
-}
-
-export type WorkspaceCreateWithoutLlmUsageEventsInput = {
-  id?: string
-  name: string
-  tier?: $Enums.WorkspaceTier
-  status?: $Enums.WorkspaceStatus
-  billingEmail?: string | null
-  stripeCustomerId?: string | null
-  stripeDefaultPaymentMethodId?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  createdBy: Prisma.UserCreateNestedOneWithoutCreatedWorkspacesInput
-  memberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
-  subscription?: Prisma.WorkspaceSubscriptionCreateNestedOneWithoutWorkspaceInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodCreateNestedManyWithoutWorkspaceInput
-  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutWorkspaceInput
-  cases?: Prisma.CaseCreateNestedManyWithoutWorkspaceInput
-  monthlyUsage?: Prisma.WorkspaceUsageMonthlyCreateNestedManyWithoutWorkspaceInput
-}
-
-export type WorkspaceUncheckedCreateWithoutLlmUsageEventsInput = {
-  id?: string
-  name: string
-  createdByUserId: string
-  tier?: $Enums.WorkspaceTier
-  status?: $Enums.WorkspaceStatus
-  billingEmail?: string | null
-  stripeCustomerId?: string | null
-  stripeDefaultPaymentMethodId?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  memberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
-  subscription?: Prisma.WorkspaceSubscriptionUncheckedCreateNestedOneWithoutWorkspaceInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodUncheckedCreateNestedManyWithoutWorkspaceInput
-  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutWorkspaceInput
-  cases?: Prisma.CaseUncheckedCreateNestedManyWithoutWorkspaceInput
-  monthlyUsage?: Prisma.WorkspaceUsageMonthlyUncheckedCreateNestedManyWithoutWorkspaceInput
-}
-
-export type WorkspaceCreateOrConnectWithoutLlmUsageEventsInput = {
-  where: Prisma.WorkspaceWhereUniqueInput
-  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutLlmUsageEventsInput, Prisma.WorkspaceUncheckedCreateWithoutLlmUsageEventsInput>
-}
-
-export type WorkspaceUpsertWithoutLlmUsageEventsInput = {
-  update: Prisma.XOR<Prisma.WorkspaceUpdateWithoutLlmUsageEventsInput, Prisma.WorkspaceUncheckedUpdateWithoutLlmUsageEventsInput>
-  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutLlmUsageEventsInput, Prisma.WorkspaceUncheckedCreateWithoutLlmUsageEventsInput>
-  where?: Prisma.WorkspaceWhereInput
-}
-
-export type WorkspaceUpdateToOneWithWhereWithoutLlmUsageEventsInput = {
-  where?: Prisma.WorkspaceWhereInput
-  data: Prisma.XOR<Prisma.WorkspaceUpdateWithoutLlmUsageEventsInput, Prisma.WorkspaceUncheckedUpdateWithoutLlmUsageEventsInput>
-}
-
-export type WorkspaceUpdateWithoutLlmUsageEventsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  tier?: Prisma.EnumWorkspaceTierFieldUpdateOperationsInput | $Enums.WorkspaceTier
-  status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
-  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedWorkspacesNestedInput
-  memberships?: Prisma.WorkspaceMembershipUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
-  subscription?: Prisma.WorkspaceSubscriptionUpdateOneWithoutWorkspaceNestedInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodUpdateManyWithoutWorkspaceNestedInput
-  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutWorkspaceNestedInput
-  cases?: Prisma.CaseUpdateManyWithoutWorkspaceNestedInput
-  monthlyUsage?: Prisma.WorkspaceUsageMonthlyUpdateManyWithoutWorkspaceNestedInput
-}
-
-export type WorkspaceUncheckedUpdateWithoutLlmUsageEventsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
-  tier?: Prisma.EnumWorkspaceTierFieldUpdateOperationsInput | $Enums.WorkspaceTier
-  status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
-  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  memberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
-  subscription?: Prisma.WorkspaceSubscriptionUncheckedUpdateOneWithoutWorkspaceNestedInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodUncheckedUpdateManyWithoutWorkspaceNestedInput
   stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutWorkspaceNestedInput
-  cases?: Prisma.CaseUncheckedUpdateManyWithoutWorkspaceNestedInput
-  monthlyUsage?: Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
-export type WorkspaceCreateWithoutMonthlyUsageInput = {
-  id?: string
-  name: string
-  tier?: $Enums.WorkspaceTier
-  status?: $Enums.WorkspaceStatus
-  billingEmail?: string | null
-  stripeCustomerId?: string | null
-  stripeDefaultPaymentMethodId?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  createdBy: Prisma.UserCreateNestedOneWithoutCreatedWorkspacesInput
-  memberships?: Prisma.WorkspaceMembershipCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
-  subscription?: Prisma.WorkspaceSubscriptionCreateNestedOneWithoutWorkspaceInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodCreateNestedManyWithoutWorkspaceInput
-  stripeEvents?: Prisma.StripeEventLogCreateNestedManyWithoutWorkspaceInput
-  cases?: Prisma.CaseCreateNestedManyWithoutWorkspaceInput
-  llmUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutWorkspaceInput
-}
-
-export type WorkspaceUncheckedCreateWithoutMonthlyUsageInput = {
-  id?: string
-  name: string
-  createdByUserId: string
-  tier?: $Enums.WorkspaceTier
-  status?: $Enums.WorkspaceStatus
-  billingEmail?: string | null
-  stripeCustomerId?: string | null
-  stripeDefaultPaymentMethodId?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  memberships?: Prisma.WorkspaceMembershipUncheckedCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
-  subscription?: Prisma.WorkspaceSubscriptionUncheckedCreateNestedOneWithoutWorkspaceInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodUncheckedCreateNestedManyWithoutWorkspaceInput
-  stripeEvents?: Prisma.StripeEventLogUncheckedCreateNestedManyWithoutWorkspaceInput
-  cases?: Prisma.CaseUncheckedCreateNestedManyWithoutWorkspaceInput
-  llmUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
-}
-
-export type WorkspaceCreateOrConnectWithoutMonthlyUsageInput = {
-  where: Prisma.WorkspaceWhereUniqueInput
-  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutMonthlyUsageInput, Prisma.WorkspaceUncheckedCreateWithoutMonthlyUsageInput>
-}
-
-export type WorkspaceUpsertWithoutMonthlyUsageInput = {
-  update: Prisma.XOR<Prisma.WorkspaceUpdateWithoutMonthlyUsageInput, Prisma.WorkspaceUncheckedUpdateWithoutMonthlyUsageInput>
-  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutMonthlyUsageInput, Prisma.WorkspaceUncheckedCreateWithoutMonthlyUsageInput>
-  where?: Prisma.WorkspaceWhereInput
-}
-
-export type WorkspaceUpdateToOneWithWhereWithoutMonthlyUsageInput = {
-  where?: Prisma.WorkspaceWhereInput
-  data: Prisma.XOR<Prisma.WorkspaceUpdateWithoutMonthlyUsageInput, Prisma.WorkspaceUncheckedUpdateWithoutMonthlyUsageInput>
-}
-
-export type WorkspaceUpdateWithoutMonthlyUsageInput = {
+export type WorkspaceUncheckedUpdateManyWithoutOwnerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  tier?: Prisma.EnumWorkspaceTierFieldUpdateOperationsInput | $Enums.WorkspaceTier
+  storageBucket?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePrefix?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
-  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedWorkspacesNestedInput
-  memberships?: Prisma.WorkspaceMembershipUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
-  subscription?: Prisma.WorkspaceSubscriptionUpdateOneWithoutWorkspaceNestedInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodUpdateManyWithoutWorkspaceNestedInput
-  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutWorkspaceNestedInput
-  cases?: Prisma.CaseUpdateManyWithoutWorkspaceNestedInput
-  llmUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutWorkspaceNestedInput
-}
-
-export type WorkspaceUncheckedUpdateWithoutMonthlyUsageInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
-  tier?: Prisma.EnumWorkspaceTierFieldUpdateOperationsInput | $Enums.WorkspaceTier
-  status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
-  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  memberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
-  subscription?: Prisma.WorkspaceSubscriptionUncheckedUpdateOneWithoutWorkspaceNestedInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodUncheckedUpdateManyWithoutWorkspaceNestedInput
-  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutWorkspaceNestedInput
-  cases?: Prisma.CaseUncheckedUpdateManyWithoutWorkspaceNestedInput
-  llmUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
-}
-
-export type WorkspaceCreateManyCreatedByInput = {
-  id?: string
-  name: string
-  tier?: $Enums.WorkspaceTier
-  status?: $Enums.WorkspaceStatus
-  billingEmail?: string | null
-  stripeCustomerId?: string | null
-  stripeDefaultPaymentMethodId?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type WorkspaceUpdateWithoutCreatedByInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  tier?: Prisma.EnumWorkspaceTierFieldUpdateOperationsInput | $Enums.WorkspaceTier
-  status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
-  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  memberships?: Prisma.WorkspaceMembershipUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
-  subscription?: Prisma.WorkspaceSubscriptionUpdateOneWithoutWorkspaceNestedInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodUpdateManyWithoutWorkspaceNestedInput
-  stripeEvents?: Prisma.StripeEventLogUpdateManyWithoutWorkspaceNestedInput
-  cases?: Prisma.CaseUpdateManyWithoutWorkspaceNestedInput
-  llmUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutWorkspaceNestedInput
-  monthlyUsage?: Prisma.WorkspaceUsageMonthlyUpdateManyWithoutWorkspaceNestedInput
-}
-
-export type WorkspaceUncheckedUpdateWithoutCreatedByInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  tier?: Prisma.EnumWorkspaceTierFieldUpdateOperationsInput | $Enums.WorkspaceTier
-  status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
-  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  memberships?: Prisma.WorkspaceMembershipUncheckedUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
-  subscription?: Prisma.WorkspaceSubscriptionUncheckedUpdateOneWithoutWorkspaceNestedInput
-  paymentMethods?: Prisma.WorkspacePaymentMethodUncheckedUpdateManyWithoutWorkspaceNestedInput
-  stripeEvents?: Prisma.StripeEventLogUncheckedUpdateManyWithoutWorkspaceNestedInput
-  cases?: Prisma.CaseUncheckedUpdateManyWithoutWorkspaceNestedInput
-  llmUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
-  monthlyUsage?: Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutWorkspaceNestedInput
-}
-
-export type WorkspaceUncheckedUpdateManyWithoutCreatedByInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  tier?: Prisma.EnumWorkspaceTierFieldUpdateOperationsInput | $Enums.WorkspaceTier
-  status?: Prisma.EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
-  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeDefaultPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1579,21 +1759,27 @@ export type WorkspaceUncheckedUpdateManyWithoutCreatedByInput = {
 export type WorkspaceCountOutputType = {
   memberships: number
   invitations: number
-  paymentMethods: number
-  stripeEvents: number
   cases: number
+  documentIndexes: number
+  recordIndexes: number
+  viewIndexes: number
+  manifests: number
   llmUsageEvents: number
   monthlyUsage: number
+  stripeEvents: number
 }
 
 export type WorkspaceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   memberships?: boolean | WorkspaceCountOutputTypeCountMembershipsArgs
   invitations?: boolean | WorkspaceCountOutputTypeCountInvitationsArgs
-  paymentMethods?: boolean | WorkspaceCountOutputTypeCountPaymentMethodsArgs
-  stripeEvents?: boolean | WorkspaceCountOutputTypeCountStripeEventsArgs
   cases?: boolean | WorkspaceCountOutputTypeCountCasesArgs
+  documentIndexes?: boolean | WorkspaceCountOutputTypeCountDocumentIndexesArgs
+  recordIndexes?: boolean | WorkspaceCountOutputTypeCountRecordIndexesArgs
+  viewIndexes?: boolean | WorkspaceCountOutputTypeCountViewIndexesArgs
+  manifests?: boolean | WorkspaceCountOutputTypeCountManifestsArgs
   llmUsageEvents?: boolean | WorkspaceCountOutputTypeCountLlmUsageEventsArgs
   monthlyUsage?: boolean | WorkspaceCountOutputTypeCountMonthlyUsageArgs
+  stripeEvents?: boolean | WorkspaceCountOutputTypeCountStripeEventsArgs
 }
 
 /**
@@ -1623,22 +1809,36 @@ export type WorkspaceCountOutputTypeCountInvitationsArgs<ExtArgs extends runtime
 /**
  * WorkspaceCountOutputType without action
  */
-export type WorkspaceCountOutputTypeCountPaymentMethodsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.WorkspacePaymentMethodWhereInput
-}
-
-/**
- * WorkspaceCountOutputType without action
- */
-export type WorkspaceCountOutputTypeCountStripeEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.StripeEventLogWhereInput
-}
-
-/**
- * WorkspaceCountOutputType without action
- */
 export type WorkspaceCountOutputTypeCountCasesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.CaseWhereInput
+}
+
+/**
+ * WorkspaceCountOutputType without action
+ */
+export type WorkspaceCountOutputTypeCountDocumentIndexesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CaseDocumentIndexWhereInput
+}
+
+/**
+ * WorkspaceCountOutputType without action
+ */
+export type WorkspaceCountOutputTypeCountRecordIndexesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CaseRecordIndexWhereInput
+}
+
+/**
+ * WorkspaceCountOutputType without action
+ */
+export type WorkspaceCountOutputTypeCountViewIndexesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CaseViewIndexWhereInput
+}
+
+/**
+ * WorkspaceCountOutputType without action
+ */
+export type WorkspaceCountOutputTypeCountManifestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CaseStateManifestWhereInput
 }
 
 /**
@@ -1655,113 +1855,116 @@ export type WorkspaceCountOutputTypeCountMonthlyUsageArgs<ExtArgs extends runtim
   where?: Prisma.WorkspaceUsageMonthlyWhereInput
 }
 
+/**
+ * WorkspaceCountOutputType without action
+ */
+export type WorkspaceCountOutputTypeCountStripeEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.StripeEventLogWhereInput
+}
+
 
 export type WorkspaceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
-  createdByUserId?: boolean
-  tier?: boolean
+  ownerUserId?: boolean
+  storageBucket?: boolean
+  storagePrefix?: boolean
   status?: boolean
-  billingEmail?: boolean
-  stripeCustomerId?: boolean
-  stripeDefaultPaymentMethodId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   memberships?: boolean | Prisma.Workspace$membershipsArgs<ExtArgs>
   invitations?: boolean | Prisma.Workspace$invitationsArgs<ExtArgs>
-  subscription?: boolean | Prisma.Workspace$subscriptionArgs<ExtArgs>
-  paymentMethods?: boolean | Prisma.Workspace$paymentMethodsArgs<ExtArgs>
-  stripeEvents?: boolean | Prisma.Workspace$stripeEventsArgs<ExtArgs>
   cases?: boolean | Prisma.Workspace$casesArgs<ExtArgs>
+  documentIndexes?: boolean | Prisma.Workspace$documentIndexesArgs<ExtArgs>
+  recordIndexes?: boolean | Prisma.Workspace$recordIndexesArgs<ExtArgs>
+  viewIndexes?: boolean | Prisma.Workspace$viewIndexesArgs<ExtArgs>
+  manifests?: boolean | Prisma.Workspace$manifestsArgs<ExtArgs>
   llmUsageEvents?: boolean | Prisma.Workspace$llmUsageEventsArgs<ExtArgs>
   monthlyUsage?: boolean | Prisma.Workspace$monthlyUsageArgs<ExtArgs>
+  stripeEvents?: boolean | Prisma.Workspace$stripeEventsArgs<ExtArgs>
   _count?: boolean | Prisma.WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["workspace"]>
 
 export type WorkspaceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
-  createdByUserId?: boolean
-  tier?: boolean
+  ownerUserId?: boolean
+  storageBucket?: boolean
+  storagePrefix?: boolean
   status?: boolean
-  billingEmail?: boolean
-  stripeCustomerId?: boolean
-  stripeDefaultPaymentMethodId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["workspace"]>
 
 export type WorkspaceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
-  createdByUserId?: boolean
-  tier?: boolean
+  ownerUserId?: boolean
+  storageBucket?: boolean
+  storagePrefix?: boolean
   status?: boolean
-  billingEmail?: boolean
-  stripeCustomerId?: boolean
-  stripeDefaultPaymentMethodId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["workspace"]>
 
 export type WorkspaceSelectScalar = {
   id?: boolean
   name?: boolean
-  createdByUserId?: boolean
-  tier?: boolean
+  ownerUserId?: boolean
+  storageBucket?: boolean
+  storagePrefix?: boolean
   status?: boolean
-  billingEmail?: boolean
-  stripeCustomerId?: boolean
-  stripeDefaultPaymentMethodId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type WorkspaceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "createdByUserId" | "tier" | "status" | "billingEmail" | "stripeCustomerId" | "stripeDefaultPaymentMethodId" | "createdAt" | "updatedAt", ExtArgs["result"]["workspace"]>
+export type WorkspaceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "ownerUserId" | "storageBucket" | "storagePrefix" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["workspace"]>
 export type WorkspaceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   memberships?: boolean | Prisma.Workspace$membershipsArgs<ExtArgs>
   invitations?: boolean | Prisma.Workspace$invitationsArgs<ExtArgs>
-  subscription?: boolean | Prisma.Workspace$subscriptionArgs<ExtArgs>
-  paymentMethods?: boolean | Prisma.Workspace$paymentMethodsArgs<ExtArgs>
-  stripeEvents?: boolean | Prisma.Workspace$stripeEventsArgs<ExtArgs>
   cases?: boolean | Prisma.Workspace$casesArgs<ExtArgs>
+  documentIndexes?: boolean | Prisma.Workspace$documentIndexesArgs<ExtArgs>
+  recordIndexes?: boolean | Prisma.Workspace$recordIndexesArgs<ExtArgs>
+  viewIndexes?: boolean | Prisma.Workspace$viewIndexesArgs<ExtArgs>
+  manifests?: boolean | Prisma.Workspace$manifestsArgs<ExtArgs>
   llmUsageEvents?: boolean | Prisma.Workspace$llmUsageEventsArgs<ExtArgs>
   monthlyUsage?: boolean | Prisma.Workspace$monthlyUsageArgs<ExtArgs>
+  stripeEvents?: boolean | Prisma.Workspace$stripeEventsArgs<ExtArgs>
   _count?: boolean | Prisma.WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type WorkspaceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type WorkspaceIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
 export type $WorkspacePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Workspace"
   objects: {
-    createdBy: Prisma.$UserPayload<ExtArgs>
+    owner: Prisma.$UserPayload<ExtArgs>
     memberships: Prisma.$WorkspaceMembershipPayload<ExtArgs>[]
     invitations: Prisma.$WorkspaceInvitationPayload<ExtArgs>[]
-    subscription: Prisma.$WorkspaceSubscriptionPayload<ExtArgs> | null
-    paymentMethods: Prisma.$WorkspacePaymentMethodPayload<ExtArgs>[]
-    stripeEvents: Prisma.$StripeEventLogPayload<ExtArgs>[]
     cases: Prisma.$CasePayload<ExtArgs>[]
+    documentIndexes: Prisma.$CaseDocumentIndexPayload<ExtArgs>[]
+    recordIndexes: Prisma.$CaseRecordIndexPayload<ExtArgs>[]
+    viewIndexes: Prisma.$CaseViewIndexPayload<ExtArgs>[]
+    manifests: Prisma.$CaseStateManifestPayload<ExtArgs>[]
     llmUsageEvents: Prisma.$LlmUsageEventPayload<ExtArgs>[]
     monthlyUsage: Prisma.$WorkspaceUsageMonthlyPayload<ExtArgs>[]
+    stripeEvents: Prisma.$StripeEventLogPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
-    createdByUserId: string
-    tier: $Enums.WorkspaceTier
+    ownerUserId: string
+    storageBucket: string
+    storagePrefix: string
     status: $Enums.WorkspaceStatus
-    billingEmail: string | null
-    stripeCustomerId: string | null
-    stripeDefaultPaymentMethodId: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["workspace"]>
@@ -2158,15 +2361,17 @@ readonly fields: WorkspaceFieldRefs;
  */
 export interface Prisma__WorkspaceClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  createdBy<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  owner<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   memberships<T extends Prisma.Workspace$membershipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkspaceMembershipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   invitations<T extends Prisma.Workspace$invitationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$invitationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  subscription<T extends Prisma.Workspace$subscriptionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$subscriptionArgs<ExtArgs>>): Prisma.Prisma__WorkspaceSubscriptionClient<runtime.Types.Result.GetResult<Prisma.$WorkspaceSubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  paymentMethods<T extends Prisma.Workspace$paymentMethodsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$paymentMethodsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkspacePaymentMethodPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  stripeEvents<T extends Prisma.Workspace$stripeEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$stripeEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StripeEventLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   cases<T extends Prisma.Workspace$casesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$casesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  documentIndexes<T extends Prisma.Workspace$documentIndexesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$documentIndexesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseDocumentIndexPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  recordIndexes<T extends Prisma.Workspace$recordIndexesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$recordIndexesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseRecordIndexPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  viewIndexes<T extends Prisma.Workspace$viewIndexesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$viewIndexesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseViewIndexPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  manifests<T extends Prisma.Workspace$manifestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$manifestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseStateManifestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   llmUsageEvents<T extends Prisma.Workspace$llmUsageEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$llmUsageEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LlmUsageEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   monthlyUsage<T extends Prisma.Workspace$monthlyUsageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$monthlyUsageArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkspaceUsageMonthlyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  stripeEvents<T extends Prisma.Workspace$stripeEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$stripeEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StripeEventLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2198,12 +2403,10 @@ export interface Prisma__WorkspaceClient<T, Null = never, ExtArgs extends runtim
 export interface WorkspaceFieldRefs {
   readonly id: Prisma.FieldRef<"Workspace", 'String'>
   readonly name: Prisma.FieldRef<"Workspace", 'String'>
-  readonly createdByUserId: Prisma.FieldRef<"Workspace", 'String'>
-  readonly tier: Prisma.FieldRef<"Workspace", 'WorkspaceTier'>
+  readonly ownerUserId: Prisma.FieldRef<"Workspace", 'String'>
+  readonly storageBucket: Prisma.FieldRef<"Workspace", 'String'>
+  readonly storagePrefix: Prisma.FieldRef<"Workspace", 'String'>
   readonly status: Prisma.FieldRef<"Workspace", 'WorkspaceStatus'>
-  readonly billingEmail: Prisma.FieldRef<"Workspace", 'String'>
-  readonly stripeCustomerId: Prisma.FieldRef<"Workspace", 'String'>
-  readonly stripeDefaultPaymentMethodId: Prisma.FieldRef<"Workspace", 'String'>
   readonly createdAt: Prisma.FieldRef<"Workspace", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Workspace", 'DateTime'>
 }
@@ -2655,73 +2858,6 @@ export type Workspace$invitationsArgs<ExtArgs extends runtime.Types.Extensions.I
 }
 
 /**
- * Workspace.subscription
- */
-export type Workspace$subscriptionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the WorkspaceSubscription
-   */
-  select?: Prisma.WorkspaceSubscriptionSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the WorkspaceSubscription
-   */
-  omit?: Prisma.WorkspaceSubscriptionOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.WorkspaceSubscriptionInclude<ExtArgs> | null
-  where?: Prisma.WorkspaceSubscriptionWhereInput
-}
-
-/**
- * Workspace.paymentMethods
- */
-export type Workspace$paymentMethodsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the WorkspacePaymentMethod
-   */
-  select?: Prisma.WorkspacePaymentMethodSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the WorkspacePaymentMethod
-   */
-  omit?: Prisma.WorkspacePaymentMethodOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.WorkspacePaymentMethodInclude<ExtArgs> | null
-  where?: Prisma.WorkspacePaymentMethodWhereInput
-  orderBy?: Prisma.WorkspacePaymentMethodOrderByWithRelationInput | Prisma.WorkspacePaymentMethodOrderByWithRelationInput[]
-  cursor?: Prisma.WorkspacePaymentMethodWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.WorkspacePaymentMethodScalarFieldEnum | Prisma.WorkspacePaymentMethodScalarFieldEnum[]
-}
-
-/**
- * Workspace.stripeEvents
- */
-export type Workspace$stripeEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the StripeEventLog
-   */
-  select?: Prisma.StripeEventLogSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the StripeEventLog
-   */
-  omit?: Prisma.StripeEventLogOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.StripeEventLogInclude<ExtArgs> | null
-  where?: Prisma.StripeEventLogWhereInput
-  orderBy?: Prisma.StripeEventLogOrderByWithRelationInput | Prisma.StripeEventLogOrderByWithRelationInput[]
-  cursor?: Prisma.StripeEventLogWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.StripeEventLogScalarFieldEnum | Prisma.StripeEventLogScalarFieldEnum[]
-}
-
-/**
  * Workspace.cases
  */
 export type Workspace$casesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2743,6 +2879,102 @@ export type Workspace$casesArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.CaseScalarFieldEnum | Prisma.CaseScalarFieldEnum[]
+}
+
+/**
+ * Workspace.documentIndexes
+ */
+export type Workspace$documentIndexesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseDocumentIndex
+   */
+  select?: Prisma.CaseDocumentIndexSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseDocumentIndex
+   */
+  omit?: Prisma.CaseDocumentIndexOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseDocumentIndexInclude<ExtArgs> | null
+  where?: Prisma.CaseDocumentIndexWhereInput
+  orderBy?: Prisma.CaseDocumentIndexOrderByWithRelationInput | Prisma.CaseDocumentIndexOrderByWithRelationInput[]
+  cursor?: Prisma.CaseDocumentIndexWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CaseDocumentIndexScalarFieldEnum | Prisma.CaseDocumentIndexScalarFieldEnum[]
+}
+
+/**
+ * Workspace.recordIndexes
+ */
+export type Workspace$recordIndexesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseRecordIndex
+   */
+  select?: Prisma.CaseRecordIndexSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseRecordIndex
+   */
+  omit?: Prisma.CaseRecordIndexOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseRecordIndexInclude<ExtArgs> | null
+  where?: Prisma.CaseRecordIndexWhereInput
+  orderBy?: Prisma.CaseRecordIndexOrderByWithRelationInput | Prisma.CaseRecordIndexOrderByWithRelationInput[]
+  cursor?: Prisma.CaseRecordIndexWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CaseRecordIndexScalarFieldEnum | Prisma.CaseRecordIndexScalarFieldEnum[]
+}
+
+/**
+ * Workspace.viewIndexes
+ */
+export type Workspace$viewIndexesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseViewIndex
+   */
+  select?: Prisma.CaseViewIndexSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseViewIndex
+   */
+  omit?: Prisma.CaseViewIndexOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseViewIndexInclude<ExtArgs> | null
+  where?: Prisma.CaseViewIndexWhereInput
+  orderBy?: Prisma.CaseViewIndexOrderByWithRelationInput | Prisma.CaseViewIndexOrderByWithRelationInput[]
+  cursor?: Prisma.CaseViewIndexWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CaseViewIndexScalarFieldEnum | Prisma.CaseViewIndexScalarFieldEnum[]
+}
+
+/**
+ * Workspace.manifests
+ */
+export type Workspace$manifestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseStateManifest
+   */
+  select?: Prisma.CaseStateManifestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseStateManifest
+   */
+  omit?: Prisma.CaseStateManifestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseStateManifestInclude<ExtArgs> | null
+  where?: Prisma.CaseStateManifestWhereInput
+  orderBy?: Prisma.CaseStateManifestOrderByWithRelationInput | Prisma.CaseStateManifestOrderByWithRelationInput[]
+  cursor?: Prisma.CaseStateManifestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CaseStateManifestScalarFieldEnum | Prisma.CaseStateManifestScalarFieldEnum[]
 }
 
 /**
@@ -2791,6 +3023,30 @@ export type Workspace$monthlyUsageArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.WorkspaceUsageMonthlyScalarFieldEnum | Prisma.WorkspaceUsageMonthlyScalarFieldEnum[]
+}
+
+/**
+ * Workspace.stripeEvents
+ */
+export type Workspace$stripeEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the StripeEventLog
+   */
+  select?: Prisma.StripeEventLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the StripeEventLog
+   */
+  omit?: Prisma.StripeEventLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StripeEventLogInclude<ExtArgs> | null
+  where?: Prisma.StripeEventLogWhereInput
+  orderBy?: Prisma.StripeEventLogOrderByWithRelationInput | Prisma.StripeEventLogOrderByWithRelationInput[]
+  cursor?: Prisma.StripeEventLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.StripeEventLogScalarFieldEnum | Prisma.StripeEventLogScalarFieldEnum[]
 }
 
 /**

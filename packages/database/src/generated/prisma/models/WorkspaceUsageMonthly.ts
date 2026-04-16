@@ -9,8 +9,8 @@
  * 🟢 You can import this file directly.
  */
 import type * as runtime from "@prisma/client/runtime/client"
-import type * as $Enums from "../enums.ts"
-import type * as Prisma from "../internal/prismaNamespace.ts"
+import type * as $Enums from "../enums"
+import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model WorkspaceUsageMonthly
@@ -43,6 +43,7 @@ export type WorkspaceUsageMonthlySumAggregateOutputType = {
 export type WorkspaceUsageMonthlyMinAggregateOutputType = {
   id: string | null
   workspaceId: string | null
+  billedToUserId: string | null
   usageMonth: Date | null
   totalInputTokens: bigint | null
   totalOutputTokens: bigint | null
@@ -53,6 +54,7 @@ export type WorkspaceUsageMonthlyMinAggregateOutputType = {
 export type WorkspaceUsageMonthlyMaxAggregateOutputType = {
   id: string | null
   workspaceId: string | null
+  billedToUserId: string | null
   usageMonth: Date | null
   totalInputTokens: bigint | null
   totalOutputTokens: bigint | null
@@ -63,6 +65,7 @@ export type WorkspaceUsageMonthlyMaxAggregateOutputType = {
 export type WorkspaceUsageMonthlyCountAggregateOutputType = {
   id: number
   workspaceId: number
+  billedToUserId: number
   usageMonth: number
   totalInputTokens: number
   totalOutputTokens: number
@@ -89,6 +92,7 @@ export type WorkspaceUsageMonthlySumAggregateInputType = {
 export type WorkspaceUsageMonthlyMinAggregateInputType = {
   id?: true
   workspaceId?: true
+  billedToUserId?: true
   usageMonth?: true
   totalInputTokens?: true
   totalOutputTokens?: true
@@ -99,6 +103,7 @@ export type WorkspaceUsageMonthlyMinAggregateInputType = {
 export type WorkspaceUsageMonthlyMaxAggregateInputType = {
   id?: true
   workspaceId?: true
+  billedToUserId?: true
   usageMonth?: true
   totalInputTokens?: true
   totalOutputTokens?: true
@@ -109,6 +114,7 @@ export type WorkspaceUsageMonthlyMaxAggregateInputType = {
 export type WorkspaceUsageMonthlyCountAggregateInputType = {
   id?: true
   workspaceId?: true
+  billedToUserId?: true
   usageMonth?: true
   totalInputTokens?: true
   totalOutputTokens?: true
@@ -206,6 +212,7 @@ export type WorkspaceUsageMonthlyGroupByArgs<ExtArgs extends runtime.Types.Exten
 export type WorkspaceUsageMonthlyGroupByOutputType = {
   id: string
   workspaceId: string
+  billedToUserId: string
   usageMonth: Date
   totalInputTokens: bigint
   totalOutputTokens: bigint
@@ -239,23 +246,27 @@ export type WorkspaceUsageMonthlyWhereInput = {
   NOT?: Prisma.WorkspaceUsageMonthlyWhereInput | Prisma.WorkspaceUsageMonthlyWhereInput[]
   id?: Prisma.UuidFilter<"WorkspaceUsageMonthly"> | string
   workspaceId?: Prisma.UuidFilter<"WorkspaceUsageMonthly"> | string
+  billedToUserId?: Prisma.UuidFilter<"WorkspaceUsageMonthly"> | string
   usageMonth?: Prisma.DateTimeFilter<"WorkspaceUsageMonthly"> | Date | string
   totalInputTokens?: Prisma.BigIntFilter<"WorkspaceUsageMonthly"> | bigint | number
   totalOutputTokens?: Prisma.BigIntFilter<"WorkspaceUsageMonthly"> | bigint | number
   totalTokens?: Prisma.BigIntFilter<"WorkspaceUsageMonthly"> | bigint | number
   totalEstimatedCostUsd?: Prisma.DecimalFilter<"WorkspaceUsageMonthly"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
+  billedToUser?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
 export type WorkspaceUsageMonthlyOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
+  billedToUserId?: Prisma.SortOrder
   usageMonth?: Prisma.SortOrder
   totalInputTokens?: Prisma.SortOrder
   totalOutputTokens?: Prisma.SortOrder
   totalTokens?: Prisma.SortOrder
   totalEstimatedCostUsd?: Prisma.SortOrder
   workspace?: Prisma.WorkspaceOrderByWithRelationInput
+  billedToUser?: Prisma.UserOrderByWithRelationInput
 }
 
 export type WorkspaceUsageMonthlyWhereUniqueInput = Prisma.AtLeast<{
@@ -265,17 +276,20 @@ export type WorkspaceUsageMonthlyWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.WorkspaceUsageMonthlyWhereInput[]
   NOT?: Prisma.WorkspaceUsageMonthlyWhereInput | Prisma.WorkspaceUsageMonthlyWhereInput[]
   workspaceId?: Prisma.UuidFilter<"WorkspaceUsageMonthly"> | string
+  billedToUserId?: Prisma.UuidFilter<"WorkspaceUsageMonthly"> | string
   usageMonth?: Prisma.DateTimeFilter<"WorkspaceUsageMonthly"> | Date | string
   totalInputTokens?: Prisma.BigIntFilter<"WorkspaceUsageMonthly"> | bigint | number
   totalOutputTokens?: Prisma.BigIntFilter<"WorkspaceUsageMonthly"> | bigint | number
   totalTokens?: Prisma.BigIntFilter<"WorkspaceUsageMonthly"> | bigint | number
   totalEstimatedCostUsd?: Prisma.DecimalFilter<"WorkspaceUsageMonthly"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
+  billedToUser?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id" | "workspaceId_usageMonth">
 
 export type WorkspaceUsageMonthlyOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
+  billedToUserId?: Prisma.SortOrder
   usageMonth?: Prisma.SortOrder
   totalInputTokens?: Prisma.SortOrder
   totalOutputTokens?: Prisma.SortOrder
@@ -294,6 +308,7 @@ export type WorkspaceUsageMonthlyScalarWhereWithAggregatesInput = {
   NOT?: Prisma.WorkspaceUsageMonthlyScalarWhereWithAggregatesInput | Prisma.WorkspaceUsageMonthlyScalarWhereWithAggregatesInput[]
   id?: Prisma.UuidWithAggregatesFilter<"WorkspaceUsageMonthly"> | string
   workspaceId?: Prisma.UuidWithAggregatesFilter<"WorkspaceUsageMonthly"> | string
+  billedToUserId?: Prisma.UuidWithAggregatesFilter<"WorkspaceUsageMonthly"> | string
   usageMonth?: Prisma.DateTimeWithAggregatesFilter<"WorkspaceUsageMonthly"> | Date | string
   totalInputTokens?: Prisma.BigIntWithAggregatesFilter<"WorkspaceUsageMonthly"> | bigint | number
   totalOutputTokens?: Prisma.BigIntWithAggregatesFilter<"WorkspaceUsageMonthly"> | bigint | number
@@ -309,11 +324,13 @@ export type WorkspaceUsageMonthlyCreateInput = {
   totalTokens?: bigint | number
   totalEstimatedCostUsd?: runtime.Decimal | runtime.DecimalJsLike | number | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutMonthlyUsageInput
+  billedToUser: Prisma.UserCreateNestedOneWithoutWorkspaceBilledUsageMonthlyInput
 }
 
 export type WorkspaceUsageMonthlyUncheckedCreateInput = {
   id?: string
   workspaceId: string
+  billedToUserId: string
   usageMonth: Date | string
   totalInputTokens?: bigint | number
   totalOutputTokens?: bigint | number
@@ -329,11 +346,13 @@ export type WorkspaceUsageMonthlyUpdateInput = {
   totalTokens?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   totalEstimatedCostUsd?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutMonthlyUsageNestedInput
+  billedToUser?: Prisma.UserUpdateOneRequiredWithoutWorkspaceBilledUsageMonthlyNestedInput
 }
 
 export type WorkspaceUsageMonthlyUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  billedToUserId?: Prisma.StringFieldUpdateOperationsInput | string
   usageMonth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   totalInputTokens?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   totalOutputTokens?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
@@ -344,6 +363,7 @@ export type WorkspaceUsageMonthlyUncheckedUpdateInput = {
 export type WorkspaceUsageMonthlyCreateManyInput = {
   id?: string
   workspaceId: string
+  billedToUserId: string
   usageMonth: Date | string
   totalInputTokens?: bigint | number
   totalOutputTokens?: bigint | number
@@ -363,6 +383,7 @@ export type WorkspaceUsageMonthlyUpdateManyMutationInput = {
 export type WorkspaceUsageMonthlyUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  billedToUserId?: Prisma.StringFieldUpdateOperationsInput | string
   usageMonth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   totalInputTokens?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   totalOutputTokens?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
@@ -388,6 +409,7 @@ export type WorkspaceUsageMonthlyWorkspaceIdUsageMonthCompoundUniqueInput = {
 export type WorkspaceUsageMonthlyCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
+  billedToUserId?: Prisma.SortOrder
   usageMonth?: Prisma.SortOrder
   totalInputTokens?: Prisma.SortOrder
   totalOutputTokens?: Prisma.SortOrder
@@ -405,6 +427,7 @@ export type WorkspaceUsageMonthlyAvgOrderByAggregateInput = {
 export type WorkspaceUsageMonthlyMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
+  billedToUserId?: Prisma.SortOrder
   usageMonth?: Prisma.SortOrder
   totalInputTokens?: Prisma.SortOrder
   totalOutputTokens?: Prisma.SortOrder
@@ -415,6 +438,7 @@ export type WorkspaceUsageMonthlyMaxOrderByAggregateInput = {
 export type WorkspaceUsageMonthlyMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
+  billedToUserId?: Prisma.SortOrder
   usageMonth?: Prisma.SortOrder
   totalInputTokens?: Prisma.SortOrder
   totalOutputTokens?: Prisma.SortOrder
@@ -427,6 +451,48 @@ export type WorkspaceUsageMonthlySumOrderByAggregateInput = {
   totalOutputTokens?: Prisma.SortOrder
   totalTokens?: Prisma.SortOrder
   totalEstimatedCostUsd?: Prisma.SortOrder
+}
+
+export type WorkspaceUsageMonthlyCreateNestedManyWithoutBilledToUserInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceUsageMonthlyCreateWithoutBilledToUserInput, Prisma.WorkspaceUsageMonthlyUncheckedCreateWithoutBilledToUserInput> | Prisma.WorkspaceUsageMonthlyCreateWithoutBilledToUserInput[] | Prisma.WorkspaceUsageMonthlyUncheckedCreateWithoutBilledToUserInput[]
+  connectOrCreate?: Prisma.WorkspaceUsageMonthlyCreateOrConnectWithoutBilledToUserInput | Prisma.WorkspaceUsageMonthlyCreateOrConnectWithoutBilledToUserInput[]
+  createMany?: Prisma.WorkspaceUsageMonthlyCreateManyBilledToUserInputEnvelope
+  connect?: Prisma.WorkspaceUsageMonthlyWhereUniqueInput | Prisma.WorkspaceUsageMonthlyWhereUniqueInput[]
+}
+
+export type WorkspaceUsageMonthlyUncheckedCreateNestedManyWithoutBilledToUserInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceUsageMonthlyCreateWithoutBilledToUserInput, Prisma.WorkspaceUsageMonthlyUncheckedCreateWithoutBilledToUserInput> | Prisma.WorkspaceUsageMonthlyCreateWithoutBilledToUserInput[] | Prisma.WorkspaceUsageMonthlyUncheckedCreateWithoutBilledToUserInput[]
+  connectOrCreate?: Prisma.WorkspaceUsageMonthlyCreateOrConnectWithoutBilledToUserInput | Prisma.WorkspaceUsageMonthlyCreateOrConnectWithoutBilledToUserInput[]
+  createMany?: Prisma.WorkspaceUsageMonthlyCreateManyBilledToUserInputEnvelope
+  connect?: Prisma.WorkspaceUsageMonthlyWhereUniqueInput | Prisma.WorkspaceUsageMonthlyWhereUniqueInput[]
+}
+
+export type WorkspaceUsageMonthlyUpdateManyWithoutBilledToUserNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceUsageMonthlyCreateWithoutBilledToUserInput, Prisma.WorkspaceUsageMonthlyUncheckedCreateWithoutBilledToUserInput> | Prisma.WorkspaceUsageMonthlyCreateWithoutBilledToUserInput[] | Prisma.WorkspaceUsageMonthlyUncheckedCreateWithoutBilledToUserInput[]
+  connectOrCreate?: Prisma.WorkspaceUsageMonthlyCreateOrConnectWithoutBilledToUserInput | Prisma.WorkspaceUsageMonthlyCreateOrConnectWithoutBilledToUserInput[]
+  upsert?: Prisma.WorkspaceUsageMonthlyUpsertWithWhereUniqueWithoutBilledToUserInput | Prisma.WorkspaceUsageMonthlyUpsertWithWhereUniqueWithoutBilledToUserInput[]
+  createMany?: Prisma.WorkspaceUsageMonthlyCreateManyBilledToUserInputEnvelope
+  set?: Prisma.WorkspaceUsageMonthlyWhereUniqueInput | Prisma.WorkspaceUsageMonthlyWhereUniqueInput[]
+  disconnect?: Prisma.WorkspaceUsageMonthlyWhereUniqueInput | Prisma.WorkspaceUsageMonthlyWhereUniqueInput[]
+  delete?: Prisma.WorkspaceUsageMonthlyWhereUniqueInput | Prisma.WorkspaceUsageMonthlyWhereUniqueInput[]
+  connect?: Prisma.WorkspaceUsageMonthlyWhereUniqueInput | Prisma.WorkspaceUsageMonthlyWhereUniqueInput[]
+  update?: Prisma.WorkspaceUsageMonthlyUpdateWithWhereUniqueWithoutBilledToUserInput | Prisma.WorkspaceUsageMonthlyUpdateWithWhereUniqueWithoutBilledToUserInput[]
+  updateMany?: Prisma.WorkspaceUsageMonthlyUpdateManyWithWhereWithoutBilledToUserInput | Prisma.WorkspaceUsageMonthlyUpdateManyWithWhereWithoutBilledToUserInput[]
+  deleteMany?: Prisma.WorkspaceUsageMonthlyScalarWhereInput | Prisma.WorkspaceUsageMonthlyScalarWhereInput[]
+}
+
+export type WorkspaceUsageMonthlyUncheckedUpdateManyWithoutBilledToUserNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceUsageMonthlyCreateWithoutBilledToUserInput, Prisma.WorkspaceUsageMonthlyUncheckedCreateWithoutBilledToUserInput> | Prisma.WorkspaceUsageMonthlyCreateWithoutBilledToUserInput[] | Prisma.WorkspaceUsageMonthlyUncheckedCreateWithoutBilledToUserInput[]
+  connectOrCreate?: Prisma.WorkspaceUsageMonthlyCreateOrConnectWithoutBilledToUserInput | Prisma.WorkspaceUsageMonthlyCreateOrConnectWithoutBilledToUserInput[]
+  upsert?: Prisma.WorkspaceUsageMonthlyUpsertWithWhereUniqueWithoutBilledToUserInput | Prisma.WorkspaceUsageMonthlyUpsertWithWhereUniqueWithoutBilledToUserInput[]
+  createMany?: Prisma.WorkspaceUsageMonthlyCreateManyBilledToUserInputEnvelope
+  set?: Prisma.WorkspaceUsageMonthlyWhereUniqueInput | Prisma.WorkspaceUsageMonthlyWhereUniqueInput[]
+  disconnect?: Prisma.WorkspaceUsageMonthlyWhereUniqueInput | Prisma.WorkspaceUsageMonthlyWhereUniqueInput[]
+  delete?: Prisma.WorkspaceUsageMonthlyWhereUniqueInput | Prisma.WorkspaceUsageMonthlyWhereUniqueInput[]
+  connect?: Prisma.WorkspaceUsageMonthlyWhereUniqueInput | Prisma.WorkspaceUsageMonthlyWhereUniqueInput[]
+  update?: Prisma.WorkspaceUsageMonthlyUpdateWithWhereUniqueWithoutBilledToUserInput | Prisma.WorkspaceUsageMonthlyUpdateWithWhereUniqueWithoutBilledToUserInput[]
+  updateMany?: Prisma.WorkspaceUsageMonthlyUpdateManyWithWhereWithoutBilledToUserInput | Prisma.WorkspaceUsageMonthlyUpdateManyWithWhereWithoutBilledToUserInput[]
+  deleteMany?: Prisma.WorkspaceUsageMonthlyScalarWhereInput | Prisma.WorkspaceUsageMonthlyScalarWhereInput[]
 }
 
 export type WorkspaceUsageMonthlyCreateNestedManyWithoutWorkspaceInput = {
@@ -487,8 +553,19 @@ export type DecimalFieldUpdateOperationsInput = {
   divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
-export type WorkspaceUsageMonthlyCreateWithoutWorkspaceInput = {
+export type WorkspaceUsageMonthlyCreateWithoutBilledToUserInput = {
   id?: string
+  usageMonth: Date | string
+  totalInputTokens?: bigint | number
+  totalOutputTokens?: bigint | number
+  totalTokens?: bigint | number
+  totalEstimatedCostUsd?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutMonthlyUsageInput
+}
+
+export type WorkspaceUsageMonthlyUncheckedCreateWithoutBilledToUserInput = {
+  id?: string
+  workspaceId: string
   usageMonth: Date | string
   totalInputTokens?: bigint | number
   totalOutputTokens?: bigint | number
@@ -496,8 +573,59 @@ export type WorkspaceUsageMonthlyCreateWithoutWorkspaceInput = {
   totalEstimatedCostUsd?: runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
+export type WorkspaceUsageMonthlyCreateOrConnectWithoutBilledToUserInput = {
+  where: Prisma.WorkspaceUsageMonthlyWhereUniqueInput
+  create: Prisma.XOR<Prisma.WorkspaceUsageMonthlyCreateWithoutBilledToUserInput, Prisma.WorkspaceUsageMonthlyUncheckedCreateWithoutBilledToUserInput>
+}
+
+export type WorkspaceUsageMonthlyCreateManyBilledToUserInputEnvelope = {
+  data: Prisma.WorkspaceUsageMonthlyCreateManyBilledToUserInput | Prisma.WorkspaceUsageMonthlyCreateManyBilledToUserInput[]
+  skipDuplicates?: boolean
+}
+
+export type WorkspaceUsageMonthlyUpsertWithWhereUniqueWithoutBilledToUserInput = {
+  where: Prisma.WorkspaceUsageMonthlyWhereUniqueInput
+  update: Prisma.XOR<Prisma.WorkspaceUsageMonthlyUpdateWithoutBilledToUserInput, Prisma.WorkspaceUsageMonthlyUncheckedUpdateWithoutBilledToUserInput>
+  create: Prisma.XOR<Prisma.WorkspaceUsageMonthlyCreateWithoutBilledToUserInput, Prisma.WorkspaceUsageMonthlyUncheckedCreateWithoutBilledToUserInput>
+}
+
+export type WorkspaceUsageMonthlyUpdateWithWhereUniqueWithoutBilledToUserInput = {
+  where: Prisma.WorkspaceUsageMonthlyWhereUniqueInput
+  data: Prisma.XOR<Prisma.WorkspaceUsageMonthlyUpdateWithoutBilledToUserInput, Prisma.WorkspaceUsageMonthlyUncheckedUpdateWithoutBilledToUserInput>
+}
+
+export type WorkspaceUsageMonthlyUpdateManyWithWhereWithoutBilledToUserInput = {
+  where: Prisma.WorkspaceUsageMonthlyScalarWhereInput
+  data: Prisma.XOR<Prisma.WorkspaceUsageMonthlyUpdateManyMutationInput, Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutBilledToUserInput>
+}
+
+export type WorkspaceUsageMonthlyScalarWhereInput = {
+  AND?: Prisma.WorkspaceUsageMonthlyScalarWhereInput | Prisma.WorkspaceUsageMonthlyScalarWhereInput[]
+  OR?: Prisma.WorkspaceUsageMonthlyScalarWhereInput[]
+  NOT?: Prisma.WorkspaceUsageMonthlyScalarWhereInput | Prisma.WorkspaceUsageMonthlyScalarWhereInput[]
+  id?: Prisma.UuidFilter<"WorkspaceUsageMonthly"> | string
+  workspaceId?: Prisma.UuidFilter<"WorkspaceUsageMonthly"> | string
+  billedToUserId?: Prisma.UuidFilter<"WorkspaceUsageMonthly"> | string
+  usageMonth?: Prisma.DateTimeFilter<"WorkspaceUsageMonthly"> | Date | string
+  totalInputTokens?: Prisma.BigIntFilter<"WorkspaceUsageMonthly"> | bigint | number
+  totalOutputTokens?: Prisma.BigIntFilter<"WorkspaceUsageMonthly"> | bigint | number
+  totalTokens?: Prisma.BigIntFilter<"WorkspaceUsageMonthly"> | bigint | number
+  totalEstimatedCostUsd?: Prisma.DecimalFilter<"WorkspaceUsageMonthly"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+}
+
+export type WorkspaceUsageMonthlyCreateWithoutWorkspaceInput = {
+  id?: string
+  usageMonth: Date | string
+  totalInputTokens?: bigint | number
+  totalOutputTokens?: bigint | number
+  totalTokens?: bigint | number
+  totalEstimatedCostUsd?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  billedToUser: Prisma.UserCreateNestedOneWithoutWorkspaceBilledUsageMonthlyInput
+}
+
 export type WorkspaceUsageMonthlyUncheckedCreateWithoutWorkspaceInput = {
   id?: string
+  billedToUserId: string
   usageMonth: Date | string
   totalInputTokens?: bigint | number
   totalOutputTokens?: bigint | number
@@ -531,21 +659,49 @@ export type WorkspaceUsageMonthlyUpdateManyWithWhereWithoutWorkspaceInput = {
   data: Prisma.XOR<Prisma.WorkspaceUsageMonthlyUpdateManyMutationInput, Prisma.WorkspaceUsageMonthlyUncheckedUpdateManyWithoutWorkspaceInput>
 }
 
-export type WorkspaceUsageMonthlyScalarWhereInput = {
-  AND?: Prisma.WorkspaceUsageMonthlyScalarWhereInput | Prisma.WorkspaceUsageMonthlyScalarWhereInput[]
-  OR?: Prisma.WorkspaceUsageMonthlyScalarWhereInput[]
-  NOT?: Prisma.WorkspaceUsageMonthlyScalarWhereInput | Prisma.WorkspaceUsageMonthlyScalarWhereInput[]
-  id?: Prisma.UuidFilter<"WorkspaceUsageMonthly"> | string
-  workspaceId?: Prisma.UuidFilter<"WorkspaceUsageMonthly"> | string
-  usageMonth?: Prisma.DateTimeFilter<"WorkspaceUsageMonthly"> | Date | string
-  totalInputTokens?: Prisma.BigIntFilter<"WorkspaceUsageMonthly"> | bigint | number
-  totalOutputTokens?: Prisma.BigIntFilter<"WorkspaceUsageMonthly"> | bigint | number
-  totalTokens?: Prisma.BigIntFilter<"WorkspaceUsageMonthly"> | bigint | number
-  totalEstimatedCostUsd?: Prisma.DecimalFilter<"WorkspaceUsageMonthly"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+export type WorkspaceUsageMonthlyCreateManyBilledToUserInput = {
+  id?: string
+  workspaceId: string
+  usageMonth: Date | string
+  totalInputTokens?: bigint | number
+  totalOutputTokens?: bigint | number
+  totalTokens?: bigint | number
+  totalEstimatedCostUsd?: runtime.Decimal | runtime.DecimalJsLike | number | string
+}
+
+export type WorkspaceUsageMonthlyUpdateWithoutBilledToUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  usageMonth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  totalInputTokens?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  totalOutputTokens?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  totalTokens?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  totalEstimatedCostUsd?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutMonthlyUsageNestedInput
+}
+
+export type WorkspaceUsageMonthlyUncheckedUpdateWithoutBilledToUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  usageMonth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  totalInputTokens?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  totalOutputTokens?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  totalTokens?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  totalEstimatedCostUsd?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+}
+
+export type WorkspaceUsageMonthlyUncheckedUpdateManyWithoutBilledToUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  usageMonth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  totalInputTokens?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  totalOutputTokens?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  totalTokens?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  totalEstimatedCostUsd?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
 export type WorkspaceUsageMonthlyCreateManyWorkspaceInput = {
   id?: string
+  billedToUserId: string
   usageMonth: Date | string
   totalInputTokens?: bigint | number
   totalOutputTokens?: bigint | number
@@ -560,10 +716,12 @@ export type WorkspaceUsageMonthlyUpdateWithoutWorkspaceInput = {
   totalOutputTokens?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   totalTokens?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   totalEstimatedCostUsd?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  billedToUser?: Prisma.UserUpdateOneRequiredWithoutWorkspaceBilledUsageMonthlyNestedInput
 }
 
 export type WorkspaceUsageMonthlyUncheckedUpdateWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  billedToUserId?: Prisma.StringFieldUpdateOperationsInput | string
   usageMonth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   totalInputTokens?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   totalOutputTokens?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
@@ -573,6 +731,7 @@ export type WorkspaceUsageMonthlyUncheckedUpdateWithoutWorkspaceInput = {
 
 export type WorkspaceUsageMonthlyUncheckedUpdateManyWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  billedToUserId?: Prisma.StringFieldUpdateOperationsInput | string
   usageMonth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   totalInputTokens?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   totalOutputTokens?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
@@ -585,39 +744,46 @@ export type WorkspaceUsageMonthlyUncheckedUpdateManyWithoutWorkspaceInput = {
 export type WorkspaceUsageMonthlySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   workspaceId?: boolean
+  billedToUserId?: boolean
   usageMonth?: boolean
   totalInputTokens?: boolean
   totalOutputTokens?: boolean
   totalTokens?: boolean
   totalEstimatedCostUsd?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  billedToUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["workspaceUsageMonthly"]>
 
 export type WorkspaceUsageMonthlySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   workspaceId?: boolean
+  billedToUserId?: boolean
   usageMonth?: boolean
   totalInputTokens?: boolean
   totalOutputTokens?: boolean
   totalTokens?: boolean
   totalEstimatedCostUsd?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  billedToUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["workspaceUsageMonthly"]>
 
 export type WorkspaceUsageMonthlySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   workspaceId?: boolean
+  billedToUserId?: boolean
   usageMonth?: boolean
   totalInputTokens?: boolean
   totalOutputTokens?: boolean
   totalTokens?: boolean
   totalEstimatedCostUsd?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  billedToUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["workspaceUsageMonthly"]>
 
 export type WorkspaceUsageMonthlySelectScalar = {
   id?: boolean
   workspaceId?: boolean
+  billedToUserId?: boolean
   usageMonth?: boolean
   totalInputTokens?: boolean
   totalOutputTokens?: boolean
@@ -625,25 +791,30 @@ export type WorkspaceUsageMonthlySelectScalar = {
   totalEstimatedCostUsd?: boolean
 }
 
-export type WorkspaceUsageMonthlyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "usageMonth" | "totalInputTokens" | "totalOutputTokens" | "totalTokens" | "totalEstimatedCostUsd", ExtArgs["result"]["workspaceUsageMonthly"]>
+export type WorkspaceUsageMonthlyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "billedToUserId" | "usageMonth" | "totalInputTokens" | "totalOutputTokens" | "totalTokens" | "totalEstimatedCostUsd", ExtArgs["result"]["workspaceUsageMonthly"]>
 export type WorkspaceUsageMonthlyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  billedToUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type WorkspaceUsageMonthlyIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  billedToUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type WorkspaceUsageMonthlyIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  billedToUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
 export type $WorkspaceUsageMonthlyPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "WorkspaceUsageMonthly"
   objects: {
     workspace: Prisma.$WorkspacePayload<ExtArgs>
+    billedToUser: Prisma.$UserPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     workspaceId: string
+    billedToUserId: string
     usageMonth: Date
     totalInputTokens: bigint
     totalOutputTokens: bigint
@@ -1044,6 +1215,7 @@ readonly fields: WorkspaceUsageMonthlyFieldRefs;
 export interface Prisma__WorkspaceUsageMonthlyClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  billedToUser<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1075,6 +1247,7 @@ export interface Prisma__WorkspaceUsageMonthlyClient<T, Null = never, ExtArgs ex
 export interface WorkspaceUsageMonthlyFieldRefs {
   readonly id: Prisma.FieldRef<"WorkspaceUsageMonthly", 'String'>
   readonly workspaceId: Prisma.FieldRef<"WorkspaceUsageMonthly", 'String'>
+  readonly billedToUserId: Prisma.FieldRef<"WorkspaceUsageMonthly", 'String'>
   readonly usageMonth: Prisma.FieldRef<"WorkspaceUsageMonthly", 'DateTime'>
   readonly totalInputTokens: Prisma.FieldRef<"WorkspaceUsageMonthly", 'BigInt'>
   readonly totalOutputTokens: Prisma.FieldRef<"WorkspaceUsageMonthly", 'BigInt'>

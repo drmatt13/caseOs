@@ -67,6 +67,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+  # postgresql://app_user:app_password@pgbouncer:5432/app_db
 
   pgbouncer:
     image: edoburu/pgbouncer:v1.25.1-p0
@@ -88,6 +89,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+  # postgresql://app_user:app_password@pgbouncer:5432/app_db
   
   pgadmin:
     image: dpage/pgadmin4

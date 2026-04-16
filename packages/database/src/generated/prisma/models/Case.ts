@@ -9,8 +9,8 @@
  * 🟢 You can import this file directly.
  */
 import type * as runtime from "@prisma/client/runtime/client"
-import type * as $Enums from "../enums.ts"
-import type * as Prisma from "../internal/prismaNamespace.ts"
+import type * as $Enums from "../enums"
+import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model Case
@@ -20,8 +20,18 @@ export type CaseModel = runtime.Types.Result.DefaultSelection<Prisma.$CasePayloa
 
 export type AggregateCase = {
   _count: CaseCountAggregateOutputType | null
+  _avg: CaseAvgAggregateOutputType | null
+  _sum: CaseSumAggregateOutputType | null
   _min: CaseMinAggregateOutputType | null
   _max: CaseMaxAggregateOutputType | null
+}
+
+export type CaseAvgAggregateOutputType = {
+  currentManifestNumber: number | null
+}
+
+export type CaseSumAggregateOutputType = {
+  currentManifestNumber: number | null
 }
 
 export type CaseMinAggregateOutputType = {
@@ -31,6 +41,7 @@ export type CaseMinAggregateOutputType = {
   title: string | null
   description: string | null
   status: $Enums.CaseStatus | null
+  currentManifestNumber: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -42,6 +53,7 @@ export type CaseMaxAggregateOutputType = {
   title: string | null
   description: string | null
   status: $Enums.CaseStatus | null
+  currentManifestNumber: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -53,11 +65,21 @@ export type CaseCountAggregateOutputType = {
   title: number
   description: number
   status: number
+  intake: number
+  currentManifestNumber: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
+
+export type CaseAvgAggregateInputType = {
+  currentManifestNumber?: true
+}
+
+export type CaseSumAggregateInputType = {
+  currentManifestNumber?: true
+}
 
 export type CaseMinAggregateInputType = {
   id?: true
@@ -66,6 +88,7 @@ export type CaseMinAggregateInputType = {
   title?: true
   description?: true
   status?: true
+  currentManifestNumber?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -77,6 +100,7 @@ export type CaseMaxAggregateInputType = {
   title?: true
   description?: true
   status?: true
+  currentManifestNumber?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -88,6 +112,8 @@ export type CaseCountAggregateInputType = {
   title?: true
   description?: true
   status?: true
+  intake?: true
+  currentManifestNumber?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -131,6 +157,18 @@ export type CaseAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: CaseAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: CaseSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: CaseMinAggregateInputType
@@ -161,6 +199,8 @@ export type CaseGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   _count?: CaseCountAggregateInputType | true
+  _avg?: CaseAvgAggregateInputType
+  _sum?: CaseSumAggregateInputType
   _min?: CaseMinAggregateInputType
   _max?: CaseMaxAggregateInputType
 }
@@ -172,9 +212,13 @@ export type CaseGroupByOutputType = {
   title: string
   description: string | null
   status: $Enums.CaseStatus
+  intake: runtime.JsonValue | null
+  currentManifestNumber: number | null
   createdAt: Date
   updatedAt: Date
   _count: CaseCountAggregateOutputType | null
+  _avg: CaseAvgAggregateOutputType | null
+  _sum: CaseSumAggregateOutputType | null
   _min: CaseMinAggregateOutputType | null
   _max: CaseMaxAggregateOutputType | null
 }
@@ -204,10 +248,16 @@ export type CaseWhereInput = {
   title?: Prisma.StringFilter<"Case"> | string
   description?: Prisma.StringNullableFilter<"Case"> | string | null
   status?: Prisma.EnumCaseStatusFilter<"Case"> | $Enums.CaseStatus
+  intake?: Prisma.JsonNullableFilter<"Case">
+  currentManifestNumber?: Prisma.IntNullableFilter<"Case"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Case"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Case"> | Date | string
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
   createdByUser?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  documentIndexes?: Prisma.CaseDocumentIndexListRelationFilter
+  recordIndexes?: Prisma.CaseRecordIndexListRelationFilter
+  viewIndexes?: Prisma.CaseViewIndexListRelationFilter
+  manifests?: Prisma.CaseStateManifestListRelationFilter
   llmUsageEvents?: Prisma.LlmUsageEventListRelationFilter
 }
 
@@ -218,10 +268,16 @@ export type CaseOrderByWithRelationInput = {
   title?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  intake?: Prisma.SortOrderInput | Prisma.SortOrder
+  currentManifestNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   workspace?: Prisma.WorkspaceOrderByWithRelationInput
   createdByUser?: Prisma.UserOrderByWithRelationInput
+  documentIndexes?: Prisma.CaseDocumentIndexOrderByRelationAggregateInput
+  recordIndexes?: Prisma.CaseRecordIndexOrderByRelationAggregateInput
+  viewIndexes?: Prisma.CaseViewIndexOrderByRelationAggregateInput
+  manifests?: Prisma.CaseStateManifestOrderByRelationAggregateInput
   llmUsageEvents?: Prisma.LlmUsageEventOrderByRelationAggregateInput
 }
 
@@ -235,10 +291,16 @@ export type CaseWhereUniqueInput = Prisma.AtLeast<{
   title?: Prisma.StringFilter<"Case"> | string
   description?: Prisma.StringNullableFilter<"Case"> | string | null
   status?: Prisma.EnumCaseStatusFilter<"Case"> | $Enums.CaseStatus
+  intake?: Prisma.JsonNullableFilter<"Case">
+  currentManifestNumber?: Prisma.IntNullableFilter<"Case"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Case"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Case"> | Date | string
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
   createdByUser?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  documentIndexes?: Prisma.CaseDocumentIndexListRelationFilter
+  recordIndexes?: Prisma.CaseRecordIndexListRelationFilter
+  viewIndexes?: Prisma.CaseViewIndexListRelationFilter
+  manifests?: Prisma.CaseStateManifestListRelationFilter
   llmUsageEvents?: Prisma.LlmUsageEventListRelationFilter
 }, "id">
 
@@ -249,11 +311,15 @@ export type CaseOrderByWithAggregationInput = {
   title?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  intake?: Prisma.SortOrderInput | Prisma.SortOrder
+  currentManifestNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.CaseCountOrderByAggregateInput
+  _avg?: Prisma.CaseAvgOrderByAggregateInput
   _max?: Prisma.CaseMaxOrderByAggregateInput
   _min?: Prisma.CaseMinOrderByAggregateInput
+  _sum?: Prisma.CaseSumOrderByAggregateInput
 }
 
 export type CaseScalarWhereWithAggregatesInput = {
@@ -266,6 +332,8 @@ export type CaseScalarWhereWithAggregatesInput = {
   title?: Prisma.StringWithAggregatesFilter<"Case"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Case"> | string | null
   status?: Prisma.EnumCaseStatusWithAggregatesFilter<"Case"> | $Enums.CaseStatus
+  intake?: Prisma.JsonNullableWithAggregatesFilter<"Case">
+  currentManifestNumber?: Prisma.IntNullableWithAggregatesFilter<"Case"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Case"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Case"> | Date | string
 }
@@ -275,10 +343,16 @@ export type CaseCreateInput = {
   title: string
   description?: string | null
   status?: $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutCasesInput
   createdByUser: Prisma.UserCreateNestedOneWithoutCreatedCasesInput
+  documentIndexes?: Prisma.CaseDocumentIndexCreateNestedManyWithoutCaseInput
+  recordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutCaseInput
+  viewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutCaseInput
+  manifests?: Prisma.CaseStateManifestCreateNestedManyWithoutCaseInput
   llmUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutCaseInput
 }
 
@@ -289,8 +363,14 @@ export type CaseUncheckedCreateInput = {
   title: string
   description?: string | null
   status?: $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutCaseInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutCaseInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutCaseInput
+  manifests?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutCaseInput
   llmUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutCaseInput
 }
 
@@ -299,10 +379,16 @@ export type CaseUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutCasesNestedInput
   createdByUser?: Prisma.UserUpdateOneRequiredWithoutCreatedCasesNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUpdateManyWithoutCaseNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutCaseNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutCaseNestedInput
+  manifests?: Prisma.CaseStateManifestUpdateManyWithoutCaseNestedInput
   llmUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutCaseNestedInput
 }
 
@@ -313,8 +399,14 @@ export type CaseUncheckedUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutCaseNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutCaseNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutCaseNestedInput
+  manifests?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutCaseNestedInput
   llmUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutCaseNestedInput
 }
 
@@ -325,6 +417,8 @@ export type CaseCreateManyInput = {
   title: string
   description?: string | null
   status?: $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -334,6 +428,8 @@ export type CaseUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -345,6 +441,8 @@ export type CaseUncheckedUpdateManyInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -366,8 +464,14 @@ export type CaseCountOrderByAggregateInput = {
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  intake?: Prisma.SortOrder
+  currentManifestNumber?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type CaseAvgOrderByAggregateInput = {
+  currentManifestNumber?: Prisma.SortOrder
 }
 
 export type CaseMaxOrderByAggregateInput = {
@@ -377,6 +481,7 @@ export type CaseMaxOrderByAggregateInput = {
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  currentManifestNumber?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -388,8 +493,18 @@ export type CaseMinOrderByAggregateInput = {
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  currentManifestNumber?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type CaseSumOrderByAggregateInput = {
+  currentManifestNumber?: Prisma.SortOrder
+}
+
+export type CaseScalarRelationFilter = {
+  is?: Prisma.CaseWhereInput
+  isNot?: Prisma.CaseWhereInput
 }
 
 export type CaseNullableScalarRelationFilter = {
@@ -485,6 +600,72 @@ export type EnumCaseStatusFieldUpdateOperationsInput = {
   set?: $Enums.CaseStatus
 }
 
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type CaseCreateNestedOneWithoutDocumentIndexesInput = {
+  create?: Prisma.XOR<Prisma.CaseCreateWithoutDocumentIndexesInput, Prisma.CaseUncheckedCreateWithoutDocumentIndexesInput>
+  connectOrCreate?: Prisma.CaseCreateOrConnectWithoutDocumentIndexesInput
+  connect?: Prisma.CaseWhereUniqueInput
+}
+
+export type CaseUpdateOneRequiredWithoutDocumentIndexesNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseCreateWithoutDocumentIndexesInput, Prisma.CaseUncheckedCreateWithoutDocumentIndexesInput>
+  connectOrCreate?: Prisma.CaseCreateOrConnectWithoutDocumentIndexesInput
+  upsert?: Prisma.CaseUpsertWithoutDocumentIndexesInput
+  connect?: Prisma.CaseWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CaseUpdateToOneWithWhereWithoutDocumentIndexesInput, Prisma.CaseUpdateWithoutDocumentIndexesInput>, Prisma.CaseUncheckedUpdateWithoutDocumentIndexesInput>
+}
+
+export type CaseCreateNestedOneWithoutRecordIndexesInput = {
+  create?: Prisma.XOR<Prisma.CaseCreateWithoutRecordIndexesInput, Prisma.CaseUncheckedCreateWithoutRecordIndexesInput>
+  connectOrCreate?: Prisma.CaseCreateOrConnectWithoutRecordIndexesInput
+  connect?: Prisma.CaseWhereUniqueInput
+}
+
+export type CaseUpdateOneRequiredWithoutRecordIndexesNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseCreateWithoutRecordIndexesInput, Prisma.CaseUncheckedCreateWithoutRecordIndexesInput>
+  connectOrCreate?: Prisma.CaseCreateOrConnectWithoutRecordIndexesInput
+  upsert?: Prisma.CaseUpsertWithoutRecordIndexesInput
+  connect?: Prisma.CaseWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CaseUpdateToOneWithWhereWithoutRecordIndexesInput, Prisma.CaseUpdateWithoutRecordIndexesInput>, Prisma.CaseUncheckedUpdateWithoutRecordIndexesInput>
+}
+
+export type CaseCreateNestedOneWithoutViewIndexesInput = {
+  create?: Prisma.XOR<Prisma.CaseCreateWithoutViewIndexesInput, Prisma.CaseUncheckedCreateWithoutViewIndexesInput>
+  connectOrCreate?: Prisma.CaseCreateOrConnectWithoutViewIndexesInput
+  connect?: Prisma.CaseWhereUniqueInput
+}
+
+export type CaseUpdateOneRequiredWithoutViewIndexesNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseCreateWithoutViewIndexesInput, Prisma.CaseUncheckedCreateWithoutViewIndexesInput>
+  connectOrCreate?: Prisma.CaseCreateOrConnectWithoutViewIndexesInput
+  upsert?: Prisma.CaseUpsertWithoutViewIndexesInput
+  connect?: Prisma.CaseWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CaseUpdateToOneWithWhereWithoutViewIndexesInput, Prisma.CaseUpdateWithoutViewIndexesInput>, Prisma.CaseUncheckedUpdateWithoutViewIndexesInput>
+}
+
+export type CaseCreateNestedOneWithoutManifestsInput = {
+  create?: Prisma.XOR<Prisma.CaseCreateWithoutManifestsInput, Prisma.CaseUncheckedCreateWithoutManifestsInput>
+  connectOrCreate?: Prisma.CaseCreateOrConnectWithoutManifestsInput
+  connect?: Prisma.CaseWhereUniqueInput
+}
+
+export type CaseUpdateOneWithoutManifestsNestedInput = {
+  create?: Prisma.XOR<Prisma.CaseCreateWithoutManifestsInput, Prisma.CaseUncheckedCreateWithoutManifestsInput>
+  connectOrCreate?: Prisma.CaseCreateOrConnectWithoutManifestsInput
+  upsert?: Prisma.CaseUpsertWithoutManifestsInput
+  disconnect?: Prisma.CaseWhereInput | boolean
+  delete?: Prisma.CaseWhereInput | boolean
+  connect?: Prisma.CaseWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CaseUpdateToOneWithWhereWithoutManifestsInput, Prisma.CaseUpdateWithoutManifestsInput>, Prisma.CaseUncheckedUpdateWithoutManifestsInput>
+}
+
 export type CaseCreateNestedOneWithoutLlmUsageEventsInput = {
   create?: Prisma.XOR<Prisma.CaseCreateWithoutLlmUsageEventsInput, Prisma.CaseUncheckedCreateWithoutLlmUsageEventsInput>
   connectOrCreate?: Prisma.CaseCreateOrConnectWithoutLlmUsageEventsInput
@@ -506,9 +687,15 @@ export type CaseCreateWithoutCreatedByUserInput = {
   title: string
   description?: string | null
   status?: $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutCasesInput
+  documentIndexes?: Prisma.CaseDocumentIndexCreateNestedManyWithoutCaseInput
+  recordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutCaseInput
+  viewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutCaseInput
+  manifests?: Prisma.CaseStateManifestCreateNestedManyWithoutCaseInput
   llmUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutCaseInput
 }
 
@@ -518,8 +705,14 @@ export type CaseUncheckedCreateWithoutCreatedByUserInput = {
   title: string
   description?: string | null
   status?: $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutCaseInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutCaseInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutCaseInput
+  manifests?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutCaseInput
   llmUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutCaseInput
 }
 
@@ -559,6 +752,8 @@ export type CaseScalarWhereInput = {
   title?: Prisma.StringFilter<"Case"> | string
   description?: Prisma.StringNullableFilter<"Case"> | string | null
   status?: Prisma.EnumCaseStatusFilter<"Case"> | $Enums.CaseStatus
+  intake?: Prisma.JsonNullableFilter<"Case">
+  currentManifestNumber?: Prisma.IntNullableFilter<"Case"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Case"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Case"> | Date | string
 }
@@ -568,9 +763,15 @@ export type CaseCreateWithoutWorkspaceInput = {
   title: string
   description?: string | null
   status?: $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   createdByUser: Prisma.UserCreateNestedOneWithoutCreatedCasesInput
+  documentIndexes?: Prisma.CaseDocumentIndexCreateNestedManyWithoutCaseInput
+  recordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutCaseInput
+  viewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutCaseInput
+  manifests?: Prisma.CaseStateManifestCreateNestedManyWithoutCaseInput
   llmUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutCaseInput
 }
 
@@ -580,8 +781,14 @@ export type CaseUncheckedCreateWithoutWorkspaceInput = {
   title: string
   description?: string | null
   status?: $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutCaseInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutCaseInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutCaseInput
+  manifests?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutCaseInput
   llmUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutCaseInput
 }
 
@@ -611,15 +818,357 @@ export type CaseUpdateManyWithWhereWithoutWorkspaceInput = {
   data: Prisma.XOR<Prisma.CaseUpdateManyMutationInput, Prisma.CaseUncheckedUpdateManyWithoutWorkspaceInput>
 }
 
+export type CaseCreateWithoutDocumentIndexesInput = {
+  id?: string
+  title: string
+  description?: string | null
+  status?: $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutCasesInput
+  createdByUser: Prisma.UserCreateNestedOneWithoutCreatedCasesInput
+  recordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutCaseInput
+  viewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutCaseInput
+  manifests?: Prisma.CaseStateManifestCreateNestedManyWithoutCaseInput
+  llmUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutCaseInput
+}
+
+export type CaseUncheckedCreateWithoutDocumentIndexesInput = {
+  id?: string
+  workspaceId: string
+  createdByUserId: string
+  title: string
+  description?: string | null
+  status?: $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutCaseInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutCaseInput
+  manifests?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutCaseInput
+  llmUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutCaseInput
+}
+
+export type CaseCreateOrConnectWithoutDocumentIndexesInput = {
+  where: Prisma.CaseWhereUniqueInput
+  create: Prisma.XOR<Prisma.CaseCreateWithoutDocumentIndexesInput, Prisma.CaseUncheckedCreateWithoutDocumentIndexesInput>
+}
+
+export type CaseUpsertWithoutDocumentIndexesInput = {
+  update: Prisma.XOR<Prisma.CaseUpdateWithoutDocumentIndexesInput, Prisma.CaseUncheckedUpdateWithoutDocumentIndexesInput>
+  create: Prisma.XOR<Prisma.CaseCreateWithoutDocumentIndexesInput, Prisma.CaseUncheckedCreateWithoutDocumentIndexesInput>
+  where?: Prisma.CaseWhereInput
+}
+
+export type CaseUpdateToOneWithWhereWithoutDocumentIndexesInput = {
+  where?: Prisma.CaseWhereInput
+  data: Prisma.XOR<Prisma.CaseUpdateWithoutDocumentIndexesInput, Prisma.CaseUncheckedUpdateWithoutDocumentIndexesInput>
+}
+
+export type CaseUpdateWithoutDocumentIndexesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutCasesNestedInput
+  createdByUser?: Prisma.UserUpdateOneRequiredWithoutCreatedCasesNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutCaseNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutCaseNestedInput
+  manifests?: Prisma.CaseStateManifestUpdateManyWithoutCaseNestedInput
+  llmUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutCaseNestedInput
+}
+
+export type CaseUncheckedUpdateWithoutDocumentIndexesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutCaseNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutCaseNestedInput
+  manifests?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutCaseNestedInput
+  llmUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutCaseNestedInput
+}
+
+export type CaseCreateWithoutRecordIndexesInput = {
+  id?: string
+  title: string
+  description?: string | null
+  status?: $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutCasesInput
+  createdByUser: Prisma.UserCreateNestedOneWithoutCreatedCasesInput
+  documentIndexes?: Prisma.CaseDocumentIndexCreateNestedManyWithoutCaseInput
+  viewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutCaseInput
+  manifests?: Prisma.CaseStateManifestCreateNestedManyWithoutCaseInput
+  llmUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutCaseInput
+}
+
+export type CaseUncheckedCreateWithoutRecordIndexesInput = {
+  id?: string
+  workspaceId: string
+  createdByUserId: string
+  title: string
+  description?: string | null
+  status?: $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutCaseInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutCaseInput
+  manifests?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutCaseInput
+  llmUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutCaseInput
+}
+
+export type CaseCreateOrConnectWithoutRecordIndexesInput = {
+  where: Prisma.CaseWhereUniqueInput
+  create: Prisma.XOR<Prisma.CaseCreateWithoutRecordIndexesInput, Prisma.CaseUncheckedCreateWithoutRecordIndexesInput>
+}
+
+export type CaseUpsertWithoutRecordIndexesInput = {
+  update: Prisma.XOR<Prisma.CaseUpdateWithoutRecordIndexesInput, Prisma.CaseUncheckedUpdateWithoutRecordIndexesInput>
+  create: Prisma.XOR<Prisma.CaseCreateWithoutRecordIndexesInput, Prisma.CaseUncheckedCreateWithoutRecordIndexesInput>
+  where?: Prisma.CaseWhereInput
+}
+
+export type CaseUpdateToOneWithWhereWithoutRecordIndexesInput = {
+  where?: Prisma.CaseWhereInput
+  data: Prisma.XOR<Prisma.CaseUpdateWithoutRecordIndexesInput, Prisma.CaseUncheckedUpdateWithoutRecordIndexesInput>
+}
+
+export type CaseUpdateWithoutRecordIndexesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutCasesNestedInput
+  createdByUser?: Prisma.UserUpdateOneRequiredWithoutCreatedCasesNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUpdateManyWithoutCaseNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutCaseNestedInput
+  manifests?: Prisma.CaseStateManifestUpdateManyWithoutCaseNestedInput
+  llmUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutCaseNestedInput
+}
+
+export type CaseUncheckedUpdateWithoutRecordIndexesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutCaseNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutCaseNestedInput
+  manifests?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutCaseNestedInput
+  llmUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutCaseNestedInput
+}
+
+export type CaseCreateWithoutViewIndexesInput = {
+  id?: string
+  title: string
+  description?: string | null
+  status?: $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutCasesInput
+  createdByUser: Prisma.UserCreateNestedOneWithoutCreatedCasesInput
+  documentIndexes?: Prisma.CaseDocumentIndexCreateNestedManyWithoutCaseInput
+  recordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutCaseInput
+  manifests?: Prisma.CaseStateManifestCreateNestedManyWithoutCaseInput
+  llmUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutCaseInput
+}
+
+export type CaseUncheckedCreateWithoutViewIndexesInput = {
+  id?: string
+  workspaceId: string
+  createdByUserId: string
+  title: string
+  description?: string | null
+  status?: $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutCaseInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutCaseInput
+  manifests?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutCaseInput
+  llmUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutCaseInput
+}
+
+export type CaseCreateOrConnectWithoutViewIndexesInput = {
+  where: Prisma.CaseWhereUniqueInput
+  create: Prisma.XOR<Prisma.CaseCreateWithoutViewIndexesInput, Prisma.CaseUncheckedCreateWithoutViewIndexesInput>
+}
+
+export type CaseUpsertWithoutViewIndexesInput = {
+  update: Prisma.XOR<Prisma.CaseUpdateWithoutViewIndexesInput, Prisma.CaseUncheckedUpdateWithoutViewIndexesInput>
+  create: Prisma.XOR<Prisma.CaseCreateWithoutViewIndexesInput, Prisma.CaseUncheckedCreateWithoutViewIndexesInput>
+  where?: Prisma.CaseWhereInput
+}
+
+export type CaseUpdateToOneWithWhereWithoutViewIndexesInput = {
+  where?: Prisma.CaseWhereInput
+  data: Prisma.XOR<Prisma.CaseUpdateWithoutViewIndexesInput, Prisma.CaseUncheckedUpdateWithoutViewIndexesInput>
+}
+
+export type CaseUpdateWithoutViewIndexesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutCasesNestedInput
+  createdByUser?: Prisma.UserUpdateOneRequiredWithoutCreatedCasesNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUpdateManyWithoutCaseNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutCaseNestedInput
+  manifests?: Prisma.CaseStateManifestUpdateManyWithoutCaseNestedInput
+  llmUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutCaseNestedInput
+}
+
+export type CaseUncheckedUpdateWithoutViewIndexesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutCaseNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutCaseNestedInput
+  manifests?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutCaseNestedInput
+  llmUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutCaseNestedInput
+}
+
+export type CaseCreateWithoutManifestsInput = {
+  id?: string
+  title: string
+  description?: string | null
+  status?: $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutCasesInput
+  createdByUser: Prisma.UserCreateNestedOneWithoutCreatedCasesInput
+  documentIndexes?: Prisma.CaseDocumentIndexCreateNestedManyWithoutCaseInput
+  recordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutCaseInput
+  viewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutCaseInput
+  llmUsageEvents?: Prisma.LlmUsageEventCreateNestedManyWithoutCaseInput
+}
+
+export type CaseUncheckedCreateWithoutManifestsInput = {
+  id?: string
+  workspaceId: string
+  createdByUserId: string
+  title: string
+  description?: string | null
+  status?: $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutCaseInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutCaseInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutCaseInput
+  llmUsageEvents?: Prisma.LlmUsageEventUncheckedCreateNestedManyWithoutCaseInput
+}
+
+export type CaseCreateOrConnectWithoutManifestsInput = {
+  where: Prisma.CaseWhereUniqueInput
+  create: Prisma.XOR<Prisma.CaseCreateWithoutManifestsInput, Prisma.CaseUncheckedCreateWithoutManifestsInput>
+}
+
+export type CaseUpsertWithoutManifestsInput = {
+  update: Prisma.XOR<Prisma.CaseUpdateWithoutManifestsInput, Prisma.CaseUncheckedUpdateWithoutManifestsInput>
+  create: Prisma.XOR<Prisma.CaseCreateWithoutManifestsInput, Prisma.CaseUncheckedCreateWithoutManifestsInput>
+  where?: Prisma.CaseWhereInput
+}
+
+export type CaseUpdateToOneWithWhereWithoutManifestsInput = {
+  where?: Prisma.CaseWhereInput
+  data: Prisma.XOR<Prisma.CaseUpdateWithoutManifestsInput, Prisma.CaseUncheckedUpdateWithoutManifestsInput>
+}
+
+export type CaseUpdateWithoutManifestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutCasesNestedInput
+  createdByUser?: Prisma.UserUpdateOneRequiredWithoutCreatedCasesNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUpdateManyWithoutCaseNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutCaseNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutCaseNestedInput
+  llmUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutCaseNestedInput
+}
+
+export type CaseUncheckedUpdateWithoutManifestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutCaseNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutCaseNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutCaseNestedInput
+  llmUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutCaseNestedInput
+}
+
 export type CaseCreateWithoutLlmUsageEventsInput = {
   id?: string
   title: string
   description?: string | null
   status?: $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutCasesInput
   createdByUser: Prisma.UserCreateNestedOneWithoutCreatedCasesInput
+  documentIndexes?: Prisma.CaseDocumentIndexCreateNestedManyWithoutCaseInput
+  recordIndexes?: Prisma.CaseRecordIndexCreateNestedManyWithoutCaseInput
+  viewIndexes?: Prisma.CaseViewIndexCreateNestedManyWithoutCaseInput
+  manifests?: Prisma.CaseStateManifestCreateNestedManyWithoutCaseInput
 }
 
 export type CaseUncheckedCreateWithoutLlmUsageEventsInput = {
@@ -629,8 +1178,14 @@ export type CaseUncheckedCreateWithoutLlmUsageEventsInput = {
   title: string
   description?: string | null
   status?: $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedCreateNestedManyWithoutCaseInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedCreateNestedManyWithoutCaseInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedCreateNestedManyWithoutCaseInput
+  manifests?: Prisma.CaseStateManifestUncheckedCreateNestedManyWithoutCaseInput
 }
 
 export type CaseCreateOrConnectWithoutLlmUsageEventsInput = {
@@ -654,10 +1209,16 @@ export type CaseUpdateWithoutLlmUsageEventsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutCasesNestedInput
   createdByUser?: Prisma.UserUpdateOneRequiredWithoutCreatedCasesNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUpdateManyWithoutCaseNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutCaseNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutCaseNestedInput
+  manifests?: Prisma.CaseStateManifestUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseUncheckedUpdateWithoutLlmUsageEventsInput = {
@@ -667,8 +1228,14 @@ export type CaseUncheckedUpdateWithoutLlmUsageEventsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutCaseNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutCaseNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutCaseNestedInput
+  manifests?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutCaseNestedInput
 }
 
 export type CaseCreateManyCreatedByUserInput = {
@@ -677,6 +1244,8 @@ export type CaseCreateManyCreatedByUserInput = {
   title: string
   description?: string | null
   status?: $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -686,9 +1255,15 @@ export type CaseUpdateWithoutCreatedByUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutCasesNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUpdateManyWithoutCaseNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutCaseNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutCaseNestedInput
+  manifests?: Prisma.CaseStateManifestUpdateManyWithoutCaseNestedInput
   llmUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutCaseNestedInput
 }
 
@@ -698,8 +1273,14 @@ export type CaseUncheckedUpdateWithoutCreatedByUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutCaseNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutCaseNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutCaseNestedInput
+  manifests?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutCaseNestedInput
   llmUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutCaseNestedInput
 }
 
@@ -709,6 +1290,8 @@ export type CaseUncheckedUpdateManyWithoutCreatedByUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -719,6 +1302,8 @@ export type CaseCreateManyWorkspaceInput = {
   title: string
   description?: string | null
   status?: $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -728,9 +1313,15 @@ export type CaseUpdateWithoutWorkspaceInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdByUser?: Prisma.UserUpdateOneRequiredWithoutCreatedCasesNestedInput
+  documentIndexes?: Prisma.CaseDocumentIndexUpdateManyWithoutCaseNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUpdateManyWithoutCaseNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUpdateManyWithoutCaseNestedInput
+  manifests?: Prisma.CaseStateManifestUpdateManyWithoutCaseNestedInput
   llmUsageEvents?: Prisma.LlmUsageEventUpdateManyWithoutCaseNestedInput
 }
 
@@ -740,8 +1331,14 @@ export type CaseUncheckedUpdateWithoutWorkspaceInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  documentIndexes?: Prisma.CaseDocumentIndexUncheckedUpdateManyWithoutCaseNestedInput
+  recordIndexes?: Prisma.CaseRecordIndexUncheckedUpdateManyWithoutCaseNestedInput
+  viewIndexes?: Prisma.CaseViewIndexUncheckedUpdateManyWithoutCaseNestedInput
+  manifests?: Prisma.CaseStateManifestUncheckedUpdateManyWithoutCaseNestedInput
   llmUsageEvents?: Prisma.LlmUsageEventUncheckedUpdateManyWithoutCaseNestedInput
 }
 
@@ -751,6 +1348,8 @@ export type CaseUncheckedUpdateManyWithoutWorkspaceInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCaseStatusFieldUpdateOperationsInput | $Enums.CaseStatus
+  intake?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentManifestNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -761,10 +1360,18 @@ export type CaseUncheckedUpdateManyWithoutWorkspaceInput = {
  */
 
 export type CaseCountOutputType = {
+  documentIndexes: number
+  recordIndexes: number
+  viewIndexes: number
+  manifests: number
   llmUsageEvents: number
 }
 
 export type CaseCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  documentIndexes?: boolean | CaseCountOutputTypeCountDocumentIndexesArgs
+  recordIndexes?: boolean | CaseCountOutputTypeCountRecordIndexesArgs
+  viewIndexes?: boolean | CaseCountOutputTypeCountViewIndexesArgs
+  manifests?: boolean | CaseCountOutputTypeCountManifestsArgs
   llmUsageEvents?: boolean | CaseCountOutputTypeCountLlmUsageEventsArgs
 }
 
@@ -776,6 +1383,34 @@ export type CaseCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
    * Select specific fields to fetch from the CaseCountOutputType
    */
   select?: Prisma.CaseCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * CaseCountOutputType without action
+ */
+export type CaseCountOutputTypeCountDocumentIndexesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CaseDocumentIndexWhereInput
+}
+
+/**
+ * CaseCountOutputType without action
+ */
+export type CaseCountOutputTypeCountRecordIndexesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CaseRecordIndexWhereInput
+}
+
+/**
+ * CaseCountOutputType without action
+ */
+export type CaseCountOutputTypeCountViewIndexesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CaseViewIndexWhereInput
+}
+
+/**
+ * CaseCountOutputType without action
+ */
+export type CaseCountOutputTypeCountManifestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CaseStateManifestWhereInput
 }
 
 /**
@@ -793,10 +1428,16 @@ export type CaseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   title?: boolean
   description?: boolean
   status?: boolean
+  intake?: boolean
+  currentManifestNumber?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   createdByUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  documentIndexes?: boolean | Prisma.Case$documentIndexesArgs<ExtArgs>
+  recordIndexes?: boolean | Prisma.Case$recordIndexesArgs<ExtArgs>
+  viewIndexes?: boolean | Prisma.Case$viewIndexesArgs<ExtArgs>
+  manifests?: boolean | Prisma.Case$manifestsArgs<ExtArgs>
   llmUsageEvents?: boolean | Prisma.Case$llmUsageEventsArgs<ExtArgs>
   _count?: boolean | Prisma.CaseCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["case"]>
@@ -808,6 +1449,8 @@ export type CaseSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   title?: boolean
   description?: boolean
   status?: boolean
+  intake?: boolean
+  currentManifestNumber?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
@@ -821,6 +1464,8 @@ export type CaseSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   title?: boolean
   description?: boolean
   status?: boolean
+  intake?: boolean
+  currentManifestNumber?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
@@ -834,14 +1479,20 @@ export type CaseSelectScalar = {
   title?: boolean
   description?: boolean
   status?: boolean
+  intake?: boolean
+  currentManifestNumber?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type CaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "createdByUserId" | "title" | "description" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["case"]>
+export type CaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "createdByUserId" | "title" | "description" | "status" | "intake" | "currentManifestNumber" | "createdAt" | "updatedAt", ExtArgs["result"]["case"]>
 export type CaseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   createdByUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  documentIndexes?: boolean | Prisma.Case$documentIndexesArgs<ExtArgs>
+  recordIndexes?: boolean | Prisma.Case$recordIndexesArgs<ExtArgs>
+  viewIndexes?: boolean | Prisma.Case$viewIndexesArgs<ExtArgs>
+  manifests?: boolean | Prisma.Case$manifestsArgs<ExtArgs>
   llmUsageEvents?: boolean | Prisma.Case$llmUsageEventsArgs<ExtArgs>
   _count?: boolean | Prisma.CaseCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -859,6 +1510,10 @@ export type $CasePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   objects: {
     workspace: Prisma.$WorkspacePayload<ExtArgs>
     createdByUser: Prisma.$UserPayload<ExtArgs>
+    documentIndexes: Prisma.$CaseDocumentIndexPayload<ExtArgs>[]
+    recordIndexes: Prisma.$CaseRecordIndexPayload<ExtArgs>[]
+    viewIndexes: Prisma.$CaseViewIndexPayload<ExtArgs>[]
+    manifests: Prisma.$CaseStateManifestPayload<ExtArgs>[]
     llmUsageEvents: Prisma.$LlmUsageEventPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -868,6 +1523,8 @@ export type $CasePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     title: string
     description: string | null
     status: $Enums.CaseStatus
+    intake: runtime.JsonValue | null
+    currentManifestNumber: number | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["case"]>
@@ -1266,6 +1923,10 @@ export interface Prisma__CaseClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   createdByUser<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  documentIndexes<T extends Prisma.Case$documentIndexesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$documentIndexesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseDocumentIndexPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  recordIndexes<T extends Prisma.Case$recordIndexesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$recordIndexesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseRecordIndexPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  viewIndexes<T extends Prisma.Case$viewIndexesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$viewIndexesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseViewIndexPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  manifests<T extends Prisma.Case$manifestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$manifestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CaseStateManifestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   llmUsageEvents<T extends Prisma.Case$llmUsageEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Case$llmUsageEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LlmUsageEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1302,6 +1963,8 @@ export interface CaseFieldRefs {
   readonly title: Prisma.FieldRef<"Case", 'String'>
   readonly description: Prisma.FieldRef<"Case", 'String'>
   readonly status: Prisma.FieldRef<"Case", 'CaseStatus'>
+  readonly intake: Prisma.FieldRef<"Case", 'Json'>
+  readonly currentManifestNumber: Prisma.FieldRef<"Case", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Case", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Case", 'DateTime'>
 }
@@ -1702,6 +2365,102 @@ export type CaseDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Limit how many Cases to delete.
    */
   limit?: number
+}
+
+/**
+ * Case.documentIndexes
+ */
+export type Case$documentIndexesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseDocumentIndex
+   */
+  select?: Prisma.CaseDocumentIndexSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseDocumentIndex
+   */
+  omit?: Prisma.CaseDocumentIndexOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseDocumentIndexInclude<ExtArgs> | null
+  where?: Prisma.CaseDocumentIndexWhereInput
+  orderBy?: Prisma.CaseDocumentIndexOrderByWithRelationInput | Prisma.CaseDocumentIndexOrderByWithRelationInput[]
+  cursor?: Prisma.CaseDocumentIndexWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CaseDocumentIndexScalarFieldEnum | Prisma.CaseDocumentIndexScalarFieldEnum[]
+}
+
+/**
+ * Case.recordIndexes
+ */
+export type Case$recordIndexesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseRecordIndex
+   */
+  select?: Prisma.CaseRecordIndexSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseRecordIndex
+   */
+  omit?: Prisma.CaseRecordIndexOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseRecordIndexInclude<ExtArgs> | null
+  where?: Prisma.CaseRecordIndexWhereInput
+  orderBy?: Prisma.CaseRecordIndexOrderByWithRelationInput | Prisma.CaseRecordIndexOrderByWithRelationInput[]
+  cursor?: Prisma.CaseRecordIndexWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CaseRecordIndexScalarFieldEnum | Prisma.CaseRecordIndexScalarFieldEnum[]
+}
+
+/**
+ * Case.viewIndexes
+ */
+export type Case$viewIndexesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseViewIndex
+   */
+  select?: Prisma.CaseViewIndexSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseViewIndex
+   */
+  omit?: Prisma.CaseViewIndexOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseViewIndexInclude<ExtArgs> | null
+  where?: Prisma.CaseViewIndexWhereInput
+  orderBy?: Prisma.CaseViewIndexOrderByWithRelationInput | Prisma.CaseViewIndexOrderByWithRelationInput[]
+  cursor?: Prisma.CaseViewIndexWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CaseViewIndexScalarFieldEnum | Prisma.CaseViewIndexScalarFieldEnum[]
+}
+
+/**
+ * Case.manifests
+ */
+export type Case$manifestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CaseStateManifest
+   */
+  select?: Prisma.CaseStateManifestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CaseStateManifest
+   */
+  omit?: Prisma.CaseStateManifestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CaseStateManifestInclude<ExtArgs> | null
+  where?: Prisma.CaseStateManifestWhereInput
+  orderBy?: Prisma.CaseStateManifestOrderByWithRelationInput | Prisma.CaseStateManifestOrderByWithRelationInput[]
+  cursor?: Prisma.CaseStateManifestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CaseStateManifestScalarFieldEnum | Prisma.CaseStateManifestScalarFieldEnum[]
 }
 
 /**
