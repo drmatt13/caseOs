@@ -17,6 +17,7 @@ type AuthState = { authenticated: boolean };
 
 const AUTH_SYNC_STORAGE_KEY = "caseos:auth-sync";
 const AUTH_SYNC_CHANNEL_NAME = "caseos-auth-sync";
+const SESSION_HINT_KEY = "caseos:has-session";
 
 let clientAuthCache: AuthState | null = null;
 let clientAuthRequest: Promise<AuthState> | null = null;
@@ -84,11 +85,16 @@ function initializeAuthSync(): void {
 }
 
 export function invalidateAuthCache(options: AuthCacheOptions = {}): void {
-  clientAuthCache = null;
-  clientAuthRequest = null;
-
   if (options.broadcast) {
+    clientAuthCache = { authenticated: false };
+    clientAuthRequest = Promise.resolve(clientAuthCache);
+    try {
+      window.localStorage.removeItem(SESSION_HINT_KEY);
+    } catch {}
     broadcastAuthStateChange("sign-out");
+  } else {
+    clientAuthCache = null;
+    clientAuthRequest = null;
   }
 }
 
@@ -96,6 +102,10 @@ export function primeAuthCache(options: AuthCacheOptions = {}): void {
   const value: AuthState = { authenticated: true };
   clientAuthCache = value;
   clientAuthRequest = Promise.resolve(value);
+
+  try {
+    window.localStorage.setItem(SESSION_HINT_KEY, "1");
+  } catch {}
 
   if (options.broadcast) {
     broadcastAuthStateChange("sign-in");
@@ -146,6 +156,18 @@ async function checkSessionOnClient(): Promise<AuthState> {
     return clientAuthRequest;
   }
 
+  let hasSessionHint = false;
+  try {
+    hasSessionHint = window.localStorage.getItem(SESSION_HINT_KEY) === "1";
+  } catch {}
+
+  if (!hasSessionHint) {
+    const noSession: AuthState = { authenticated: false };
+    clientAuthCache = noSession;
+    clientAuthRequest = Promise.resolve(noSession);
+    return noSession;
+  }
+
   clientAuthRequest = (async (): Promise<AuthState> => {
     try {
       const response = await fetch(`${API_URL}/verify-user`, {
@@ -167,6 +189,9 @@ async function checkSessionOnClient(): Promise<AuthState> {
         }
       }
 
+      try {
+        window.localStorage.removeItem(SESSION_HINT_KEY);
+      } catch {}
       return { authenticated: false };
     } catch {
       return { authenticated: false };
