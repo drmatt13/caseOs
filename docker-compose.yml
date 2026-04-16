@@ -6,11 +6,11 @@ x-common-env: &common-env
   AWS_SDK_LOAD_CONFIG: "1"
 
 services:
-  local-api-dev-server:
+  local-dev-server:
     build:
       context: .
-      dockerfile: ./local-api-dev-server/dockerfile
-    working_dir: /workspace/local-api-dev-server
+      dockerfile: ./local-dev-server/dockerfile
+    working_dir: /workspace/local-dev-server
     environment:
       <<: *common-env
       NODE_ENV: development
@@ -23,7 +23,7 @@ services:
     volumes:
       - ./:/workspace
       - /workspace/node_modules
-      - /workspace/local-api-dev-server/node_modules
+      - /workspace/local-dev-server/node_modules
     depends_on:
       postgres:
         condition: service_healthy

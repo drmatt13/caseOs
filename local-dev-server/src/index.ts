@@ -3,8 +3,9 @@ import dotenv from "dotenv";
 import cors from "cors";
 import invokeLambdaFunction from "../lib/invokeLambdaFunction";
 import proxyToContainer from "../lib/proxyToContainer";
+import invokeAsyncLambdaFunctions from "./invokeAsyncLambdaFunctions";
 
-// Lambda Functions
+// Synchronous Lambda Functions
 import { lambdaHandler as signIn } from "../../cdk-app/lambda_functions/sign-in/index";
 import { lambdaHandler as signOut } from "../../cdk-app/lambda_functions/sign-out/index";
 import { lambdaHandler as verifyUser } from "../../cdk-app/lambda_functions/verify-user/index";
@@ -30,6 +31,15 @@ app.use(
 );
 
 app.use(express.json());
+
+async function instantiatePolling(): Promise<void> {
+  invokeAsyncLambdaFunctions();
+}
+
+// run every 10 seconds
+setInterval(() => {
+  void instantiatePolling();
+}, 10_000);
 
 // ************************************************************
 //                    LOCAL API DEV SERVER

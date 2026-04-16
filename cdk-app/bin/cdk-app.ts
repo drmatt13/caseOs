@@ -23,6 +23,8 @@ const stackEnv: cdk.Environment = {
   region,
 };
 
+const executionMode = app.node.tryGetContext("executionMode") ?? "local"; // "local" or "aws"
+
 const stage = app.node.tryGetContext("stage") ?? "dev";
 const isProduction = stage === "prod";
 const frontendUrl =
