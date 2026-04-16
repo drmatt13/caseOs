@@ -8,7 +8,8 @@ import {
 } from "lucide-react";
 import UserPanel from "./menus/UserPanel";
 
-// import Button from "./Button";
+import { userSchema } from "@repo/database/src/table.schemas";
+import z from "zod";
 
 const Workspace = () => {
   return (
@@ -40,20 +41,6 @@ const Workspace = () => {
           and housing-related legal matters. Members can collaborate on case
           files, share documents, and communicate about ongoing proceedings.
         </p>
-        {/* <p className="text-md font-medium text-black/75 pb-1">
-          Workspace Owner
-        </p>
-        <div className="pl-2">
-          <UserPanel
-            user={{
-              firstName: "John",
-              lastName: "Doe",
-              id: "1",
-              userName: "johndoe",
-              email: "john.doe@example.com",
-            }}
-          />
-        </div> */}
         <div className="mt-2 pb-1 flex justify-between">
           <p className="text-md font-medium text-black/75">Members (6)</p>
           <div className="text-xs p-2 rounded-lg hover:bg-mist-300/60 cursor-pointer flex items-center gap-1.5 text-black border border-black/15">
@@ -64,13 +51,12 @@ const Workspace = () => {
         <div className="flex flex-col gap-1">
           <div className="flex justify-between items-center p-2 cursor-pointer hover:bg-mist-300/60 rounded-xl">
             <UserPanel
-              user={{
-                firstName: "John",
-                lastName: "Doe",
-                id: "1",
-                userName: "johndoe",
-                email: "john.doe@example.com",
-              }}
+              user={
+                {
+                  firstName: "John",
+                  lastName: "Doe",
+                } as z.infer<typeof userSchema>
+              }
             />
             <div className="h-full bg-black/10 px-2.5 py-1 rounded-lg text-xs">
               Owner
@@ -78,46 +64,42 @@ const Workspace = () => {
           </div>
           <div className="flex justify-between items-center p-2 cursor-pointer hover:bg-mist-300/60 rounded-xl">
             <UserPanel
-              user={{
-                firstName: "John",
-                lastName: "Doe",
-                id: "1",
-                userName: "johndoe",
-                email: "john.doe@example.com",
-              }}
+              user={
+                {
+                  firstName: "John",
+                  lastName: "Doe",
+                } as z.infer<typeof userSchema>
+              }
             />
           </div>
           <div className="flex justify-between items-center p-2 cursor-pointer hover:bg-mist-300/60 rounded-xl">
             <UserPanel
-              user={{
-                firstName: "John",
-                lastName: "Doe",
-                id: "1",
-                userName: "johndoe",
-                email: "john.doe@example.com",
-              }}
+              user={
+                {
+                  firstName: "John",
+                  lastName: "Doe",
+                } as z.infer<typeof userSchema>
+              }
             />
           </div>
           <div className="flex justify-between items-center p-2 cursor-pointer hover:bg-mist-300/60 rounded-xl">
             <UserPanel
-              user={{
-                firstName: "John",
-                lastName: "Doe",
-                id: "1",
-                userName: "johndoe",
-                email: "john.doe@example.com",
-              }}
+              user={
+                {
+                  firstName: "John",
+                  lastName: "Doe",
+                } as z.infer<typeof userSchema>
+              }
             />
           </div>
           <div className="flex justify-between items-center p-2 cursor-pointer hover:bg-mist-300/60 rounded-xl">
             <UserPanel
-              user={{
-                firstName: "John",
-                lastName: "Doe",
-                id: "1",
-                userName: "johndoe",
-                email: "john.doe@example.com",
-              }}
+              user={
+                {
+                  firstName: "John",
+                  lastName: "Doe",
+                } as z.infer<typeof userSchema>
+              }
             />
           </div>
         </div>

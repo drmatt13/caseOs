@@ -1,17 +1,12 @@
 import { useState } from "react";
-import { Link, createFileRoute, redirect } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import Button from "#/components/Button";
 import LoginLayout from "#/components/layouts/LoginLayout";
 
-import { verifyUser } from "#/lib/auth";
+import { redirectIfAuthenticated } from "#/lib/auth";
 
 export const Route = createFileRoute("/forgot-password")({
-  beforeLoad: async () => {
-    const { user } = await verifyUser();
-    if (user) {
-      throw redirect({ to: "/" });
-    }
-  },
+  beforeLoad: redirectIfAuthenticated,
   component: RouteComponent,
 });
 

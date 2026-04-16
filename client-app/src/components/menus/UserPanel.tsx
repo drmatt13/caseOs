@@ -1,26 +1,29 @@
 import { useContext } from "react";
-import type { User } from "#/schemas/user";
 import { Settings } from "lucide-react";
-// import ThemeToggle from "../ThemeToggle";
+
+import { userSchema } from "@repo/database/src/table.schemas";
+import z from "zod";
 
 // context
 import { SettingsContext } from "#/context/SettingsContext";
 
 interface UserPanelProps {
-  user: User;
+  user: z.infer<typeof userSchema>;
   settings?: boolean;
 }
 
 const UserPanel = ({ user, settings = false }: UserPanelProps) => {
   const { setShowSettingsModal } = useContext(SettingsContext);
 
+  if (!user) return <>loading...</>;
+
   return (
     <>
       <div className="mb-1 flex items-center w-full justify-between gap-2 /pl-2 /pr-2">
         <div className="flex gap-2 items-center">
           <div className="flex justify-center items-center w-10 h-10 rounded-full bg-black/15">
-            {user.firstName[0]}
-            {user.lastName[0]}
+            {user.firstName?.[0] ? user.firstName[0] : ""}
+            {user.lastName?.[0] ? user.lastName[0] : ""}
           </div>
           <p className="text-sm truncate">
             {user.firstName} {user.lastName}

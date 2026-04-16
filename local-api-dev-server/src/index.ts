@@ -8,6 +8,7 @@ import proxyToContainer from "../lib/proxyToContainer";
 import { lambdaHandler as signIn } from "../../cdk-app/lambda_functions/sign-in/index";
 import { lambdaHandler as signOut } from "../../cdk-app/lambda_functions/sign-out/index";
 import { lambdaHandler as verifyUser } from "../../cdk-app/lambda_functions/verify-user/index";
+import { lambdaHandler as refresh } from "../../cdk-app/lambda_functions/refresh/index";
 
 dotenv.config({
   path: "./.env",
@@ -44,6 +45,7 @@ app.get("/", (req, res) => {
 
 // Lambda function routes
 app.all("/sign-in", async (req, res) => {
+  console.log("Sign-in request received");
   return invokeLambdaFunction(req, res, signIn);
 });
 app.all("/verify-user", async (req, res) => {
@@ -52,6 +54,10 @@ app.all("/verify-user", async (req, res) => {
 
 app.all("/sign-out", async (req, res) => {
   return invokeLambdaFunction(req, res, signOut);
+});
+
+app.all("/refresh", async (req, res) => {
+  return invokeLambdaFunction(req, res, refresh);
 });
 
 // ECS container routes

@@ -86,7 +86,21 @@ export default async function invokeLambdaFunction(
   }
   if (result.multiValueHeaders) {
     for (const [key, values] of Object.entries(result.multiValueHeaders)) {
-      res.setHeader(key, values.map(String));
+      if (key.toLowerCase() === "set-cookie") {
+        // Lambdas set Secure;SameSite=None for production HTTPS. On the local
+        // HTTP dev server those attributes prevent browsers from storing cookies
+        // across ports (localhost:3000 → localhost:8080). Strip Secure and
+        // downgrade to SameSite=Lax — both ports share the same localhost site
+        // so Lax is sufficient and cookies will be stored correctly over HTTP.
+        const devCookies = values.map((v) =>
+          String(v)
+            .replace(/;\s*Secure/gi, "")
+            .replace(/SameSite=None/gi, "SameSite=Lax"),
+        );
+        res.setHeader(key, devCookies);
+      } else {
+        res.setHeader(key, values.map(String));
+      }
     }
   }
 

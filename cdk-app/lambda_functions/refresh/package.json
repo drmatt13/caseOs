@@ -1,0 +1,18 @@
+{
+  "name": "refresh",
+  "version": "1.0.0",
+  "description": "A Lambda function to handle Cognito token refresh.",
+  "main": "index.js",
+  "author": "Matthew Sweeney",
+  "license": "MIT",
+  "scripts": {
+    "compile": "tsc"
+  },
+  "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.161",
+    "typescript": "^5.0.0"
+  }
+}

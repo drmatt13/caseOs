@@ -13,6 +13,7 @@ export class ApiGatewayLambdaFunctionsStack extends cdk.Stack {
   public readonly signIn: nodejs.NodejsFunction;
   public readonly signOut: nodejs.NodejsFunction;
   public readonly verifyUser: nodejs.NodejsFunction;
+  public readonly refresh: nodejs.NodejsFunction;
 
   constructor(
     scope: Construct,
@@ -82,6 +83,28 @@ export class ApiGatewayLambdaFunctionsStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(10),
       environment: {
         USER_POOL_ID: props.userPoolId,
+        USER_POOL_CLIENT_ID: props.userPoolClientId,
+      },
+    });
+
+    this.refresh = new nodejs.NodejsFunction(this, "Refresh", {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      entry: path.join(
+        __dirname,
+        "..",
+        "lambda_functions",
+        "refresh",
+        "index.ts",
+      ),
+      handler: "lambdaHandler",
+      bundling: {
+        minify: true,
+        sourceMap: true,
+        target: "es2020",
+      },
+      memorySize: 128,
+      timeout: cdk.Duration.seconds(10),
+      environment: {
         USER_POOL_CLIENT_ID: props.userPoolClientId,
       },
     });

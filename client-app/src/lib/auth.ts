@@ -8,19 +8,18 @@ import {
   SignUpCommand,
 } from "@aws-sdk/client-cognito-identity-provider";
 
-import { userSchema } from "@repo/database/src/table.schemas";
 import { SignInResponseSchema } from "@repo/database/src/api.schemas";
 import z from "zod";
 
 const API_URL = import.meta.env.VITE_API_GATEWAY_URL;
 
-type VerifyUserResult = { user: z.infer<typeof userSchema> | null };
+type AuthState = { authenticated: boolean };
 
 const AUTH_SYNC_STORAGE_KEY = "caseos:auth-sync";
 const AUTH_SYNC_CHANNEL_NAME = "caseos-auth-sync";
 
-let clientAuthCache: VerifyUserResult | null = null;
-let clientAuthRequest: Promise<VerifyUserResult> | null = null;
+let clientAuthCache: AuthState | null = null;
+let clientAuthRequest: Promise<AuthState> | null = null;
 let authSyncInitialized = false;
 let authBroadcastChannel: BroadcastChannel | null = null;
 
@@ -93,11 +92,8 @@ export function invalidateAuthCache(options: AuthCacheOptions = {}): void {
   }
 }
 
-export function primeAuthCache(
-  user: z.infer<typeof userSchema> | null,
-  options: AuthCacheOptions = {},
-): void {
-  const value = { user };
+export function primeAuthCache(options: AuthCacheOptions = {}): void {
+  const value: AuthState = { authenticated: true };
   clientAuthCache = value;
   clientAuthRequest = Promise.resolve(value);
 
@@ -106,12 +102,12 @@ export function primeAuthCache(
   }
 }
 
-async function verifyUserOnServer(): Promise<VerifyUserResult> {
+async function checkSessionOnServer(): Promise<AuthState> {
   try {
     const cookieHeader = await getServerCookieHeader();
 
     if (!cookieHeader) {
-      return { user: null };
+      return { authenticated: false };
     }
 
     const response = await fetch(`${API_URL}/verify-user`, {
@@ -119,24 +115,27 @@ async function verifyUserOnServer(): Promise<VerifyUserResult> {
       headers: { cookie: cookieHeader },
     });
 
-    if (!response.ok) {
-      return { user: null };
+    if (response.ok) {
+      return { authenticated: true };
     }
 
-    const data = await response.json();
-    if (!data.success) {
-      return { user: null };
+    if (response.status === 401) {
+      const refreshResponse = await fetch(`${API_URL}/refresh`, {
+        method: "POST",
+        headers: { cookie: cookieHeader },
+      });
+      if (refreshResponse.ok) {
+        return { authenticated: true };
+      }
     }
 
-    const parsed = userSchema.safeParse(data.user);
-    return parsed.success ? { user: parsed.data } : { user: null };
+    return { authenticated: false };
   } catch {
-    // API unreachable — treat as unauthenticated
-    return { user: null };
+    return { authenticated: false };
   }
 }
 
-async function verifyUserOnClient(): Promise<VerifyUserResult> {
+async function checkSessionOnClient(): Promise<AuthState> {
   initializeAuthSync();
 
   if (clientAuthCache) {
@@ -147,27 +146,30 @@ async function verifyUserOnClient(): Promise<VerifyUserResult> {
     return clientAuthRequest;
   }
 
-  clientAuthRequest = (async () => {
+  clientAuthRequest = (async (): Promise<AuthState> => {
     try {
       const response = await fetch(`${API_URL}/verify-user`, {
         method: "GET",
         credentials: "include",
       });
 
-      if (!response.ok) {
-        return { user: null };
+      if (response.ok) {
+        return { authenticated: true };
       }
 
-      const data = await response.json();
-      if (!data.success) {
-        return { user: null };
+      if (response.status === 401) {
+        const refreshResponse = await fetch(`${API_URL}/refresh`, {
+          method: "POST",
+          credentials: "include",
+        });
+        if (refreshResponse.ok) {
+          return { authenticated: true };
+        }
       }
 
-      const parsed = userSchema.safeParse(data.user);
-      return parsed.success ? { user: parsed.data } : { user: null };
+      return { authenticated: false };
     } catch {
-      // API unreachable — treat as unauthenticated
-      return { user: null };
+      return { authenticated: false };
     }
   })();
 
@@ -178,28 +180,29 @@ async function verifyUserOnClient(): Promise<VerifyUserResult> {
   return result;
 }
 
-export async function verifyUser(): Promise<{
-  user: z.infer<typeof userSchema> | null;
-}> {
+export async function checkSession(): Promise<AuthState> {
   if (isBrowserRuntime()) {
-    return verifyUserOnClient();
+    return checkSessionOnClient();
   }
-
-  return verifyUserOnServer();
+  return checkSessionOnServer();
 }
 
-export async function requireAuth(): Promise<{
-  user: z.infer<typeof userSchema>;
-}> {
-  const { user } = await verifyUser();
-  if (!user) {
+export async function requireAuth(): Promise<void> {
+  const { authenticated } = await checkSession();
+  if (!authenticated) {
     throw redirect({
       to: "/login",
       replace: true,
       search: { email: undefined, "account-verified": undefined },
     });
   }
-  return { user };
+}
+
+export async function redirectIfAuthenticated(): Promise<void> {
+  const { authenticated } = await checkSession();
+  if (authenticated) {
+    throw redirect({ to: "/" });
+  }
 }
 
 const cognitoClient = new CognitoIdentityProviderClient({
@@ -358,7 +361,7 @@ export async function signInUser(
     return { success: false, error: data.error ?? "Sign in failed" };
   }
 
-  primeAuthCache(null, { broadcast: true });
+  primeAuthCache({ broadcast: true });
 
   return { success: true };
 }

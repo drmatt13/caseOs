@@ -2,23 +2,12 @@ import type { ChangeEventHandler, ReactNode } from "react";
 
 import type { SelectOption } from "#/components/layouts/new_case/caseIntakeForm";
 import {
-  Settings,
-  Bot,
   Clock,
   Target,
-  SquareCheckBig,
-  CheckIcon,
-  CheckCircleIcon,
-  Folder,
-  FileText,
-  PlusIcon,
   Briefcase,
   Scale,
   Users,
   FileTextIcon,
-  CheckSquare,
-  // Link,
-  ArrowLeft,
 } from "lucide-react";
 
 type FormSectionProps = {

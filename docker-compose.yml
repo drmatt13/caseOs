@@ -8,8 +8,9 @@ x-common-env: &common-env
 services:
   local-api-dev-server:
     build:
-      context: ./local-api-dev-server
-      dockerfile: dockerfile
+      context: .
+      dockerfile: ./local-api-dev-server/dockerfile
+    working_dir: /workspace/local-api-dev-server
     environment:
       <<: *common-env
       NODE_ENV: development
@@ -20,9 +21,9 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./local-api-dev-server:/app
-      - ./cdk-app:/cdk-app
-      - /app/node_modules
+      - ./:/workspace
+      - /workspace/node_modules
+      - /workspace/local-api-dev-server/node_modules
     depends_on:
       postgres:
         condition: service_healthy

@@ -1,4 +1,4 @@
-import type { CaseIntake } from "#/../../types/caseWorkspace.schema";
+import type { CaseIntake } from "#/../../types/caseWorkspace";
 import {
   FormSection,
   TextAreaField,

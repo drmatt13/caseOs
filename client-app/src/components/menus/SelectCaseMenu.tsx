@@ -1,8 +1,5 @@
 import { PlusIcon } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-// import React from "react";
-
-// hover:bg-mist-300/60 cursor-pointer
 
 const SelectCaseMenu = () => {
   return (

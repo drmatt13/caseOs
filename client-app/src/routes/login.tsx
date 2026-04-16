@@ -1,20 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  Link,
-  createFileRoute,
-  redirect,
-  useNavigate,
-} from "@tanstack/react-router";
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import Button from "#/components/Button";
 import LoginLayout from "#/components/layouts/LoginLayout";
 
-import { signInUser, verifyUser } from "#/lib/auth";
+import { signInUser, redirectIfAuthenticated } from "#/lib/auth";
 
 export const Route = createFileRoute("/login")({
-  beforeLoad: async () => {
-    const { user } = await verifyUser();
-    if (user) throw redirect({ to: "/" });
-  },
+  beforeLoad: redirectIfAuthenticated,
   validateSearch: (search) => {
     const email = typeof search.email === "string" ? search.email : undefined;
     const accountVerified =

@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import type { CaseIntake } from "#/../../types/caseWorkspace.schema";
+import type { CaseIntake } from "#/../../types/caseWorkspace";
 import { FormSection } from "#/components/layouts/new_case/fields";
 import { Upload, FileText, XIcon, CheckCircle } from "lucide-react";
 

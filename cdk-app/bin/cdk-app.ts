@@ -72,6 +72,7 @@ const apiStack = new ApiStack(app, "ApiStack", {
   signIn: apiGatewayLambdaFunctionsStack.signIn,
   signOut: apiGatewayLambdaFunctionsStack.signOut,
   verifyUser: apiGatewayLambdaFunctionsStack.verifyUser,
+  refresh: apiGatewayLambdaFunctionsStack.refresh,
   frontendUrl,
   // testContainer1Url: ecsStack.testContainer1Url,
   // testContainer2Url: ecsStack.testContainer2Url,

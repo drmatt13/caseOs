@@ -1,15 +1,10 @@
 import { useState } from "react";
 import type { SubmitEvent } from "react";
-import {
-  Link,
-  createFileRoute,
-  redirect,
-  useNavigate,
-} from "@tanstack/react-router";
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import Button from "#/components/Button";
 import LoginLayout from "#/components/layouts/LoginLayout";
 
-import { verifyUser, signUpUser } from "#/lib/auth";
+import { redirectIfAuthenticated, signUpUser } from "#/lib/auth";
 
 const MIN_NAME_LENGTH = 2;
 const PASSWORD_POLICY_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
@@ -17,12 +12,7 @@ const PASSWORD_POLICY_MESSAGE =
   "Password must be at least 8 characters and include at least one uppercase letter, one lowercase letter, and one number.";
 
 export const Route = createFileRoute("/register")({
-  beforeLoad: async () => {
-    const { user } = await verifyUser();
-    if (user) {
-      throw redirect({ to: "/" });
-    }
-  },
+  beforeLoad: redirectIfAuthenticated,
   component: RouteComponent,
 });
 

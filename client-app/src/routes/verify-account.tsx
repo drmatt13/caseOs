@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import LoginLayout from "#/components/layouts/LoginLayout";
-import { confirmSignUpUser, resendConfirmationCodeUser } from "#/lib/auth";
+import {
+  confirmSignUpUser,
+  resendConfirmationCodeUser,
+  redirectIfAuthenticated,
+} from "#/lib/auth";
 
 export const Route = createFileRoute("/verify-account")({
+  beforeLoad: redirectIfAuthenticated,
   component: RouteComponent,
   validateSearch: (search) => ({
     code: (search.code as string) || "",

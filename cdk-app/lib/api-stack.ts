@@ -8,6 +8,7 @@ export interface ApiStackProps extends cdk.StackProps {
   signIn: IFunction;
   signOut: IFunction;
   verifyUser: IFunction;
+  refresh: IFunction;
   frontendUrl: string;
   // testContainer1Url: string;
   // testContainer2Url: string;
@@ -56,6 +57,15 @@ export class ApiStack extends cdk.Stack {
       integration: new integrations.HttpLambdaIntegration(
         "VerifyUserIntegration",
         props.verifyUser,
+      ),
+    });
+
+    api.addRoutes({
+      path: "/refresh",
+      methods: [apigwv2.HttpMethod.ANY],
+      integration: new integrations.HttpLambdaIntegration(
+        "RefreshIntegration",
+        props.refresh,
       ),
     });
 

@@ -3,6 +3,7 @@ import { z } from "zod";
 // IMPORTANT:
 // z.nativeEnum(...) needs runtime enum values, so these must be normal imports.
 import {
+  Prisma,
   AccountTier,
   AccountStatus,
   WorkspaceStatus,
@@ -23,11 +24,10 @@ import {
   CaseViewType,
   ManifestKind,
   FileMimeFamily,
-} from "./generated/prisma/client";
+} from "./generated/prisma/browser";
 
 // model types can stay type-only
 import type {
-  Prisma,
   User,
   Workspace,
   WorkspaceMembership,
@@ -42,7 +42,7 @@ import type {
   UserUsageMonthly,
   StripeEventLog,
   AccountTierLimit,
-} from "./generated/prisma/client";
+} from "./generated/prisma/browser";
 
 // ---------- shared helpers ----------
 
@@ -67,14 +67,18 @@ export const jsonSchema: z.ZodType<Prisma.JsonValue> = z.lazy(
     ]) as z.ZodType<Prisma.JsonValue>,
 );
 
-export const prismaDecimalSchema = z.custom<Prisma.Decimal>((value) => {
-  if (value == null || typeof value !== "object") return false;
-  const candidate = value as { toString?: unknown; toNumber?: unknown };
-  return (
-    typeof candidate.toString === "function" &&
-    typeof candidate.toNumber === "function"
-  );
-});
+type PrismaDecimal = InstanceType<typeof Prisma.Decimal>;
+
+export const prismaDecimalSchema = z.custom<PrismaDecimal>(
+  (value): value is PrismaDecimal => {
+    if (value == null || typeof value !== "object") return false;
+    const candidate = value as { toString?: unknown; toNumber?: unknown };
+    return (
+      typeof candidate.toString === "function" &&
+      typeof candidate.toNumber === "function"
+    );
+  },
+);
 
 export const dateSchema = z.coerce.date();
 
