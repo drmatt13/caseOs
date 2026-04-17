@@ -1,7 +1,7 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as cognito from "aws-cdk-lib/aws-cognito";
-import { CognitoLambdaFunctionsStack } from "./cognito-lambda-functions-stack";
+import { AsynchronousLambdaFunctionsStack } from "./asynchronous-lambda-functions-stack";
 
 export interface CognitoStackProps extends cdk.StackProps {
   googleClientId?: string;
@@ -9,7 +9,7 @@ export interface CognitoStackProps extends cdk.StackProps {
   callbackUrls?: string[];
   logoutUrls?: string[];
   isProduction?: boolean;
-  cognitoLambdaFunctionsStack?: CognitoLambdaFunctionsStack;
+  asynchronousLambdaFunctionsStack?: AsynchronousLambdaFunctionsStack;
 }
 
 export class CognitoStack extends cdk.Stack {
@@ -71,7 +71,8 @@ export class CognitoStack extends cdk.Stack {
       // Use Cognito's built-in email functionality
       email: cognito.UserPoolEmail.withCognito(),
       lambdaTriggers: {
-        customMessage: props.cognitoLambdaFunctionsStack?.cognitoCustomMessage,
+        customMessage:
+          props.asynchronousLambdaFunctionsStack?.cognitoCustomMessage,
       },
 
       accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,

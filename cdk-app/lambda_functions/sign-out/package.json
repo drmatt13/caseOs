@@ -1,7 +1,7 @@
 {
-  "name": "sgn-in",
+  "name": "sign-out",
   "version": "1.0.0",
-  "description": "A Lambda function to handle user sign-in.",
+  "description": "A Lambda function to handle user sign-out.",
   "main": "index.js",
   "repository": "",
   "author": "Matthew Sweeney",

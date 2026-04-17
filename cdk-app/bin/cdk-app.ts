@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 import * as cdk from "aws-cdk-lib";
 import { ApiStack } from "../lib/api-stack";
-import { ApiGatewayLambdaFunctionsStack } from "../lib/api-gateway-lambda-functions-stack";
-import { CognitoLambdaFunctionsStack } from "../lib/cognito-lambda-functions-stack";
+import { SynchronousLambdaFunctionsStack } from "../lib/synchronous-lambda-functions-stack";
+import { AsynchronousLambdaFunctionsStack } from "../lib/asynchronous-lambda-functions-stack";
 import { CognitoStack } from "../lib/cognito-stack";
 import { DevLambdaReplayStack } from "../lib/dev-lambda-replay-stack";
-import { EcsStack } from "../lib/ecs-stack";
+// import { EcsStack } from "../lib/ecs-stack";
 
 const app = new cdk.App();
 
@@ -41,13 +41,14 @@ const devLambdaReplayStack = new DevLambdaReplayStack(
   },
 );
 
-// Create Cognito Lambda Functions Stack
-const cognitoLambdaFunctionsStack = new CognitoLambdaFunctionsStack(
+// Create Asynchronous Lambda Functions Stack
+const asynchronousLambdaFunctionsStack = new AsynchronousLambdaFunctionsStack(
   app,
-  "CognitoLambdaFunctionsStack",
+  "AsynchronousLambdaFunctionsStack",
   {
     env: stackEnv,
     frontendUrl,
+    executionMode,
   },
 );
 
@@ -57,21 +58,21 @@ const cognitoStack = new CognitoStack(app, "CognitoStack", {
   isProduction,
   googleClientId: undefined,
   googleClientSecret: undefined,
-  cognitoLambdaFunctionsStack,
+  asynchronousLambdaFunctionsStack,
 });
-cognitoStack.addDependency(cognitoLambdaFunctionsStack);
+cognitoStack.addDependency(asynchronousLambdaFunctionsStack);
 
-// Create API Gateway Lambda Functions Stack
-const apiGatewayLambdaFunctionsStack = new ApiGatewayLambdaFunctionsStack(
+// Create Synchronous Lambda Functions Stack
+const synchronousLambdaFunctionsStack = new SynchronousLambdaFunctionsStack(
   app,
-  "ApiGatewayLambdaFunctionsStack",
+  "SynchronousLambdaFunctionsStack",
   {
     env: stackEnv,
     userPoolId: cognitoStack.userPoolId,
     userPoolClientId: cognitoStack.userPoolClientId,
   },
 );
-apiGatewayLambdaFunctionsStack.addDependency(cognitoStack);
+synchronousLambdaFunctionsStack.addDependency(cognitoStack);
 
 // Create ECS stack next (without API details) ** ECS Containers
 // const ecsStack = new EcsStack(app, "EcsStack", {
@@ -81,14 +82,14 @@ apiGatewayLambdaFunctionsStack.addDependency(cognitoStack);
 // Create API stack ** API Gateway with Lambda and ECS integrations
 const apiStack = new ApiStack(app, "ApiStack", {
   env: stackEnv,
-  signIn: apiGatewayLambdaFunctionsStack.signIn,
-  signOut: apiGatewayLambdaFunctionsStack.signOut,
-  verifyUser: apiGatewayLambdaFunctionsStack.verifyUser,
-  refresh: apiGatewayLambdaFunctionsStack.refresh,
+  signIn: synchronousLambdaFunctionsStack.signIn,
+  signOut: synchronousLambdaFunctionsStack.signOut,
+  verifyUser: synchronousLambdaFunctionsStack.verifyUser,
+  refresh: synchronousLambdaFunctionsStack.refresh,
   frontendUrl,
   // testContainer1Url: ecsStack.testContainer1Url,
   // testContainer2Url: ecsStack.testContainer2Url,
 });
 
-apiStack.addDependency(apiGatewayLambdaFunctionsStack);
+apiStack.addDependency(synchronousLambdaFunctionsStack);
 // apiStack.addDependency(ecsStack);

@@ -6,6 +6,7 @@ import * as path from "path";
 
 export interface AsynchronousLambdaFunctionsStackProps extends cdk.StackProps {
   frontendUrl?: string;
+  executionMode?: "local" | "aws";
 }
 
 export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
@@ -20,6 +21,7 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
     super(scope, id, props);
 
     const frontendUrl = props?.frontendUrl ?? "http://localhost:3000";
+    const executionMode = props?.executionMode ?? "local";
 
     // Lambda function for customizing Cognito messages
     this.cognitoCustomMessage = new nodejs.NodejsFunction(
@@ -66,6 +68,9 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
           minify: true,
           sourceMap: true,
           target: "es2020",
+        },
+        environment: {
+          EXECUTION_MODE: executionMode,
         },
         memorySize: 128,
         timeout: cdk.Duration.seconds(10),

@@ -1,8 +1,8 @@
-type ApiGatewayResult = {
-  statusCode: number;
-  body: string;
-  multiValueHeaders?: Record<string, string[]>;
-};
+import {
+  APIGatewayProxyEvent,
+  APIGatewayProxyEventV2,
+  APIGatewayProxyResult,
+} from "aws-lambda";
 
 const AUTH_COOKIE_NAMES = ["idToken", "accessToken", "refreshToken"];
 
@@ -10,7 +10,9 @@ function clearCookie(name: string): string {
   return `${name}=; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT`;
 }
 
-export const lambdaHandler = async (event: any): Promise<ApiGatewayResult> => {
+export const lambdaHandler = async (
+  event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
+): Promise<APIGatewayProxyResult> => {
   const method =
     "httpMethod" in event
       ? event.httpMethod
