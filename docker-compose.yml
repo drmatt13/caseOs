@@ -16,14 +16,13 @@ services:
       NODE_ENV: development
       PORT: "8080"
       LANGGRAPH_SERVICE_URL: "http://langgraph-service"
-      DATABASE_POOLING_URL: "postgresql://app_user:app_password@pgbouncer:5432/app_db"
-      DATABASE_DIRECT_URL: "postgresql://app_user:app_password@postgres:5432/app_db"
+      DATABASE_URL: "postgresql://app_user:app_password@pgbouncer:5432/app_db"
     ports:
       - "8080:8080"
     volumes:
-      - ./:/workspace
-      - /workspace/node_modules
-      - /workspace/local-dev-server/node_modules
+      - ./:/workspace # Bind mount, map entire monorepo to /workspace in the container
+      - /workspace/node_modules # Prevent node_modules from being overwritten by the host, use the container's node_modules instead
+      - /workspace/local-dev-server/node_modules # Ensure local-dev-server's node_modules is used
     depends_on:
       postgres:
         condition: service_healthy
