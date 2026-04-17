@@ -3,7 +3,8 @@
   "private": true,
   "workspaces": [
     "client-app",
-    "packages/*",
-    "cdk-app/lambda_functions/*"
+    "local-dev-server",
+    "cdk-app/lambda_functions/*",
+    "packages/*"
   ]
 }
