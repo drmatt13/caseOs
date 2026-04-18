@@ -18,7 +18,6 @@ services:
     build:
       context: ./local-dev-server
       dockerfile: dockerfile
-    working_dir: /workspace/local-dev-server
     environment:
       <<: *common-env
       NODE_ENV: development
@@ -30,6 +29,10 @@ services:
       - "8080:8080"
     volumes:
       - ./:/workspace # Bind mount, map entire monorepo to /workspace in the container
+      - workspace_node_modules:/workspace/node_modules # Linux-native deps, isolated from host
+      - type: bind
+        source: ${USERPROFILE}/.aws
+        target: /root/.aws
     depends_on:
       postgres:
         condition: service_healthy
@@ -113,3 +116,4 @@ services:
 
 volumes:
   postgres_data:
+  workspace_node_modules:

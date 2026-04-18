@@ -9,7 +9,7 @@ import { EcsServicesStack } from "../lib/ecs-services-stack";
 import { RdsStack } from "../lib/rds-stack";
 
 // Synth CDK app with:
-// cdk synth -c useLocalImplementations=false -c enableRdsProxy=false -c skipEmailVerification=true
+// cdk synth -c useLocalImplementations=false -c enableRdsProxy=true -c skipEmailVerification=false
 
 // DEV deployment Command Example:
 // cdk deploy --all --require-approval never

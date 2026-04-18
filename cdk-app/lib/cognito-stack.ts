@@ -70,7 +70,6 @@ export class CognitoStack extends cdk.Stack {
         requireSymbols: false,
       },
 
-      // Use Cognito's built-in email functionality
       email: cognito.UserPoolEmail.withCognito(),
       lambdaTriggers: {
         customMessage:
@@ -78,6 +77,9 @@ export class CognitoStack extends cdk.Stack {
         preSignUp: skipEmailVerification
           ? props.asynchronousLambdaFunctionsStack?.cognitoPreSignUpTrigger
           : undefined,
+        postConfirmation:
+          props.asynchronousLambdaFunctionsStack
+            ?.cognitoPostConfirmationTrigger,
       },
 
       accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,

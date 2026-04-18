@@ -1,7 +1,8 @@
 FROM node:alpine
 
-WORKDIR /workspace/local-dev-server
+WORKDIR /workspace
 
 EXPOSE 8080
 
-CMD ["npm", "run", "dev"]
+# Install Linux-native deps at workspace root (npm workspaces), then start dev server
+CMD ["sh", "-c", "npm install --prefer-offline && cd local-dev-server && npm run dev"]
