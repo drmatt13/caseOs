@@ -1,0 +1,24 @@
+{
+  "name": "cognito-pre-signup-trigger",
+  "version": "1.0.0",
+  "description": "A Lambda function for handling Cognito pre-signup events, automatically confirming and verifying users.",
+  "main": "index.js",
+  "repository": "",
+  "author": "Matthew Sweeney",
+  "license": "MIT",
+  "scripts": {
+    "unit": "jest",
+    "lint": "eslint '*.ts' --quiet --fix",
+    "compile": "tsc",
+    "test": "npm run compile && npm run unit"
+  },
+  "dependencies": {
+    "esbuild": "^0.27.4"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.161",
+    "@types/node": "^25.6.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}

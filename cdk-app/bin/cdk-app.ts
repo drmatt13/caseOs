@@ -9,7 +9,7 @@ import { EcsServicesStack } from "../lib/ecs-services-stack";
 import { RdsStack } from "../lib/rds-stack";
 
 // Synth CDK app with:
-// cdk synth -c useLocalImplementations=false -c enableRdsProxy=false
+// cdk synth -c useLocalImplementations=false -c enableRdsProxy=false -c skipEmailVerification=true
 
 // DEV deployment Command Example:
 // cdk deploy --all --require-approval never
@@ -18,6 +18,7 @@ import { RdsStack } from "../lib/rds-stack";
 // cdk deploy --all \
 //   -c useLocalImplementations=false \
 //   -c enableRdsProxy=false \
+//   -c skipEmailVerification=false \
 //   -c frontendUrl=<https://your-frontend-url.com> \
 //   -c googleClientId=<your-google-client-id> \
 //   -c googleClientSecret=<your-google-client-secret> \
@@ -62,6 +63,17 @@ const requestedEnableRdsProxy =
     : (enableRdsProxyContext ?? false);
 const enableRdsProxy = !useLocalImplementations && requestedEnableRdsProxy;
 
+// Optional Cognito flag. Defaults to false.
+// - true: skip verification flow by attaching the pre-signup trigger.
+// - false: use standard email verification behavior.
+const skipEmailVerificationContext = app.node.tryGetContext(
+  "skipEmailVerification",
+);
+const skipEmailVerification =
+  typeof skipEmailVerificationContext === "string"
+    ? skipEmailVerificationContext.toLowerCase() === "true"
+    : (skipEmailVerificationContext ?? false);
+
 // Frontend URL for CORS configuration, can be set via context or environment variable. Defaults to localhost for development.
 const frontendUrl =
   app.node.tryGetContext("frontendUrl") ?? "http://localhost:3000";
@@ -98,6 +110,7 @@ const asynchronousLambdaFunctionsStack = new AsynchronousLambdaFunctionsStack(
 const cognitoStack = new CognitoStack(app, "CognitoStack", {
   env: stackEnv,
   useLocalImplementations,
+  skipEmailVerification,
   googleClientId: undefined,
   googleClientSecret: undefined,
   asynchronousLambdaFunctionsStack,
@@ -130,12 +143,14 @@ const apiGatewayStack = !useLocalImplementations
       env: stackEnv,
       frontendUrl,
       useLocalImplementations,
+
       // Lambda integrations
       signIn: synchronousLambdaFunctionsStack.signIn,
       signOut: synchronousLambdaFunctionsStack.signOut,
       verifyUser: synchronousLambdaFunctionsStack.verifyUser,
       refresh: synchronousLambdaFunctionsStack.refresh,
       // <LambdaFunctionName>: synchronousLambdaFunctionsStack.<LambdaFunctionExport>,
+
       // ECS integrations
       langgraphServiceUrl: ecsServicesStack?.langgraphServiceUrl,
       // <ECSServiceURL>: ecsServicesStack?.<ecsServiceURL>,

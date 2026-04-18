@@ -9,6 +9,7 @@ export interface CognitoStackProps extends cdk.StackProps {
   callbackUrls?: string[];
   logoutUrls?: string[];
   useLocalImplementations?: boolean;
+  skipEmailVerification?: boolean;
   asynchronousLambdaFunctionsStack?: AsynchronousLambdaFunctionsStack;
 }
 
@@ -20,6 +21,7 @@ export class CognitoStack extends cdk.Stack {
     super(scope, id, props);
 
     const useLocalImplementations = props.useLocalImplementations ?? true;
+    const skipEmailVerification = props.skipEmailVerification ?? false;
 
     const callbackUrls = props.callbackUrls ?? [
       "http://localhost:3000/auth/callback",
@@ -73,6 +75,9 @@ export class CognitoStack extends cdk.Stack {
       lambdaTriggers: {
         customMessage:
           props.asynchronousLambdaFunctionsStack?.cognitoCustomMessage,
+        preSignUp: skipEmailVerification
+          ? props.asynchronousLambdaFunctionsStack?.cognitoPreSignUpTrigger
+          : undefined,
       },
 
       accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,

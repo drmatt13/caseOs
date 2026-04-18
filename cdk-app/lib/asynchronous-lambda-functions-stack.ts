@@ -12,6 +12,7 @@ export interface AsynchronousLambdaFunctionsStackProps extends cdk.StackProps {
 }
 
 export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
+  public readonly cognitoPreSignUpTrigger: nodejs.NodejsFunction;
   public readonly cognitoCustomMessage: nodejs.NodejsFunction;
   public readonly cognitoPostConfirmationTrigger: nodejs.NodejsFunction;
 
@@ -27,7 +28,31 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
     const replayBucketName = props?.replayBucketName ?? "default-bucket-name";
     const replayQueueUrl = props?.replayQueueUrl ?? "default-queue-url";
 
-    // Lambda function for customizing Cognito messages
+    // Lambda function for pre-signup actions in Cognito
+    this.cognitoPreSignUpTrigger = new nodejs.NodejsFunction(
+      this,
+      "CognitoPreSignUpTrigger",
+      {
+        runtime: lambda.Runtime.NODEJS_20_X,
+        entry: path.join(
+          __dirname,
+          "..",
+          "lambda_functions",
+          "cognito-pre-signup-trigger",
+          "index.ts",
+        ),
+        handler: "lambdaHandler",
+        bundling: {
+          minify: true,
+          sourceMap: true,
+          target: "es2020",
+        },
+        memorySize: 128,
+        timeout: cdk.Duration.seconds(10),
+      },
+    );
+
+    // Lambda function for customizing Cognito messages (e.g., verification emails)
     this.cognitoCustomMessage = new nodejs.NodejsFunction(
       this,
       "CognitoCustomMessage",
