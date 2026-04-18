@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 import * as cdk from "aws-cdk-lib";
-import { ApiStack } from "../lib/api-stack";
+import { ApiGatewayStack } from "../lib/api-gateway-stack";
 import { SynchronousLambdaFunctionsStack } from "../lib/synchronous-lambda-functions-stack";
 import { AsynchronousLambdaFunctionsStack } from "../lib/asynchronous-lambda-functions-stack";
 import { CognitoStack } from "../lib/cognito-stack";
 import { DevLambdaReplayStack } from "../lib/dev-lambda-replay-stack";
-// import { EcsStack } from "../lib/ecs-stack";
+import { EcsServicesStack } from "../lib/ecs-services-stack";
 
 const app = new cdk.App();
 
@@ -23,7 +23,8 @@ const stackEnv: cdk.Environment = {
   region,
 };
 
-const executionMode = app.node.tryGetContext("executionMode") ?? "local"; // "local" or "aws"
+const captureEventDrivenFunctions =
+  app.node.tryGetContext("captureEventDrivenFunctions") ?? "true"; // "true" or "false"
 
 const stage = app.node.tryGetContext("stage") ?? "dev";
 const isProduction = stage === "prod";
@@ -48,7 +49,9 @@ const asynchronousLambdaFunctionsStack = new AsynchronousLambdaFunctionsStack(
   {
     env: stackEnv,
     frontendUrl,
-    executionMode,
+    captureEventDrivenFunctions,
+    replayBucketName: devLambdaReplayStack.bucket.bucketName,
+    replayQueueUrl: devLambdaReplayStack.queue.queueUrl,
   },
 );
 
@@ -75,21 +78,21 @@ const synchronousLambdaFunctionsStack = new SynchronousLambdaFunctionsStack(
 synchronousLambdaFunctionsStack.addDependency(cognitoStack);
 
 // Create ECS stack next (without API details) ** ECS Containers
-// const ecsStack = new EcsStack(app, "EcsStack", {
-//   env: stackEnv,
-// });
+const ecsServicesStack = new EcsServicesStack(app, "EcsServicesStack", {
+  env: stackEnv,
+});
 
 // Create API stack ** API Gateway with Lambda and ECS integrations
-const apiStack = new ApiStack(app, "ApiStack", {
+const apiGatewayStack = new ApiGatewayStack(app, "ApiGatewayStack", {
   env: stackEnv,
   signIn: synchronousLambdaFunctionsStack.signIn,
   signOut: synchronousLambdaFunctionsStack.signOut,
   verifyUser: synchronousLambdaFunctionsStack.verifyUser,
   refresh: synchronousLambdaFunctionsStack.refresh,
   frontendUrl,
-  // testContainer1Url: ecsStack.testContainer1Url,
-  // testContainer2Url: ecsStack.testContainer2Url,
+  // testContainer1Url: ecsServicesStack.testContainer1Url,
+  // testContainer2Url: ecsServicesStack.testContainer2Url,
 });
 
-apiStack.addDependency(synchronousLambdaFunctionsStack);
-// apiStack.addDependency(ecsStack);
+apiGatewayStack.addDependency(synchronousLambdaFunctionsStack);
+// apiGatewayStack.addDependency(ecsServicesStack);

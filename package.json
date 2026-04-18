@@ -4,6 +4,7 @@
   "workspaces": [
     "client-app",
     "local-dev-server",
+    "cdk-app",
     "cdk-app/lambda_functions/*",
     "packages/*"
   ]

@@ -4,7 +4,7 @@ import * as apigwv2 from "aws-cdk-lib/aws-apigatewayv2";
 import * as integrations from "aws-cdk-lib/aws-apigatewayv2-integrations";
 import { IFunction } from "aws-cdk-lib/aws-lambda";
 
-export interface ApiStackProps extends cdk.StackProps {
+export interface ApiGatewayStackProps extends cdk.StackProps {
   signIn: IFunction;
   signOut: IFunction;
   verifyUser: IFunction;
@@ -14,8 +14,8 @@ export interface ApiStackProps extends cdk.StackProps {
   // testContainer2Url: string;
 }
 
-export class ApiStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props: ApiStackProps) {
+export class ApiGatewayStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props: ApiGatewayStackProps) {
     super(scope, id, props);
 
     const api = new apigwv2.HttpApi(this, "HttpApi", {

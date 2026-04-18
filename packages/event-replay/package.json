@@ -1,0 +1,22 @@
+{
+  "name": "@repo/event-replay",
+  "version": "1.0.0",
+  "description": "A package for capturing and replaying events from asynchronous Lambda functions.",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1032.0",
+    "@aws-sdk/client-sqs": "^3.1032.0"
+  },
+    "devDependencies": {
+    "@types/aws-lambda": "^8.10.161",
+    "@types/node": "^25.6.0"
+  }
+}

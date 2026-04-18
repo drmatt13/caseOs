@@ -37,6 +37,12 @@ VITE_USER_POOL_CLIENT_ID=
 ```dotenv
 # Same as VITE_USER_POOL_CLIENT_ID from client-app
 USER_POOL_CLIENT_ID=
+
+# Required by captureEventDrivenInvocation
+DEV_LAMBDA_REPLAY_BUCKET_NAME=
+
+# Required only when DEV_LAMBDA_REPLAY_SEND_CUSTOM_SQS_MESSAGE=true
+DEV_LAMBDA_REPLAY_QUEUE_URL=
 ```
 
 ---
@@ -44,5 +50,6 @@ USER_POOL_CLIENT_ID=
 ## Database Package (`packages/database/.env`)
 
 ```dotenv
+# Needed when running Prisma CLI commands (for example: `prisma migrate` / `prisma generate`).
 DATABASE_URL=postgresql://app_user:app_password@localhost:5432/app_db
 ```

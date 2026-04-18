@@ -5,7 +5,7 @@ import * as ecs from "aws-cdk-lib/aws-ecs";
 import * as ecsPatterns from "aws-cdk-lib/aws-ecs-patterns";
 import * as path from "path";
 
-export class EcsStack extends cdk.Stack {
+export class EcsServicesStack extends cdk.Stack {
   public readonly testContainer1Url: string;
   public readonly testContainer2Url: string;
 

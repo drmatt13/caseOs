@@ -6,7 +6,9 @@ import * as path from "path";
 
 export interface AsynchronousLambdaFunctionsStackProps extends cdk.StackProps {
   frontendUrl?: string;
-  executionMode?: "local" | "aws";
+  captureEventDrivenFunctions?: "true" | "false";
+  replayBucketName?: string;
+  replayQueueUrl?: string;
 }
 
 export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
@@ -21,7 +23,10 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
     super(scope, id, props);
 
     const frontendUrl = props?.frontendUrl ?? "http://localhost:3000";
-    const executionMode = props?.executionMode ?? "local";
+    const captureEventDrivenFunctions =
+      props?.captureEventDrivenFunctions ?? "true";
+    const replayBucketName = props?.replayBucketName ?? "default-bucket-name";
+    const replayQueueUrl = props?.replayQueueUrl ?? "default-queue-url";
 
     // Lambda function for customizing Cognito messages
     this.cognitoCustomMessage = new nodejs.NodejsFunction(
@@ -70,7 +75,9 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
           target: "es2020",
         },
         environment: {
-          EXECUTION_MODE: executionMode,
+          CAPTURE_EVENT_DRIVEN_FUNCTIONS: captureEventDrivenFunctions,
+          DEV_LAMBDA_REPLAY_BUCKET_NAME: replayBucketName,
+          DEV_LAMBDA_REPLAY_QUEUE_URL: replayQueueUrl,
         },
         memorySize: 128,
         timeout: cdk.Duration.seconds(10),

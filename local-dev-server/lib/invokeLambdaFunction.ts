@@ -3,12 +3,14 @@ import { Request, Response } from "express";
 
 type LambdaHandler = (
   event: APIGatewayProxyEvent,
+  context: any,
 ) => Promise<APIGatewayProxyResult>;
 
 export default async function invokeLambdaFunction(
   req: Request,
   res: Response,
   handler: LambdaHandler,
+  context?: any,
 ): Promise<void> {
   const headers: { [name: string]: string } = {};
   const multiValueHeaders: { [name: string]: string[] } = {};
@@ -77,7 +79,7 @@ export default async function invokeLambdaFunction(
     } as APIGatewayProxyEvent["requestContext"],
   };
 
-  const result = await handler(event);
+  const result = await handler(event, context ?? {});
 
   if (result.headers) {
     for (const [key, value] of Object.entries(result.headers)) {

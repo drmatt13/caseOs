@@ -6,10 +6,18 @@ x-common-env: &common-env
   AWS_SDK_LOAD_CONFIG: "1"
 
 services:
+  root-deps:
+    image: node:alpine
+    profiles: ["tools"]
+    working_dir: /workspace
+    command: ["npm", "install"]
+    volumes:
+      - ./:/workspace
+
   local-dev-server:
     build:
-      context: .
-      dockerfile: ./local-dev-server/dockerfile
+      context: ./local-dev-server
+      dockerfile: dockerfile
     working_dir: /workspace/local-dev-server
     environment:
       <<: *common-env
@@ -17,12 +25,11 @@ services:
       PORT: "8080"
       LANGGRAPH_SERVICE_URL: "http://langgraph-service"
       DATABASE_URL: "postgresql://app_user:app_password@pgbouncer:5432/app_db"
+      CAPTURE_EVENT_DRIVEN_FUNCTIONS: "false" # Never capture event-driven functions in local dev
     ports:
       - "8080:8080"
     volumes:
       - ./:/workspace # Bind mount, map entire monorepo to /workspace in the container
-      - /workspace/node_modules # Prevent node_modules from being overwritten by the host, use the container's node_modules instead
-      - /workspace/local-dev-server/node_modules # Ensure local-dev-server's node_modules is used
     depends_on:
       postgres:
         condition: service_healthy
@@ -50,7 +57,7 @@ services:
       pgbouncer:
         condition: service_started
 
-  postgres:
+  postgres: # postgresql://app_user:app_password@pgbouncer:5432/app_db
     image: postgres:16
     container_name: local-postgres
     restart: unless-stopped
@@ -67,9 +74,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-  # postgresql://app_user:app_password@pgbouncer:5432/app_db
 
-  pgbouncer:
+  pgbouncer: # postgresql://app_user:app_password@pgbouncer:5432/app_db
     image: edoburu/pgbouncer:v1.25.1-p0
     container_name: local-pgbouncer
     restart: unless-stopped
@@ -89,7 +95,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-  # postgresql://app_user:app_password@pgbouncer:5432/app_db
   
   pgadmin:
     image: dpage/pgadmin4
