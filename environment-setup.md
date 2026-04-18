@@ -27,13 +27,13 @@ npx cdk deploy
 ## Client App (`client-app/.env`)
 
 ```dotenv
-# Example: https://abc123.execute-api.us-east-1.amazonaws.com/dev
-# Source: ApiGatewayStack output key `HttpApiUrl`
-VITE_API_GATEWAY_URL=
+# Local mode: http://localhost:8080
+# Cloud mode: ApiGatewayStack output key `HttpApiUrl` (for example: https://abc123.execute-api.us-east-1.amazonaws.com/dev)
+VITE_API_GATEWAY_URL=http://localhost:8080
 
 # Example: us-east-1
 # Source: AWS region used for deployment
-VITE_AWS_REGION=
+VITE_AWS_REGION=us-east-1
 
 # Example: us-east-1_XXXXXXXXX
 # Source: CognitoStack output key `UserPoolId`
@@ -51,7 +51,7 @@ VITE_USER_POOL_CLIENT_ID=
 ```dotenv
 # Example: us-east-1
 # Source: AWS region used for deployment
-AWS_REGION=
+AWS_REGION=us-east-1
 
 # Same as VITE_USER_POOL_CLIENT_ID from client-app
 # Source: CognitoStack output key `UserPoolClientId`
@@ -70,6 +70,7 @@ DEV_LAMBDA_REPLAY_QUEUE_URL=
 
 ```dotenv
 # Needed when running Prisma CLI commands (for example: `prisma migrate` / `prisma generate`).
+
 # For local Docker postgres: postgresql://app_user:app_password@localhost:5432/app_db
 # For cloud mode, prefer RdsStack output key `RdsPrimaryEndpoint`.
 DATABASE_URL=
