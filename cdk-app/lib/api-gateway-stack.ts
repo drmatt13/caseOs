@@ -10,8 +10,8 @@ export interface ApiGatewayStackProps extends cdk.StackProps {
   verifyUser: IFunction;
   refresh: IFunction;
   frontendUrl: string;
-  // testContainer1Url: string;
-  // testContainer2Url: string;
+  useLocalImplementations: boolean;
+  langgraphServiceUrl?: string;
 }
 
 export class ApiGatewayStack extends cdk.Stack {
@@ -69,26 +69,20 @@ export class ApiGatewayStack extends cdk.Stack {
       ),
     });
 
-    // api.addRoutes({
-    //   path: "/test-container-1",
-    //   methods: [apigwv2.HttpMethod.ANY],
-    //   integration: new integrations.HttpUrlIntegration(
-    //     "TestContainer1Integration",
-    //     props.testContainer1Url,
-    //   ),
-    // });
-
-    // api.addRoutes({
-    //   path: "/test-container-2",
-    //   methods: [apigwv2.HttpMethod.ANY],
-    //   integration: new integrations.HttpUrlIntegration(
-    //     "TestContainer2Integration",
-    //     props.testContainer2Url,
-    //   ),
-    // });
+    if (!props.useLocalImplementations && props.langgraphServiceUrl) {
+      api.addRoutes({
+        path: "/langgraph/{proxy+}",
+        methods: [apigwv2.HttpMethod.ANY],
+        integration: new integrations.HttpUrlIntegration(
+          "LanggraphServiceUrlIntegration",
+          props.langgraphServiceUrl,
+        ),
+      });
+    }
 
     new cdk.CfnOutput(this, "HttpApiUrl", {
       value: api.apiEndpoint,
+      exportName: "CaseOs:ApiGatewayStack:HttpApiUrl",
     });
   }
 }

@@ -12,9 +12,11 @@ export const lambdaHandler = async (
   console.log("Received event:", JSON.stringify(event, null, 2));
   console.log("Execution context:", JSON.stringify(context, null, 2));
 
-  if (process.env.CAPTURE_EVENT_DRIVEN_FUNCTIONS === "true") {
+  if (process.env.USE_LOCAL_IMPLEMENTATIONS === "true") {
     await captureEventDrivenInvocation(event, context);
   }
+
+  console.log("Post-confirmation trigger executed successfully.");
 
   return event;
 };

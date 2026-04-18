@@ -6,11 +6,19 @@ import {
   S3Event,
   SQSEvent,
 } from "aws-lambda";
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-// import { SendMessageCommand, SQSClient } from "@aws-sdk/client-sqs";
+import {
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
+import {
+  DeleteMessageCommand,
+  ReceiveMessageCommand,
+  SQSClient,
+} from "@aws-sdk/client-sqs";
 
 const s3 = new S3Client({});
-// const sqs = new SQSClient({});
+const sqs = new SQSClient({});
 
 type CaptureEligibleEvent =
   | PostConfirmationTriggerEvent
@@ -19,7 +27,7 @@ type CaptureEligibleEvent =
   | S3Event
   | EventBridgeEvent<string, unknown>;
 
-type ReplayEnvelope = {
+export type ReplayEnvelope = {
   id: string;
   capturedAt: string;
   eventType: string;
@@ -144,4 +152,69 @@ export async function captureEventDrivenInvocation(
   //     }),
   //   );
   // }
+}
+
+export type ReplayResult = {
+  envelope: ReplayEnvelope;
+  receiptHandle: string;
+};
+
+export async function pollReplayQueue(
+  queueUrl: string,
+  bucketName: string,
+): Promise<ReplayResult[]> {
+  const response = await sqs.send(
+    new ReceiveMessageCommand({
+      QueueUrl: queueUrl,
+      MaxNumberOfMessages: 10,
+      WaitTimeSeconds: 0,
+    }),
+  );
+
+  if (!response.Messages || response.Messages.length === 0) {
+    return [];
+  }
+
+  const results: ReplayResult[] = [];
+
+  for (const message of response.Messages) {
+    if (!message.Body || !message.ReceiptHandle) continue;
+
+    const s3Event = JSON.parse(message.Body) as S3Event;
+    const record = s3Event.Records?.[0];
+    if (!record) continue;
+
+    const key = decodeURIComponent(record.s3.object.key.replace(/\+/g, " "));
+
+    const obj = await s3.send(
+      new GetObjectCommand({
+        Bucket: bucketName,
+        Key: key,
+      }),
+    );
+
+    if (!obj.Body) continue;
+
+    const bodyStr = await obj.Body.transformToString("utf-8");
+    const envelope = JSON.parse(bodyStr) as ReplayEnvelope;
+
+    results.push({
+      envelope,
+      receiptHandle: message.ReceiptHandle,
+    });
+  }
+
+  return results;
+}
+
+export async function deleteReplayMessage(
+  queueUrl: string,
+  receiptHandle: string,
+): Promise<void> {
+  await sqs.send(
+    new DeleteMessageCommand({
+      QueueUrl: queueUrl,
+      ReceiptHandle: receiptHandle,
+    }),
+  );
 }

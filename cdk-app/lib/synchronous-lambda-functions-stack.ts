@@ -108,5 +108,25 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
         USER_POOL_CLIENT_ID: props.userPoolClientId,
       },
     });
+
+    new cdk.CfnOutput(this, "SignInLambdaArn", {
+      value: this.signIn.functionArn,
+      exportName: "CaseOs:SynchronousLambdaFunctionsStack:SignInLambdaArn",
+    });
+
+    new cdk.CfnOutput(this, "SignOutLambdaArn", {
+      value: this.signOut.functionArn,
+      exportName: "CaseOs:SynchronousLambdaFunctionsStack:SignOutLambdaArn",
+    });
+
+    new cdk.CfnOutput(this, "VerifyUserLambdaArn", {
+      value: this.verifyUser.functionArn,
+      exportName: "CaseOs:SynchronousLambdaFunctionsStack:VerifyUserLambdaArn",
+    });
+
+    new cdk.CfnOutput(this, "RefreshLambdaArn", {
+      value: this.refresh.functionArn,
+      exportName: "CaseOs:SynchronousLambdaFunctionsStack:RefreshLambdaArn",
+    });
   }
 }

@@ -17,7 +17,7 @@
     ]
   },
   "context": {
-    "stage": "dev",
+    "useLocalImplementations": true,
     "useCustomAuthorizer": false,
 
     "@aws-cdk/aws-signer:signingProfileNamePassedToCfn": true,

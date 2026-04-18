@@ -4,6 +4,16 @@ Use this checklist to create the required `.env` files for local development acr
 
 ---
 
+## Prerequisites
+
+Ensure you have the AWS CLI configured before deploying. The CDK CLI uses your AWS CLI profile to automatically populate `CDK_DEFAULT_ACCOUNT` and `CDK_DEFAULT_REGION`:
+
+```bash
+aws configure
+```
+
+---
+
 ## Deploy Infrastructure (CDK)
 
 Before setting environment variables, deploy your AWS resources:
@@ -18,15 +28,19 @@ npx cdk deploy
 
 ```dotenv
 # Example: https://abc123.execute-api.us-east-1.amazonaws.com/dev
+# Source: ApiGatewayStack output key `HttpApiUrl`
 VITE_API_GATEWAY_URL=
 
 # Example: us-east-1
+# Source: AWS region used for deployment
 VITE_AWS_REGION=
 
 # Example: us-east-1_XXXXXXXXX
+# Source: CognitoStack output key `UserPoolId`
 VITE_USER_POOL_ID=
 
 # Example: 4h57exampleclientid123456
+# Source: CognitoStack output key `UserPoolClientId`
 VITE_USER_POOL_CLIENT_ID=
 ```
 
@@ -35,13 +49,18 @@ VITE_USER_POOL_CLIENT_ID=
 ## Local Dev Server (`local-dev-server/.env`)
 
 ```dotenv
+# Example: us-east-1
+# Source: AWS region used for deployment
+AWS_REGION=
+
 # Same as VITE_USER_POOL_CLIENT_ID from client-app
+# Source: CognitoStack output key `UserPoolClientId`
 USER_POOL_CLIENT_ID=
 
-# Required by captureEventDrivenInvocation
+# Source: DevLambdaReplayStack output key `ReplayBucketName`
 DEV_LAMBDA_REPLAY_BUCKET_NAME=
 
-# Required only when DEV_LAMBDA_REPLAY_SEND_CUSTOM_SQS_MESSAGE=true
+# Source: DevLambdaReplayStack output key `ReplayQueueUrl`
 DEV_LAMBDA_REPLAY_QUEUE_URL=
 ```
 
@@ -51,5 +70,7 @@ DEV_LAMBDA_REPLAY_QUEUE_URL=
 
 ```dotenv
 # Needed when running Prisma CLI commands (for example: `prisma migrate` / `prisma generate`).
-DATABASE_URL=postgresql://app_user:app_password@localhost:5432/app_db
+# For local Docker postgres: postgresql://app_user:app_password@localhost:5432/app_db
+# For cloud mode, prefer RdsStack output key `RdsPrimaryEndpoint`.
+DATABASE_URL=
 ```

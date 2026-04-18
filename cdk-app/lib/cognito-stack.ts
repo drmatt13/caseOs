@@ -8,7 +8,7 @@ export interface CognitoStackProps extends cdk.StackProps {
   googleClientSecret?: cdk.SecretValue;
   callbackUrls?: string[];
   logoutUrls?: string[];
-  isProduction?: boolean;
+  useLocalImplementations?: boolean;
   asynchronousLambdaFunctionsStack?: AsynchronousLambdaFunctionsStack;
 }
 
@@ -19,7 +19,7 @@ export class CognitoStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: CognitoStackProps) {
     super(scope, id, props);
 
-    const isProduction = props.isProduction ?? false;
+    const useLocalImplementations = props.useLocalImplementations ?? true;
 
     const callbackUrls = props.callbackUrls ?? [
       "http://localhost:3000/auth/callback",
@@ -78,10 +78,10 @@ export class CognitoStack extends cdk.Stack {
       accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
       mfa: cognito.Mfa.OPTIONAL,
 
-      deletionProtection: isProduction,
-      removalPolicy: isProduction
-        ? cdk.RemovalPolicy.RETAIN
-        : cdk.RemovalPolicy.DESTROY,
+      deletionProtection: !useLocalImplementations,
+      removalPolicy: useLocalImplementations
+        ? cdk.RemovalPolicy.DESTROY
+        : cdk.RemovalPolicy.RETAIN,
     });
 
     const domain = userPool.addDomain("UserPoolDomain", {
@@ -159,14 +159,17 @@ export class CognitoStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, "UserPoolId", {
       value: userPool.userPoolId,
+      exportName: "CaseOs:CognitoStack:UserPoolId",
     });
 
     new cdk.CfnOutput(this, "UserPoolClientId", {
       value: userPoolClient.userPoolClientId,
+      exportName: "CaseOs:CognitoStack:UserPoolClientId",
     });
 
     new cdk.CfnOutput(this, "UserPoolDomainUrl", {
       value: `https://${domain.domainName}.auth.${this.region}.amazoncognito.com`,
+      exportName: "CaseOs:CognitoStack:UserPoolDomainUrl",
     });
   }
 }

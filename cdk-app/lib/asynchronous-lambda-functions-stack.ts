@@ -6,7 +6,7 @@ import * as path from "path";
 
 export interface AsynchronousLambdaFunctionsStackProps extends cdk.StackProps {
   frontendUrl?: string;
-  captureEventDrivenFunctions?: "true" | "false";
+  useLocalImplementations?: boolean;
   replayBucketName?: string;
   replayQueueUrl?: string;
 }
@@ -23,8 +23,7 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
     super(scope, id, props);
 
     const frontendUrl = props?.frontendUrl ?? "http://localhost:3000";
-    const captureEventDrivenFunctions =
-      props?.captureEventDrivenFunctions ?? "true";
+    const useLocalImplementations = props?.useLocalImplementations ?? true;
     const replayBucketName = props?.replayBucketName ?? "default-bucket-name";
     const replayQueueUrl = props?.replayQueueUrl ?? "default-queue-url";
 
@@ -75,7 +74,7 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
           target: "es2020",
         },
         environment: {
-          CAPTURE_EVENT_DRIVEN_FUNCTIONS: captureEventDrivenFunctions,
+          USE_LOCAL_IMPLEMENTATIONS: useLocalImplementations ? "true" : "false",
           DEV_LAMBDA_REPLAY_BUCKET_NAME: replayBucketName,
           DEV_LAMBDA_REPLAY_QUEUE_URL: replayQueueUrl,
         },

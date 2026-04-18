@@ -25,7 +25,7 @@ services:
       PORT: "8080"
       LANGGRAPH_SERVICE_URL: "http://langgraph-service"
       DATABASE_URL: "postgresql://app_user:app_password@pgbouncer:5432/app_db"
-      CAPTURE_EVENT_DRIVEN_FUNCTIONS: "false" # Never capture event-driven functions in local dev
+      USE_LOCAL_IMPLEMENTATIONS: "false" # Never capture event-driven functions in local dev
     ports:
       - "8080:8080"
     volumes:

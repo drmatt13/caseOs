@@ -6,8 +6,8 @@ import * as ecsPatterns from "aws-cdk-lib/aws-ecs-patterns";
 import * as path from "path";
 
 export class EcsServicesStack extends cdk.Stack {
-  public readonly testContainer1Url: string;
-  public readonly testContainer2Url: string;
+  public readonly langgraphServiceUrl: string;
+  // public readonly <ecsServiceURL>: string;
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -18,10 +18,10 @@ export class EcsServicesStack extends cdk.Stack {
       vpc,
     });
 
-    const container1Service =
+    const langgraphService =
       new ecsPatterns.ApplicationLoadBalancedFargateService(
         this,
-        "TestContainer1Service",
+        "LanggraphService",
         {
           cluster,
           cpu: 256,
@@ -31,7 +31,7 @@ export class EcsServicesStack extends cdk.Stack {
           assignPublicIp: true,
           taskImageOptions: {
             image: ecs.ContainerImage.fromAsset(
-              path.join(__dirname, "..", "ecs_containers", "test-container-1"),
+              path.join(__dirname, "..", "ecs_containers", "langgraph-service"),
               {
                 file: "dockerfile",
               },
@@ -44,10 +44,10 @@ export class EcsServicesStack extends cdk.Stack {
         },
       );
 
-    // const container2Service =
+    // const <ecsService> =
     //   new ecsPatterns.ApplicationLoadBalancedFargateService(
     //     this,
-    //     "TestContainer2Service",
+    //     "<EcsService>",
     //     {
     //       cluster,
     //       cpu: 256,
@@ -55,7 +55,7 @@ export class EcsServicesStack extends cdk.Stack {
     //       desiredCount: 1,
     //       taskImageOptions: {
     //         image: ecs.ContainerImage.fromAsset(
-    //           path.join(__dirname, "..", "ecs_containers", "test-container-2"),
+    //           path.join(__dirname, "..", "ecs_containers", "<ecs-service>"),
     //           {
     //             file: "dockerfile",
     //           },
@@ -69,15 +69,15 @@ export class EcsServicesStack extends cdk.Stack {
     //     },
     //   );
 
-    this.testContainer1Url = `http://${container1Service.loadBalancer.loadBalancerDnsName}`;
-    // this.testContainer2Url = `http://${container2Service.loadBalancer.loadBalancerDnsName}`;
+    this.langgraphServiceUrl = `http://${langgraphService.loadBalancer.loadBalancerDnsName}`;
+    // this.<ecsServiceUrl> = `http://${<ecsService>.loadBalancer.loadBalancerDnsName}`;
 
-    new cdk.CfnOutput(this, "TestContainer1ServiceUrl", {
-      value: this.testContainer1Url,
+    new cdk.CfnOutput(this, "LanggraphServiceUrl", {
+      value: this.langgraphServiceUrl,
     });
 
-    // new cdk.CfnOutput(this, "TestContainer2ServiceUrl", {
-    //   value: this.testContainer2Url,
+    // new cdk.CfnOutput(this, "<EcsService>Url", {
+    //   value: this.<ecsServiceUrl>,
     // });
   }
 }
