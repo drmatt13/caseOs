@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import Button from "#/components/Button";
 import LoginLayout from "#/components/layouts/LoginLayout";
 import {
   confirmSignUpUser,
@@ -19,28 +20,32 @@ export const Route = createFileRoute("/verify-account")({
 
 function RouteComponent() {
   const navigate = useNavigate();
-  const { code, email, username } = Route.useSearch();
+  const { code: codeFromUrl, email, username } = Route.useSearch();
 
-  const [status, setStatus] = useState<"loading" | "success" | "error">(
-    "loading",
+  const [manualCode, setManualCode] = useState("");
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >(codeFromUrl ? "loading" : "idle");
+  const [message, setMessage] = useState(
+    codeFromUrl ? "Verifying your account..." : "",
   );
-  const [message, setMessage] = useState("Verifying your account...");
   const [resendStatus, setResendStatus] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
+    if (!codeFromUrl) return;
+
     const signInIdentifier = username.trim() || email.trim().toLowerCase();
 
-    if (!code || !signInIdentifier) {
+    if (!signInIdentifier) {
       setStatus("error");
-      setMessage(
-        "Missing verification details. Please use the link from your email.",
-      );
+      setMessage("Missing account identifier. Please enter your code below.");
       return;
     }
 
     const verify = async () => {
       try {
-        await confirmSignUpUser(signInIdentifier, String(code));
+        await confirmSignUpUser(signInIdentifier, String(codeFromUrl));
         setStatus("success");
         setMessage("Your account is verified. Redirecting to sign in...");
         setTimeout(() => {
@@ -61,7 +66,51 @@ function RouteComponent() {
     };
 
     void verify();
-  }, [code, email, navigate, username]);
+  }, [codeFromUrl, email, navigate, username]);
+
+  const handleManualSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmedCode = manualCode.trim();
+    const signInIdentifier = username.trim() || email.trim().toLowerCase();
+
+    if (!trimmedCode) {
+      setStatus("error");
+      setMessage("Please enter the verification code.");
+      return;
+    }
+
+    if (!signInIdentifier) {
+      setStatus("error");
+      setMessage("Missing account identifier.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setStatus("loading");
+    setMessage("Verifying your account...");
+
+    try {
+      await confirmSignUpUser(signInIdentifier, trimmedCode);
+      setStatus("success");
+      setMessage("Your account is verified. Redirecting to sign in...");
+      setTimeout(() => {
+        navigate({
+          to: "/login",
+          replace: true,
+          search: { email, "account-verified": true },
+        });
+      }, 1500);
+    } catch (error) {
+      setStatus("error");
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : "Failed to verify your account.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleResendCode = async () => {
     const signInIdentifier = username.trim() || email.trim().toLowerCase();
@@ -75,7 +124,9 @@ function RouteComponent() {
     setResendStatus("Resending verification code...");
     try {
       await resendConfirmationCodeUser(signInIdentifier);
-      setResendStatus(`A new verification code was sent to ${email}.`);
+      setResendStatus(
+        `A new verification code was sent to ${email || signInIdentifier}.`,
+      );
     } catch (error) {
       setResendStatus(
         error instanceof Error
@@ -90,44 +141,82 @@ function RouteComponent() {
       <div className="flex flex-col w-sm">
         <div className="flex flex-col px-5 pt-8 pb-5 border-mist-400 shadow-md rounded-2xl bg-white">
           <p className="text-[1.7rem] font-bold">Verify your account</p>
-          <p
-            className={`mt-2 text-sm ${
-              status === "error"
-                ? "text-red-600"
-                : status === "success"
-                  ? "text-green-700"
-                  : "text-gray-700"
-            }`}
-          >
-            {message}
+          <p className="mt-0.5 text-sm text-gray-600">
+            {status === "loading"
+              ? "Verifying your account..."
+              : email
+                ? `Enter the verification code sent to ${email}`
+                : "Enter the verification code from your email"}
           </p>
+
+          {status === "success" && (
+            <p className="mt-3 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
+              {message}
+            </p>
+          )}
+
           {status === "error" && (
-            <div className="mt-4 text-sm text-gray-600">
+            <p className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+              {message}
+            </p>
+          )}
+
+          {status !== "success" && status !== "loading" && (
+            <form onSubmit={handleManualSubmit} className="mt-4">
+              <label
+                htmlFor="verification-code"
+                className="text-sm font-medium mb-1.5 block"
+              >
+                Verification code
+              </label>
+              <input
+                type="text"
+                id="verification-code"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                autoFocus={!codeFromUrl}
+                value={manualCode}
+                onChange={(e) => setManualCode(e.target.value)}
+                className="w-full rounded-md px-2 py-2.5 mb-3 text-xs bg-gray-100 border border-black/15"
+                placeholder="Enter 6-digit code"
+              />
+              <div className="mt-1" />
+              <Button
+                submit={true}
+                text={isSubmitting ? "Verifying..." : "Verify account"}
+                style="primary"
+                disabled={isSubmitting || status === "loading"}
+              />
+            </form>
+          )}
+
+          {status !== "success" && status !== "loading" && (
+            <div className="mt-4 text-sm text-gray-600 text-center">
               <button
                 type="button"
                 onClick={handleResendCode}
-                className="mb-2 text-blue-600 hover:underline"
+                className="text-blue-600 hover:underline"
               >
                 Resend verification code
               </button>
-              {resendStatus && <p className="mb-2">{resendStatus}</p>}
-              <p>
-                Return to{" "}
-                <Link to="/register" className="text-blue-600 hover:underline">
-                  register
-                </Link>{" "}
-                or go to{" "}
-                <Link
-                  to="/login"
-                  search={{ email: undefined, "account-verified": undefined }}
-                  className="text-blue-600 hover:underline"
-                >
-                  login
-                </Link>
-                .
-              </p>
+              {resendStatus && (
+                <p className="mt-2 text-gray-600">{resendStatus}</p>
+              )}
             </div>
           )}
+
+          <div className="mt-4 text-gray-500 flex w-full justify-center">
+            <p>
+              Already verified?{" "}
+              <Link
+                to="/login"
+                search={{ email: undefined, "account-verified": undefined }}
+                className="text-blue-600 hover:underline"
+              >
+                Sign in
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </LoginLayout>

@@ -6,6 +6,8 @@ import {
   CognitoIdentityProviderServiceException,
   ResendConfirmationCodeCommand,
   SignUpCommand,
+  ForgotPasswordCommand,
+  ConfirmForgotPasswordCommand,
 } from "@aws-sdk/client-cognito-identity-provider";
 
 import { SignInResponseSchema } from "@repo/database/src/api.schemas";
@@ -383,10 +385,86 @@ export async function signInUser(
   const data: z.infer<typeof SignInResponseSchema> = await response.json();
 
   if (!response.ok) {
+    if (response.status === 403) {
+      return {
+        success: false,
+        error: "USER_NOT_CONFIRMED",
+      };
+    }
     return { success: false, error: data.error ?? "Sign in failed" };
   }
 
   primeAuthCache({ broadcast: true });
 
   return { success: true };
+}
+
+export async function forgotPasswordUser(email: string) {
+  const command = new ForgotPasswordCommand({
+    ClientId: import.meta.env.VITE_USER_POOL_CLIENT_ID,
+    Username: email.trim().toLowerCase(),
+  });
+
+  try {
+    return await cognitoClient.send(command);
+  } catch (error) {
+    if (error instanceof CognitoIdentityProviderServiceException) {
+      switch (error.name) {
+        case "UserNotFoundException":
+          throw new Error(
+            "If an account with that email exists, a reset code has been sent.",
+          );
+        case "LimitExceededException":
+        case "TooManyRequestsException":
+          throw new Error(
+            "Too many attempts. Please wait a bit before trying again.",
+          );
+        default:
+          throw new Error(
+            error.message || "Failed to send password reset code.",
+          );
+      }
+    }
+    throw new Error("Failed to send password reset code.");
+  }
+}
+
+export async function confirmForgotPasswordUser(
+  email: string,
+  code: string,
+  newPassword: string,
+) {
+  const command = new ConfirmForgotPasswordCommand({
+    ClientId: import.meta.env.VITE_USER_POOL_CLIENT_ID,
+    Username: email.trim().toLowerCase(),
+    ConfirmationCode: code.trim(),
+    Password: newPassword,
+  });
+
+  try {
+    return await cognitoClient.send(command);
+  } catch (error) {
+    if (error instanceof CognitoIdentityProviderServiceException) {
+      switch (error.name) {
+        case "CodeMismatchException":
+          throw new Error("Invalid reset code. Please try again.");
+        case "ExpiredCodeException":
+          throw new Error("Reset code has expired. Please request a new one.");
+        case "InvalidPasswordException":
+          throw new Error(
+            "Password does not meet requirements. Must be at least 8 characters with uppercase, lowercase, and a number.",
+          );
+        case "LimitExceededException":
+        case "TooManyRequestsException":
+          throw new Error(
+            "Too many attempts. Please wait a bit before trying again.",
+          );
+        case "UserNotFoundException":
+          throw new Error("Account not found. Please register first.");
+        default:
+          throw new Error(error.message || "Failed to reset password.");
+      }
+    }
+    throw new Error("Failed to reset password.");
+  }
 }

@@ -48,6 +48,17 @@ function RouteComponent() {
       const result = await signInUser(email, password);
 
       if (!result.success) {
+        if (result.error === "USER_NOT_CONFIRMED") {
+          await navigate({
+            to: "/verify-account",
+            search: {
+              email: email.trim().toLowerCase(),
+              username: email.trim().toLowerCase(),
+              code: "",
+            },
+          });
+          return;
+        }
         setError(result.error ?? "Sign in failed");
         return;
       }
@@ -124,6 +135,7 @@ function RouteComponent() {
               </label>
               <Link
                 to="/forgot-password"
+                search={{ email: "", code: "" }}
                 className="text-sm text-blue-600 hover:underline"
               >
                 Forgot password?

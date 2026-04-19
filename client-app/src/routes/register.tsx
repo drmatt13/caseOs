@@ -64,12 +64,13 @@ function RouteComponent() {
         trimmedFirstName,
         trimmedLastName,
       );
-      alert(
-        `Account created successfully. Please confirm your account using the verification email sent to ${email.trim()} before signing in.`,
-      );
       await navigate({
-        to: "/login",
-        search: { email: undefined, "account-verified": undefined },
+        to: "/verify-account",
+        search: {
+          email: email.trim(),
+          username: email.trim().toLowerCase(),
+          code: "",
+        },
       });
     } catch (error) {
       setStatus(
