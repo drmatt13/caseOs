@@ -2,6 +2,7 @@ import {
   pollReplayQueue,
   deleteReplayMessage,
   type ReplayEnvelope,
+  type HandlerNames,
 } from "@repo/event-replay";
 import type { Context } from "aws-lambda";
 
@@ -10,25 +11,37 @@ import { lambdaHandler as cognitoPostConfirmationTrigger } from "../../cdk-app/l
 // Add more imports here as you add more async Lambda functions, e.g.:
 // import { lambdaHandler as anotherAsyncLambdaHandler } from "../../cdk-app/lambda_functions/another-async-lambda/index";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ReplayHandler = (event: any, context: Context) => Promise<any>;
 
 // Registry: map deployed Lambda function names to local handlers.
 // Use a partial match — the key just needs to appear somewhere in envelope.lambdaName.
-const handlerRegistry: Record<string, ReplayHandler> = {
+const handlerRegistry: Record<HandlerNames, ReplayHandler> = {
+  //                          ^-- Update this type as you add more handlers, e.g.: HandlerNames = "CognitoPostConfirmationTrigger" | "AnotherAsyncLambda"
   CognitoPostConfirmationTrigger: cognitoPostConfirmationTrigger,
   // Add more handlers here as needed, e.g.:
   // AnotherAsyncLambda: anotherAsyncLambdaHandler,
 };
 
-function findHandler(
-  lambdaName: string | undefined,
-): ReplayHandler | undefined {
+function findHandler(envelope: ReplayEnvelope): ReplayHandler | undefined {
+  // Prefer direct lookup by stable typed handler name.
+  if (envelope.handlerName) {
+    const typedHandler = handlerRegistry[envelope.handlerName];
+    if (typedHandler) return typedHandler;
+  }
+
+  // Fallback for older messages that only contain an arbitrary deployed Lambda name.
+  const lambdaName = envelope.lambdaName;
   if (!lambdaName) return undefined;
+
   for (const [key, handler] of Object.entries(handlerRegistry)) {
     if (lambdaName.includes(key)) return handler;
   }
+
   return undefined;
+}
+
+function getDisplayHandlerName(envelope: ReplayEnvelope): string {
+  return envelope.handlerName ?? envelope.lambdaName ?? "unknown";
 }
 
 function mockContext(envelope: ReplayEnvelope): Context {
@@ -58,23 +71,21 @@ export default async function invokeAsyncLambdaFunctions(): Promise<void> {
     const results = await pollReplayQueue(queueUrl, bucketName);
 
     for (const { envelope, receiptHandle } of results) {
-      const handler = findHandler(envelope.lambdaName);
+      const handler = findHandler(envelope);
+      const displayName = getDisplayHandlerName(envelope);
 
       if (handler) {
         console.log(
-          `[replay] Invoking handler for ${envelope.lambdaName} (event: ${envelope.eventType})`,
+          `[replay] Invoking handler for ${displayName} (event: ${envelope.eventType})`,
         );
         try {
           await handler(envelope.originalEvent, mockContext(envelope));
         } catch (err) {
-          console.error(
-            `[replay] Handler error for ${envelope.lambdaName}:`,
-            err,
-          );
+          console.error(`[replay] Handler error for ${displayName}:`, err);
         }
       } else {
         console.warn(
-          `[replay] No handler registered for lambdaName="${envelope.lambdaName}"`,
+          `[replay] No handler registered for handlerName="${envelope.handlerName}" lambdaName="${envelope.lambdaName}"`,
         );
       }
 

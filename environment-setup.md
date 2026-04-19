@@ -24,6 +24,27 @@ npm install
 npx cdk deploy
 ```
 
+---
+
+## Database Package (`packages/database/.env`)
+
+```dotenv
+# Used by Prisma CLI (`prisma generate`, `prisma migrate`) and as runtime fallback.
+# For local Docker postgres: postgresql://app_user:app_password@localhost:5432/app_db
+# For cloud mode: use RdsStack output key `DirectDatabaseUrl`.
+DATABASE_URL=
+```
+
+After CDK deploy, run Prisma migration:
+
+```bash
+cd packages/database
+npx prisma migrate dev
+```
+
+---
+
+
 ## Client App (`client-app/.env`)
 
 ```dotenv
@@ -62,16 +83,15 @@ DEV_LAMBDA_REPLAY_BUCKET_NAME=
 
 # Source: DevLambdaReplayStack output key `ReplayQueueUrl`
 DEV_LAMBDA_REPLAY_QUEUE_URL=
+
 ```
 
 ---
 
-## Database Package (`packages/database/.env`)
+## Start Local Development
 
-```dotenv
-# Needed when running Prisma CLI commands (for example: `prisma migrate` / `prisma generate`).
+After all `.env` files are configured, start the local stack:
 
-# For local Docker postgres: postgresql://app_user:app_password@localhost:5432/app_db
-# For cloud mode, prefer RdsStack output key `RdsPrimaryEndpoint`.
-DATABASE_URL=
+```bash
+docker-compose up --build
 ```

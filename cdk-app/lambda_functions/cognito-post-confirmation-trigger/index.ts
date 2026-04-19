@@ -1,22 +1,40 @@
 import { Context, PostConfirmationTriggerEvent } from "aws-lambda";
 import { captureEventDrivenInvocation } from "@repo/event-replay";
-
-// placeholder
-// import type { User } from "@repo/database/src/generated/prisma/client";
-// import { prisma } from "@repo/database/src/index";
+import { prisma } from "@repo/database/src/index";
 
 export const lambdaHandler = async (
   event: PostConfirmationTriggerEvent,
   context: Context,
 ): Promise<PostConfirmationTriggerEvent> => {
-  console.log("Received event:", JSON.stringify(event, null, 2));
-  console.log("Execution context:", JSON.stringify(context, null, 2));
-
+  // Optionally capture this invocation and run it through the local dev server
   if (process.env.USE_LOCAL_IMPLEMENTATIONS === "true") {
-    await captureEventDrivenInvocation(event, context);
+    await captureEventDrivenInvocation(
+      event,
+      context,
+      "CognitoPostConfirmationTrigger",
+    );
+    return event;
   }
 
-  console.log("Post-confirmation trigger executed successfully.");
+  // Create user in database after confirmation (cloud mode only)
+  if (process.env.PRIMARY_DATABASE_URL) {
+    const { sub, email, given_name, family_name } =
+      event.request.userAttributes;
+
+    await prisma.user.create({
+      data: {
+        cognitoSub: sub,
+        email,
+        firstName: given_name,
+        lastName: family_name,
+        accountTier: "FREE",
+        accountStatus: "ACTIVE",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        displayName: `${given_name} ${family_name}`,
+      },
+    });
+  }
 
   return event;
 };

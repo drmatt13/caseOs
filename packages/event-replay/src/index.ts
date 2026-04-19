@@ -17,9 +17,6 @@ import {
   SQSClient,
 } from "@aws-sdk/client-sqs";
 
-const s3 = new S3Client({});
-const sqs = new SQSClient({});
-
 type CaptureEligibleEvent =
   | PostConfirmationTriggerEvent
   | DynamoDBStreamEvent
@@ -27,11 +24,19 @@ type CaptureEligibleEvent =
   | S3Event
   | EventBridgeEvent<string, unknown>;
 
+export type HandlerNames = "CognitoPostConfirmationTrigger";
+// Add more handler names here as you add more async Lambda functions, e.g.:
+// | "AnotherAsyncLambda"
+
+const s3 = new S3Client({});
+const sqs = new SQSClient({});
+
 export type ReplayEnvelope = {
   id: string;
   capturedAt: string;
   eventType: string;
   sourceHint: string;
+  handlerName?: HandlerNames;
   lambdaName?: string;
   awsRequestId?: string;
   originalEvent: CaptureEligibleEvent;
@@ -93,6 +98,7 @@ function detectSourceHint(event: CaptureEligibleEvent): string {
 export async function captureEventDrivenInvocation(
   event: CaptureEligibleEvent,
   context: Context,
+  handlerName: HandlerNames,
 ): Promise<void> {
   const bucketName = getRequiredEnv("DEV_LAMBDA_REPLAY_BUCKET_NAME");
 
@@ -119,6 +125,7 @@ export async function captureEventDrivenInvocation(
     capturedAt,
     eventType,
     sourceHint,
+    handlerName,
     lambdaName: context.functionName,
     awsRequestId: context.awsRequestId,
     originalEvent: event,

@@ -2,6 +2,7 @@ import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as nodejs from "aws-cdk-lib/aws-lambda-nodejs";
+import * as s3 from "aws-cdk-lib/aws-s3";
 import * as path from "path";
 
 export interface AsynchronousLambdaFunctionsStackProps extends cdk.StackProps {
@@ -9,6 +10,8 @@ export interface AsynchronousLambdaFunctionsStackProps extends cdk.StackProps {
   useLocalImplementations?: boolean;
   replayBucketName?: string;
   replayQueueUrl?: string;
+  replayBucket?: s3.IBucket;
+  primaryDatabaseUrl?: string;
 }
 
 export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
@@ -102,10 +105,17 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
           USE_LOCAL_IMPLEMENTATIONS: useLocalImplementations ? "true" : "false",
           DEV_LAMBDA_REPLAY_BUCKET_NAME: replayBucketName,
           DEV_LAMBDA_REPLAY_QUEUE_URL: replayQueueUrl,
+          ...(props?.primaryDatabaseUrl
+            ? { PRIMARY_DATABASE_URL: props.primaryDatabaseUrl }
+            : {}),
         },
         memorySize: 128,
         timeout: cdk.Duration.seconds(10),
       },
     );
+
+    if (useLocalImplementations && props?.replayBucket) {
+      props.replayBucket.grantWrite(this.cognitoPostConfirmationTrigger);
+    }
   }
 }

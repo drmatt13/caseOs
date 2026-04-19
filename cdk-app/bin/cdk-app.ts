@@ -103,8 +103,13 @@ const asynchronousLambdaFunctionsStack = new AsynchronousLambdaFunctionsStack(
     useLocalImplementations,
     replayBucketName: devLambdaReplayStack?.bucket.bucketName,
     replayQueueUrl: devLambdaReplayStack?.queue.queueUrl,
+    replayBucket: devLambdaReplayStack?.bucket,
+    primaryDatabaseUrl: rdsStack?.primaryDatabaseUrl,
   },
 );
+if (devLambdaReplayStack) {
+  asynchronousLambdaFunctionsStack.addDependency(devLambdaReplayStack);
+}
 
 // Create Cognito User Pool + Client + Identity Pool
 const cognitoStack = new CognitoStack(app, "CognitoStack", {

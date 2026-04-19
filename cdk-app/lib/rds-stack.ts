@@ -13,6 +13,8 @@ export class RdsStack extends cdk.Stack {
   public readonly databaseEndpoint: string;
   public readonly primaryEndpoint: string;
   public readonly credentialsSecretArn: string;
+  public readonly primaryDatabaseUrl: string;
+  public readonly directDatabaseUrl: string;
 
   constructor(scope: Construct, id: string, props?: RdsStackProps) {
     super(scope, id, props);
@@ -112,6 +114,24 @@ export class RdsStack extends cdk.Stack {
     this.primaryEndpoint = this.proxyEndpoint;
     this.credentialsSecretArn = credentialsSecret.secretArn;
 
+    // Runtime URL for app code. Resolves to proxy when enabled, direct DB when disabled.
+    this.primaryDatabaseUrl = cdk.Fn.join("", [
+      "postgresql://app_user:",
+      credentialsSecret.secretValueFromJson("password").unsafeUnwrap(),
+      "@",
+      this.primaryEndpoint,
+      ":5432/app_db",
+    ]);
+
+    // Direct URL for admin/debug workflows (e.g. migrations, diagnostics).
+    this.directDatabaseUrl = cdk.Fn.join("", [
+      "postgresql://app_user:",
+      credentialsSecret.secretValueFromJson("password").unsafeUnwrap(),
+      "@",
+      this.databaseEndpoint,
+      ":5432/app_db",
+    ]);
+
     new cdk.CfnOutput(this, "RdsProxyEndpoint", {
       value: this.proxyEndpoint,
       exportName: "CaseOs:RdsStack:RdsProxyEndpoint",
@@ -135,6 +155,16 @@ export class RdsStack extends cdk.Stack {
     new cdk.CfnOutput(this, "RdsPrimaryEndpoint", {
       value: this.primaryEndpoint,
       exportName: "CaseOs:RdsStack:RdsPrimaryEndpoint",
+    });
+
+    new cdk.CfnOutput(this, "PrimaryDatabaseUrl", {
+      value: this.primaryDatabaseUrl,
+      exportName: "CaseOs:RdsStack:PrimaryDatabaseUrl",
+    });
+
+    new cdk.CfnOutput(this, "DirectDatabaseUrl", {
+      value: this.directDatabaseUrl,
+      exportName: "CaseOs:RdsStack:DirectDatabaseUrl",
     });
 
     new cdk.CfnOutput(this, "RdsCredentialsSecretArn", {
