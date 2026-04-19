@@ -2,7 +2,7 @@
   "name": "sign-out",
   "version": "1.0.0",
   "description": "A Lambda function to handle user sign-out.",
-  "main": "index.js",
+  "main": "index.ts",
   "repository": "",
   "author": "Matthew Sweeney",
   "license": "MIT",
@@ -23,3 +23,4 @@
     "typescript": "^5.9.3"
   }
 }
+

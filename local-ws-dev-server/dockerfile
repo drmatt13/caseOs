@@ -1,0 +1,8 @@
+FROM node:alpine
+
+WORKDIR /workspace
+
+EXPOSE 8081
+
+# Install Linux-native deps at workspace root (npm workspaces), then start WS dev server
+CMD ["sh", "-c", "npm install --prefer-offline && cd local-ws-dev-server && npm run dev"]

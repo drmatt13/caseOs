@@ -3,9 +3,11 @@
   "private": true,
   "workspaces": [
     "client-app",
-    "local-dev-server",
+    "local-api-dev-server",
     "cdk-app",
     "cdk-app/lambda_functions/*",
-    "packages/*"
+    "packages/*",
+    "frontend-ws-connection-and-payload-tester",
+    "local-ws-dev-server"
   ]
 }

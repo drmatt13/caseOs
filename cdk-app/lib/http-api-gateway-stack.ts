@@ -4,7 +4,7 @@ import * as apigwv2 from "aws-cdk-lib/aws-apigatewayv2";
 import * as integrations from "aws-cdk-lib/aws-apigatewayv2-integrations";
 import { IFunction } from "aws-cdk-lib/aws-lambda";
 
-export interface ApiGatewayStackProps extends cdk.StackProps {
+export interface HttpApiGatewayStackProps extends cdk.StackProps {
   signIn: IFunction;
   signOut: IFunction;
   verifyUser: IFunction;
@@ -14,8 +14,8 @@ export interface ApiGatewayStackProps extends cdk.StackProps {
   langgraphServiceUrl?: string;
 }
 
-export class ApiGatewayStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props: ApiGatewayStackProps) {
+export class HttpApiGatewayStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props: HttpApiGatewayStackProps) {
     super(scope, id, props);
 
     const api = new apigwv2.HttpApi(this, "HttpApi", {
@@ -82,7 +82,7 @@ export class ApiGatewayStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, "HttpApiUrl", {
       value: api.apiEndpoint,
-      exportName: "CaseOs:ApiGatewayStack:HttpApiUrl",
+      exportName: "CaseOs:HttpApiGatewayStack:HttpApiUrl",
     });
   }
 }

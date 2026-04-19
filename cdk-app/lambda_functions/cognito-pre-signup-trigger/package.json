@@ -2,7 +2,7 @@
   "name": "cognito-pre-signup-trigger",
   "version": "1.0.0",
   "description": "A Lambda function for handling Cognito pre-signup events, automatically confirming and verifying users.",
-  "main": "index.js",
+  "main": "index.ts",
   "repository": "",
   "author": "Matthew Sweeney",
   "license": "MIT",
@@ -22,3 +22,4 @@
     "typescript": "^5.9.3"
   }
 }
+

@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import { invokeGraph } from "./graph";
 
 dotenv.config({
-  path: `.env.${process.env.NODE_ENV || "development"}`,
+  path: `.env`,
 });
 
 const PORT = process.env.PORT || 5000;

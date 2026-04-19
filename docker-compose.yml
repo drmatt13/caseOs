@@ -1,9 +1,58 @@
-x-common-env: &common-env
-  CHOKIDAR_USEPOLLING: "true"
-  CHOKIDAR_INTERVAL: "300"
+# Shared AWS configuration for containers that need to access AWS.
+# Uses the local named profile (`dev`) and region (`us-east-1`) so
+# the AWS CLI and SDK resolve credentials consistently in Docker.
+# AWS_SDK_LOAD_CONFIG enables profile-based config loading from ~/.aws/config,
+# which is needed when containers rely on mounted local AWS credentials.
+x-aws-env: &aws-env
   AWS_PROFILE: dev
   AWS_REGION: us-east-1
   AWS_SDK_LOAD_CONFIG: "1"
+
+# The LangGraph service environment variables
+x-langgraph-service-env: &langgraph-service-env
+  PORT: "80" # ECS containers should listen on port 80 by convention
+  PRIMARY_DATABASE_URL: "postgresql://admin:password@postgres:5432/app_db" # In development you should always use local Postgres for database access
+
+# The local API dev servers environment variables
+x-local-api-dev-server-env: &local-api-dev-server-env
+  PORT: "8080"
+  LANGGRAPH_SERVICE_URL: "http://langgraph-service"
+  PRIMARY_DATABASE_URL: "postgresql://admin:password@postgres:5432/app_db" # In development you should always use local Postgres for database access
+  USE_LOCAL_IMPLEMENTATIONS: "false" # Never capture event-driven functions in local dev
+  # Source: CognitoStack output key `UserPoolClientId`
+  USER_POOL_CLIENT_ID: "<USER_POOL_CLIENT_ID>"
+  # Source: DevLambdaReplayStack output key `ReplayBucketName`
+  DEV_LAMBDA_REPLAY_BUCKET_NAME: "<DEV_LAMBDA_REPLAY_BUCKET_NAME>"
+  # Source: DevLambdaReplayStack output key `ReplayQueueUrl`
+  DEV_LAMBDA_REPLAY_QUEUE_URL: "<DEV_LAMBDA_REPLAY_QUEUE_URL>"
+
+# The local WebSocket dev servers environment variables
+x-local-ws-dev-server-env: &local-ws-dev-server-env
+  PORT: "8081" # Port for local WebSocket dev server
+  ENABLE_CUSTOM_WS_AUTHORIZER: "false"
+                              # ^ Set to "true" to enable the custom WebSocket authorizer in the local WebSocket dev server, which mimics the behavior of the API Gateway WebSocket custom authorizer used in production. This is disabled by default since it adds complexity to local development and isn't necessary for most use cases.
+
+x-frontend-ws-connection-and-payload-tester-env: &frontend-ws-connection-and-payload-tester-env
+  VITE_LOCAL_WS_URL: "ws://localhost:8081"
+  # Source: WebSocketApiStack output key `WebSocketApiEndpoint`
+  VITE_API_GATEWAY_WS_URL: "<APIGATEWAY_WS_URL>"
+
+# PostgreSQL environment variables
+x-postgres-env: &postgres-env
+  POSTGRES_DB: app_db
+  POSTGRES_USER: admin
+  POSTGRES_PASSWORD: password
+
+# pgAdmin environment variables
+x-pgadmin-env: &pgadmin-env
+  PGADMIN_DEFAULT_EMAIL: admin@local.dev
+  PGADMIN_DEFAULT_PASSWORD: password
+  GUNICORN_ACCESS_LOGFILE: /dev/null
+
+# Nodemon environment variables to optimize file watching in Docker containers, especially on Windows and macOS where the default file watching can be inefficient. These settings enable polling with a reasonable interval to ensure changes are detected without overwhelming the system.
+x-nodemon-env: &nodemon-env
+  CHOKIDAR_USEPOLLING: "true"
+  CHOKIDAR_INTERVAL: "300"
 
 services:
   root-deps:
@@ -14,17 +63,12 @@ services:
     volumes:
       - ./:/workspace
 
-  local-dev-server:
+  local-api-dev-server:
     build:
-      context: ./local-dev-server
+      context: ./local-api-dev-server
       dockerfile: dockerfile
     environment:
-      <<: *common-env
-      NODE_ENV: development
-      PORT: "8080"
-      LANGGRAPH_SERVICE_URL: "http://langgraph-service"
-      PRIMARY_DATABASE_URL: "postgresql://app_user:app_password@postgres:5432/app_db"
-      USE_LOCAL_IMPLEMENTATIONS: "false" # Never capture event-driven functions in local dev
+      <<: [*aws-env, *nodemon-env, *local-api-dev-server-env]
     ports:
       - "8080:8080"
     volumes:
@@ -33,6 +77,12 @@ services:
       - type: bind
         source: ${USERPROFILE}/.aws
         target: /root/.aws
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/ || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
     depends_on:
       postgres:
         condition: service_healthy
@@ -44,8 +94,7 @@ services:
       context: ./cdk-app/ecs_containers/langgraph-service
       dockerfile: dockerfile
     environment:
-      <<: *common-env
-      PORT: "80"
+      <<: [*aws-env, *nodemon-env, *langgraph-service-env]
     volumes:
       - ./cdk-app/ecs_containers/langgraph-service:/app
       - /app/node_modules
@@ -56,20 +105,53 @@ services:
       postgres:
         condition: service_healthy
 
-  postgres: # postgresql://app_user:app_password@postgres:5432/app_db
+  local-ws-dev-server:
+    build:
+      context: ./local-ws-dev-server
+      dockerfile: dockerfile
+    environment:
+      <<: [*aws-env, *nodemon-env, *local-ws-dev-server-env]
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./:/workspace
+      - workspace_node_modules:/workspace/node_modules
+      - type: bind
+        source: ${USERPROFILE}/.aws
+        target: /root/.aws
+    depends_on:
+      local-api-dev-server:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+  frontend-ws-connection-and-payload-tester:
+    build:
+      context: ./frontend-ws-connection-and-payload-tester
+      dockerfile: dockerfile
+    environment:
+      <<: *frontend-ws-connection-and-payload-tester-env
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./:/workspace
+      - workspace_node_modules:/workspace/node_modules
+    depends_on:
+      local-api-dev-server:
+        condition: service_healthy
+
+  postgres: # postgresql://admin:password@postgres:5432/app_db
     image: postgres:16
     container_name: local-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: app_db
-      POSTGRES_USER: app_user
-      POSTGRES_PASSWORD: app_password
+      <<: *postgres-env
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U app_user -d app_db"]
+      test: ["CMD-SHELL", "pg_isready -U admin -d app_db"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -79,9 +161,7 @@ services:
     container_name: local-pgadmin
     restart: unless-stopped
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@local.dev
-      PGADMIN_DEFAULT_PASSWORD: admin
-      GUNICORN_ACCESS_LOGFILE: /dev/null
+      <<: *pgadmin-env
     ports:
       - "5050:80"
     volumes:

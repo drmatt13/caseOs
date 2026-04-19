@@ -1,18 +1,20 @@
 #!/usr/bin/env node
 import * as cdk from "aws-cdk-lib";
-import { ApiGatewayStack } from "../lib/api-gateway-stack";
+import { HttpApiGatewayStack } from "../lib/http-api-gateway-stack";
 import { SynchronousLambdaFunctionsStack } from "../lib/synchronous-lambda-functions-stack";
 import { AsynchronousLambdaFunctionsStack } from "../lib/asynchronous-lambda-functions-stack";
 import { CognitoStack } from "../lib/cognito-stack";
 import { DevLambdaReplayStack } from "../lib/dev-lambda-replay-stack";
 import { EcsServicesStack } from "../lib/ecs-services-stack";
 import { RdsStack } from "../lib/rds-stack";
+import { WebSocketApiStack } from "../lib/websocket-api-stack";
+import { WebSocketLambdaFunctionsStack } from "../lib/websocket-lambda-functions-stack";
 
 // Synth CDK app with:
-// cdk synth -c useLocalImplementations=false -c enableRdsProxy=true -c skipEmailVerification=false
+// cdk synth --all -c useLocalImplementations=false -c enableRdsProxy=true -c skipEmailVerification=false -c useCustomAuthorizer=true
 
 // DEV deployment Command Example:
-// cdk deploy --all --require-approval never
+// cdk deploy --all -c useCustomWsAuthorizer=<boolean> --require-approval never
 
 // PROD deployment Command Example:
 // cdk deploy --all \
@@ -22,6 +24,7 @@ import { RdsStack } from "../lib/rds-stack";
 //   -c frontendUrl=<https://your-frontend-url.com> \
 //   -c googleClientId=<your-google-client-id> \
 //   -c googleClientSecret=<your-google-client-secret> \
+//   -c useCustomWsAuthorizer=<boolean> \
 //   --require-approval never
 
 const app = new cdk.App();
@@ -143,8 +146,8 @@ const ecsServicesStack = !useLocalImplementations
 
 // Create API stack ** API Gateway with Lambda and ECS integrations
 // Created only in cloud mode (useLocalImplementations=false).
-const apiGatewayStack = !useLocalImplementations
-  ? new ApiGatewayStack(app, "ApiGatewayStack", {
+const HttpapiGatewayStack = !useLocalImplementations
+  ? new HttpApiGatewayStack(app, "HttpApiGatewayStack", {
       env: stackEnv,
       frontendUrl,
       useLocalImplementations,
@@ -163,10 +166,32 @@ const apiGatewayStack = !useLocalImplementations
   : undefined;
 
 // API Gateway dependencies (cloud mode only)
-apiGatewayStack?.addDependency(synchronousLambdaFunctionsStack);
+HttpapiGatewayStack?.addDependency(synchronousLambdaFunctionsStack);
 if (ecsServicesStack) {
-  apiGatewayStack?.addDependency(ecsServicesStack);
+  HttpapiGatewayStack?.addDependency(ecsServicesStack);
 }
 if (rdsStack) {
-  apiGatewayStack?.addDependency(rdsStack);
+  HttpapiGatewayStack?.addDependency(rdsStack);
 }
+
+// Create handlers stack first (without API details)
+const handlersStack = new WebSocketLambdaFunctionsStack(
+  app,
+  "WebSocketLambdaFunctionsStack",
+  {},
+);
+
+// Use a custom Authorizer for WebSocket API if specified in context, otherwise allow all connections
+const useCustomWsAuthorizer = app.node.tryGetContext("useCustomAuthorizer") // "true" or "false" (default to "false" if not set)
+  ? "true"
+  : "false";
+
+// Create API stack with the handler functions
+const apiStack = new WebSocketApiStack(app, "WebSocketApiStack", {
+  connectFn: handlersStack.connectFn,
+  customActionFn: handlersStack.customActionFn,
+  disconnectFn: handlersStack.disconnectFn,
+  defaultFn: handlersStack.defaultFn,
+  authorizerFn: handlersStack.authorizerFn,
+  useCustomWsAuthorizer: useCustomWsAuthorizer,
+});

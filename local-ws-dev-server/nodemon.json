@@ -1,0 +1,5 @@
+{
+  "watch": ["../cdk-app/lambda_functions", "./src"],
+  "ext": "ts",
+  "exec": "/workspace/node_modules/.bin/tsx src/index.ts"
+}

@@ -1,5 +1,5 @@
 {
-  "name": "local-ws-server",
+  "name": "local-api-dev-server",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {

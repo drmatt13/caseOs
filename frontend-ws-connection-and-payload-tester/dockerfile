@@ -1,0 +1,8 @@
+FROM node:alpine
+
+WORKDIR /workspace
+
+EXPOSE 3001
+
+# Deps are installed by local-api-dev-server via shared volume, just start dev server
+CMD ["sh", "-c", "cd frontend-ws-connection-and-payload-tester && npm run dev"]

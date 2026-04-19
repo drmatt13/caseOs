@@ -2,7 +2,7 @@
   "name": "refresh",
   "version": "1.0.0",
   "description": "A Lambda function to handle Cognito token refresh.",
-  "main": "index.js",
+  "main": "index.ts",
   "author": "Matthew Sweeney",
   "license": "MIT",
   "scripts": {
@@ -17,3 +17,4 @@
     "typescript": "^5.0.0"
   }
 }
+
