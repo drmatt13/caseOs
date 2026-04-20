@@ -98,7 +98,7 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
         handler: "lambdaHandler",
         bundling: {
           minify: true,
-          sourceMap: true,
+          sourceMap: false,
           target: "es2020",
         },
         environment: {

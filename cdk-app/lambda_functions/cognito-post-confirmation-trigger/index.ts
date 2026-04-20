@@ -23,8 +23,8 @@ export const lambdaHandler = async (
 
     await prisma.user.create({
       data: {
-        cognitoSub: sub,
-        email,
+        // cognitoSub: sub,
+        // email,
         firstName: given_name,
         lastName: family_name,
         accountTier: "FREE",

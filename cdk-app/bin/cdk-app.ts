@@ -11,21 +11,14 @@ import { WebSocketApiStack } from "../lib/websocket-api-stack";
 import { WebSocketLambdaFunctionsStack } from "../lib/websocket-lambda-functions-stack";
 
 // Synth CDK app with:
-// cdk synth --all -c useLocalImplementations=false -c enableRdsProxy=true -c skipEmailVerification=false -c useCustomAuthorizer=true
+// cdk synth --all -c useLocalImplementations=false -c enableRdsProxy=true -c skipEmailVerification=false -c useCustomAuthorizer=true -c enableWebSockets=true
 
 // DEV deployment Command Example:
-// cdk deploy --all -c useCustomWsAuthorizer=<boolean> --require-approval never
+// cdk deploy --all -c useCustomWsAuthorizer=<boolean> -c enableWebSockets=false --require-approval never
 
-// PROD deployment Command Example:
-// cdk deploy --all \
-//   -c useLocalImplementations=false \
-//   -c enableRdsProxy=false \
-//   -c skipEmailVerification=false \
-//   -c frontendUrl=<https://your-frontend-url.com> \
-//   -c googleClientId=<your-google-client-id> \
-//   -c googleClientSecret=<your-google-client-secret> \
-//   -c useCustomWsAuthorizer=<boolean> \
-//   --require-approval never
+// PROD deployment Command Example:                                    v false for quick testing, but should be true for true production
+// cdk deploy --all -c useLocalImplementations=false -c enableEcsStack=false -c enableRdsProxy=false -c skipEmailVerification=false -c frontendUrl=<https://your-frontend-url.com> -c googleClientId=<your-google-client-id> -c googleClientSecret=<your-google-client-secret> -c useCustomWsAuthorizer=<boolean> -c enableWebSockets=true --require-approval never
+//                                             ^ false for quick testing                       ^ false for quick testing, should be true for true production
 
 const app = new cdk.App();
 
@@ -76,6 +69,16 @@ const skipEmailVerification =
   typeof skipEmailVerificationContext === "string"
     ? skipEmailVerificationContext.toLowerCase() === "true"
     : (skipEmailVerificationContext ?? false);
+
+// Optional stack toggles. Both default to false.
+const enableEcsStackContext = app.node.tryGetContext("enableEcsStack");
+const enableEcsStack =
+  typeof enableEcsStackContext === "string"
+    ? enableEcsStackContext.toLowerCase() === "true"
+    : (enableEcsStackContext ?? false);
+
+const enableWebSockets =
+  app.node.tryGetContext("enableWebSockets") === "true" ? true : false;
 
 // Frontend URL for CORS configuration, can be set via context or environment variable. Defaults to localhost for development.
 const frontendUrl =
@@ -143,11 +146,12 @@ const synchronousLambdaFunctionsStack = new SynchronousLambdaFunctionsStack(
 synchronousLambdaFunctionsStack.addDependency(cognitoStack);
 
 // Created only in cloud mode (useLocalImplementations=false).
-const ecsServicesStack = !useLocalImplementations
-  ? new EcsServicesStack(app, "EcsServicesStack", {
-      env: stackEnv,
-    })
-  : undefined;
+const ecsServicesStack =
+  !useLocalImplementations && enableEcsStack
+    ? new EcsServicesStack(app, "EcsServicesStack", {
+        env: stackEnv,
+      })
+    : undefined;
 
 // Create API stack ** API Gateway with Lambda and ECS integrations
 // Created only in cloud mode (useLocalImplementations=false).
@@ -192,11 +196,13 @@ const useCustomWsAuthorizer = app.node.tryGetContext("useCustomAuthorizer") // "
   : "false";
 
 // Create API stack with the handler functions
-const webSocketApiStack = new WebSocketApiStack(app, "WebSocketApiStack", {
-  connectFn: webSocketLambdaFunctionsStack.connectFn,
-  customActionFn: webSocketLambdaFunctionsStack.customActionFn,
-  disconnectFn: webSocketLambdaFunctionsStack.disconnectFn,
-  defaultFn: webSocketLambdaFunctionsStack.defaultFn,
-  authorizerFn: webSocketLambdaFunctionsStack.authorizerFn,
-  useCustomWsAuthorizer: useCustomWsAuthorizer,
-});
+const webSocketApiStack = enableWebSockets
+  ? new WebSocketApiStack(app, "WebSocketApiStack", {
+      connectFn: webSocketLambdaFunctionsStack.connectFn,
+      customActionFn: webSocketLambdaFunctionsStack.customActionFn,
+      disconnectFn: webSocketLambdaFunctionsStack.disconnectFn,
+      defaultFn: webSocketLambdaFunctionsStack.defaultFn,
+      authorizerFn: webSocketLambdaFunctionsStack.authorizerFn,
+      useCustomWsAuthorizer: useCustomWsAuthorizer,
+    })
+  : undefined;
