@@ -1,5 +1,7 @@
 {
   "name": "client-app",
+  "author": "Matthew Sweeney",
+  "license": "UNLICENSED",
   "private": true,
   "type": "module",
   "imports": {

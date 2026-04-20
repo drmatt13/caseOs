@@ -5,10 +5,10 @@ import * as integrations from "aws-cdk-lib/aws-apigatewayv2-integrations";
 import { IFunction } from "aws-cdk-lib/aws-lambda";
 
 export interface HttpApiGatewayStackProps extends cdk.StackProps {
-  signIn: IFunction;
-  signOut: IFunction;
-  verifyUser: IFunction;
-  refresh: IFunction;
+  signInFn: IFunction;
+  signOutFn: IFunction;
+  verifyUserFn: IFunction;
+  refreshFn: IFunction;
   frontendUrl: string;
   useLocalImplementations: boolean;
   langgraphServiceUrl?: string;
@@ -38,7 +38,7 @@ export class HttpApiGatewayStack extends cdk.Stack {
       methods: [apigwv2.HttpMethod.ANY],
       integration: new integrations.HttpLambdaIntegration(
         "SignInIntegration",
-        props.signIn,
+        props.signInFn,
       ),
     });
 
@@ -47,7 +47,7 @@ export class HttpApiGatewayStack extends cdk.Stack {
       methods: [apigwv2.HttpMethod.ANY],
       integration: new integrations.HttpLambdaIntegration(
         "SignOutIntegration",
-        props.signOut,
+        props.signOutFn,
       ),
     });
 
@@ -56,7 +56,7 @@ export class HttpApiGatewayStack extends cdk.Stack {
       methods: [apigwv2.HttpMethod.ANY],
       integration: new integrations.HttpLambdaIntegration(
         "VerifyUserIntegration",
-        props.verifyUser,
+        props.verifyUserFn,
       ),
     });
 
@@ -65,7 +65,7 @@ export class HttpApiGatewayStack extends cdk.Stack {
       methods: [apigwv2.HttpMethod.ANY],
       integration: new integrations.HttpLambdaIntegration(
         "RefreshIntegration",
-        props.refresh,
+        props.refreshFn,
       ),
     });
 
@@ -82,7 +82,7 @@ export class HttpApiGatewayStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, "HttpApiUrl", {
       value: api.apiEndpoint,
-      exportName: "CaseOs:HttpApiGatewayStack:HttpApiUrl",
+      exportName: "HttpApiGatewayStack:HttpApiUrl",
     });
   }
 }

@@ -15,9 +15,9 @@ export interface AsynchronousLambdaFunctionsStackProps extends cdk.StackProps {
 }
 
 export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
-  public readonly cognitoPreSignUpTrigger: nodejs.NodejsFunction;
-  public readonly cognitoCustomMessage: nodejs.NodejsFunction;
-  public readonly cognitoPostConfirmationTrigger: nodejs.NodejsFunction;
+  public readonly cognitoPreSignUpTriggerFn: nodejs.NodejsFunction;
+  public readonly cognitoCustomMessageFn: nodejs.NodejsFunction;
+  public readonly cognitoPostConfirmationTriggerFn: nodejs.NodejsFunction;
 
   constructor(
     scope: Construct,
@@ -32,7 +32,7 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
     const replayQueueUrl = props?.replayQueueUrl ?? "default-queue-url";
 
     // Lambda function for pre-signup actions in Cognito
-    this.cognitoPreSignUpTrigger = new nodejs.NodejsFunction(
+    this.cognitoPreSignUpTriggerFn = new nodejs.NodejsFunction(
       this,
       "CognitoPreSignUpTrigger",
       {
@@ -56,7 +56,7 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
     );
 
     // Lambda function for customizing Cognito messages (e.g., verification emails)
-    this.cognitoCustomMessage = new nodejs.NodejsFunction(
+    this.cognitoCustomMessageFn = new nodejs.NodejsFunction(
       this,
       "CognitoCustomMessage",
       {
@@ -83,7 +83,7 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
     );
 
     // Lambda function for post-confirmation actions in Cognito
-    this.cognitoPostConfirmationTrigger = new nodejs.NodejsFunction(
+    this.cognitoPostConfirmationTriggerFn = new nodejs.NodejsFunction(
       this,
       "CognitoPostConfirmationTrigger",
       {
@@ -115,7 +115,24 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
     );
 
     if (useLocalImplementations && props?.replayBucket) {
-      props.replayBucket.grantWrite(this.cognitoPostConfirmationTrigger);
+      props.replayBucket.grantWrite(this.cognitoPostConfirmationTriggerFn);
     }
+
+    // Outputs
+    new cdk.CfnOutput(this, "CognitoPreSignUpTriggerLambdaArn", {
+      value: this.cognitoPreSignUpTriggerFn.functionArn,
+      exportName:
+        "AsynchronousLambdaFunctionsStack:CognitoPreSignUpTriggerLambdaArn",
+    });
+    new cdk.CfnOutput(this, "CognitoCustomMessageLambdaArn", {
+      value: this.cognitoCustomMessageFn.functionArn,
+      exportName:
+        "AsynchronousLambdaFunctionsStack:CognitoCustomMessageLambdaArn",
+    });
+    new cdk.CfnOutput(this, "CognitoPostConfirmationTriggerLambdaArn", {
+      value: this.cognitoPostConfirmationTriggerFn.functionArn,
+      exportName:
+        "AsynchronousLambdaFunctionsStack:CognitoPostConfirmationTriggerLambdaArn",
+    });
   }
 }

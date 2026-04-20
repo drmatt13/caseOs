@@ -134,42 +134,42 @@ export class RdsStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, "RdsProxyEndpoint", {
       value: this.proxyEndpoint,
-      exportName: "CaseOs:RdsStack:RdsProxyEndpoint",
+      exportName: "RdsStack:RdsProxyEndpoint",
     });
 
     new cdk.CfnOutput(this, "RdsProxyEnabled", {
       value: String(enableRdsProxy),
-      exportName: "CaseOs:RdsStack:RdsProxyEnabled",
+      exportName: "RdsStack:RdsProxyEnabled",
     });
 
     new cdk.CfnOutput(this, "RdsProxyPort", {
       value: "5432",
-      exportName: "CaseOs:RdsStack:RdsProxyPort",
+      exportName: "RdsStack:RdsProxyPort",
     });
 
     new cdk.CfnOutput(this, "RdsDatabaseEndpoint", {
       value: this.databaseEndpoint,
-      exportName: "CaseOs:RdsStack:RdsDatabaseEndpoint",
+      exportName: "RdsStack:RdsDatabaseEndpoint",
     });
 
     new cdk.CfnOutput(this, "RdsPrimaryEndpoint", {
       value: this.primaryEndpoint,
-      exportName: "CaseOs:RdsStack:RdsPrimaryEndpoint",
+      exportName: "RdsStack:RdsPrimaryEndpoint",
     });
 
     new cdk.CfnOutput(this, "PrimaryDatabaseUrl", {
       value: this.primaryDatabaseUrl,
-      exportName: "CaseOs:RdsStack:PrimaryDatabaseUrl",
+      exportName: "RdsStack:PrimaryDatabaseUrl",
     });
 
     new cdk.CfnOutput(this, "DirectDatabaseUrl", {
       value: this.directDatabaseUrl,
-      exportName: "CaseOs:RdsStack:DirectDatabaseUrl",
+      exportName: "RdsStack:DirectDatabaseUrl",
     });
 
     new cdk.CfnOutput(this, "RdsCredentialsSecretArn", {
       value: this.credentialsSecretArn,
-      exportName: "CaseOs:RdsStack:RdsCredentialsSecretArn",
+      exportName: "RdsStack:RdsCredentialsSecretArn",
     });
   }
 }

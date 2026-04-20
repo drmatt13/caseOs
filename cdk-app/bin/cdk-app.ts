@@ -121,7 +121,12 @@ const cognitoStack = new CognitoStack(app, "CognitoStack", {
   skipEmailVerification,
   googleClientId: undefined,
   googleClientSecret: undefined,
-  asynchronousLambdaFunctionsStack,
+  cognitoPreSignUpTriggerFn:
+    asynchronousLambdaFunctionsStack.cognitoPreSignUpTriggerFn,
+  cognitoCustomMessageFn:
+    asynchronousLambdaFunctionsStack.cognitoCustomMessageFn,
+  cognitoPostConfirmationTriggerFn:
+    asynchronousLambdaFunctionsStack.cognitoPostConfirmationTriggerFn,
 });
 cognitoStack.addDependency(asynchronousLambdaFunctionsStack);
 
@@ -146,17 +151,17 @@ const ecsServicesStack = !useLocalImplementations
 
 // Create API stack ** API Gateway with Lambda and ECS integrations
 // Created only in cloud mode (useLocalImplementations=false).
-const HttpapiGatewayStack = !useLocalImplementations
+const httpApiGatewayStack = !useLocalImplementations
   ? new HttpApiGatewayStack(app, "HttpApiGatewayStack", {
       env: stackEnv,
       frontendUrl,
       useLocalImplementations,
 
       // Lambda integrations
-      signIn: synchronousLambdaFunctionsStack.signIn,
-      signOut: synchronousLambdaFunctionsStack.signOut,
-      verifyUser: synchronousLambdaFunctionsStack.verifyUser,
-      refresh: synchronousLambdaFunctionsStack.refresh,
+      signInFn: synchronousLambdaFunctionsStack.signInFn,
+      signOutFn: synchronousLambdaFunctionsStack.signOutFn,
+      verifyUserFn: synchronousLambdaFunctionsStack.verifyUserFn,
+      refreshFn: synchronousLambdaFunctionsStack.refreshFn,
       // <LambdaFunctionName>: synchronousLambdaFunctionsStack.<LambdaFunctionExport>,
 
       // ECS integrations
@@ -166,16 +171,16 @@ const HttpapiGatewayStack = !useLocalImplementations
   : undefined;
 
 // API Gateway dependencies (cloud mode only)
-HttpapiGatewayStack?.addDependency(synchronousLambdaFunctionsStack);
+httpApiGatewayStack?.addDependency(synchronousLambdaFunctionsStack);
 if (ecsServicesStack) {
-  HttpapiGatewayStack?.addDependency(ecsServicesStack);
+  httpApiGatewayStack?.addDependency(ecsServicesStack);
 }
 if (rdsStack) {
-  HttpapiGatewayStack?.addDependency(rdsStack);
+  httpApiGatewayStack?.addDependency(rdsStack);
 }
 
 // Create handlers stack first (without API details)
-const handlersStack = new WebSocketLambdaFunctionsStack(
+const webSocketLambdaFunctionsStack = new WebSocketLambdaFunctionsStack(
   app,
   "WebSocketLambdaFunctionsStack",
   {},
@@ -187,11 +192,11 @@ const useCustomWsAuthorizer = app.node.tryGetContext("useCustomAuthorizer") // "
   : "false";
 
 // Create API stack with the handler functions
-const apiStack = new WebSocketApiStack(app, "WebSocketApiStack", {
-  connectFn: handlersStack.connectFn,
-  customActionFn: handlersStack.customActionFn,
-  disconnectFn: handlersStack.disconnectFn,
-  defaultFn: handlersStack.defaultFn,
-  authorizerFn: handlersStack.authorizerFn,
+const webSocketApiStack = new WebSocketApiStack(app, "WebSocketApiStack", {
+  connectFn: webSocketLambdaFunctionsStack.connectFn,
+  customActionFn: webSocketLambdaFunctionsStack.customActionFn,
+  disconnectFn: webSocketLambdaFunctionsStack.disconnectFn,
+  defaultFn: webSocketLambdaFunctionsStack.defaultFn,
+  authorizerFn: webSocketLambdaFunctionsStack.authorizerFn,
   useCustomWsAuthorizer: useCustomWsAuthorizer,
 });

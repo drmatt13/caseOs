@@ -1,6 +1,7 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as cognito from "aws-cdk-lib/aws-cognito";
+import { IFunction } from "aws-cdk-lib/aws-lambda";
 import { AsynchronousLambdaFunctionsStack } from "./asynchronous-lambda-functions-stack";
 
 export interface CognitoStackProps extends cdk.StackProps {
@@ -10,7 +11,9 @@ export interface CognitoStackProps extends cdk.StackProps {
   logoutUrls?: string[];
   useLocalImplementations?: boolean;
   skipEmailVerification?: boolean;
-  asynchronousLambdaFunctionsStack?: AsynchronousLambdaFunctionsStack;
+  cognitoPreSignUpTriggerFn?: IFunction;
+  cognitoCustomMessageFn?: IFunction;
+  cognitoPostConfirmationTriggerFn?: IFunction;
 }
 
 export class CognitoStack extends cdk.Stack {
@@ -72,14 +75,11 @@ export class CognitoStack extends cdk.Stack {
 
       email: cognito.UserPoolEmail.withCognito(),
       lambdaTriggers: {
-        customMessage:
-          props.asynchronousLambdaFunctionsStack?.cognitoCustomMessage,
+        customMessage: props.cognitoCustomMessageFn,
         preSignUp: skipEmailVerification
-          ? props.asynchronousLambdaFunctionsStack?.cognitoPreSignUpTrigger
+          ? props.cognitoPreSignUpTriggerFn
           : undefined,
-        postConfirmation:
-          props.asynchronousLambdaFunctionsStack
-            ?.cognitoPostConfirmationTrigger,
+        postConfirmation: props.cognitoPostConfirmationTriggerFn,
       },
 
       accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
@@ -166,17 +166,17 @@ export class CognitoStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, "UserPoolId", {
       value: userPool.userPoolId,
-      exportName: "CaseOs:CognitoStack:UserPoolId",
+      exportName: "CognitoStack:UserPoolId",
     });
 
     new cdk.CfnOutput(this, "UserPoolClientId", {
       value: userPoolClient.userPoolClientId,
-      exportName: "CaseOs:CognitoStack:UserPoolClientId",
+      exportName: "CognitoStack:UserPoolClientId",
     });
 
     new cdk.CfnOutput(this, "UserPoolDomainUrl", {
       value: `https://${domain.domainName}.auth.${this.region}.amazoncognito.com`,
-      exportName: "CaseOs:CognitoStack:UserPoolDomainUrl",
+      exportName: "CognitoStack:UserPoolDomainUrl",
     });
   }
 }

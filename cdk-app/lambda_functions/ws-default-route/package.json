@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.ts",
   "author": "Matthew Sweeney",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "scripts": {
     "compile": "tsc"
   },

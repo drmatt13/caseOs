@@ -1,5 +1,7 @@
 {
   "name": "my-monorepo",
+  "author": "Matthew Sweeney",
+  "license": "UNLICENSED",
   "private": true,
   "workspaces": [
     "client-app",

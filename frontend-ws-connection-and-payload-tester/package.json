@@ -1,5 +1,7 @@
 {
   "name": "frontend-ws-connection-and-payload-tester",
+  "author": "Matthew Sweeney",
+  "license": "UNLICENSED",
   "private": true,
   "type": "module",
   "imports": {

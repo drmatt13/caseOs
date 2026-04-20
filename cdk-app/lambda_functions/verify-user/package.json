@@ -5,7 +5,7 @@
   "main": "index.ts",
   "repository": "",
   "author": "Matthew Sweeney",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "scripts": {
     "unit": "jest",
     "lint": "eslint '*.ts' --quiet --fix",

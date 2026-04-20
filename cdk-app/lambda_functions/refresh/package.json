@@ -4,7 +4,7 @@
   "description": "A Lambda function to handle Cognito token refresh.",
   "main": "index.ts",
   "author": "Matthew Sweeney",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "scripts": {
     "compile": "tsc"
   },

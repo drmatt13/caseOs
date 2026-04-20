@@ -10,10 +10,10 @@ export interface SynchronousLambdaFunctionsStackProps extends cdk.StackProps {
 }
 
 export class SynchronousLambdaFunctionsStack extends cdk.Stack {
-  public readonly signIn: nodejs.NodejsFunction;
-  public readonly signOut: nodejs.NodejsFunction;
-  public readonly verifyUser: nodejs.NodejsFunction;
-  public readonly refresh: nodejs.NodejsFunction;
+  public readonly signInFn: nodejs.NodejsFunction;
+  public readonly signOutFn: nodejs.NodejsFunction;
+  public readonly verifyUserFn: nodejs.NodejsFunction;
+  public readonly refreshFn: nodejs.NodejsFunction;
 
   constructor(
     scope: Construct,
@@ -22,7 +22,7 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
   ) {
     super(scope, id, props);
 
-    this.signIn = new nodejs.NodejsFunction(this, "SignIn", {
+    this.signInFn = new nodejs.NodejsFunction(this, "SignIn", {
       runtime: lambda.Runtime.NODEJS_20_X,
       entry: path.join(
         __dirname,
@@ -45,7 +45,7 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
       },
     });
 
-    this.signOut = new nodejs.NodejsFunction(this, "SignOut", {
+    this.signOutFn = new nodejs.NodejsFunction(this, "SignOut", {
       runtime: lambda.Runtime.NODEJS_20_X,
       entry: path.join(
         __dirname,
@@ -64,7 +64,7 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(10),
     });
 
-    this.verifyUser = new nodejs.NodejsFunction(this, "VerifyUser", {
+    this.verifyUserFn = new nodejs.NodejsFunction(this, "VerifyUser", {
       runtime: lambda.Runtime.NODEJS_20_X,
       entry: path.join(
         __dirname,
@@ -87,7 +87,7 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
       },
     });
 
-    this.refresh = new nodejs.NodejsFunction(this, "Refresh", {
+    this.refreshFn = new nodejs.NodejsFunction(this, "Refresh", {
       runtime: lambda.Runtime.NODEJS_20_X,
       entry: path.join(
         __dirname,
@@ -109,24 +109,25 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
       },
     });
 
+    // Outputs
     new cdk.CfnOutput(this, "SignInLambdaArn", {
-      value: this.signIn.functionArn,
-      exportName: "CaseOs:SynchronousLambdaFunctionsStack:SignInLambdaArn",
+      value: this.signInFn.functionArn,
+      exportName: "SynchronousLambdaFunctionsStack:SignInFnLambdaArn",
     });
 
     new cdk.CfnOutput(this, "SignOutLambdaArn", {
-      value: this.signOut.functionArn,
-      exportName: "CaseOs:SynchronousLambdaFunctionsStack:SignOutLambdaArn",
+      value: this.signOutFn.functionArn,
+      exportName: "SynchronousLambdaFunctionsStack:SignOutFnLambdaArn",
     });
 
     new cdk.CfnOutput(this, "VerifyUserLambdaArn", {
-      value: this.verifyUser.functionArn,
-      exportName: "CaseOs:SynchronousLambdaFunctionsStack:VerifyUserLambdaArn",
+      value: this.verifyUserFn.functionArn,
+      exportName: "SynchronousLambdaFunctionsStack:VerifyUserFnLambdaArn",
     });
 
     new cdk.CfnOutput(this, "RefreshLambdaArn", {
-      value: this.refresh.functionArn,
-      exportName: "CaseOs:SynchronousLambdaFunctionsStack:RefreshLambdaArn",
+      value: this.refreshFn.functionArn,
+      exportName: "SynchronousLambdaFunctionsStack:RefreshFnLambdaArn",
     });
   }
 }

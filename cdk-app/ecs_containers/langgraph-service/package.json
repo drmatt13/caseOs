@@ -2,8 +2,8 @@
   "name": "test-container",
   "version": "1.0.0",
   "description": "",
-  "license": "ISC",
-  "author": "",
+  "license": "UNLICENSED",
+  "author": "Matthew Sweeney",
   "type": "module",
   "main": "index.js",
   "scripts": {

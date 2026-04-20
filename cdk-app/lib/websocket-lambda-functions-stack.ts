@@ -178,20 +178,20 @@ export class WebSocketLambdaFunctionsStack extends cdk.Stack {
     });
 
     // Outputs
-    new cdk.CfnOutput(this, "ConnectFunctionName", {
-      value: this.connectFn.functionName,
+    new cdk.CfnOutput(this, "ConnectRouteFunctionArn", {
+      value: this.connectFn.functionArn,
     });
-    new cdk.CfnOutput(this, "CustomActionFunctionName", {
-      value: this.customActionFn.functionName,
+    new cdk.CfnOutput(this, "CustomActionRouteFunctionArn", {
+      value: this.customActionFn.functionArn,
     });
-    new cdk.CfnOutput(this, "DisconnectFunctionName", {
-      value: this.disconnectFn.functionName,
+    new cdk.CfnOutput(this, "DisconnectRouteFunctionArn", {
+      value: this.disconnectFn.functionArn,
     });
-    new cdk.CfnOutput(this, "DefaultFunctionName", {
-      value: this.defaultFn.functionName,
+    new cdk.CfnOutput(this, "DefaultRouteFunctionArn", {
+      value: this.defaultFn.functionArn,
     });
-    new cdk.CfnOutput(this, "AuthorizerFunctionName", {
-      value: this.authorizerFn.functionName,
+    new cdk.CfnOutput(this, "AuthorizerFunctionArn", {
+      value: this.authorizerFn.functionArn,
     });
   }
 }
