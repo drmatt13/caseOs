@@ -7,9 +7,8 @@ This guide gets a new developer from zero to running local services with the lea
 1. Configure AWS CLI (one-time).
 2. Deploy CDK resources (or confirm they are already deployed).
 3. Create and fill required .env files.
-4. Run Prisma migration.
-5. Sign in to AWS for your dev framework.
-6. Start Docker services.
+4. Sign in to AWS for your dev framework.
+5. Start Docker services.
 
 ## 1) AWS CLI Prerequisites (One-Time)
 
@@ -24,7 +23,7 @@ Why this matters:
 
 ## 2) Deploy Infrastructure (CDK)
 
-Before local app startup, make sure cloud resources exist and outputs are up to date:
+Before client-app startup, make sure cloud resources exist and outputs are up to date:
 
 ```bash
 cd cdk-app
@@ -33,24 +32,25 @@ npx cdk deploy
 ```
 
 Tip:
-- Keep note of outputs like UserPoolId, UserPoolClientId, HttpApiUrl, DirectDatabaseUrlTemplate, and RdsCredentialsSecretArn. You will paste these into env values below.
+- Keep note of outputs like `UserPoolId`, `UserPoolClientId`, `HttpApiUrl`, and `RdsCredentialsSecretArn`. You will paste these into env values below.
 
 ## 3) Configure Database Env
 
 Create or update packages/database/.env:
 
 ```dotenv
-# Used by Prisma CLI (prisma generate, prisma migrate) and as runtime fallback.
+# Used by Prisma CLI and local development tooling.
 # Local Docker postgres example:
 # postgresql://admin:password@localhost:5432/app_db
-# Cloud mode: use RdsStack output key DirectDatabaseUrlTemplate after resolving
-# the password from Secrets Manager. The database name is app_db unless you
-# changed the stack.
 DATABASE_URL=
 ```
 
-If your deployment is using the cloud RDS instance, fetch
-the real password first:
+Notes:
+- For local development, `DATABASE_URL` should usually point at your local Docker Postgres instance, for example `postgresql://admin:password@localhost:5432/app_db`.
+- Cloud Lambda functions no longer build their Prisma connection from a manually copied URL. They receive `PRIMARY_DATABASE_SECRET_ARN` and resolve credentials from AWS Secrets Manager at runtime.
+- You typically do not need to put the cloud database password into `packages/database/.env` just to run the app locally.
+
+If you need to inspect the cloud RDS credentials secret directly, you can still fetch it with:
 
 ```bash
 aws secretsmanager get-secret-value \
@@ -59,23 +59,7 @@ aws secretsmanager get-secret-value \
   --output text
 ```
 
-Then replace `<password>` in `DirectDatabaseUrlTemplate` and put the concrete
-value in `packages/database/.env`:
-
-```dotenv
-DATABASE_URL=postgresql://app_user:<resolved-password>@<RdsDatabaseEndpoint>:5432/app_db
-```
-
-## 4) Run Prisma Migration
-
-After CDK deploy and DATABASE_URL setup:
-
-```bash
-cd packages/database
-npx prisma migrate dev
-```
-
-## 5) Configure Client Env
+## 4) Configure Client Env
 
 Create or update client-app/.env:
 
@@ -94,11 +78,16 @@ VITE_USER_POOL_ID=
 VITE_USER_POOL_CLIENT_ID=
 ```
 
-## 6) Review Docker Compose Env Values
+## 5) Review Docker Compose Env Values
 
 Before startup, verify values in docker-compose.yml match your deployed resources and local machine setup.
 
-## 7) Required Login Before Docker
+Important:
+- Local Prisma migrations are now handled automatically by Docker Compose via the `prisma-migrate` service.
+- `local-api-dev-server` and `langgraph-service` both wait for that migration container to complete successfully before they start.
+- You should not need to run `npx prisma migrate dev` manually for normal local startup.
+
+## 6) Required Login Before Docker
 
 Your dev framework requires this login before running Docker:
 
@@ -108,7 +97,7 @@ aws login --profile dev
 
 Do this each time your session expires.
 
-## 8) Start Local Services
+## 7) Start Local Services
 
 Run from repository root:
 
@@ -126,4 +115,5 @@ Useful endpoints after startup:
 
 - If AWS-related calls fail inside containers, run aws login --profile dev again and restart services.
 - If dependency mismatch appears in containers, rebuild with docker-compose up --build.
-- If database migrations fail, confirm DATABASE_URL points to the intended local or cloud database.
+- If the local stack stalls before the API starts, check the `prisma-migrate` container logs first.
+- If database migrations fail, confirm `DATABASE_URL` points to the intended local database and that the `postgres` container is healthy.

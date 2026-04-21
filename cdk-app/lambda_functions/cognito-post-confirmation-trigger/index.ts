@@ -8,12 +8,19 @@ import { getPrismaClient } from "@repo/database";
 
 const secretsManagerClient = new SecretsManagerClient({});
 
+interface DatabaseSecretShape {
+  username?: string;
+  password?: string;
+  engine?: string;
+  host?: string;
+  port?: number | string;
+  dbname?: string;
+}
+
 export const lambdaHandler = async (
   event: PostConfirmationTriggerEvent,
   context: Context,
 ): Promise<PostConfirmationTriggerEvent> => {
-  // // Later optimize to make sure if current prisma connection can be reused before creating a new one
-
   // Optionally capture this invocation and run it through the local dev server
   if (process.env.USE_LOCAL_IMPLEMENTATIONS === "true") {
     await captureEventDrivenInvocation(
@@ -28,9 +35,69 @@ export const lambdaHandler = async (
 
   // If this is running in the cloud then a database secret ARN must be provided
   if (process.env.PRIMARY_DATABASE_SECRET_ARN) {
-    // get secret
-    // ...
-    // let databaseUrl = ...
+    const secretResponse = await secretsManagerClient.send(
+      new GetSecretValueCommand({
+        SecretId: process.env.PRIMARY_DATABASE_SECRET_ARN,
+      }),
+    );
+
+    if (!secretResponse.SecretString) {
+      throw new Error(
+        "PRIMARY_DATABASE_SECRET_ARN resolved, but Secrets Manager returned an empty SecretString.",
+      );
+    }
+
+    let secret: DatabaseSecretShape;
+
+    try {
+      secret = JSON.parse(secretResponse.SecretString) as DatabaseSecretShape;
+    } catch (error) {
+      throw new Error(
+        `Unable to parse database secret JSON from Secrets Manager: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+    }
+
+    const username = secret.username;
+    const password = secret.password;
+    const host = secret.host;
+    const port = String(secret.port ?? "5432");
+    const dbname = secret.dbname;
+    const engine = secret.engine;
+
+    if (!username || !password || !host || !dbname) {
+      throw new Error(
+        "Database secret is missing one or more required fields: username, password, host, dbname.",
+      );
+    }
+
+    if (engine && engine !== "postgres" && engine !== "postgresql") {
+      throw new Error(
+        `Unsupported database engine "${engine}" for Cognito post-confirmation trigger.`,
+      );
+    }
+
+    const connectionUrl = new URL(
+      `postgresql://${encodeURIComponent(username)}:${encodeURIComponent(password)}@${host}:${port}/${dbname}`,
+    );
+    connectionUrl.searchParams.set(
+      "sslmode",
+      process.env.PRIMARY_DATABASE_SSLMODE ?? "no-verify",
+    );
+    databaseUrl = connectionUrl.toString();
+
+    console.log(
+      "Using PRIMARY_DATABASE_SECRET_ARN from Secrets Manager for Prisma.",
+      {
+        secretArn: process.env.PRIMARY_DATABASE_SECRET_ARN,
+        host,
+        port,
+        dbname,
+        username,
+        sslmode: connectionUrl.searchParams.get("sslmode") ?? "no-verify",
+      },
+    );
   }
 
   // If this is running locally and environment variables for database connection are not set, throw an error since the function cannot operate without a database connection in local mode.

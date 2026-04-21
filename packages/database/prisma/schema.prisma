@@ -159,8 +159,8 @@ enum FileMimeFamily {
 
 model User {
   id                           String             @id @default(uuid()) @db.Uuid
-  cognitoSub                   String?            @unique @map("cognito_sub")
-  email                        String?            @unique
+  cognitoSub                   String             @unique @map("cognito_sub")
+  email                        String             @unique
   billingEmail                 String?            @map("billing_email")
   displayName                  String?            @map("display_name")
   firstName                    String             @map("first_name")

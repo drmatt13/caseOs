@@ -10,18 +10,28 @@ import { RdsStack } from "../lib/rds-stack";
 import { WebSocketApiStack } from "../lib/websocket-api-stack";
 import { WebSocketLambdaFunctionsStack } from "../lib/websocket-lambda-functions-stack";
 
-// Synth CDK app with:
+// Context Flags (with defaults)
+//
+// -c useLocalImplementations       (default: true)
+// -c enableRdsProxy                (default: false, also disabled when useLocalImplementations=true)
+// -c skipEmailVerification         (default: false)
+// -c enableEcsStack                (default: false)
+// -c enableWebSockets              (default: false)
+// -c useCustomAuthorizer           (default: false)
+//
+// -c frontendUrl                   (default: "http://localhost:3000")
+//
+// -c googleClientId                (default: undefined)
+// -c googleClientSecret            (default: undefined)
+
+// Complete Synth:
 // cdk synth --all -c useLocalImplementations=false -c enableRdsProxy=true -c skipEmailVerification=false -c useCustomAuthorizer=true -c enableWebSockets=true
 
-// DEV deployment Command Example:
-// cdk deploy --all -c useCustomWsAuthorizer=<boolean> -c enableWebSockets=false --require-approval never
+// Current DEV deployment:
+// cdk deploy --all -c useCustomAuthorizer=<boolean> -c enableWebSockets=false --require-approval never
 
-// PROD deployment Command Example:                                    v false for quick testing, but should be true for true production
-// cdk deploy --all -c useLocalImplementations=false -c enableEcsStack=false -c enableRdsProxy=false -c skipEmailVerification=false -c frontendUrl=<https://your-frontend-url.com> -c googleClientId=<your-google-client-id> -c googleClientSecret=<your-google-client-secret> -c useCustomWsAuthorizer=<boolean> -c enableWebSockets=true --require-approval never
-//                                             ^ false for quick testing                       ^ false for quick testing, should be true for true production
-
-// PROD TESTING
-// cdk deploy --all -c useLocalImplementations=false -c enableEcsStack=false -c enableRdsProxy=false -c skipEmailVerification=false -c frontendUrl=http://localhost:3000 --require-approval never
+// Current PROD deployment:
+// cdk deploy --all -c useLocalImplementations=false -c enableEcsStack=false  -c skipEmailVerification=true -c frontendUrl=http://localhost:3000 --require-approval never
 
 const app = new cdk.App();
 
@@ -200,10 +210,18 @@ const webSocketLambdaFunctionsStack = new WebSocketLambdaFunctionsStack(
   {},
 );
 
-// Use a custom Authorizer for WebSocket API if specified in context, otherwise allow all connections
-const useCustomWsAuthorizer = app.node.tryGetContext("useCustomAuthorizer") // "true" or "false" (default to "false" if not set)
-  ? "true"
-  : "false";
+// Use a custom authorizer for WebSocket API when explicitly enabled via context.
+const useCustomAuthorizerContext = app.node.tryGetContext(
+  "useCustomAuthorizer",
+);
+const useCustomWsAuthorizer =
+  typeof useCustomAuthorizerContext === "string"
+    ? useCustomAuthorizerContext.toLowerCase() === "true"
+      ? "true"
+      : "false"
+    : (useCustomAuthorizerContext ?? false)
+      ? "true"
+      : "false";
 
 // Create API stack with the handler functions
 const webSocketApiStack = enableWebSockets
