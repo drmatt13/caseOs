@@ -20,11 +20,11 @@ x-local-api-dev-server-env: &local-api-dev-server-env
   PRIMARY_DATABASE_URL: "postgresql://admin:password@postgres:5432/app_db" # In development you should always use local Postgres for database access
   USE_LOCAL_IMPLEMENTATIONS: "false" # Never capture event-driven functions in local dev
   # Source: CognitoStack output key `UserPoolClientId`
-  USER_POOL_CLIENT_ID: "1g32oqmgicasiq6osm2t73vkmf"
+  USER_POOL_CLIENT_ID: "<USER_POOL_CLIENT_ID>"
   # Source: DevLambdaReplayStack output key `ReplayBucketName`
-  DEV_LAMBDA_REPLAY_BUCKET_NAME: "devlambdareplaystack-devlambdareplaybucketb5032f6f-hfi72egldhc1"
+  DEV_LAMBDA_REPLAY_BUCKET_NAME: "<DEV_LAMBDA_REPLAY_BUCKET_NAME>"
   # Source: DevLambdaReplayStack output key `ReplayQueueUrl`
-  DEV_LAMBDA_REPLAY_QUEUE_URL: "https://sqs.us-east-1.amazonaws.com/270473543328/DevLambdaReplayStack-DevLambdaReplayQueue864CD58E-3KNc1qKeaXKS"
+  DEV_LAMBDA_REPLAY_QUEUE_URL: "<DEV_LAMBDA_REPLAY_QUEUE_URL>"
 
 # Local Prisma environment variables for Docker-networked database access.
 x-local-prisma-env: &local-prisma-env
