@@ -6,7 +6,7 @@ This guide gets a new developer from zero to running local services with the lea
 
 1. Configure AWS CLI (one-time).
 2. Deploy CDK resources (or confirm they are already deployed).
-3. Create and fill required .env files.
+3. Create and fill required client env files.
 4. Sign in to AWS for your dev framework.
 5. Start Docker services.
 
@@ -34,23 +34,20 @@ npx cdk deploy
 Tip:
 - Keep note of outputs like `UserPoolId`, `UserPoolClientId`, `HttpApiUrl`, and `RdsCredentialsSecretArn`. You will paste these into env values below.
 
-## 3) Configure Database Env
+## 3) Database Env: Local vs Cloud Mode
 
-Create or update packages/database/.env:
+For normal local development, you can skip manual database env setup.
 
-```dotenv
-# Used by Prisma CLI and local development tooling.
-# Local Docker postgres example:
-# postgresql://admin:password@localhost:5432/app_db
-DATABASE_URL=
-```
+Why:
+- `docker-compose.yml` already provides the local database connection for the app containers.
+- Local Prisma migrations are handled automatically by the `prisma-migrate` service during `docker-compose up`.
+- You do not need to manually populate `packages/database/.env` just to run the local Docker stack.
 
-Notes:
-- For local development, `DATABASE_URL` should usually point at your local Docker Postgres instance, for example `postgresql://admin:password@localhost:5432/app_db`.
-- Cloud Lambda functions no longer build their Prisma connection from a manually copied URL. They receive `PRIMARY_DATABASE_SECRET_ARN` and resolve credentials from AWS Secrets Manager at runtime.
-- You typically do not need to put the cloud database password into `packages/database/.env` just to run the app locally.
+Only do manual database credential setup if you are intentionally working in cloud mode with `useLocalImplementations=false` in [cdk-app.ts](</d:/code/Agentic%20+%20ML/caseOs/cdk-app/bin/cdk-app.ts:62>).
 
-If you need to inspect the cloud RDS credentials secret directly, you can still fetch it with:
+In that case, the cloud Lambdas use `PRIMARY_DATABASE_SECRET_ARN` and resolve the database credentials from AWS Secrets Manager at runtime.
+
+If you need to inspect the RDS credentials secret directly, fetch it with:
 
 ```bash
 aws secretsmanager get-secret-value \
@@ -59,9 +56,18 @@ aws secretsmanager get-secret-value \
   --output text
 ```
 
+If you specifically need Prisma CLI on your host machine to target a database outside Docker, create or update `packages/database/.env`:
+
+```dotenv
+# Example direct database URL
+DATABASE_URL=postgresql://<username>:<password>@<rds-endpoint>:5432/app_db
+```
+
+That host-side `.env` is optional for the Docker-based local workflow.
+
 ## 4) Configure Client Env
 
-Create or update client-app/.env:
+Create or update `client-app/.env`:
 
 ```dotenv
 # Local mode: http://localhost:8080
@@ -77,6 +83,10 @@ VITE_USER_POOL_ID=
 # Source: CognitoStack output key UserPoolClientId
 VITE_USER_POOL_CLIENT_ID=
 ```
+
+Standard local env files used in this repo:
+- `packages/database/.env`
+- `client-app/.env`
 
 ## 5) Review Docker Compose Env Values
 
