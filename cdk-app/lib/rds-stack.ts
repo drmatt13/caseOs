@@ -2,10 +2,11 @@ import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as rds from "aws-cdk-lib/aws-rds";
-import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 
 export interface RdsStackProps extends cdk.StackProps {
   enableRdsProxy?: boolean;
+  primaryDatabaseName?: string;
+  primaryDatabaseUsername?: string;
 }
 
 export class RdsStack extends cdk.Stack {
@@ -22,6 +23,8 @@ export class RdsStack extends cdk.Stack {
     // RDS Proxy is optional because some accounts/plans cannot create it.
     // Default is disabled to keep the stack free-tier/account-plan friendly.
     const enableRdsProxy = props?.enableRdsProxy ?? false;
+    const primaryDatabaseName = props?.primaryDatabaseName ?? "app_db";
+    const primaryDatabaseUsername = props?.primaryDatabaseUsername ?? "app_user";
 
     const vpc = ec2.Vpc.fromLookup(this, "DefaultVpc", { isDefault: true });
 
@@ -56,20 +59,23 @@ export class RdsStack extends cdk.Stack {
         ec2.Port.tcp(5432),
         "Allow proxy to reach PostgreSQL",
       );
+    } else {
+      // Direct database access is used for local Prisma workflows when the proxy is disabled.
+      dbSecurityGroup.addIngressRule(
+        ec2.Peer.anyIpv4(),
+        ec2.Port.tcp(5432),
+        "Allow PostgreSQL client traffic",
+      );
     }
 
-    const credentialsSecret = new secretsmanager.Secret(
+    const credentialsSecret = new rds.DatabaseSecret(
       this,
       "PostgresCredentialsSecret",
       {
         secretName: "caseos/postgres/credentials",
-        generateSecretString: {
-          secretStringTemplate: JSON.stringify({
-            username: "app_user",
-          }),
-          generateStringKey: "password",
-          excludePunctuation: true,
-        },
+        username: primaryDatabaseUsername,
+        dbname: primaryDatabaseName,
+        excludeCharacters: " %+~`#$&*()|[]{}:;<>?!'/@\"\\",
       },
     );
 
@@ -86,8 +92,11 @@ export class RdsStack extends cdk.Stack {
         subnetType: ec2.SubnetType.PUBLIC,
       },
       publiclyAccessible: true,
-      credentials: rds.Credentials.fromSecret(credentialsSecret),
-      databaseName: "app_db",
+      credentials: rds.Credentials.fromSecret(
+        credentialsSecret,
+        primaryDatabaseUsername,
+      ),
+      databaseName: primaryDatabaseName,
       securityGroups: [dbSecurityGroup],
       allocatedStorage: 20,
       maxAllocatedStorage: 100,
@@ -116,20 +125,20 @@ export class RdsStack extends cdk.Stack {
 
     // Runtime URL for app code. Resolves to proxy when enabled, direct DB when disabled.
     this.primaryDatabaseUrl = cdk.Fn.join("", [
-      "postgresql://app_user:",
+      `postgresql://${primaryDatabaseUsername}:`,
       credentialsSecret.secretValueFromJson("password").unsafeUnwrap(),
       "@",
       this.primaryEndpoint,
-      ":5432/app_db",
+      `:5432/${primaryDatabaseName}`,
     ]);
 
     // Direct URL for admin/debug workflows (e.g. migrations, diagnostics).
     this.directDatabaseUrl = cdk.Fn.join("", [
-      "postgresql://app_user:",
+      `postgresql://${primaryDatabaseUsername}:`,
       credentialsSecret.secretValueFromJson("password").unsafeUnwrap(),
       "@",
       this.databaseEndpoint,
-      ":5432/app_db",
+      `:5432/${primaryDatabaseName}`,
     ]);
 
     new cdk.CfnOutput(this, "RdsProxyEndpoint", {
@@ -157,14 +166,14 @@ export class RdsStack extends cdk.Stack {
       exportName: "RdsStack:RdsPrimaryEndpoint",
     });
 
-    new cdk.CfnOutput(this, "PrimaryDatabaseUrl", {
-      value: this.primaryDatabaseUrl,
-      exportName: "RdsStack:PrimaryDatabaseUrl",
+    new cdk.CfnOutput(this, "PrimaryDatabaseUrlTemplate", {
+      value: `postgresql://${primaryDatabaseUsername}:<password>@${this.primaryEndpoint}:5432/${primaryDatabaseName}`,
+      exportName: "RdsStack:PrimaryDatabaseUrlTemplate",
     });
 
-    new cdk.CfnOutput(this, "DirectDatabaseUrl", {
-      value: this.directDatabaseUrl,
-      exportName: "RdsStack:DirectDatabaseUrl",
+    new cdk.CfnOutput(this, "DirectDatabaseUrlTemplate", {
+      value: `postgresql://${primaryDatabaseUsername}:<password>@${this.databaseEndpoint}:5432/${primaryDatabaseName}`,
+      exportName: "RdsStack:DirectDatabaseUrlTemplate",
     });
 
     new cdk.CfnOutput(this, "RdsCredentialsSecretArn", {

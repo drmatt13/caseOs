@@ -33,7 +33,7 @@ npx cdk deploy
 ```
 
 Tip:
-- Keep note of outputs like UserPoolId, UserPoolClientId, HttpApiUrl, and DirectDatabaseUrl. You will paste these into env values below.
+- Keep note of outputs like UserPoolId, UserPoolClientId, HttpApiUrl, DirectDatabaseUrlTemplate, and RdsCredentialsSecretArn. You will paste these into env values below.
 
 ## 3) Configure Database Env
 
@@ -43,8 +43,27 @@ Create or update packages/database/.env:
 # Used by Prisma CLI (prisma generate, prisma migrate) and as runtime fallback.
 # Local Docker postgres example:
 # postgresql://admin:password@localhost:5432/app_db
-# Cloud mode: use RdsStack output key DirectDatabaseUrl.
+# Cloud mode: use RdsStack output key DirectDatabaseUrlTemplate after resolving
+# the password from Secrets Manager. The database name is app_db unless you
+# changed the stack.
 DATABASE_URL=
+```
+
+If your deployment is using the cloud RDS instance, fetch
+the real password first:
+
+```bash
+aws secretsmanager get-secret-value \
+  --secret-id <RdsCredentialsSecretArn> \
+  --query 'SecretString' \
+  --output text
+```
+
+Then replace `<password>` in `DirectDatabaseUrlTemplate` and put the concrete
+value in `packages/database/.env`:
+
+```dotenv
+DATABASE_URL=postgresql://app_user:<resolved-password>@<RdsDatabaseEndpoint>:5432/app_db
 ```
 
 ## 4) Run Prisma Migration

@@ -144,6 +144,7 @@ dist/
 # Temporary folders
 tmp/
 temp/
+cdk.out/
 
 ### OSX ###
 # General

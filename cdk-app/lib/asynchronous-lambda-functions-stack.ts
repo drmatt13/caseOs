@@ -1,8 +1,10 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
+import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as nodejs from "aws-cdk-lib/aws-lambda-nodejs";
 import * as s3 from "aws-cdk-lib/aws-s3";
+import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import * as path from "path";
 
 export interface AsynchronousLambdaFunctionsStackProps extends cdk.StackProps {
@@ -11,7 +13,7 @@ export interface AsynchronousLambdaFunctionsStackProps extends cdk.StackProps {
   replayBucketName?: string;
   replayQueueUrl?: string;
   replayBucket?: s3.IBucket;
-  primaryDatabaseUrl?: string;
+  primaryDatabaseSecretArn?: string;
 }
 
 export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
@@ -100,22 +102,44 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
           minify: true,
           sourceMap: false,
           target: "es2020",
+          commandHooks: {
+            beforeInstall() {
+              return [];
+            },
+            beforeBundling() {
+              return ["npm run generate --workspace @repo/database"];
+            },
+            afterBundling() {
+              return [];
+            },
+          },
         },
         environment: {
           USE_LOCAL_IMPLEMENTATIONS: useLocalImplementations ? "true" : "false",
           DEV_LAMBDA_REPLAY_BUCKET_NAME: replayBucketName,
           DEV_LAMBDA_REPLAY_QUEUE_URL: replayQueueUrl,
-          ...(props?.primaryDatabaseUrl
-            ? { PRIMARY_DATABASE_URL: props.primaryDatabaseUrl }
+          ...(props?.primaryDatabaseSecretArn
+            ? {
+                PRIMARY_DATABASE_SECRET_ARN:
+                  props.primaryDatabaseSecretArn,
+              }
             : {}),
         },
-        memorySize: 128,
-        timeout: cdk.Duration.seconds(10),
+        memorySize: 512,
+        timeout: cdk.Duration.seconds(30),
       },
     );
 
     if (useLocalImplementations && props?.replayBucket) {
       props.replayBucket.grantWrite(this.cognitoPostConfirmationTriggerFn);
+    }
+
+    if (props?.primaryDatabaseSecretArn) {
+      secretsmanager.Secret.fromSecretCompleteArn(
+        this,
+        "PrimaryDatabaseCredentialsSecret",
+        props.primaryDatabaseSecretArn,
+      ).grantRead(this.cognitoPostConfirmationTriggerFn);
     }
 
     // Outputs

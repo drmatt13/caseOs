@@ -20,6 +20,9 @@ import { WebSocketLambdaFunctionsStack } from "../lib/websocket-lambda-functions
 // cdk deploy --all -c useLocalImplementations=false -c enableEcsStack=false -c enableRdsProxy=false -c skipEmailVerification=false -c frontendUrl=<https://your-frontend-url.com> -c googleClientId=<your-google-client-id> -c googleClientSecret=<your-google-client-secret> -c useCustomWsAuthorizer=<boolean> -c enableWebSockets=true --require-approval never
 //                                             ^ false for quick testing                       ^ false for quick testing, should be true for true production
 
+// PROD TESTING
+// cdk deploy --all -c useLocalImplementations=false -c enableEcsStack=false -c enableRdsProxy=false -c skipEmailVerification=false -c frontendUrl=http://localhost:3000 --require-approval never
+
 const app = new cdk.App();
 
 // AWS CDK CLI sets the following context values automatically based on the command and environment:
@@ -38,6 +41,10 @@ const stackEnv: cdk.Environment = {
   account,
   region,
 };
+
+// For Production RDS, local postgres is defined in docker-compose.yml
+const primaryDatabaseName = "app_db";
+const primaryDatabaseUsername = "app_user";
 
 // Single infrastructure mode flag.
 // - true: use local-oriented implementations.
@@ -96,6 +103,8 @@ const rdsStack = !useLocalImplementations
   ? new RdsStack(app, "RdsStack", {
       env: stackEnv,
       enableRdsProxy,
+      primaryDatabaseName,
+      primaryDatabaseUsername,
     })
   : undefined;
 
@@ -110,7 +119,8 @@ const asynchronousLambdaFunctionsStack = new AsynchronousLambdaFunctionsStack(
     replayBucketName: devLambdaReplayStack?.bucket.bucketName,
     replayQueueUrl: devLambdaReplayStack?.queue.queueUrl,
     replayBucket: devLambdaReplayStack?.bucket,
-    primaryDatabaseUrl: rdsStack?.primaryDatabaseUrl,
+    // If RDS is not created, the function falls back to its local/runtime env flow.
+    primaryDatabaseSecretArn: rdsStack?.credentialsSecretArn,
   },
 );
 if (devLambdaReplayStack) {

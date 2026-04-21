@@ -20,11 +20,15 @@ x-local-api-dev-server-env: &local-api-dev-server-env
   PRIMARY_DATABASE_URL: "postgresql://admin:password@postgres:5432/app_db" # In development you should always use local Postgres for database access
   USE_LOCAL_IMPLEMENTATIONS: "false" # Never capture event-driven functions in local dev
   # Source: CognitoStack output key `UserPoolClientId`
-  USER_POOL_CLIENT_ID: "5biueuma1a0dcqemps638ukqvu"
+  USER_POOL_CLIENT_ID: "1g32oqmgicasiq6osm2t73vkmf"
   # Source: DevLambdaReplayStack output key `ReplayBucketName`
-  DEV_LAMBDA_REPLAY_BUCKET_NAME: "devlambdareplaystack-devlambdareplaybucketb5032f6f-kk5vfrxcawrb"
+  DEV_LAMBDA_REPLAY_BUCKET_NAME: "devlambdareplaystack-devlambdareplaybucketb5032f6f-hfi72egldhc1"
   # Source: DevLambdaReplayStack output key `ReplayQueueUrl`
-  DEV_LAMBDA_REPLAY_QUEUE_URL: "https://sqs.us-east-1.amazonaws.com/270473543328/DevLambdaReplayStack-DevLambdaReplayQueue864CD58E-PVvu0THVXdgG"
+  DEV_LAMBDA_REPLAY_QUEUE_URL: "https://sqs.us-east-1.amazonaws.com/270473543328/DevLambdaReplayStack-DevLambdaReplayQueue864CD58E-3KNc1qKeaXKS"
+
+# Local Prisma environment variables for Docker-networked database access.
+x-local-prisma-env: &local-prisma-env
+  DATABASE_URL: "postgresql://admin:password@postgres:5432/app_db"
 
 # The local WebSocket dev servers environment variables
 x-local-ws-dev-server-env: &local-ws-dev-server-env
@@ -35,7 +39,7 @@ x-local-ws-dev-server-env: &local-ws-dev-server-env
 x-frontend-ws-connection-and-payload-tester-env: &frontend-ws-connection-and-payload-tester-env
   VITE_LOCAL_WS_URL: "ws://localhost:8081"
   # Source: WebSocketApiStack output key `WebSocketApiEndpoint`
-  VITE_API_GATEWAY_WS_URL: "wss://9aknrq3g75.execute-api.us-east-1.amazonaws.com/prod"
+  VITE_API_GATEWAY_WS_URL: "<APIGATEWAY_WS_URL>"
 
 # PostgreSQL environment variables
 x-postgres-env: &postgres-env
@@ -63,6 +67,19 @@ services:
     volumes:
       - ./:/workspace
 
+  prisma-migrate:
+    image: node:alpine
+    working_dir: /workspace/packages/database
+    environment:
+      <<: *local-prisma-env
+    command: ["sh", "-lc", "npx prisma migrate deploy"]
+    volumes:
+      - ./:/workspace
+      - workspace_node_modules:/workspace/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   local-api-dev-server:
     build:
       context: ./local-api-dev-server
@@ -86,6 +103,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      prisma-migrate:
+        condition: service_completed_successfully
       langgraph-service:
         condition: service_started
 
@@ -104,6 +123,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      prisma-migrate:
+        condition: service_completed_successfully
 
   local-ws-dev-server:
     build:
