@@ -275,8 +275,8 @@ export type UserGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
 
 export type UserGroupByOutputType = {
   id: string
-  cognitoSub: string | null
-  email: string | null
+  cognitoSub: string
+  email: string
   billingEmail: string | null
   displayName: string | null
   firstName: string
@@ -325,8 +325,8 @@ export type UserWhereInput = {
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   id?: Prisma.UuidFilter<"User"> | string
-  cognitoSub?: Prisma.StringNullableFilter<"User"> | string | null
-  email?: Prisma.StringNullableFilter<"User"> | string | null
+  cognitoSub?: Prisma.StringFilter<"User"> | string
+  email?: Prisma.StringFilter<"User"> | string
   billingEmail?: Prisma.StringNullableFilter<"User"> | string | null
   displayName?: Prisma.StringNullableFilter<"User"> | string | null
   firstName?: Prisma.StringFilter<"User"> | string
@@ -367,8 +367,8 @@ export type UserWhereInput = {
 
 export type UserOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  cognitoSub?: Prisma.SortOrderInput | Prisma.SortOrder
-  email?: Prisma.SortOrderInput | Prisma.SortOrder
+  cognitoSub?: Prisma.SortOrder
+  email?: Prisma.SortOrder
   billingEmail?: Prisma.SortOrderInput | Prisma.SortOrder
   displayName?: Prisma.SortOrderInput | Prisma.SortOrder
   firstName?: Prisma.SortOrder
@@ -454,8 +454,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
 
 export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  cognitoSub?: Prisma.SortOrderInput | Prisma.SortOrder
-  email?: Prisma.SortOrderInput | Prisma.SortOrder
+  cognitoSub?: Prisma.SortOrder
+  email?: Prisma.SortOrder
   billingEmail?: Prisma.SortOrderInput | Prisma.SortOrder
   displayName?: Prisma.SortOrderInput | Prisma.SortOrder
   firstName?: Prisma.SortOrder
@@ -489,8 +489,8 @@ export type UserScalarWhereWithAggregatesInput = {
   OR?: Prisma.UserScalarWhereWithAggregatesInput[]
   NOT?: Prisma.UserScalarWhereWithAggregatesInput | Prisma.UserScalarWhereWithAggregatesInput[]
   id?: Prisma.UuidWithAggregatesFilter<"User"> | string
-  cognitoSub?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
-  email?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  cognitoSub?: Prisma.StringWithAggregatesFilter<"User"> | string
+  email?: Prisma.StringWithAggregatesFilter<"User"> | string
   billingEmail?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   displayName?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   firstName?: Prisma.StringWithAggregatesFilter<"User"> | string
@@ -518,8 +518,8 @@ export type UserScalarWhereWithAggregatesInput = {
 
 export type UserCreateInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -560,8 +560,8 @@ export type UserCreateInput = {
 
 export type UserUncheckedCreateInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -602,8 +602,8 @@ export type UserUncheckedCreateInput = {
 
 export type UserUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -644,8 +644,8 @@ export type UserUpdateInput = {
 
 export type UserUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -686,8 +686,8 @@ export type UserUncheckedUpdateInput = {
 
 export type UserCreateManyInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -715,8 +715,8 @@ export type UserCreateManyInput = {
 
 export type UserUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -744,8 +744,8 @@ export type UserUpdateManyMutationInput = {
 
 export type UserUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1102,8 +1102,8 @@ export type UserUpdateOneWithoutStripeEventsNestedInput = {
 
 export type UserCreateWithoutOwnedWorkspacesInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -1143,8 +1143,8 @@ export type UserCreateWithoutOwnedWorkspacesInput = {
 
 export type UserUncheckedCreateWithoutOwnedWorkspacesInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -1200,8 +1200,8 @@ export type UserUpdateToOneWithWhereWithoutOwnedWorkspacesInput = {
 
 export type UserUpdateWithoutOwnedWorkspacesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1241,8 +1241,8 @@ export type UserUpdateWithoutOwnedWorkspacesInput = {
 
 export type UserUncheckedUpdateWithoutOwnedWorkspacesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1282,8 +1282,8 @@ export type UserUncheckedUpdateWithoutOwnedWorkspacesInput = {
 
 export type UserCreateWithoutWorkspaceMembershipsInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -1323,8 +1323,8 @@ export type UserCreateWithoutWorkspaceMembershipsInput = {
 
 export type UserUncheckedCreateWithoutWorkspaceMembershipsInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -1380,8 +1380,8 @@ export type UserUpdateToOneWithWhereWithoutWorkspaceMembershipsInput = {
 
 export type UserUpdateWithoutWorkspaceMembershipsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1421,8 +1421,8 @@ export type UserUpdateWithoutWorkspaceMembershipsInput = {
 
 export type UserUncheckedUpdateWithoutWorkspaceMembershipsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1462,8 +1462,8 @@ export type UserUncheckedUpdateWithoutWorkspaceMembershipsInput = {
 
 export type UserCreateWithoutCreatedCasesInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -1503,8 +1503,8 @@ export type UserCreateWithoutCreatedCasesInput = {
 
 export type UserUncheckedCreateWithoutCreatedCasesInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -1560,8 +1560,8 @@ export type UserUpdateToOneWithWhereWithoutCreatedCasesInput = {
 
 export type UserUpdateWithoutCreatedCasesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1601,8 +1601,8 @@ export type UserUpdateWithoutCreatedCasesInput = {
 
 export type UserUncheckedUpdateWithoutCreatedCasesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1642,8 +1642,8 @@ export type UserUncheckedUpdateWithoutCreatedCasesInput = {
 
 export type UserCreateWithoutUploadedDocumentsInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -1683,8 +1683,8 @@ export type UserCreateWithoutUploadedDocumentsInput = {
 
 export type UserUncheckedCreateWithoutUploadedDocumentsInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -1740,8 +1740,8 @@ export type UserUpdateToOneWithWhereWithoutUploadedDocumentsInput = {
 
 export type UserUpdateWithoutUploadedDocumentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1781,8 +1781,8 @@ export type UserUpdateWithoutUploadedDocumentsInput = {
 
 export type UserUncheckedUpdateWithoutUploadedDocumentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1822,8 +1822,8 @@ export type UserUncheckedUpdateWithoutUploadedDocumentsInput = {
 
 export type UserCreateWithoutCreatedRecordIndexesInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -1863,8 +1863,8 @@ export type UserCreateWithoutCreatedRecordIndexesInput = {
 
 export type UserUncheckedCreateWithoutCreatedRecordIndexesInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -1909,8 +1909,8 @@ export type UserCreateOrConnectWithoutCreatedRecordIndexesInput = {
 
 export type UserCreateWithoutUpdatedRecordIndexesInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -1950,8 +1950,8 @@ export type UserCreateWithoutUpdatedRecordIndexesInput = {
 
 export type UserUncheckedCreateWithoutUpdatedRecordIndexesInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -2007,8 +2007,8 @@ export type UserUpdateToOneWithWhereWithoutCreatedRecordIndexesInput = {
 
 export type UserUpdateWithoutCreatedRecordIndexesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2048,8 +2048,8 @@ export type UserUpdateWithoutCreatedRecordIndexesInput = {
 
 export type UserUncheckedUpdateWithoutCreatedRecordIndexesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2100,8 +2100,8 @@ export type UserUpdateToOneWithWhereWithoutUpdatedRecordIndexesInput = {
 
 export type UserUpdateWithoutUpdatedRecordIndexesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2141,8 +2141,8 @@ export type UserUpdateWithoutUpdatedRecordIndexesInput = {
 
 export type UserUncheckedUpdateWithoutUpdatedRecordIndexesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2182,8 +2182,8 @@ export type UserUncheckedUpdateWithoutUpdatedRecordIndexesInput = {
 
 export type UserCreateWithoutCreatedViewIndexesInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -2223,8 +2223,8 @@ export type UserCreateWithoutCreatedViewIndexesInput = {
 
 export type UserUncheckedCreateWithoutCreatedViewIndexesInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -2280,8 +2280,8 @@ export type UserUpdateToOneWithWhereWithoutCreatedViewIndexesInput = {
 
 export type UserUpdateWithoutCreatedViewIndexesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2321,8 +2321,8 @@ export type UserUpdateWithoutCreatedViewIndexesInput = {
 
 export type UserUncheckedUpdateWithoutCreatedViewIndexesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2362,8 +2362,8 @@ export type UserUncheckedUpdateWithoutCreatedViewIndexesInput = {
 
 export type UserCreateWithoutManifestsCreatedInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -2403,8 +2403,8 @@ export type UserCreateWithoutManifestsCreatedInput = {
 
 export type UserUncheckedCreateWithoutManifestsCreatedInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -2460,8 +2460,8 @@ export type UserUpdateToOneWithWhereWithoutManifestsCreatedInput = {
 
 export type UserUpdateWithoutManifestsCreatedInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2501,8 +2501,8 @@ export type UserUpdateWithoutManifestsCreatedInput = {
 
 export type UserUncheckedUpdateWithoutManifestsCreatedInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2542,8 +2542,8 @@ export type UserUncheckedUpdateWithoutManifestsCreatedInput = {
 
 export type UserCreateWithoutActorUsageEventsInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -2583,8 +2583,8 @@ export type UserCreateWithoutActorUsageEventsInput = {
 
 export type UserUncheckedCreateWithoutActorUsageEventsInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -2629,8 +2629,8 @@ export type UserCreateOrConnectWithoutActorUsageEventsInput = {
 
 export type UserCreateWithoutBilledUsageEventsInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -2670,8 +2670,8 @@ export type UserCreateWithoutBilledUsageEventsInput = {
 
 export type UserUncheckedCreateWithoutBilledUsageEventsInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -2727,8 +2727,8 @@ export type UserUpdateToOneWithWhereWithoutActorUsageEventsInput = {
 
 export type UserUpdateWithoutActorUsageEventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2768,8 +2768,8 @@ export type UserUpdateWithoutActorUsageEventsInput = {
 
 export type UserUncheckedUpdateWithoutActorUsageEventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2820,8 +2820,8 @@ export type UserUpdateToOneWithWhereWithoutBilledUsageEventsInput = {
 
 export type UserUpdateWithoutBilledUsageEventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2861,8 +2861,8 @@ export type UserUpdateWithoutBilledUsageEventsInput = {
 
 export type UserUncheckedUpdateWithoutBilledUsageEventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2902,8 +2902,8 @@ export type UserUncheckedUpdateWithoutBilledUsageEventsInput = {
 
 export type UserCreateWithoutWorkspaceBilledUsageMonthlyInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -2943,8 +2943,8 @@ export type UserCreateWithoutWorkspaceBilledUsageMonthlyInput = {
 
 export type UserUncheckedCreateWithoutWorkspaceBilledUsageMonthlyInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -3000,8 +3000,8 @@ export type UserUpdateToOneWithWhereWithoutWorkspaceBilledUsageMonthlyInput = {
 
 export type UserUpdateWithoutWorkspaceBilledUsageMonthlyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3041,8 +3041,8 @@ export type UserUpdateWithoutWorkspaceBilledUsageMonthlyInput = {
 
 export type UserUncheckedUpdateWithoutWorkspaceBilledUsageMonthlyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3082,8 +3082,8 @@ export type UserUncheckedUpdateWithoutWorkspaceBilledUsageMonthlyInput = {
 
 export type UserCreateWithoutIndividualUsageMonthlyInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -3123,8 +3123,8 @@ export type UserCreateWithoutIndividualUsageMonthlyInput = {
 
 export type UserUncheckedCreateWithoutIndividualUsageMonthlyInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -3180,8 +3180,8 @@ export type UserUpdateToOneWithWhereWithoutIndividualUsageMonthlyInput = {
 
 export type UserUpdateWithoutIndividualUsageMonthlyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3221,8 +3221,8 @@ export type UserUpdateWithoutIndividualUsageMonthlyInput = {
 
 export type UserUncheckedUpdateWithoutIndividualUsageMonthlyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3262,8 +3262,8 @@ export type UserUncheckedUpdateWithoutIndividualUsageMonthlyInput = {
 
 export type UserCreateWithoutStripeEventsInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -3303,8 +3303,8 @@ export type UserCreateWithoutStripeEventsInput = {
 
 export type UserUncheckedCreateWithoutStripeEventsInput = {
   id?: string
-  cognitoSub?: string | null
-  email?: string | null
+  cognitoSub: string
+  email: string
   billingEmail?: string | null
   displayName?: string | null
   firstName: string
@@ -3360,8 +3360,8 @@ export type UserUpdateToOneWithWhereWithoutStripeEventsInput = {
 
 export type UserUpdateWithoutStripeEventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3401,8 +3401,8 @@ export type UserUpdateWithoutStripeEventsInput = {
 
 export type UserUncheckedUpdateWithoutStripeEventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3748,8 +3748,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    cognitoSub: string | null
-    email: string | null
+    cognitoSub: string
+    email: string
     billingEmail: string | null
     displayName: string | null
     firstName: string

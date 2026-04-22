@@ -61,7 +61,62 @@ function mockContext(envelope: ReplayEnvelope): Context {
   };
 }
 
-export default async function invokeAsyncLambdaFunctions(): Promise<void> {
+type ErrorLike = {
+  name?: string;
+  message?: string;
+};
+
+function asErrorLike(err: unknown): ErrorLike {
+  if (err && typeof err === "object") {
+    return err as ErrorLike;
+  }
+
+  return {
+    message: String(err),
+  };
+}
+
+function isExpiredAwsLoginSession(err: unknown): boolean {
+  const { name, message } = asErrorLike(err);
+  const normalizedName = (name ?? "").toLowerCase();
+  const normalizedMessage = (message ?? "").toLowerCase();
+
+  return (
+    normalizedName.includes("credentialsprovidererror") &&
+    (normalizedMessage.includes("session has expired") ||
+      normalizedMessage.includes("reauthenticate"))
+  );
+}
+
+function logReplayPollingError(err: unknown): void {
+  const debugEnabled = process.env.DEV_REPLAY_VERBOSE_ERRORS === "true";
+
+  if (isExpiredAwsLoginSession(err)) {
+    console.error(
+      "❌ [replay] Custom AWS session expired. Run 'aws login --profile dev' and restart local-api-dev-server.",
+    );
+
+    if (debugEnabled) {
+      console.error("[replay][debug] Original polling error:", err);
+    }
+
+    return;
+  }
+
+  const { name, message } = asErrorLike(err);
+  const errorName = name || "Error";
+  const errorMessage = message || String(err);
+
+  console.error(`[replay] Polling error (${errorName}): ${errorMessage}`);
+
+  if (debugEnabled) {
+    console.error("[replay][debug] Original polling error:", err);
+  }
+}
+
+export default async function invokeAsyncLambdaFunctions(
+  onFatalError?: () => void,
+): Promise<void> {
   const queueUrl = process.env.DEV_LAMBDA_REPLAY_QUEUE_URL;
   const bucketName = process.env.DEV_LAMBDA_REPLAY_BUCKET_NAME;
 
@@ -92,6 +147,11 @@ export default async function invokeAsyncLambdaFunctions(): Promise<void> {
       await deleteReplayMessage(queueUrl, receiptHandle);
     }
   } catch (err) {
-    console.error("[replay] Polling error:", err);
+    logReplayPollingError(err);
+    if (isExpiredAwsLoginSession(err)) {
+      // Stop polling if AWS session is expired
+      if (onFatalError) onFatalError();
+      return;
+    }
   }
 }

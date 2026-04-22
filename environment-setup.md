@@ -40,6 +40,8 @@ For normal local development, you can skip manual database env setup.
 
 Why:
 - `docker-compose.yml` already provides the local database connection for the app containers.
+- Root workspace dependencies are installed automatically by the `root-deps` service during `docker-compose up`.
+- Prisma client generation is handled automatically by the `prisma-generate` service before app services start.
 - Local Prisma migrations are handled automatically by the `prisma-migrate` service during `docker-compose up`.
 - You do not need to manually populate `packages/database/.env` just to run the local Docker stack.
 
@@ -93,8 +95,11 @@ Standard local env files used in this repo:
 Before startup, verify values in docker-compose.yml match your deployed resources and local machine setup.
 
 Important:
-- Local Prisma migrations are now handled automatically by Docker Compose via the `prisma-migrate` service.
-- `local-api-dev-server` and `langgraph-service` both wait for that migration container to complete successfully before they start.
+- Root workspace dependency installation is handled automatically by Docker Compose via the `root-deps` service.
+- Prisma client generation is handled automatically by Docker Compose via the `prisma-generate` service.
+- Local Prisma migrations are handled automatically by Docker Compose via the `prisma-migrate` service.
+- `local-api-dev-server` waits for both Prisma generation and migrations to complete successfully before it starts.
+- `langgraph-service` waits for Prisma migrations to complete successfully before it starts.
 - You should not need to run `npx prisma migrate dev` manually for normal local startup.
 
 ## 6) Required Login Before Docker
@@ -125,5 +130,5 @@ Useful endpoints after startup:
 
 - If AWS-related calls fail inside containers, run aws login --profile dev again and restart services.
 - If dependency mismatch appears in containers, rebuild with docker-compose up --build.
-- If the local stack stalls before the API starts, check the `prisma-migrate` container logs first.
+- If the local stack stalls before the API starts, check the `root-deps`, `prisma-generate`, and `prisma-migrate` container logs in that order.
 - If database migrations fail, confirm `DATABASE_URL` points to the intended local database and that the `postgres` container is healthy.

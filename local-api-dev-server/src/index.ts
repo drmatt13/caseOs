@@ -32,12 +32,25 @@ app.use(
 
 app.use(express.json());
 
+// Polling interval reference
+let pollingInterval: NodeJS.Timeout | undefined;
+
+function stopPolling() {
+  if (pollingInterval) {
+    clearInterval(pollingInterval);
+    pollingInterval = undefined;
+    console.warn(
+      "[replay] Polling stopped due to fatal error (e.g., expired AWS session).",
+    );
+  }
+}
+
 async function instantiatePolling(): Promise<void> {
-  invokeAsyncLambdaFunctions();
+  await invokeAsyncLambdaFunctions(stopPolling);
 }
 
 // run every 10 seconds
-setInterval(() => {
+pollingInterval = setInterval(() => {
   void instantiatePolling();
 }, 10_000);
 

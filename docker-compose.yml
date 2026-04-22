@@ -61,11 +61,22 @@ x-nodemon-env: &nodemon-env
 services:
   root-deps:
     image: node:alpine
-    profiles: ["tools"]
     working_dir: /workspace
-    command: ["npm", "install"]
+    command: ["npm", "install", "--prefer-offline"]
     volumes:
       - ./:/workspace
+      - workspace_node_modules:/workspace/node_modules
+
+  prisma-generate:
+    image: node:alpine
+    working_dir: /workspace/packages/database
+    command: ["sh", "-lc", "npx prisma generate"]
+    volumes:
+      - ./:/workspace
+      - workspace_node_modules:/workspace/node_modules
+    depends_on:
+      root-deps:
+        condition: service_completed_successfully
 
   prisma-migrate:
     image: node:alpine
@@ -77,6 +88,8 @@ services:
       - ./:/workspace
       - workspace_node_modules:/workspace/node_modules
     depends_on:
+      prisma-generate:
+        condition: service_completed_successfully
       postgres:
         condition: service_healthy
 
@@ -103,6 +116,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      prisma-generate:
+        condition: service_completed_successfully
       prisma-migrate:
         condition: service_completed_successfully
       langgraph-service:
