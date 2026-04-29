@@ -5,7 +5,7 @@ const ReviewForm = () => {
   return (
     <>
       <div className="/bg-black/10 pt-10 pb-6 flex flex-col items-center">
-        <div className="rounded-full aspect-square p-4 flex justify-center items-center mb-4 bg-mist-300/60">
+        <div className="rounded-full aspect-square p-4 flex justify-center items-center mb-4 bg-gray-300/60">
           <Sparkles className="w-7 h-7 text-black" />
         </div>
         <h2 className="text-lg font-semibold">Generate your case workspace</h2>

@@ -29,14 +29,14 @@ const Button = ({
   const variantClassName =
     style === "primary"
       ? "border-transparent bg-[#282828] text-white"
-      : "border-black/10 bg-mist-300/60 text-black/75 shadow-sm";
+      : "border-black/10 bg-gray-300/60 text-black/75 shadow-sm";
   const stateClassName = disabled
     ? "border-transparent bg-gray-300 text-gray-600 cursor-not-allowed"
     : suppressHover
       ? "cursor-pointer"
       : style === "primary"
         ? "hover:bg-black cursor-pointer"
-        : "hover:bg-mist-300 hover:text-black cursor-pointer";
+        : "hover:bg-gray-300 hover:text-black cursor-pointer";
   const rainbowClassName = isRainbowPrimary
     ? "bg-transparent before:pointer-events-none before:absolute before:bottom-[-.15rem] before:left-1/2 before:z-0 before:h-2 before:w-[94%] before:-translate-x-1/2 before:rounded-full before:bg-[linear-gradient(90deg,hsl(var(--color-rainbow-1)),hsl(var(--color-rainbow-5)),hsl(var(--color-rainbow-3)),hsl(var(--color-rainbow-4)),hsl(var(--color-rainbow-2)))] before:bg-[length:200%_100%] before:opacity-80 before:blur-sm before:content-[''] before:animate-rainbow after:pointer-events-none after:absolute after:inset-0 after:z-10 after:rounded-[inherit] after:bg-[#1a1a1a] after:transition-colors after:content-[''] hover:after:bg-black"
     : "";

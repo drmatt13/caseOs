@@ -56,7 +56,7 @@ const CreateCaseMenu = ({
         <p className="truncate">Create New Case</p>
       </div>
       <div
-        className={`p-2 rounded-lg flex items-center gap-[.7rem] font-serif text-[.8rem] ${caseIntakeState.step < 1 ? "cursor-not-allowed opacity-25" : caseIntakeState.step <= 1 ? "bg-mist-300/60 cursor-pointer" : "hover:bg-mist-300/60 cursor-pointer"}`}
+        className={`p-2 rounded-lg flex items-center gap-[.7rem] font-serif text-[.8rem] ${caseIntakeState.step < 1 ? "cursor-not-allowed opacity-25" : caseIntakeState.step <= 1 ? "bg-gray-300/60 cursor-pointer" : "hover:bg-gray-300/60 cursor-pointer"}`}
         onClick={() => {
           if (caseIntakeState.step >= 1) {
             setCaseIntakeState((prev) => ({ ...prev, step: 1 }));
@@ -78,7 +78,7 @@ const CreateCaseMenu = ({
         </div>
       </div>
       <div
-        className={`p-2 rounded-lg flex items-center gap-[.7rem] font-serif text-[.8rem] ${caseIntakeState.step < 2 ? "cursor-not-allowed opacity-25" : caseIntakeState.step <= 2 ? "bg-mist-300/60 cursor-pointer" : "hover:bg-mist-300/60 cursor-pointer"} `}
+        className={`p-2 rounded-lg flex items-center gap-[.7rem] font-serif text-[.8rem] ${caseIntakeState.step < 2 ? "cursor-not-allowed opacity-25" : caseIntakeState.step <= 2 ? "bg-gray-300/60 cursor-pointer" : "hover:bg-gray-300/60 cursor-pointer"} `}
         onClick={() => {
           if (caseIntakeState.step >= 2) {
             setCaseIntakeState((prev) => ({ ...prev, step: 2 }));
@@ -100,7 +100,7 @@ const CreateCaseMenu = ({
         </div>
       </div>
       <div
-        className={`p-2 rounded-lg flex items-center gap-[.7rem] font-serif text-[.8rem] ${caseIntakeState.step < 3 ? "cursor-not-allowed opacity-25" : caseIntakeState.step <= 3 ? "bg-mist-300/60 cursor-pointer" : "hover:bg-mist-300/60 cursor-pointer"} `}
+        className={`p-2 rounded-lg flex items-center gap-[.7rem] font-serif text-[.8rem] ${caseIntakeState.step < 3 ? "cursor-not-allowed opacity-25" : caseIntakeState.step <= 3 ? "bg-gray-300/60 cursor-pointer" : "hover:bg-gray-300/60 cursor-pointer"} `}
         onClick={() => {
           if (caseIntakeState.step >= 3) {
             setCaseIntakeState((prev) => ({ ...prev, step: 3 }));
@@ -122,7 +122,7 @@ const CreateCaseMenu = ({
         </div>
       </div>
       <div
-        className={`p-2 rounded-lg flex items-center gap-[.7rem] font-serif text-[.8rem] ${caseIntakeState.step < 4 ? "cursor-not-allowed opacity-25" : caseIntakeState.step <= 4 ? "bg-mist-300/60 cursor-pointer" : "hover:bg-mist-300/60 cursor-pointer"} `}
+        className={`p-2 rounded-lg flex items-center gap-[.7rem] font-serif text-[.8rem] ${caseIntakeState.step < 4 ? "cursor-not-allowed opacity-25" : caseIntakeState.step <= 4 ? "bg-gray-300/60 cursor-pointer" : "hover:bg-gray-300/60 cursor-pointer"} `}
         onClick={() => {
           if (caseIntakeState.step >= 4) {
             setCaseIntakeState((prev) => ({ ...prev, step: 4 }));
@@ -144,7 +144,7 @@ const CreateCaseMenu = ({
         </div>
       </div>
       <div
-        className={`p-2 rounded-lg flex items-center gap-[.7rem] font-serif text-[.8rem] ${caseIntakeState.step < 5 ? "cursor-not-allowed opacity-25" : caseIntakeState.step <= 5 ? "bg-mist-300/60 cursor-pointer" : "hover:bg-mist-300/60 cursor-pointer"} `}
+        className={`p-2 rounded-lg flex items-center gap-[.7rem] font-serif text-[.8rem] ${caseIntakeState.step < 5 ? "cursor-not-allowed opacity-25" : caseIntakeState.step <= 5 ? "bg-gray-300/60 cursor-pointer" : "hover:bg-gray-300/60 cursor-pointer"} `}
         onClick={() => {
           if (caseIntakeState.step >= 5) {
             setCaseIntakeState((prev) => ({ ...prev, step: 5 }));
@@ -166,7 +166,7 @@ const CreateCaseMenu = ({
         </div>
       </div>
       <div
-        className={`p-2 rounded-lg flex items-center gap-[.7rem] font-serif text-[.8rem] ${caseIntakeState.step < 6 ? "cursor-not-allowed opacity-25" : caseIntakeState.step <= 6 ? "bg-mist-300/60 cursor-pointer" : "hover:bg-mist-300/60 cursor-pointer"} `}
+        className={`p-2 rounded-lg flex items-center gap-[.7rem] font-serif text-[.8rem] ${caseIntakeState.step < 6 ? "cursor-not-allowed opacity-25" : caseIntakeState.step <= 6 ? "bg-gray-300/60 cursor-pointer" : "hover:bg-gray-300/60 cursor-pointer"} `}
         onClick={() => {
           if (caseIntakeState.step >= 6) {
             setCaseIntakeState((prev) => ({ ...prev, step: 6 }));

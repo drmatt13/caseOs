@@ -54,7 +54,7 @@ const WorkspaceMenu = () => {
         <div
           key={value}
           className={`p-2 rounded-lg flex items-center gap-2 cursor-pointer ${
-            workSpace === value ? "bg-mist-300/60" : "hover:bg-mist-300/60"
+            workSpace === value ? "bg-gray-300/60" : "hover:bg-gray-300/60"
           }`}
           onClick={() => setWorkSpace(value)}
         >

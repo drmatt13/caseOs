@@ -24,6 +24,7 @@ const PeoplePartiesAndWitnessesForm = ({
     >
       <div className="grid gap-4 md:grid-cols-2">
         <TextAreaField
+          className="row-span-2 grid-rows-subgrid"
           label="Parties"
           description="List the parties involved and their roles."
           value={caseIntake.parties}
@@ -31,6 +32,7 @@ const PeoplePartiesAndWitnessesForm = ({
           placeholder="John Smith (Plaintiff), Jane Doe (Defendant)"
         />
         <TextAreaField
+          className="row-span-2 grid-rows-subgrid"
           label="Attorneys"
           description="List counsel involved on all sides."
           value={caseIntake.attorneys}
