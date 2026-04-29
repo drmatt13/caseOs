@@ -3,7 +3,7 @@ import {
   deleteReplayMessage,
   type ReplayEnvelope,
   type HandlerNames,
-} from "@repo/event-replay";
+} from "@repo/shared-lambda-utils";
 import type { Context } from "aws-lambda";
 
 // Asynchronous Lambda Functions

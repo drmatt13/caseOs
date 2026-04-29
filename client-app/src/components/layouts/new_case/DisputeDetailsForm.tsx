@@ -1,4 +1,4 @@
-import type { CaseIntake } from "#/../../types/caseWorkspace";
+import type { CaseIntake } from "#/types/caseWorkspace";
 import { caseStatusOptions } from "#/components/layouts/new_case/caseIntakeForm";
 import {
   FormSection,

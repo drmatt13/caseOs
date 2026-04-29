@@ -1,14 +1,21 @@
+import { useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { requireAuth } from "#/lib/auth";
+import { useQuery } from "@tanstack/react-query";
 import AppLayout from "#/components/layouts/AppLayout";
-import LeftPanelLayout from "#/components/layouts/LeftPanelLayout";
 // import SelectCaseMenu from "#/components/menus/SelectCaseMenu";
 import WorkspaceMenu from "#/components/menus/WorkspaceMenu";
-import UserPanel from "#/components/menus/UserPanel";
+
 import { ArrowLeft } from "lucide-react";
 
-import { userSchema } from "@repo/database/src/table.schemas";
-import z from "zod";
+import LeftPanelLayout from "#/components/layouts/LeftPanelLayout";
+import UserPanel from "#/components/menus/UserPanel";
+import LoadingSpinner from "#/components/LoadingSpinner";
+
+// route guards
+import { requireAuth } from "#/lib/auth";
+
+// query functions
+import { getUser } from "#/api/getUser";
 
 export const Route = createFileRoute("/case/$id")({
   beforeLoad: requireAuth,
@@ -18,39 +25,37 @@ export const Route = createFileRoute("/case/$id")({
 function RouteComponent() {
   // const { id } = Route.useParams();
 
-  const user: z.infer<typeof userSchema> = {
-    id: "8d56f660-3f27-4fe9-b636-7fc6af4f9425",
-    cognitoSub: "mock-cognito-sub-123",
-    email: "alex.carter@example.com",
-    billingEmail: "billing@example.com",
-    displayName: "Alex Carter",
-    firstName: "Alex",
-    lastName: "Carter",
-    profilePicture: null,
-    userName: "alex.carter",
-    isPlatformAdmin: false,
-    accountTier: "PRO",
-    accountStatus: "ACTIVE",
-    stripeCustomerId: null,
-    stripeSubscriptionId: null,
-    stripePriceId: null,
-    stripeProductId: null,
-    stripeDefaultPaymentMethodId: null,
-    subscriptionStatus: "ACTIVE",
-    billingInterval: "MONTH",
-    cancelAtPeriodEnd: false,
-    currentPeriodStart: null,
-    currentPeriodEnd: null,
-    trialStartsAt: null,
-    trialEndsAt: null,
-    createdAt: new Date("2026-01-01T00:00:00.000Z"),
-    updatedAt: new Date("2026-01-01T00:00:00.000Z"),
-  };
+  const {
+    data: { user } = {},
+    isPending,
+    error,
+  } = useQuery({
+    queryKey: ["user"],
+    queryFn: getUser,
+  });
+
+  useEffect(() => {
+    console.log("User data:", user);
+  }, [user]);
+
+  if (isPending) {
+    return (
+      <>
+        <div className="w-full h-full flex justify-center items-center">
+          <LoadingSpinner />
+        </div>
+      </>
+    );
+  }
+
+  if (error) {
+    return <>placeholder for error</>;
+  }
 
   return (
     <AppLayout>
       <LeftPanelLayout>
-        <UserPanel user={user} settings={true} />
+        <UserPanel user={user!} settings={true} />
         <div className="text-xs flex gap-1.5 items-center">
           <Link to="/">
             <div className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer">

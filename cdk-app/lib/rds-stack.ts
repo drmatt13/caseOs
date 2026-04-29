@@ -7,6 +7,7 @@ export interface RdsStackProps extends cdk.StackProps {
   enableRdsProxy?: boolean;
   primaryDatabaseName?: string;
   primaryDatabaseUsername?: string;
+  retainStatefulResouces?: boolean;
 }
 
 export class RdsStack extends cdk.Stack {
@@ -25,6 +26,10 @@ export class RdsStack extends cdk.Stack {
     const enableRdsProxy = props?.enableRdsProxy ?? false;
     const primaryDatabaseName = props?.primaryDatabaseName ?? "app_db";
     const primaryDatabaseUsername = props?.primaryDatabaseUsername ?? "app_user";
+    const retainStatefulResouces = props?.retainStatefulResouces ?? false;
+    const statefulRemovalPolicy = retainStatefulResouces
+      ? cdk.RemovalPolicy.RETAIN
+      : cdk.RemovalPolicy.DESTROY;
 
     const vpc = ec2.Vpc.fromLookup(this, "DefaultVpc", { isDefault: true });
 
@@ -78,6 +83,7 @@ export class RdsStack extends cdk.Stack {
         excludeCharacters: " %+~`#$&*()|[]{}:;<>?!'/@\"\\",
       },
     );
+    credentialsSecret.applyRemovalPolicy(statefulRemovalPolicy);
 
     const database = new rds.DatabaseInstance(this, "PostgresDatabase", {
       engine: rds.DatabaseInstanceEngine.postgres({
@@ -103,8 +109,8 @@ export class RdsStack extends cdk.Stack {
       multiAz: false,
       backupRetention: cdk.Duration.days(0),
       deleteAutomatedBackups: true,
-      deletionProtection: false,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      deletionProtection: retainStatefulResouces,
+      removalPolicy: statefulRemovalPolicy,
     });
 
     const proxy = enableRdsProxy

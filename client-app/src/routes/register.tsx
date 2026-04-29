@@ -24,9 +24,14 @@ function RouteComponent() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [status, setStatus] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (isSubmitting) {
+      return;
+    }
 
     const trimmedFirstName = firstName.trim();
     const trimmedLastName = lastName.trim();
@@ -57,6 +62,7 @@ function RouteComponent() {
     }
 
     setStatus(null);
+    setIsSubmitting(true);
     try {
       await signUpUser(
         email.trim(),
@@ -76,6 +82,8 @@ function RouteComponent() {
       setStatus(
         error instanceof Error ? error.message : "Failed to create account.",
       );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -86,7 +94,7 @@ function RouteComponent() {
           <form
             id="register-form"
             onSubmit={handleSubmit}
-            className="flex flex-col px-5 pt-8 pb-5 border-mist-400 shadow-md rounded-2xl bg-white"
+            className="flex flex-col px-5 pt-8 pb-5 mb-8 border-mist-400 shadow-md rounded-2xl bg-white"
           >
             <p className="text-[1.7rem] font-bold">Create your account</p>
             <p className="mt-0.5 text-sm text-gray-600">
@@ -107,6 +115,7 @@ function RouteComponent() {
               minLength={MIN_NAME_LENGTH}
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
+              disabled={isSubmitting}
               className="rounded-md px-2 py-2.5 text-xs bg-gray-100 border border-black/15"
               placeholder="Jane"
             />
@@ -124,6 +133,7 @@ function RouteComponent() {
               minLength={MIN_NAME_LENGTH}
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
+              disabled={isSubmitting}
               className="rounded-md px-2 py-2.5 text-xs bg-gray-100 border border-black/15"
               placeholder="Doe"
             />
@@ -140,6 +150,7 @@ function RouteComponent() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              disabled={isSubmitting}
               className="rounded-md px-2 py-2.5 text-xs bg-gray-100 border border-black/15"
               placeholder="name@firm.com"
             />
@@ -158,6 +169,7 @@ function RouteComponent() {
               title={PASSWORD_POLICY_MESSAGE}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={isSubmitting}
               className="rounded-md px-2 py-2.5 text-xs bg-gray-100 border border-black/15"
               placeholder="••••••••"
             />
@@ -176,6 +188,7 @@ function RouteComponent() {
               title={PASSWORD_POLICY_MESSAGE}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              disabled={isSubmitting}
               className="rounded-md px-2 py-2.5 mb-3 text-xs bg-gray-100 border border-black/15"
               placeholder="••••••••"
             />
@@ -184,7 +197,12 @@ function RouteComponent() {
             )}
             {/* <div className="mt-2 w-full"> */}
             <div className="mt-2 w-full" />
-            <Button submit={true} text="Create account" style="primary" />
+            <Button
+              submit={true}
+              text={isSubmitting ? "Creating account..." : "Create account"}
+              style="primary"
+              disabled={isSubmitting}
+            />
             {/* </div> */}
             <div className="mt-4 text-gray-500 flex w-full justify-center">
               <p>
@@ -192,7 +210,12 @@ function RouteComponent() {
                 <Link
                   to="/login"
                   search={{ email: undefined, "account-verified": undefined }}
-                  className="text-blue-600 hover:underline"
+                  disabled={isSubmitting}
+                  className={
+                    isSubmitting
+                      ? "pointer-events-none text-gray-400"
+                      : "text-blue-600 hover:underline"
+                  }
                 >
                   Sign in
                 </Link>

@@ -3,7 +3,11 @@ import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import Button from "#/components/Button";
 import LoginLayout from "#/components/layouts/LoginLayout";
 
-import { signInUser, redirectIfAuthenticated } from "#/lib/auth";
+import {
+  signInUser,
+  redirectIfAuthenticated,
+  signInWithGoogle,
+} from "#/lib/auth";
 
 export const Route = createFileRoute("/login")({
   beforeLoad: redirectIfAuthenticated,
@@ -45,7 +49,7 @@ function RouteComponent() {
     setIsSubmitting(true);
 
     try {
-      const result = await signInUser(email, password);
+      const result = await signInUser(email, password, rememberMe);
 
       if (!result.success) {
         if (result.error === "USER_NOT_CONFIRMED") {
@@ -71,6 +75,14 @@ function RouteComponent() {
     }
   }
 
+  function handleGoogleSignIn() {
+    try {
+      signInWithGoogle(rememberMe);
+    } catch {
+      setError("Google sign in is not configured yet.");
+    }
+  }
+
   return (
     <>
       <LoginLayout>
@@ -78,7 +90,7 @@ function RouteComponent() {
           <form
             onSubmit={handleSubmit}
             id="login-form"
-            className="flex flex-col px-5 pt-8 pb-5 border-mist-400 shadow-md rounded-2xl bg-white"
+            className="flex flex-col px-5 pt-8 pb-5 mb-8 border-mist-400 shadow-md rounded-2xl bg-white"
           >
             <p className="text-[1.7rem] font-bold">Welcome back</p>
             <p className="mt-0.5 text-sm text-gray-600">
@@ -166,6 +178,7 @@ function RouteComponent() {
 
             <button
               type="button"
+              onClick={handleGoogleSignIn}
               className="w-full rounded-md border border-black/15 bg-white py-2.5 text-sm font-medium hover:bg-gray-50"
             >
               Continue with Google

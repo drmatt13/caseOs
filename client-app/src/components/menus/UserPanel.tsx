@@ -1,7 +1,7 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Settings } from "lucide-react";
 
-import { userSchema } from "@repo/database/src/table.schemas";
+import { userSchema } from "@repo/database/table.schemas";
 import z from "zod";
 
 // context
@@ -14,6 +14,11 @@ interface UserPanelProps {
 
 const UserPanel = ({ user, settings = false }: UserPanelProps) => {
   const { setShowSettingsModal } = useContext(SettingsContext);
+  const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [user?.profilePicture]);
 
   if (!user) return <>loading...</>;
 
@@ -21,10 +26,20 @@ const UserPanel = ({ user, settings = false }: UserPanelProps) => {
     <>
       <div className="mb-1 flex items-center w-full justify-between gap-2 /pl-2 /pr-2">
         <div className="flex gap-2 items-center">
-          <div className="flex justify-center items-center w-10 h-10 rounded-full bg-black/15">
-            {user.firstName?.[0] ? user.firstName[0] : ""}
-            {user.lastName?.[0] ? user.lastName[0] : ""}
-          </div>
+          {user.profilePicture && !imageFailed ? (
+            <img
+              src={user.profilePicture}
+              alt={`${user.firstName} ${user.lastName}`}
+              referrerPolicy="no-referrer"
+              onError={() => setImageFailed(true)}
+              className="h-10 w-10 shrink-0 rounded-full object-cover"
+            />
+          ) : (
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-black/15">
+              {user.firstName?.[0] ? user.firstName[0] : ""}
+              {user.lastName?.[0] ? user.lastName[0] : ""}
+            </div>
+          )}
           <p className="text-sm truncate">
             {user.firstName} {user.lastName}
           </p>

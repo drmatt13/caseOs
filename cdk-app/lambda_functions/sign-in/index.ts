@@ -18,10 +18,14 @@ function getUserPoolClientId(): string | null {
 interface SignInBody {
   email: string;
   password: string;
+  rememberMe?: boolean;
 }
 
-function makeCookie(name: string, value: string, maxAge: number): string {
-  return `${name}=${value}; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=${maxAge}`;
+function makeCookie(name: string, value: string, maxAge?: number): string {
+  const maxAgeAttribute =
+    typeof maxAge === "number" ? `; Max-Age=${maxAge}` : "";
+
+  return `${name}=${value}; HttpOnly; Secure; SameSite=None; Path=/${maxAgeAttribute}`;
 }
 
 export const lambdaHandler = async (
@@ -59,6 +63,7 @@ export const lambdaHandler = async (
   }
 
   const { email, password } = body;
+  const rememberMe = body.rememberMe === true;
   if (!email || !password) {
     return {
       statusCode: 400,
@@ -106,7 +111,7 @@ export const lambdaHandler = async (
     };
 
     const accessMaxAge = auth.ExpiresIn ?? 3600;
-    const refreshMaxAge = 30 * 24 * 60 * 60; // 30 days
+    const refreshMaxAge = rememberMe ? 30 * 24 * 60 * 60 : undefined;
 
     return {
       statusCode: 200,

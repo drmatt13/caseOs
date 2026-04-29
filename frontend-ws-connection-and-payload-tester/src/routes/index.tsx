@@ -10,16 +10,18 @@ function App() {
 
   return (
     <div className="flex justify-center">
-      <div className="flex justify-center h-dvh w-full max-w-3xl">
-        <div className="py-6 pr-5 flex-1 flex">
+      <div className="flex justify-center h-dvh w-full max-w-3xl overflow-hidden">
+        <div className="py-6 w-1/2 min-w-0 overflow-hidden flex">
           <WS_ConnectionAndPayloadTester initialConnectionURL={localWsUrl} />
         </div>
 
-        <div className="h-full w-px flex items-center">
-          <div className="h-[85%] w-full bg-linear-to-b from-black/0 via-white/15 to-black/0" />
+        <div className="w-10 flex justify-center">
+          <div className="h-full w-px shrink-0 flex items-center">
+            <div className="h-[85%] w-full bg-linear-to-b from-black/0 via-white/15 to-black/0" />
+          </div>
         </div>
 
-        <div className="py-6 pl-5 flex-1 flex">
+        <div className="py-6 w-1/2 min-w-0 overflow-hidden flex">
           <WS_ConnectionAndPayloadTester
             initialConnectionURL={apiGatewayWsUrl}
           />

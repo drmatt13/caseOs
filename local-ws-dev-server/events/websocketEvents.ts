@@ -1,3 +1,20 @@
+import type { APIGatewayProxyWebsocketEventV2 } from "aws-lambda";
+
+export type LocalWebSocketEvent = Omit<
+  APIGatewayProxyWebsocketEventV2,
+  "requestContext"
+> & {
+  headers?: Record<string, string | undefined>;
+  multiValueHeaders?: Record<string, string[]>;
+  multiValueQueryStringParameters?: Record<string, string[]>;
+  queryStringParameters?: Record<string, string>;
+  requestContext: APIGatewayProxyWebsocketEventV2["requestContext"] & {
+    connectionId: string;
+    disconnectReason?: string;
+    disconnectStatusCode?: number;
+  };
+};
+
 export const connectEvent = {
   headers: {
     "Accept-Encoding": "gzip, deflate, br, zstd",
@@ -39,6 +56,7 @@ export const connectEvent = {
     eventType: "CONNECT",
     extendedRequestId: "*************", // Masked
     requestTime: "16/Mar/2025:00:46:22 +0000",
+    messageId: "$connect",
     messageDirection: "IN",
     stage: "production",
     connectedAt: 1742085982306,
@@ -50,11 +68,11 @@ export const connectEvent = {
     },
     requestId: "*************", // Masked
     domainName: "your-api-id.execute-api.us-east-1.amazonaws.com",
-    connectionId: null,
+    connectionId: "",
     apiId: "your-api-id",
   },
   isBase64Encoded: false,
-} as WebSocketEvent;
+} as LocalWebSocketEvent;
 
 export const disconnectEvent = {
   headers: {
@@ -75,6 +93,7 @@ export const disconnectEvent = {
     eventType: "DISCONNECT",
     extendedRequestId: "*************", // Masked
     requestTime: "16/Mar/2025:00:46:38 +0000",
+    messageId: "$disconnect",
     messageDirection: "IN",
     disconnectReason: "",
     stage: "production",
@@ -87,11 +106,11 @@ export const disconnectEvent = {
     },
     requestId: "*************", // Masked
     domainName: "your-api-id.execute-api.us-east-1.amazonaws.com",
-    connectionId: null,
+    connectionId: "",
     apiId: "your-api-id",
   },
   isBase64Encoded: false,
-} as WebSocketEvent;
+} as LocalWebSocketEvent;
 
 export const defaultEvent = {
   requestContext: {
@@ -111,9 +130,9 @@ export const defaultEvent = {
     },
     requestId: "********",
     domainName: "********.execute-api.us-east-1.amazonaws.com",
-    connectionId: null,
+    connectionId: "",
     apiId: "********",
   },
   body: undefined,
   isBase64Encoded: false,
-} as WebSocketEvent;
+} as LocalWebSocketEvent;

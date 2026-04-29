@@ -102,6 +102,7 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
           minify: true,
           sourceMap: false,
           target: "es2020",
+          // Custom build steps required because this function depends on generated code from the @repo/database package, which must be built before bundling.
           commandHooks: {
             beforeInstall() {
               return [];
@@ -120,8 +121,7 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
           DEV_LAMBDA_REPLAY_QUEUE_URL: replayQueueUrl,
           ...(props?.primaryDatabaseSecretArn
             ? {
-                PRIMARY_DATABASE_SECRET_ARN:
-                  props.primaryDatabaseSecretArn,
+                PRIMARY_DATABASE_SECRET_ARN: props.primaryDatabaseSecretArn,
               }
             : {}),
         },

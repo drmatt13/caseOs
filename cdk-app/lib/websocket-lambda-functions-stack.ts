@@ -8,6 +8,8 @@ import * as path from "path";
 export interface WebSocketLambdaFunctionsStackProps extends cdk.StackProps {
   apiId?: string;
   stageName?: string;
+  userPoolId: string;
+  userPoolClientId: string;
 }
 
 export class WebSocketLambdaFunctionsStack extends cdk.Stack {
@@ -174,6 +176,8 @@ export class WebSocketLambdaFunctionsStack extends cdk.Stack {
       memorySize: 128,
       environment: {
         PRODUCTION: "true",
+        USER_POOL_ID: props.userPoolId,
+        USER_POOL_CLIENT_ID: props.userPoolClientId,
       },
     });
 

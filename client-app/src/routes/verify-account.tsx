@@ -139,7 +139,7 @@ function RouteComponent() {
   return (
     <LoginLayout>
       <div className="flex flex-col w-sm">
-        <div className="flex flex-col px-5 pt-8 pb-5 border-mist-400 shadow-md rounded-2xl bg-white">
+        <div className="flex flex-col px-5 pt-8 pb-5 mb-8 border-mist-400 shadow-md rounded-2xl bg-white">
           <p className="text-[1.7rem] font-bold">Verify your account</p>
           <p className="mt-0.5 text-sm text-gray-600">
             {status === "loading"
@@ -185,7 +185,7 @@ function RouteComponent() {
                 submit={true}
                 text={isSubmitting ? "Verifying..." : "Verify account"}
                 style="primary"
-                disabled={isSubmitting || status === "loading"}
+                disabled={isSubmitting}
               />
             </form>
           )}

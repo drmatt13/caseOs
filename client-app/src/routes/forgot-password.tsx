@@ -114,7 +114,7 @@ function RouteComponent() {
   return (
     <LoginLayout>
       <div className="flex flex-col w-sm">
-        <div className="flex flex-col px-5 pt-8 pb-5 border-mist-400 shadow-md rounded-2xl bg-white">
+        <div className="flex flex-col px-5 pt-8 pb-5 mb-8 border-mist-400 shadow-md rounded-2xl bg-white">
           <p className="text-[1.7rem] font-bold">Reset your password</p>
           <p className="mt-0.5 text-sm text-gray-600">
             {step === "request"

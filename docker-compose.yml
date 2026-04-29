@@ -8,23 +8,39 @@ x-aws-env: &aws-env
   AWS_REGION: us-east-1
   AWS_SDK_LOAD_CONFIG: "1"
 
+# Shared AWS credentials mount.
+# Uncomment the source line that matches your host OS.
+x-aws-config-volume: &aws-config-volume
+  type: bind
+  # Mac / Linux
+  # source: ${HOME}/.aws
+  # Windows
+  source: ${USERPROFILE}/.aws
+  target: /root/.aws
+  read_only: true
+
 # The LangGraph service environment variables
 x-langgraph-service-env: &langgraph-service-env
   PORT: "80" # ECS containers should listen on port 80 by convention
   PRIMARY_DATABASE_URL: "postgresql://admin:password@postgres:5432/app_db" # In development you should always use local Postgres for database access
+
+# Shared Cognito configuration for local services that validate Cognito tokens.
+x-cognito-env: &cognito-env
+  USER_POOL_ID: "us-east-1_IlwKgxNDU"
+  USER_POOL_CLIENT_ID: "6muao0u8oh0f6nref7aq8j5uu5"
+  COGNITO_DOMAIN_URL: "https://localdevkit-73543328.auth.us-east-1.amazoncognito.com"
 
 # The local API dev servers environment variables
 x-local-api-dev-server-env: &local-api-dev-server-env
   PORT: "8080"
   LANGGRAPH_SERVICE_URL: "http://langgraph-service"
   PRIMARY_DATABASE_URL: "postgresql://admin:password@postgres:5432/app_db" # In development you should always use local Postgres for database access
-  USE_LOCAL_IMPLEMENTATIONS: "false" # Never capture event-driven functions in local dev
-  # Source: CognitoStack output key `UserPoolClientId`
-  USER_POOL_CLIENT_ID: "<USER_POOL_CLIENT_ID>"
+  # Never capture event-driven functions in local dev
+  USE_LOCAL_IMPLEMENTATIONS: "false"
   # Source: DevLambdaReplayStack output key `ReplayBucketName`
-  DEV_LAMBDA_REPLAY_BUCKET_NAME: "<DEV_LAMBDA_REPLAY_BUCKET_NAME>"
+  DEV_LAMBDA_REPLAY_BUCKET_NAME: "devlambdareplaystack-devlambdareplaybucketb5032f6f-qs7jsfgfyfse"
   # Source: DevLambdaReplayStack output key `ReplayQueueUrl`
-  DEV_LAMBDA_REPLAY_QUEUE_URL: "<DEV_LAMBDA_REPLAY_QUEUE_URL>"
+  DEV_LAMBDA_REPLAY_QUEUE_URL: "https://sqs.us-east-1.amazonaws.com/270473543328/DevLambdaReplayStack-DevLambdaReplayQueue864CD58E-DBtknEL8LqH7"
 
 # Local Prisma environment variables for Docker-networked database access.
 x-local-prisma-env: &local-prisma-env
@@ -33,13 +49,13 @@ x-local-prisma-env: &local-prisma-env
 # The local WebSocket dev servers environment variables
 x-local-ws-dev-server-env: &local-ws-dev-server-env
   PORT: "8081" # Port for local WebSocket dev server
-  ENABLE_CUSTOM_WS_AUTHORIZER: "false"
+  ENABLE_CUSTOM_WS_AUTHORIZER: "true"
                               # ^ Set to "true" to enable the custom WebSocket authorizer in the local WebSocket dev server, which mimics the behavior of the API Gateway WebSocket custom authorizer used in production. This is disabled by default since it adds complexity to local development and isn't necessary for most use cases.
 
 x-frontend-ws-connection-and-payload-tester-env: &frontend-ws-connection-and-payload-tester-env
-  VITE_LOCAL_WS_URL: "ws://localhost:8081"
+  VITE_LOCAL_WS_URL: "ws://localhost:8081?token="
   # Source: WebSocketApiStack output key `WebSocketApiEndpoint`
-  VITE_API_GATEWAY_WS_URL: "<APIGATEWAY_WS_URL>"
+  VITE_API_GATEWAY_WS_URL: "wss://wss://2pqt4iheq0.execute-api.us-east-1.amazonaws.com/prod?token="
 
 # PostgreSQL environment variables
 x-postgres-env: &postgres-env
@@ -70,7 +86,12 @@ services:
   prisma-generate:
     image: node:alpine
     working_dir: /workspace/packages/database
-    command: ["sh", "-lc", "npx prisma generate"]
+    command:
+      [
+        "sh",
+        "-lc",
+        "if [ -f src/generated/prisma/client.ts ] && [ -f src/generated/prisma/browser.ts ]; then echo 'Prisma client already generated; skipping.'; else npx prisma generate; fi",
+      ]
     volumes:
       - ./:/workspace
       - workspace_node_modules:/workspace/node_modules
@@ -83,7 +104,12 @@ services:
     working_dir: /workspace/packages/database
     environment:
       <<: *local-prisma-env
-    command: ["sh", "-lc", "npx prisma migrate deploy"]
+    command:
+      [
+        "sh",
+        "-lc",
+        "if find prisma/migrations -mindepth 1 -maxdepth 1 -type d | grep -q . 2>/dev/null; then npx prisma migrate deploy; else npx prisma db push; fi",
+      ]
     volumes:
       - ./:/workspace
       - workspace_node_modules:/workspace/node_modules
@@ -98,15 +124,13 @@ services:
       context: ./local-api-dev-server
       dockerfile: dockerfile
     environment:
-      <<: [*aws-env, *nodemon-env, *local-api-dev-server-env]
+      <<: [*aws-env, *nodemon-env, *cognito-env, *local-api-dev-server-env]
     ports:
       - "8080:8080"
     volumes:
       - ./:/workspace # Bind mount, map entire monorepo to /workspace in the container
       - workspace_node_modules:/workspace/node_modules # Linux-native deps, isolated from host
-      - type: bind
-        source: ${USERPROFILE}/.aws
-        target: /root/.aws
+      - *aws-config-volume
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8080/ || exit 1"]
       interval: 5s
@@ -125,17 +149,20 @@ services:
 
   langgraph-service:
     build:
-      context: ./cdk-app/ecs_containers/langgraph-service
-      dockerfile: dockerfile
+      context: .
+      dockerfile: ./cdk-app/ecs_containers/langgraph-service/dockerfile
+      target: dev
     environment:
       <<: [*aws-env, *nodemon-env, *langgraph-service-env]
     volumes:
-      - ./cdk-app/ecs_containers/langgraph-service:/app
-      - /app/node_modules
-      - type: bind
-        source: ${USERPROFILE}/.aws
-        target: /root/.aws
+      - ./:/workspace
+      - workspace_node_modules:/workspace/node_modules
+      - *aws-config-volume
     depends_on:
+      root-deps:
+        condition: service_completed_successfully
+      prisma-generate:
+        condition: service_completed_successfully
       postgres:
         condition: service_healthy
       prisma-migrate:
@@ -146,15 +173,13 @@ services:
       context: ./local-ws-dev-server
       dockerfile: dockerfile
     environment:
-      <<: [*aws-env, *nodemon-env, *local-ws-dev-server-env]
+      <<: [*aws-env, *nodemon-env, *cognito-env, *local-ws-dev-server-env]
     ports:
       - "8081:8081"
     volumes:
       - ./:/workspace
       - workspace_node_modules:/workspace/node_modules
-      - type: bind
-        source: ${USERPROFILE}/.aws
-        target: /root/.aws
+      - *aws-config-volume
     depends_on:
       local-api-dev-server:
         condition: service_healthy

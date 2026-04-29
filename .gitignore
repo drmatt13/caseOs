@@ -146,6 +146,23 @@ tmp/
 temp/
 cdk.out/
 
+# Frontend tool/build artifacts
+dist-ssr/
+.nitro/
+.tanstack/
+.wrangler/
+.output/
+.vinxi/
+__unconfig*
+todos.json
+
+# CDK TypeScript build artifacts
+cdk-app/**/*.js
+!cdk-app/jest.config.js
+cdk-app/**/*.d.ts
+cdk-app/.cdk.staging/
+cdk-app/cdk.out/
+
 ### OSX ###
 # General
 .DS_Store

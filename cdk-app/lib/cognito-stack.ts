@@ -10,6 +10,7 @@ export interface CognitoStackProps extends cdk.StackProps {
   callbackUrls?: string[];
   logoutUrls?: string[];
   useLocalImplementations?: boolean;
+  retainStatefulResouces?: boolean;
   skipEmailVerification?: boolean;
   cognitoPreSignUpTriggerFn?: IFunction;
   cognitoCustomMessageFn?: IFunction;
@@ -19,11 +20,14 @@ export interface CognitoStackProps extends cdk.StackProps {
 export class CognitoStack extends cdk.Stack {
   public readonly userPoolId: string;
   public readonly userPoolClientId: string;
+  public readonly userPoolDomainUrl: string;
+  public readonly oauthProviderRedirectUri: string;
 
   constructor(scope: Construct, id: string, props: CognitoStackProps) {
     super(scope, id, props);
 
     const useLocalImplementations = props.useLocalImplementations ?? true;
+    const retainStatefulResouces = props.retainStatefulResouces ?? false;
     const skipEmailVerification = props.skipEmailVerification ?? false;
 
     const callbackUrls = props.callbackUrls ?? [
@@ -85,10 +89,10 @@ export class CognitoStack extends cdk.Stack {
       accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
       mfa: cognito.Mfa.OPTIONAL,
 
-      deletionProtection: !useLocalImplementations,
-      removalPolicy: useLocalImplementations
-        ? cdk.RemovalPolicy.DESTROY
-        : cdk.RemovalPolicy.RETAIN,
+      deletionProtection: retainStatefulResouces,
+      removalPolicy: retainStatefulResouces
+        ? cdk.RemovalPolicy.RETAIN
+        : cdk.RemovalPolicy.DESTROY,
     });
 
     const domain = userPool.addDomain("UserPoolDomain", {
@@ -96,6 +100,7 @@ export class CognitoStack extends cdk.Stack {
         domainPrefix,
       },
     });
+    const userPoolDomainUrl = `https://${domain.domainName}.auth.${this.region}.amazoncognito.com`;
 
     let googleProvider: cognito.UserPoolIdentityProviderGoogle | undefined;
 
@@ -163,20 +168,27 @@ export class CognitoStack extends cdk.Stack {
 
     this.userPoolId = userPool.userPoolId;
     this.userPoolClientId = userPoolClient.userPoolClientId;
+    this.userPoolDomainUrl = userPoolDomainUrl;
+    this.oauthProviderRedirectUri = `${userPoolDomainUrl}/oauth2/idpresponse`;
 
     new cdk.CfnOutput(this, "UserPoolId", {
       value: userPool.userPoolId,
-      exportName: "CognitoStack:UserPoolId",
     });
 
     new cdk.CfnOutput(this, "UserPoolClientId", {
       value: userPoolClient.userPoolClientId,
-      exportName: "CognitoStack:UserPoolClientId",
     });
 
     new cdk.CfnOutput(this, "UserPoolDomainUrl", {
-      value: `https://${domain.domainName}.auth.${this.region}.amazoncognito.com`,
+      value: userPoolDomainUrl,
       exportName: "CognitoStack:UserPoolDomainUrl",
+    });
+
+    new cdk.CfnOutput(this, "OAuthProviderRedirectUri", {
+      value: this.oauthProviderRedirectUri,
+      exportName: "CognitoStack:OAuthProviderRedirectUri",
+      description:
+        "Redirect URI to register with external OAuth providers such as Google.",
     });
   }
 }

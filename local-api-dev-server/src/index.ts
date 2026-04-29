@@ -8,8 +8,10 @@ import invokeAsyncLambdaFunctions from "./invokeAsyncLambdaFunctions";
 // Synchronous Lambda Functions
 import { lambdaHandler as signIn } from "../../cdk-app/lambda_functions/sign-in/index";
 import { lambdaHandler as signOut } from "../../cdk-app/lambda_functions/sign-out/index";
+import { lambdaHandler as oauthCallback } from "../../cdk-app/lambda_functions/oauth-callback/index";
 import { lambdaHandler as verifyUser } from "../../cdk-app/lambda_functions/verify-user/index";
 import { lambdaHandler as refresh } from "../../cdk-app/lambda_functions/refresh/index";
+import { lambdaHandler as getUser } from "../../cdk-app/lambda_functions/get-user/index";
 
 dotenv.config({
   path: "./.env",
@@ -79,8 +81,16 @@ app.all("/sign-out", async (req, res) => {
   return invokeLambdaFunction(req, res, signOut);
 });
 
+app.all("/oauth/callback", async (req, res) => {
+  return invokeLambdaFunction(req, res, oauthCallback);
+});
+
 app.all("/refresh", async (req, res) => {
   return invokeLambdaFunction(req, res, refresh);
+});
+
+app.all("/get-user", async (req, res) => {
+  return invokeLambdaFunction(req, res, getUser);
 });
 
 // ECS container routes

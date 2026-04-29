@@ -18,7 +18,7 @@ import {
 
 import type { LucideIcon } from "lucide-react";
 
-import type { ViewTypes } from "#/../../types/caseWorkspace";
+import type { ViewTypes } from "#/types/caseWorkspace";
 
 // interface WorkspaceMenuProps {
 //   workSpace: string;

@@ -224,29 +224,31 @@ const WS_ConnectionAndPayloadTester = ({ initialConnectionURL }: Props) => {
   }, [URLisValid, connectWebSocket]);
 
   return (
-    <div className="h-full flex-1">
-      <div className="h-full flex flex-col gap-3">
+    <div className="h-full flex-1 min-w-0">
+      <div className="h-full w-full flex flex-col gap-3 grow-0">
         {/* WebSocket URL Input */}
-        <div className="h-9 w-full flex gap-3">
-          {!ws ? (
-            <input
-              type="text"
-              value={wsUrl}
-              ref={wsUrlInputRef}
-              onChange={(e) => setWsUrl(e.target.value)}
-              placeholder="ws://"
-              className={`${
-                loadingConnection && "animate-pulse"
-              } text-white/70 h-full w-full bg-white/10 p-3 outline-none text-sm rounded-md`}
-              disabled={!!ws}
-            />
-          ) : (
-            <div
-              className={`text-green-600 h-full w-full bg-white/10 p-3 outline-none text-sm rounded-md pointer-events-none`}
-            >
-              <p className="line-clamp-1 -translate-y-1 select-none">{wsUrl}</p>
-            </div>
-          )}
+        <div className="h-9 w-full min-w-0 flex gap-3">
+          <div className="flex min-w-0 flex-1">
+            {!ws ? (
+              <input
+                type="text"
+                value={wsUrl}
+                ref={wsUrlInputRef}
+                onChange={(e) => setWsUrl(e.target.value)}
+                placeholder="ws://"
+                className={`${
+                  loadingConnection && "animate-pulse"
+                } h-full min-w-0 flex-1 bg-white/10 p-3 text-sm text-white/70 outline-none rounded-md`}
+                disabled={!!ws}
+              />
+            ) : (
+              <div className="h-full min-w-0 w-full overflow-hidden bg-white/10 p-3 text-sm text-green-600 outline-none rounded-md pointer-events-none">
+                <p className="-translate-y-1 select-none truncate">
+                  {wsUrl}
+                </p>
+              </div>
+            )}
+          </div>
           <button
             className={`${
               !mounted && initialConnectionURL !== ""
@@ -258,7 +260,7 @@ const WS_ConnectionAndPayloadTester = ({ initialConnectionURL }: Props) => {
                         ? "bg-green-700 hover:bg-green-600"
                         : "bg-red-700/90 hover:bg-red-600/90"
                     } cursor-pointer`
-            }} rounded-md w-32 text-xs duration-75 hover:duration-100 ease-in hover:ease-out`}
+            }} rounded-md px-5 text-xs duration-75 hover:duration-100 ease-in hover:ease-out shrink-0`}
             onClick={() => (!ws ? connectWebSocket() : disconnectWebSocket())}
             disabled={loadingConnection || !wsUrl || !URLisValid}
           >

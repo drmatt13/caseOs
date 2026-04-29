@@ -1,4 +1,4 @@
-import type { CaseIntake } from "#/../../types/caseWorkspace.schema";
+import type { CaseIntake } from "#/types/caseWorkspace";
 
 export const testCaseIntake: CaseIntake = {
   id: "case-intake-faxon-commons-001",

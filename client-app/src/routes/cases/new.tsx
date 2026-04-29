@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { requireAuth } from "#/lib/auth";
+import { useQuery } from "@tanstack/react-query";
 
 import AppLayout from "#/components/layouts/AppLayout";
 import CaseBasicsForm from "#/components/layouts/new_case/CaseBasicsForm";
@@ -20,11 +20,15 @@ import CreateCaseMenu from "#/components/menus/CreateCaseMenu";
 import UserPanel from "#/components/menus/UserPanel";
 import Button from "#/components/Button";
 
-import type { CaseIntake } from "#/../../types/caseWorkspace";
+import type { CaseIntake } from "#/types/caseWorkspace";
 import type { CaseIntakeWizardState } from "#/components/layouts/new_case/caseIntakeForm";
+import LoadingSpinner from "#/components/LoadingSpinner";
 
-import { userSchema } from "@repo/database/src/table.schemas";
-import z from "zod";
+// route guards
+import { requireAuth } from "#/lib/auth";
+
+// query functions
+import { getUser } from "#/api/getUser";
 
 // test data
 import { testCaseIntake } from "#/lib/test_data";
@@ -35,34 +39,18 @@ export const Route = createFileRoute("/cases/new")({
 });
 
 function RouteComponent() {
-  const user: z.infer<typeof userSchema> = {
-    id: "8d56f660-3f27-4fe9-b636-7fc6af4f9425",
-    cognitoSub: "mock-cognito-sub-123",
-    email: "alex.carter@example.com",
-    billingEmail: "billing@example.com",
-    displayName: "Alex Carter",
-    firstName: "Alex",
-    lastName: "Carter",
-    profilePicture: null,
-    userName: "alex.carter",
-    isPlatformAdmin: false,
-    accountTier: "PRO",
-    accountStatus: "ACTIVE",
-    stripeCustomerId: null,
-    stripeSubscriptionId: null,
-    stripePriceId: null,
-    stripeProductId: null,
-    stripeDefaultPaymentMethodId: null,
-    subscriptionStatus: "ACTIVE",
-    billingInterval: "MONTH",
-    cancelAtPeriodEnd: false,
-    currentPeriodStart: null,
-    currentPeriodEnd: null,
-    trialStartsAt: null,
-    trialEndsAt: null,
-    createdAt: new Date("2026-01-01T00:00:00.000Z"),
-    updatedAt: new Date("2026-01-01T00:00:00.000Z"),
-  };
+  const {
+    data: { user } = {},
+    isPending,
+    error,
+  } = useQuery({
+    queryKey: ["user"],
+    queryFn: getUser,
+  });
+
+  useEffect(() => {
+    console.log("User data:", user);
+  }, [user]);
 
   const [caseIntakeState, setCaseIntakeState] = useState<CaseIntakeWizardState>(
     {
@@ -213,10 +201,24 @@ function RouteComponent() {
     }
   };
 
+  if (isPending) {
+    return (
+      <>
+        <div className="w-full h-full flex justify-center items-center">
+          <LoadingSpinner />
+        </div>
+      </>
+    );
+  }
+
+  if (error) {
+    return <>placeholder for error</>;
+  }
+
   return (
     <AppLayout>
       <LeftPanelLayout>
-        <UserPanel user={user} settings={true} />
+        <UserPanel user={user!} settings={true} />
         <CreateCaseMenu
           caseIntakeState={caseIntakeState}
           setCaseIntakeState={setCaseIntakeState}

@@ -1,7 +1,10 @@
-import { APIGatewayProxyResultV2 } from "aws-lambda";
+import {
+  APIGatewayProxyResultV2,
+  APIGatewayProxyWebsocketEventV2,
+} from "aws-lambda";
 
 export const lambdaHandler = async (
-  event: WebSocketEvent,
+  event: APIGatewayProxyWebsocketEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
   const parsedEvent = {
     routeKey: event.requestContext.routeKey,

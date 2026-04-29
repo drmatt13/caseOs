@@ -1,7 +1,7 @@
 {
-  "name": "cognito-post-confirmation-trigger",
+  "name": "oauth-callback",
   "version": "1.0.0",
-  "description": "A Lambda function for handling Cognito post-confirmation events.",
+  "description": "A Lambda function to exchange Cognito OAuth codes and establish app sessions.",
   "main": "index.ts",
   "repository": "",
   "author": "Matthew Sweeney",
@@ -13,9 +13,11 @@
     "test": "npm run compile && npm run unit"
   },
   "dependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.930.0",
     "@repo/database": "*",
     "@repo/shared-lambda-utils": "*",
-    "esbuild": "^0.27.4"
+    "esbuild": "^0.27.4",
+    "jose": "^6.2.3"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.161",
@@ -24,4 +26,3 @@
     "typescript": "^5.9.3"
   }
 }
-

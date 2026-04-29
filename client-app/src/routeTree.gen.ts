@@ -16,6 +16,7 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CasesNewRouteImport } from './routes/cases/new'
 import { Route as CaseIdRouteImport } from './routes/case/$id'
+import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 
 const VerifyAccountRoute = VerifyAccountRouteImport.update({
   id: '/verify-account',
@@ -52,6 +53,11 @@ const CaseIdRoute = CaseIdRouteImport.update({
   path: '/case/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/verify-account': typeof VerifyAccountRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/case/$id': typeof CaseIdRoute
   '/cases/new': typeof CasesNewRoute
 }
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/verify-account': typeof VerifyAccountRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/case/$id': typeof CaseIdRoute
   '/cases/new': typeof CasesNewRoute
 }
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/verify-account': typeof VerifyAccountRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/case/$id': typeof CaseIdRoute
   '/cases/new': typeof CasesNewRoute
 }
@@ -89,6 +98,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/verify-account'
+    | '/auth/callback'
     | '/case/$id'
     | '/cases/new'
   fileRoutesByTo: FileRoutesByTo
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/verify-account'
+    | '/auth/callback'
     | '/case/$id'
     | '/cases/new'
   id:
@@ -107,6 +118,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/verify-account'
+    | '/auth/callback'
     | '/case/$id'
     | '/cases/new'
   fileRoutesById: FileRoutesById
@@ -117,6 +129,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
   VerifyAccountRoute: typeof VerifyAccountRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
   CaseIdRoute: typeof CaseIdRoute
   CasesNewRoute: typeof CasesNewRoute
 }
@@ -172,6 +185,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CaseIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -181,6 +201,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
   VerifyAccountRoute: VerifyAccountRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
   CaseIdRoute: CaseIdRoute,
   CasesNewRoute: CasesNewRoute,
 }

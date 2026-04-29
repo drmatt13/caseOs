@@ -1,3 +1,5 @@
+import type { APIGatewayProxyWebsocketEventV2 } from "aws-lambda";
+
 export const connectEvent = {
   headers: {
     "Accept-Encoding": "gzip, deflate, br, zstd",
@@ -36,6 +38,7 @@ export const connectEvent = {
   },
   requestContext: {
     routeKey: "$connect",
+    messageId: "",
     eventType: "CONNECT",
     extendedRequestId: "*************", // Masked
     requestTime: "16/Mar/2025:00:46:22 +0000",
@@ -50,11 +53,11 @@ export const connectEvent = {
     },
     requestId: "*************", // Masked
     domainName: "your-api-id.execute-api.us-east-1.amazonaws.com",
-    connectionId: null,
+    connectionId: "local-connection-id",
     apiId: "your-api-id",
   },
   isBase64Encoded: false,
-} as WebSocketEvent;
+} as APIGatewayProxyWebsocketEventV2;
 
 export const disconnectEvent = {
   headers: {
@@ -71,6 +74,7 @@ export const disconnectEvent = {
   },
   requestContext: {
     routeKey: "$disconnect",
+    messageId: "",
     disconnectStatusCode: 1001,
     eventType: "DISCONNECT",
     extendedRequestId: "*************", // Masked
@@ -87,11 +91,11 @@ export const disconnectEvent = {
     },
     requestId: "*************", // Masked
     domainName: "your-api-id.execute-api.us-east-1.amazonaws.com",
-    connectionId: null,
+    connectionId: "local-connection-id",
     apiId: "your-api-id",
   },
   isBase64Encoded: false,
-} as WebSocketEvent;
+} as APIGatewayProxyWebsocketEventV2;
 
 export const defaultEvent = {
   requestContext: {
@@ -111,9 +115,9 @@ export const defaultEvent = {
     },
     requestId: "********",
     domainName: "********.execute-api.us-east-1.amazonaws.com",
-    connectionId: null,
+    connectionId: "local-connection-id",
     apiId: "********",
   },
   body: undefined,
   isBase64Encoded: false,
-} as WebSocketEvent;
+} as APIGatewayProxyWebsocketEventV2;

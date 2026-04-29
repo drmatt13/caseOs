@@ -17,7 +17,8 @@ import { WebSocketLambdaFunctionsStack } from "../lib/websocket-lambda-functions
 // -c skipEmailVerification         (default: false)
 // -c enableEcsStack                (default: false)
 // -c enableWebSockets              (default: false)
-// -c useCustomAuthorizer           (default: false)
+// -c useCustomWsAuthorizer         (default: false)
+// -c retainStatefulResources       (default: false) - Cognito, RDS, Secrets
 //
 // -c frontendUrl                   (default: "http://localhost:3000")
 //
@@ -25,13 +26,13 @@ import { WebSocketLambdaFunctionsStack } from "../lib/websocket-lambda-functions
 // -c googleClientSecret            (default: undefined)
 
 // Complete Synth:
-// cdk synth --all -c useLocalImplementations=false -c enableRdsProxy=true -c skipEmailVerification=false -c useCustomAuthorizer=true -c enableWebSockets=true
+// cdk synth --all -c useLocalImplementations=false -c enableRdsProxy=true -c skipEmailVerification=false -c useCustomWsAuthorizer=true -c enableWebSockets=true
 
 // Current DEV deployment:
-// cdk deploy --all -c useCustomAuthorizer=<boolean> -c enableWebSockets=false --require-approval never
+// cdk deploy --all -c useCustomWsAuthorizer=true -c enableWebSockets=true -c skipEmailVerification=true --require-approval never
 
 // Current PROD deployment:
-// cdk deploy --all -c useLocalImplementations=false -c enableEcsStack=false  -c skipEmailVerification=true -c frontendUrl=http://localhost:3000 --require-approval never
+// cdk deploy --all -c useLocalImplementations=false -c useCustomWsAuthorizer=true -c enableWebSockets=true -c enableEcsStack=false  -c skipEmailVerification=true -c frontendUrl=http://localhost:3000 --require-approval never
 
 const app = new cdk.App();
 
@@ -94,12 +95,31 @@ const enableEcsStack =
     ? enableEcsStackContext.toLowerCase() === "true"
     : (enableEcsStackContext ?? false);
 
+const retainStatefulResoucesContext = app.node.tryGetContext(
+  "retainStatefulResouces",
+);
+const retainStatefulResouces =
+  typeof retainStatefulResoucesContext === "string"
+    ? retainStatefulResoucesContext.toLowerCase() === "true"
+    : (retainStatefulResoucesContext ?? false);
+
 const enableWebSockets =
   app.node.tryGetContext("enableWebSockets") === "true" ? true : false;
 
 // Frontend URL for CORS configuration, can be set via context or environment variable. Defaults to localhost for development.
 const frontendUrl =
   app.node.tryGetContext("frontendUrl") ?? "http://localhost:3000";
+const normalizedFrontendUrl = String(frontendUrl).replace(/\/+$/, "");
+const authCallbackUrl = `${normalizedFrontendUrl}/auth/callback`;
+
+const googleClientIdContext = app.node.tryGetContext("googleClientId");
+const googleClientSecretContext = app.node.tryGetContext("googleClientSecret");
+const googleClientId = googleClientIdContext
+  ? String(googleClientIdContext)
+  : undefined;
+const googleClientSecret = googleClientSecretContext
+  ? cdk.SecretValue.unsafePlainText(String(googleClientSecretContext))
+  : undefined;
 
 // Created only in local mode (useLocalImplementations=true).
 const devLambdaReplayStack = useLocalImplementations
@@ -115,6 +135,7 @@ const rdsStack = !useLocalImplementations
       enableRdsProxy,
       primaryDatabaseName,
       primaryDatabaseUsername,
+      retainStatefulResouces,
     })
   : undefined;
 
@@ -141,9 +162,12 @@ if (devLambdaReplayStack) {
 const cognitoStack = new CognitoStack(app, "CognitoStack", {
   env: stackEnv,
   useLocalImplementations,
+  retainStatefulResouces,
   skipEmailVerification,
-  googleClientId: undefined,
-  googleClientSecret: undefined,
+  googleClientId,
+  googleClientSecret,
+  callbackUrls: [authCallbackUrl],
+  logoutUrls: [normalizedFrontendUrl],
   cognitoPreSignUpTriggerFn:
     asynchronousLambdaFunctionsStack.cognitoPreSignUpTriggerFn,
   cognitoCustomMessageFn:
@@ -161,6 +185,8 @@ const synchronousLambdaFunctionsStack = new SynchronousLambdaFunctionsStack(
     env: stackEnv,
     userPoolId: cognitoStack.userPoolId,
     userPoolClientId: cognitoStack.userPoolClientId,
+    userPoolDomainUrl: cognitoStack.userPoolDomainUrl,
+    primaryDatabaseSecretArn: rdsStack?.credentialsSecretArn,
   },
 );
 synchronousLambdaFunctionsStack.addDependency(cognitoStack);
@@ -181,11 +207,17 @@ const httpApiGatewayStack = !useLocalImplementations
       frontendUrl,
       useLocalImplementations,
 
+      // User Pool Authorizer
+      httpUserPoolAuthorizerConfig:
+        synchronousLambdaFunctionsStack.httpUserPoolAuthorizerConfig,
+
       // Lambda integrations
       signInFn: synchronousLambdaFunctionsStack.signInFn,
       signOutFn: synchronousLambdaFunctionsStack.signOutFn,
+      oauthCallbackFn: synchronousLambdaFunctionsStack.oauthCallbackFn,
       verifyUserFn: synchronousLambdaFunctionsStack.verifyUserFn,
       refreshFn: synchronousLambdaFunctionsStack.refreshFn,
+      getUserFn: synchronousLambdaFunctionsStack.getUserFn,
       // <LambdaFunctionName>: synchronousLambdaFunctionsStack.<LambdaFunctionExport>,
 
       // ECS integrations
@@ -207,25 +239,31 @@ if (rdsStack) {
 const webSocketLambdaFunctionsStack = new WebSocketLambdaFunctionsStack(
   app,
   "WebSocketLambdaFunctionsStack",
-  {},
+  {
+    env: stackEnv,
+    userPoolId: cognitoStack.userPoolId,
+    userPoolClientId: cognitoStack.userPoolClientId,
+  },
 );
+webSocketLambdaFunctionsStack.addDependency(cognitoStack);
 
 // Use a custom authorizer for WebSocket API when explicitly enabled via context.
-const useCustomAuthorizerContext = app.node.tryGetContext(
-  "useCustomAuthorizer",
+const useCustomWsAuthorizerContext = app.node.tryGetContext(
+  "useCustomWsAuthorizer",
 );
 const useCustomWsAuthorizer =
-  typeof useCustomAuthorizerContext === "string"
-    ? useCustomAuthorizerContext.toLowerCase() === "true"
+  typeof useCustomWsAuthorizerContext === "string"
+    ? useCustomWsAuthorizerContext.toLowerCase() === "true"
       ? "true"
       : "false"
-    : (useCustomAuthorizerContext ?? false)
+    : (useCustomWsAuthorizerContext ?? false)
       ? "true"
       : "false";
 
 // Create API stack with the handler functions
 const webSocketApiStack = enableWebSockets
   ? new WebSocketApiStack(app, "WebSocketApiStack", {
+      env: stackEnv,
       connectFn: webSocketLambdaFunctionsStack.connectFn,
       customActionFn: webSocketLambdaFunctionsStack.customActionFn,
       disconnectFn: webSocketLambdaFunctionsStack.disconnectFn,

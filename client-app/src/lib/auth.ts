@@ -10,16 +10,20 @@ import {
   ConfirmForgotPasswordCommand,
 } from "@aws-sdk/client-cognito-identity-provider";
 
-import { SignInResponseSchema } from "@repo/database/src/api.schemas";
+import { SignInResponseSchema } from "@repo/database/api.schemas";
 import z from "zod";
 
 const API_URL = import.meta.env.VITE_API_GATEWAY_URL;
+const COGNITO_DOMAIN_URL = import.meta.env.VITE_COGNITO_DOMAIN;
+const USER_POOL_CLIENT_ID = import.meta.env.VITE_USER_POOL_CLIENT_ID;
 
 type AuthState = { authenticated: boolean };
+type WebStorage = Pick<Storage, "getItem" | "removeItem" | "setItem">;
 
-const AUTH_SYNC_STORAGE_KEY = "caseos:auth-sync";
+const AUTH_SYNC_STORAGE_KEY = "auth-sync";
 const AUTH_SYNC_CHANNEL_NAME = "caseos-auth-sync";
-const SESSION_HINT_KEY = "caseos:has-session";
+const OAUTH_STATE_STORAGE_KEY = "oauth-state";
+const SESSION_HINT_KEY = "has-session";
 
 let clientAuthCache: AuthState | null = null;
 let clientAuthRequest: Promise<AuthState> | null = null;
@@ -35,10 +39,123 @@ const getServerCookieHeader = createIsomorphicFn()
 
 type AuthCacheOptions = {
   broadcast?: boolean;
+  rememberSession?: boolean;
+};
+
+type OAuthState = {
+  rememberMe: boolean;
+  state: string;
 };
 
 function isBrowserRuntime(): boolean {
   return typeof window !== "undefined" && typeof document !== "undefined";
+}
+
+function clearSessionHints(): void {
+  if (!isBrowserRuntime()) {
+    return;
+  }
+
+  try {
+    window.localStorage.removeItem(SESSION_HINT_KEY);
+  } catch {}
+
+  try {
+    window.sessionStorage.removeItem(SESSION_HINT_KEY);
+  } catch {}
+}
+
+function getSessionHint(): boolean {
+  if (!isBrowserRuntime()) {
+    return false;
+  }
+
+  try {
+    if (window.localStorage.getItem(SESSION_HINT_KEY) === "1") {
+      return true;
+    }
+  } catch {}
+
+  try {
+    return window.sessionStorage.getItem(SESSION_HINT_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function hasPersistentSessionHint(): boolean {
+  if (!isBrowserRuntime()) {
+    return false;
+  }
+
+  try {
+    return window.localStorage.getItem(SESSION_HINT_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function setSessionHint(storage: WebStorage): void {
+  storage.setItem(SESSION_HINT_KEY, "1");
+}
+
+function getOAuthRedirectUri(): string {
+  return `${window.location.origin}/auth/callback`;
+}
+
+function getCognitoDomainUrl(): string {
+  const domainUrl = String(COGNITO_DOMAIN_URL ?? "").replace(/\/+$/, "");
+
+  if (!domainUrl) {
+    throw new Error("Missing VITE_COGNITO_DOMAIN");
+  }
+
+  return domainUrl;
+}
+
+function generateOAuthState(): string {
+  const bytes = new Uint8Array(16);
+  window.crypto.getRandomValues(bytes);
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join(
+    "",
+  );
+}
+
+function storeOAuthState(state: OAuthState): void {
+  window.sessionStorage.setItem(OAUTH_STATE_STORAGE_KEY, JSON.stringify(state));
+}
+
+function consumeOAuthState(incomingState: string): OAuthState {
+  const stored = window.sessionStorage.getItem(OAUTH_STATE_STORAGE_KEY);
+  window.sessionStorage.removeItem(OAUTH_STATE_STORAGE_KEY);
+
+  if (!stored) {
+    throw new Error("Missing OAuth state. Please try signing in again.");
+  }
+
+  const parsed = JSON.parse(stored) as Partial<OAuthState>;
+  if (parsed.state !== incomingState) {
+    throw new Error("OAuth state mismatch. Please try signing in again.");
+  }
+
+  return {
+    rememberMe: parsed.rememberMe === true,
+    state: incomingState,
+  };
+}
+
+function handleExternalAuthStateChange(reason?: "sign-in" | "sign-out"): void {
+  if (reason === "sign-in" && !hasPersistentSessionHint()) {
+    try {
+      setSessionHint(window.sessionStorage);
+    } catch {}
+  }
+
+  if (reason === "sign-out") {
+    clearSessionHints();
+  }
+
+  invalidateAuthCache({ broadcast: false });
 }
 
 function broadcastAuthStateChange(reason: "sign-in" | "sign-out"): void {
@@ -71,16 +188,26 @@ function initializeAuthSync(): void {
 
   window.addEventListener("storage", (event) => {
     if (event.key === AUTH_SYNC_STORAGE_KEY && event.newValue) {
-      invalidateAuthCache({ broadcast: false });
+      try {
+        const data = JSON.parse(event.newValue) as {
+          reason?: "sign-in" | "sign-out";
+        };
+        handleExternalAuthStateChange(data.reason);
+      } catch {
+        handleExternalAuthStateChange();
+      }
     }
   });
 
   if (typeof BroadcastChannel !== "undefined") {
     authBroadcastChannel = new BroadcastChannel(AUTH_SYNC_CHANNEL_NAME);
     authBroadcastChannel.onmessage = (event: MessageEvent<unknown>) => {
-      const data = event.data as { type?: string } | undefined;
+      const data =
+        event.data as
+          | { reason?: "sign-in" | "sign-out"; type?: string }
+          | undefined;
       if (data?.type === "auth-state-changed") {
-        invalidateAuthCache({ broadcast: false });
+        handleExternalAuthStateChange(data.reason);
       }
     };
   }
@@ -90,9 +217,7 @@ export function invalidateAuthCache(options: AuthCacheOptions = {}): void {
   if (options.broadcast) {
     clientAuthCache = { authenticated: false };
     clientAuthRequest = Promise.resolve(clientAuthCache);
-    try {
-      window.localStorage.removeItem(SESSION_HINT_KEY);
-    } catch {}
+    clearSessionHints();
     broadcastAuthStateChange("sign-out");
   } else {
     clientAuthCache = null;
@@ -106,7 +231,13 @@ export function primeAuthCache(options: AuthCacheOptions = {}): void {
   clientAuthRequest = Promise.resolve(value);
 
   try {
-    window.localStorage.setItem(SESSION_HINT_KEY, "1");
+    const rememberSession =
+      options.rememberSession ?? hasPersistentSessionHint();
+
+    clearSessionHints();
+    setSessionHint(
+      rememberSession ? window.localStorage : window.sessionStorage,
+    );
   } catch {}
 
   if (options.broadcast) {
@@ -125,20 +256,15 @@ async function checkSessionOnServer(): Promise<AuthState> {
     const response = await fetch(`${API_URL}/verify-user`, {
       method: "GET",
       headers: { cookie: cookieHeader },
+      credentials: "include",
     });
 
     if (response.ok) {
       return { authenticated: true };
     }
 
-    if (response.status === 401) {
-      const refreshResponse = await fetch(`${API_URL}/refresh`, {
-        method: "POST",
-        headers: { cookie: cookieHeader },
-      });
-      if (refreshResponse.ok) {
-        return { authenticated: true };
-      }
+    if (response.status === 401 && (await refreshSession(cookieHeader))) {
+      return { authenticated: true };
     }
 
     return { authenticated: false };
@@ -158,10 +284,7 @@ async function checkSessionOnClient(): Promise<AuthState> {
     return clientAuthRequest;
   }
 
-  let hasSessionHint = false;
-  try {
-    hasSessionHint = window.localStorage.getItem(SESSION_HINT_KEY) === "1";
-  } catch {}
+  const hasSessionHint = getSessionHint();
 
   if (!hasSessionHint) {
     const noSession: AuthState = { authenticated: false };
@@ -181,19 +304,11 @@ async function checkSessionOnClient(): Promise<AuthState> {
         return { authenticated: true };
       }
 
-      if (response.status === 401) {
-        const refreshResponse = await fetch(`${API_URL}/refresh`, {
-          method: "POST",
-          credentials: "include",
-        });
-        if (refreshResponse.ok) {
-          return { authenticated: true };
-        }
+      if (response.status === 401 && (await refreshSession())) {
+        return { authenticated: true };
       }
 
-      try {
-        window.localStorage.removeItem(SESSION_HINT_KEY);
-      } catch {}
+      clearSessionHints();
       return { authenticated: false };
     } catch {
       return { authenticated: false };
@@ -205,6 +320,53 @@ async function checkSessionOnClient(): Promise<AuthState> {
   clientAuthRequest = Promise.resolve(result);
 
   return result;
+}
+
+export async function refreshSession(cookieHeader?: string): Promise<boolean> {
+  try {
+    const headers: HeadersInit = cookieHeader ? { cookie: cookieHeader } : {};
+    const response = await fetch(`${API_URL}/refresh`, {
+      method: "POST",
+      headers,
+      credentials: "include",
+    });
+
+    if (response.ok) {
+      if (isBrowserRuntime()) {
+        primeAuthCache();
+      }
+      return true;
+    }
+
+    if (isBrowserRuntime()) {
+      clearSessionHints();
+    }
+
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+export async function fetchWithAuthRefresh(
+  input: RequestInfo | URL,
+  init: RequestInit = {},
+): Promise<Response> {
+  const requestInit: RequestInit = {
+    ...init,
+    credentials: init.credentials ?? "include",
+  };
+
+  const response = await fetch(input, requestInit);
+  if (response.status !== 401) {
+    return response;
+  }
+
+  if (!(await refreshSession())) {
+    return response;
+  }
+
+  return fetch(input, requestInit);
 }
 
 export async function checkSession(): Promise<AuthState> {
@@ -371,6 +533,7 @@ export async function resendConfirmationCodeUser(usernameOrEmail: string) {
 export async function signInUser(
   email: string,
   password: string,
+  rememberMe = false,
 ): Promise<z.infer<typeof SignInResponseSchema>> {
   const response = await fetch(`${API_URL}/sign-in`, {
     method: "POST",
@@ -379,6 +542,7 @@ export async function signInUser(
     body: JSON.stringify({
       email: email.trim().toLowerCase(),
       password,
+      rememberMe,
     }),
   });
 
@@ -394,7 +558,71 @@ export async function signInUser(
     return { success: false, error: data.error ?? "Sign in failed" };
   }
 
-  primeAuthCache({ broadcast: true });
+  primeAuthCache({ broadcast: true, rememberSession: rememberMe });
+
+  return { success: true };
+}
+
+export function signInWithGoogle(rememberMe = false): void {
+  if (!isBrowserRuntime()) {
+    return;
+  }
+
+  const state = generateOAuthState();
+  storeOAuthState({ rememberMe, state });
+
+  const authorizeUrl = new URL(`${getCognitoDomainUrl()}/oauth2/authorize`);
+  authorizeUrl.searchParams.set("client_id", USER_POOL_CLIENT_ID);
+  authorizeUrl.searchParams.set("identity_provider", "Google");
+  authorizeUrl.searchParams.set("redirect_uri", getOAuthRedirectUri());
+  authorizeUrl.searchParams.set("response_type", "code");
+  authorizeUrl.searchParams.set("scope", "openid email profile");
+  authorizeUrl.searchParams.set("state", state);
+  authorizeUrl.searchParams.set("prompt", "select_account");
+
+  window.location.assign(authorizeUrl.toString());
+}
+
+export async function completeOAuthSignIn(
+  code: string,
+  state: string,
+): Promise<z.infer<typeof SignInResponseSchema>> {
+  const oauthState = consumeOAuthState(state);
+  const oauthCallbackUrl = `${API_URL}/oauth/callback`;
+  const response = await fetch(oauthCallbackUrl, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      code,
+      redirectUri: getOAuthRedirectUri(),
+      rememberMe: oauthState.rememberMe,
+    }),
+  });
+
+  const responseBody = await response.text();
+  let data: z.infer<typeof SignInResponseSchema>;
+  try {
+    data = JSON.parse(responseBody) as z.infer<typeof SignInResponseSchema>;
+  } catch {
+    const bodyPreview = responseBody.slice(0, 120);
+    return {
+      success: false,
+      error: `OAuth callback API did not return JSON from ${oauthCallbackUrl}. Restart the frontend/API dev servers and verify VITE_API_GATEWAY_URL. Response started with: ${bodyPreview}`,
+    };
+  }
+
+  if (!response.ok) {
+    return {
+      success: false,
+      error: data.error ?? "Google sign in failed",
+    };
+  }
+
+  primeAuthCache({
+    broadcast: true,
+    rememberSession: oauthState.rememberMe,
+  });
 
   return { success: true };
 }

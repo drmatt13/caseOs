@@ -1,14 +1,20 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as apigwv2 from "aws-cdk-lib/aws-apigatewayv2";
+import * as authorizers from "aws-cdk-lib/aws-apigatewayv2-authorizers";
+import * as cognito from "aws-cdk-lib/aws-cognito";
 import * as integrations from "aws-cdk-lib/aws-apigatewayv2-integrations";
 import { IFunction } from "aws-cdk-lib/aws-lambda";
+import { HttpUserPoolAuthorizerConfig } from "./synchronous-lambda-functions-stack";
 
 export interface HttpApiGatewayStackProps extends cdk.StackProps {
   signInFn: IFunction;
   signOutFn: IFunction;
+  oauthCallbackFn: IFunction;
   verifyUserFn: IFunction;
   refreshFn: IFunction;
+  getUserFn: IFunction;
+  httpUserPoolAuthorizerConfig: HttpUserPoolAuthorizerConfig;
   frontendUrl: string;
   useLocalImplementations: boolean;
   langgraphServiceUrl?: string;
@@ -33,41 +39,97 @@ export class HttpApiGatewayStack extends cdk.Stack {
       },
     });
 
-    api.addRoutes({
-      path: "/sign-in",
-      methods: [apigwv2.HttpMethod.ANY],
-      integration: new integrations.HttpLambdaIntegration(
-        "SignInIntegration",
-        props.signInFn,
-      ),
-    });
+    const userPool = cognito.UserPool.fromUserPoolId(
+      this,
+      "ImportedUserPool",
+      props.httpUserPoolAuthorizerConfig.userPoolId,
+    );
 
-    api.addRoutes({
-      path: "/sign-out",
-      methods: [apigwv2.HttpMethod.ANY],
-      integration: new integrations.HttpLambdaIntegration(
-        "SignOutIntegration",
-        props.signOutFn,
-      ),
-    });
+    const userPoolClient = cognito.UserPoolClient.fromUserPoolClientId(
+      this,
+      "ImportedUserPoolClient",
+      props.httpUserPoolAuthorizerConfig.userPoolClientId,
+    );
 
-    api.addRoutes({
-      path: "/verify-user",
-      methods: [apigwv2.HttpMethod.ANY],
-      integration: new integrations.HttpLambdaIntegration(
-        "VerifyUserIntegration",
-        props.verifyUserFn,
-      ),
-    });
+    const userPoolAuthorizer = new authorizers.HttpUserPoolAuthorizer(
+      "HttpUserPoolAuthorizer",
+      userPool,
+      {
+        identitySource: ["$request.cookie.accessToken"],
+        userPoolClients: [userPoolClient],
+      },
+    );
 
-    api.addRoutes({
-      path: "/refresh",
-      methods: [apigwv2.HttpMethod.ANY],
-      integration: new integrations.HttpLambdaIntegration(
-        "RefreshIntegration",
-        props.refreshFn,
-      ),
-    });
+    const addPublicRoute = (
+      id: string,
+      path: string,
+      methods: apigwv2.HttpMethod[],
+      handler: IFunction,
+    ) => {
+      api.addRoutes({
+        path,
+        methods,
+        integration: new integrations.HttpLambdaIntegration(id, handler),
+      });
+    };
+
+    const addAuthenticatedRoute = (
+      id: string,
+      path: string,
+      methods: apigwv2.HttpMethod[],
+      handler: IFunction,
+    ) => {
+      api.addRoutes({
+        path,
+        methods,
+        integration: new integrations.HttpLambdaIntegration(id, handler),
+        authorizer: userPoolAuthorizer,
+      });
+    };
+
+    // Public Routes
+    addPublicRoute(
+      "SignInIntegration",
+      "/sign-in",
+      [apigwv2.HttpMethod.ANY],
+      props.signInFn,
+    );
+
+    addPublicRoute(
+      "SignOutIntegration",
+      "/sign-out",
+      [apigwv2.HttpMethod.ANY],
+      props.signOutFn,
+    );
+
+    addPublicRoute(
+      "OAuthCallbackIntegration",
+      "/oauth/callback",
+      [apigwv2.HttpMethod.ANY],
+      props.oauthCallbackFn,
+    );
+
+    addPublicRoute(
+      "RefreshIntegration",
+      "/refresh",
+      [apigwv2.HttpMethod.ANY],
+      props.refreshFn,
+    );
+
+    // Authenticated Routes
+    addAuthenticatedRoute(
+      "VerifyUserIntegration",
+      "/verify-user",
+      [apigwv2.HttpMethod.ANY],
+      props.verifyUserFn,
+    );
+
+    addAuthenticatedRoute(
+      "GetUserIntegration",
+      "/get-user",
+      [apigwv2.HttpMethod.ANY],
+      props.getUserFn,
+    );
 
     if (!props.useLocalImplementations && props.langgraphServiceUrl) {
       api.addRoutes({

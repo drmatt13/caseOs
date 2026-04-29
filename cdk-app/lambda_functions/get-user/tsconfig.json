@@ -5,12 +5,12 @@
     "preserveConstEnums": true,
     "noEmit": true,
     "sourceMap": false,
-    "module":"NodeNext",
-    "moduleResolution":"NodeNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "types": ["node"],
-    "esModuleInterop": true, 
+    "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,  
+    "forceConsistentCasingInFileNames": true
   },
   "exclude": ["node_modules", "**/*.test.ts"]
 }

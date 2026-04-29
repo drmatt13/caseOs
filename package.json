@@ -1,5 +1,5 @@
 {
-  "name": "my-monorepo",
+  "name": "matts-cdk-dev-kit",
   "author": "Matthew Sweeney",
   "license": "UNLICENSED",
   "private": true,
@@ -8,6 +8,7 @@
     "local-api-dev-server",
     "cdk-app",
     "cdk-app/lambda_functions/*",
+    "cdk-app/ecs_containers/*",
     "packages/*",
     "frontend-ws-connection-and-payload-tester",
     "local-ws-dev-server"

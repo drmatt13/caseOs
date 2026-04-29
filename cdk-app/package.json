@@ -22,6 +22,7 @@
     "typescript": "~5.9.3"
   },
   "dependencies": {
+    "@repo/database": "*",
     "aws-cdk-lib": "^2.243.0",
     "constructs": "^10.5.0"
   }

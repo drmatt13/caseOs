@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import UserPanel from "./menus/UserPanel";
 
-import { userSchema } from "@repo/database/src/table.schemas";
+import { userSchema } from "@repo/database/table.schemas";
 import z from "zod";
 
 const Workspace = () => {

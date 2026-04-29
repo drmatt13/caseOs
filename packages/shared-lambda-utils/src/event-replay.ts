@@ -42,11 +42,18 @@ export type ReplayEnvelope = {
   originalEvent: CaptureEligibleEvent;
 };
 
-function getRequiredEnv(name: string): string {
-  const value = process.env[name];
+export type CaptureEventDrivenInvocationConfig = {
+  replayBucketName: string;
+  replayQueueUrl: string;
+};
+
+function requireConfigValue(value: string, name: string): string {
   if (!value) {
-    throw new Error(`Missing required environment variable: ${name}`);
+    throw new Error(
+      `captureEventDrivenInvocation requires ${name}. Pass the replay configuration from the calling Lambda.`,
+    );
   }
+
   return value;
 }
 
@@ -99,14 +106,19 @@ export async function captureEventDrivenInvocation(
   event: CaptureEligibleEvent,
   context: Context,
   handlerName: HandlerNames,
+  config: CaptureEventDrivenInvocationConfig,
 ): Promise<void> {
-  const bucketName = getRequiredEnv("DEV_LAMBDA_REPLAY_BUCKET_NAME");
+  const bucketName = requireConfigValue(
+    config.replayBucketName,
+    "replayBucketName",
+  );
+  requireConfigValue(config.replayQueueUrl, "replayQueueUrl");
 
   // const shouldSendCustomSqsMessage =
   //   process.env.DEV_LAMBDA_REPLAY_SEND_CUSTOM_SQS_MESSAGE === "true";
 
   // const queueUrl = shouldSendCustomSqsMessage
-  //   ? getRequiredEnv("DEV_LAMBDA_REPLAY_QUEUE_URL")
+  //   ? config.replayQueueUrl
   //   : undefined;
 
   const capturedAt = new Date().toISOString();

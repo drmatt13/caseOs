@@ -1,23 +1,57 @@
-# FROM node:alpine
+FROM node:22-bookworm-slim AS dev
+WORKDIR /workspace
 
-FROM node:20-bookworm
+# Used for local docker-compose development.
+# This runs your service in watch mode from source code.
+CMD ["npm", "run", "dev", "--workspace", "@repo/langgraph-service"]
 
-RUN apt-get update && apt-get install -y curl unzip less \
-  && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
-  && unzip awscliv2.zip \
-  && ./aws/install \
-  && rm -rf aws awscliv2.zip \
-  && apt-get clean \
+
+FROM node:22-bookworm-slim AS build
+WORKDIR /workspace
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl \
   && rm -rf /var/lib/apt/lists/*
 
+# Copy the whole monorepo so npm workspaces can see shared packages.
+COPY . .
+
+# Install all workspace dependencies from the root lockfile.
+RUN npm ci
+
+# Run setup/build commands for shared workspace packages that need them.
+# Keep @repo/database because it needs code generation.
+RUN npm run generate --workspace @repo/database
+
+# If you later add another shared package that needs its own build step,
+# add another line like one of these:
+#
+# RUN npm run build --workspace @repo/<my-shared-package>
+# RUN npm run generate --workspace @repo/<my-shared-package>
+#
+# Only add a line if that package needs a separate build or generate step.
+
+# Build the ECS service itself.
+RUN npm run build --workspace @repo/langgraph-service
+
+
+FROM node:22-bookworm-slim AS runtime
+ENV NODE_ENV=production
 WORKDIR /app
 
-COPY package*.json ./
+# Copy the built service.
+COPY --from=build /workspace/cdk-app/ecs_containers/langgraph-service/dist ./dist
+COPY --from=build /workspace/cdk-app/ecs_containers/langgraph-service/package.json ./package.json
 
-RUN npm install
+# Copy installed dependencies so the app can actually run.
+COPY --from=build /workspace/node_modules ./node_modules
 
-COPY . .
+# If a shared package needs runtime files that are not bundled into dist,
+# copy them here with another COPY line.
+#
+# Example:
+# COPY --from=build /workspace/packages/<my-shared-package>/dist ./packages/<my-shared-package>/dist
 
 EXPOSE 5000
 
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "start"]

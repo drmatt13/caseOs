@@ -4,7 +4,7 @@ import type {
   ClientRole,
   RepresentationPracticeArea,
   RepresentationRole,
-} from "#/../../types/caseWorkspace";
+} from "#/types/caseWorkspace";
 
 export type CaseIntakeWizardState = {
   step: number;

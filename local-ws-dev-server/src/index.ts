@@ -23,78 +23,17 @@ import {
   connectEvent,
   defaultEvent,
   disconnectEvent,
+  type LocalWebSocketEvent,
 } from "../events/websocketEvents";
-
-interface WebSocketEvent {
-  headers?: {
-    Host?: string;
-    Origin?: string;
-    Pragma?: string;
-    "Cache-Control"?: string;
-    "Accept-Encoding"?: string;
-    "Accept-Language"?: string;
-    "Sec-WebSocket-Extensions"?: string;
-    "Sec-WebSocket-Key"?: string;
-    "Sec-WebSocket-Version"?: string;
-    "User-Agent"?: string;
-    "X-Amzn-Trace-Id"?: string;
-    "X-Forwarded-For"?: string;
-    "X-Forwarded-Port"?: string;
-    "X-Forwarded-Proto"?: string;
-    "x-api-key"?: string;
-    "x-restapi"?: string;
-  };
-  multiValueHeaders?: {
-    Host?: string[];
-    Origin?: string[];
-    Pragma?: string[];
-    "Cache-Control"?: string[];
-    "Accept-Encoding"?: string[];
-    "Accept-Language"?: string[];
-    "Sec-WebSocket-Extensions"?: string[];
-    "Sec-WebSocket-Key"?: string[];
-    "Sec-WebSocket-Version"?: string[];
-    "User-Agent"?: string[];
-    "X-Amzn-Trace-Id"?: string[];
-    "X-Forwarded-For"?: string[];
-    "X-Forwarded-Port"?: string[];
-    "X-Forwarded-Proto"?: string[];
-    "x-api-key"?: string[];
-    "x-restapi"?: string[];
-  };
-  queryStringParameters?: Record<string, string>; // Single-value query params
-  multiValueQueryStringParameters?: Record<string, string[]>; // Multi-value query params
-  requestContext: {
-    routeKey: string;
-    eventType: "CONNECT" | "DISCONNECT" | "MESSAGE"; // Type of event, all custom routes will be "MESSAGE"
-    extendedRequestId?: string;
-    requestTime?: string;
-    messageDirection?: string;
-    stage?: string;
-    connectedAt?: number;
-    requestTimeEpoch?: number;
-    identity?: {
-      userAgent?: string;
-      sourceIp?: string;
-    };
-    requestId?: string;
-    domainName?: string;
-    connectionId: string | null;
-    apiId?: string;
-
-    // Fields specific to disconnect events
-    disconnectStatusCode?: number;
-    disconnectReason?: string;
-  };
-  body?: string; // Only exists for MESSAGE events
-  isBase64Encoded: boolean;
-}
 
 env.config({
   path: "./.env.development",
 });
 
 const PORT = Number(process.env.PORT) || 8080;
+const enableCustomAuthorizer =
+  process.env.ENABLE_CUSTOM_WS_AUTHORIZER === "true" ||
+  process.env.ENABLE_CUSTOM_AUTHORIZER === "true";
 const server = createServer(); // Create an HTTP server for handling WebSocket upgrades
 const connectionRegistry = new Map<WebSocket, string>();
 const connectionIdRegistry = new Map<string, WebSocket>();
@@ -235,15 +174,15 @@ server.on("upgrade", async (request, socket, head) => {
       multiValueQueryParams[key].push(value);
     }
 
-    const currentConnectEvent: WebSocketEvent = {
+    const currentConnectEvent: LocalWebSocketEvent = {
       ...connectEvent,
       headers: {
         ...connectEvent.headers,
-        Origin: request.headers.origin,
+        Origin: request.headers.origin ?? connectEvent.headers?.Origin,
       },
       requestContext: {
         ...connectEvent.requestContext,
-        domainName: request.headers.host,
+        domainName: request.headers.host ?? host,
         connectionId,
       },
       queryStringParameters: {
@@ -257,7 +196,7 @@ server.on("upgrade", async (request, socket, head) => {
     };
 
     // Optional custom authorizer check before accepting WebSocket connection
-    if (process.env.ENABLE_CUSTOM_AUTHORIZER === "true") {
+    if (enableCustomAuthorizer) {
       const authorizerEvent = {
         type: "REQUEST",
         methodArn: "arn:aws:execute-api:local:local:local/prod/$connect",
@@ -340,7 +279,7 @@ wss.on("connection", async (ws) => {
 
   ws.on("message", async (message) => {
     const body = JSON.parse(message.toString());
-    const messageEvent: WebSocketEvent = {
+    const messageEvent: LocalWebSocketEvent = {
       ...defaultEvent,
       body: JSON.stringify({ ...body, action: undefined }),
       requestContext: {
@@ -396,7 +335,7 @@ wss.on("connection", async (ws) => {
   //  Triggered when a client disconnects
   // =======================================
   ws.on("close", async () => {
-    const currentDisconnectEvent: WebSocketEvent = {
+    const currentDisconnectEvent: LocalWebSocketEvent = {
       ...disconnectEvent,
       requestContext: {
         ...disconnectEvent.requestContext,
@@ -418,7 +357,7 @@ wss.on("connection", async (ws) => {
 // =======================================
 server.listen(PORT, () => {
   console.log(`WebSocket server listening on ws://localhost:${PORT}`);
-  if (process.env.ENABLE_CUSTOM_AUTHORIZER === "true") {
+  if (enableCustomAuthorizer) {
     console.log("✅ Custom Authorizer is ENABLED");
   } else {
     console.log("❌ Custom Authorizer is DISABLED");
