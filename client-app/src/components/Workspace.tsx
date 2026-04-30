@@ -13,10 +13,10 @@ import z from "zod";
 
 const Workspace = () => {
   return (
-    <div className="flex-1 min-w-0 max-w-full flex flex-col gap-4 py-3 /px-4 /border /h-[80vh] h-max border rounded-2xl bg-white/40 backdrop-blur-sm border-mist-400/50 shadow-md">
+    <div className="flex-1 min-w-0 max-w-full flex flex-col gap-4 py-3 /px-4 /border /h-[80vh] h-max border rounded-2xl bg-white/40 backdrop-blur-sm border-black/15 shadow-md">
       <div className="flex flex-row justify-between text-xs px-4 border-b border-black/15 pb-3">
         <div className="flex gap-1.5">
-          <div className="text-xs p-2 rounded-lg hover:bg-black/10 cursor-pointer flex items-center gap-1.5 text-black border border-mist-400/75 hover:border-mist-400/50 transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
+          <div className="text-xs p-2 rounded-lg hover:bg-black/10 cursor-pointer flex items-center gap-1.5 text-black border border-mist-400/75 hover:border-black/15 transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
             <PlusIcon className="w-3.5 h-3.5" />
             <div>New Workspace</div>
           </div>

@@ -94,7 +94,7 @@ function RouteComponent() {
           <form
             id="register-form"
             onSubmit={handleSubmit}
-            className="flex flex-col px-5 pt-8 pb-5 mb-8 rounded-2xl bg-white/40 backdrop-blur-sm border border-mist-400/50 shadow-md"
+            className="flex flex-col px-5 pt-8 pb-5 mb-8 rounded-2xl bg-white/40 backdrop-blur-sm border border-black/15 shadow-md"
           >
             <p className="text-[1.7rem] font-bold">Create your account</p>
             <p className="mt-0.5 text-sm text-gray-600">

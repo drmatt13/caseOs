@@ -6,7 +6,7 @@ interface WorkPanelLayoutProps {
 
 const WorkPanelLayout = ({ children }: WorkPanelLayoutProps) => {
   return (
-    <div className="flex-1 min-w-0 max-w-full py-4 px-4 /border /h-[80vh] h-max rounded-2xl bg-white/40 backdrop-blur-sm border border-mist-400/50 shadow-md">
+    <div className="flex-1 min-w-0 max-w-full py-4 px-4 /border /h-[80vh] h-max rounded-2xl bg-white/40 backdrop-blur-sm border border-black/15 shadow-md">
       {children}
     </div>
   );
