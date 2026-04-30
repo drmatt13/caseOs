@@ -5,15 +5,22 @@ import { userSchema } from "@repo/database/table.schemas";
 import z from "zod";
 
 // context
-import { SettingsContext } from "#/context/SettingsContext";
+import { PopupContext } from "#/context/PopupContext";
 
 interface UserPanelProps {
   user: z.infer<typeof userSchema>;
   settings?: boolean;
 }
 
+const accountTierLabels = {
+  FREE: "Free",
+  TRIAL: "Trial",
+  PRO: "Pro",
+  ENTERPRISE: "Enterprise",
+} as const;
+
 const UserPanel = ({ user, settings = false }: UserPanelProps) => {
-  const { setShowSettingsModal } = useContext(SettingsContext);
+  const { togglePopup } = useContext(PopupContext);
   const [imageFailed, setImageFailed] = useState(false);
 
   useEffect(() => {
@@ -24,8 +31,8 @@ const UserPanel = ({ user, settings = false }: UserPanelProps) => {
 
   return (
     <>
-      <div className="mb-1 flex items-center w-full justify-between gap-2 /pl-2 /pr-2">
-        <div className="flex gap-2 items-center">
+      <div className="mb-1 flex min-w-0 items-center w-full justify-between gap-2 /pl-2 /pr-2">
+        <div className="flex min-w-0 flex-1 gap-2 items-center">
           {user.profilePicture && !imageFailed ? (
             <img
               src={user.profilePicture}
@@ -40,17 +47,26 @@ const UserPanel = ({ user, settings = false }: UserPanelProps) => {
               {user.lastName?.[0] ? user.lastName[0] : ""}
             </div>
           )}
-          <p className="text-sm truncate">
-            {user.firstName} {user.lastName}
-          </p>
+          <div className="flex min-w-0 flex-1 flex-col">
+            <p className="text-sm truncate">
+              {user.firstName} {user.lastName}
+            </p>
+            <p className="text-xs text-gray-500 truncate">
+              Tier: {accountTierLabels[user.accountTier]}
+            </p>
+          </div>
         </div>
         {settings && (
-          <div
-            onClick={() => setShowSettingsModal(true)}
+          <button
+            type="button"
+            aria-label="Open settings"
+            onClick={(e) => {
+              togglePopup("settings", e.currentTarget);
+            }}
             className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100"
           >
             <Settings className="w-5 h-5 text-black" />
-          </div>
+          </button>
         )}
       </div>
     </>

@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import AppLayout from "#/components/layouts/AppLayout";
 import LeftPanelLayout from "#/components/layouts/LeftPanelLayout";
 import SelectCaseMenu from "#/components/menus/SelectCaseMenu";
-import UserPanel from "#/components/menus/UserPanel";
+import UserPanel from "#/components/UserPanel";
 import Workspace from "#/components/Workspace";
 import LoadingSpinner from "#/components/LoadingSpinner";
 
@@ -51,9 +51,7 @@ function App() {
     <AppLayout>
       <LeftPanelLayout>
         <UserPanel user={user!} settings={true} />
-        <div className="text-xs">
-          <p className="truncate">Select Workspace</p>
-        </div>
+        <p className="truncate text-xs">Select Workspace</p>
         <div className="text-xs flex gap-1.5 mb-0.5 items-center">
           <select
             className="rounded-lg px-2 py-2.5 /mx-2 text-xs bg-gray-100 border border-black/15"

@@ -1,12 +1,14 @@
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import SettingsModal from "#/components/SettingsModal";
+import SettingsPopup from "#/components/popups/SettingsPopup";
+import AppModal from "#/components/AppModal";
 
 // context
-import { SettingsContext } from "#/context/SettingsContext";
+import { PopupContext, type PopupId } from "#/context/PopupContext";
+import { AppModalContext, type Modal } from "#/context/AppModalContext";
 
 import appCss from "../styles.css?url";
 
@@ -44,7 +46,48 @@ const queryClient = new QueryClient({
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [modal, setModal] = useState<Modal>(null);
+  const [popupState, setPopupState] = useState<{
+    activePopup: PopupId | null;
+    referenceElement: HTMLElement | null;
+  }>({
+    activePopup: null,
+    referenceElement: null,
+  });
+
+  const openPopup = useCallback((popupId: PopupId, element: HTMLElement) => {
+    setPopupState({
+      activePopup: popupId,
+      referenceElement: element,
+    });
+  }, []);
+
+  const closePopup = useCallback(() => {
+    setPopupState({
+      activePopup: null,
+      referenceElement: null,
+    });
+  }, []);
+
+  const togglePopup = useCallback((popupId: PopupId, element: HTMLElement) => {
+    setPopupState((currentState) => {
+      const shouldClose =
+        currentState.activePopup === popupId &&
+        currentState.referenceElement === element;
+
+      if (shouldClose) {
+        return {
+          activePopup: null,
+          referenceElement: null,
+        };
+      }
+
+      return {
+        activePopup: popupId,
+        referenceElement: element,
+      };
+    });
+  }, []);
 
   return (
     <html
@@ -57,26 +100,35 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <QueryClientProvider client={queryClient}>
-        <SettingsContext.Provider
-          value={{ showSettingsModal, setShowSettingsModal }}
-        >
-          <body className="bg-gray-100 font-geist antialiased mx-auto h-dvh text-black text-sm /overflow-y-scroll">
-            <SettingsModal />
-            {children}
-            <TanStackDevtools
-              config={{
-                position: "bottom-right",
-              }}
-              plugins={[
-                {
-                  name: "Tanstack Router",
-                  render: <TanStackRouterDevtoolsPanel />,
-                },
-              ]}
-            />
-            <Scripts />
-          </body>
-        </SettingsContext.Provider>
+        <AppModalContext.Provider value={{ modal, setModal }}>
+          <PopupContext.Provider
+            value={{
+              activePopup: popupState.activePopup,
+              referenceElement: popupState.referenceElement,
+              openPopup,
+              togglePopup,
+              closePopup,
+            }}
+          >
+            <body className="bg-gray-100 font-geist antialiased mx-auto h-dvh text-black text-sm /overflow-y-scroll">
+              <SettingsPopup />
+              <AppModal />
+              {children}
+              <TanStackDevtools
+                config={{
+                  position: "bottom-right",
+                }}
+                plugins={[
+                  {
+                    name: "Tanstack Router",
+                    render: <TanStackRouterDevtoolsPanel />,
+                  },
+                ]}
+              />
+              <Scripts />
+            </body>
+          </PopupContext.Provider>
+        </AppModalContext.Provider>
       </QueryClientProvider>
     </html>
   );

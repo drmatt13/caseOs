@@ -17,7 +17,7 @@ import {
 } from "#/components/layouts/new_case/caseIntakeForm";
 import WorkPanelLayout from "#/components/layouts/WorkPanelLayout";
 import CreateCaseMenu from "#/components/menus/CreateCaseMenu";
-import UserPanel from "#/components/menus/UserPanel";
+import UserPanel from "#/components/UserPanel";
 import Button from "#/components/Button";
 
 import type { CaseIntake } from "#/types/caseWorkspace";

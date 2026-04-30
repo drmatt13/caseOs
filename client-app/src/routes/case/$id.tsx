@@ -8,7 +8,7 @@ import WorkspaceMenu from "#/components/menus/WorkspaceMenu";
 import { ArrowLeft } from "lucide-react";
 
 import LeftPanelLayout from "#/components/layouts/LeftPanelLayout";
-import UserPanel from "#/components/menus/UserPanel";
+import UserPanel from "#/components/UserPanel";
 import LoadingSpinner from "#/components/LoadingSpinner";
 
 // route guards

@@ -6,7 +6,7 @@ import {
   Mail,
   UserPlus,
 } from "lucide-react";
-import UserPanel from "./menus/UserPanel";
+import UserPanel from "./UserPanel";
 
 import { userSchema } from "@repo/database/table.schemas";
 import z from "zod";
