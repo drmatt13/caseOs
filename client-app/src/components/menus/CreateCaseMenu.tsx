@@ -56,7 +56,7 @@ const CreateCaseMenu = ({
         <p className="truncate">Create New Case</p>
       </div>
       <div
-        className={`p-2 rounded-lg flex items-center gap-[.7rem] font-serif text-[.8rem] ${caseIntakeState.step < 1 ? "cursor-not-allowed opacity-25" : caseIntakeState.step <= 1 ? "bg-gray-300/60 cursor-pointer" : "hover:bg-gray-300/60 cursor-pointer"}`}
+        className={`p-2 rounded-lg flex items-center gap-[.7rem] font-serif text-[.8rem] ${caseIntakeState.step < 1 ? "cursor-not-allowed opacity-25" : caseIntakeState.step <= 1 ? "bg-black/10 cursor-pointer" : "hover:bg-black/10 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100"}`}
         onClick={() => {
           if (caseIntakeState.step >= 1) {
             setCaseIntakeState((prev) => ({ ...prev, step: 1 }));
@@ -64,12 +64,12 @@ const CreateCaseMenu = ({
         }}
       >
         <div
-          className={`rounded-full p-2 ${caseIntakeState.step <= 1 ? "bg-black" : "bg-green-600/60"}`}
+          className={`rounded-full p-2 ${caseIntakeState.step <= 1 ? "bg-black text-white" : "bg-green-600/60 text-black"} transition-colors ease-in duration-150`}
         >
           {caseIntakeState.step <= 1 ? (
-            <Briefcase className="w-4 h-4 text-white" />
+            <Briefcase className="w-4 h-4" />
           ) : (
-            <CheckSquare className="w-4 h-4 text-black" />
+            <CheckSquare className="w-4 h-4" />
           )}
         </div>
         <div className="flex flex-col">
@@ -78,7 +78,7 @@ const CreateCaseMenu = ({
         </div>
       </div>
       <div
-        className={`p-2 rounded-lg flex items-center gap-[.7rem] font-serif text-[.8rem] ${caseIntakeState.step < 2 ? "cursor-not-allowed opacity-25" : caseIntakeState.step <= 2 ? "bg-gray-300/60 cursor-pointer" : "hover:bg-gray-300/60 cursor-pointer"} `}
+        className={`p-2 rounded-lg flex items-center gap-[.7rem] font-serif text-[.8rem] ${caseIntakeState.step < 2 ? "cursor-not-allowed opacity-25" : caseIntakeState.step <= 2 ? "bg-black/10 cursor-pointer" : "hover:bg-black/10 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100"} `}
         onClick={() => {
           if (caseIntakeState.step >= 2) {
             setCaseIntakeState((prev) => ({ ...prev, step: 2 }));
@@ -86,12 +86,12 @@ const CreateCaseMenu = ({
         }}
       >
         <div
-          className={`rounded-full p-2 ${caseIntakeState.step <= 2 ? "bg-black" : "bg-green-600/60"}`}
+          className={`rounded-full p-2 ${caseIntakeState.step <= 2 ? "bg-black text-white" : "bg-green-600/60 text-black"} transition-colors ease-in duration-150`}
         >
           {caseIntakeState.step <= 2 ? (
-            <Scale className="w-4 h-4 text-white" />
+            <Scale className="w-4 h-4" />
           ) : (
-            <CheckSquare className="w-4 h-4 text-black" />
+            <CheckSquare className="w-4 h-4" />
           )}
         </div>
         <div className="flex flex-col">
@@ -100,7 +100,7 @@ const CreateCaseMenu = ({
         </div>
       </div>
       <div
-        className={`p-2 rounded-lg flex items-center gap-[.7rem] font-serif text-[.8rem] ${caseIntakeState.step < 3 ? "cursor-not-allowed opacity-25" : caseIntakeState.step <= 3 ? "bg-gray-300/60 cursor-pointer" : "hover:bg-gray-300/60 cursor-pointer"} `}
+        className={`p-2 rounded-lg flex items-center gap-[.7rem] font-serif text-[.8rem] ${caseIntakeState.step < 3 ? "cursor-not-allowed opacity-25" : caseIntakeState.step <= 3 ? "bg-black/10 cursor-pointer" : "hover:bg-black/10 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100"} `}
         onClick={() => {
           if (caseIntakeState.step >= 3) {
             setCaseIntakeState((prev) => ({ ...prev, step: 3 }));
@@ -108,12 +108,12 @@ const CreateCaseMenu = ({
         }}
       >
         <div
-          className={`rounded-full p-2 ${caseIntakeState.step <= 3 ? "bg-black" : "bg-green-600/60"}`}
+          className={`rounded-full p-2 ${caseIntakeState.step <= 3 ? "bg-black text-white" : "bg-green-600/60 text-black"} transition-colors ease-in duration-150`}
         >
           {caseIntakeState.step <= 3 ? (
-            <Clock className="w-4 h-4 text-white" />
+            <Clock className="w-4 h-4" />
           ) : (
-            <CheckSquare className="w-4 h-4 text-black" />
+            <CheckSquare className="w-4 h-4" />
           )}
         </div>
         <div className="flex flex-col">
@@ -122,7 +122,7 @@ const CreateCaseMenu = ({
         </div>
       </div>
       <div
-        className={`p-2 rounded-lg flex items-center gap-[.7rem] font-serif text-[.8rem] ${caseIntakeState.step < 4 ? "cursor-not-allowed opacity-25" : caseIntakeState.step <= 4 ? "bg-gray-300/60 cursor-pointer" : "hover:bg-gray-300/60 cursor-pointer"} `}
+        className={`p-2 rounded-lg flex items-center gap-[.7rem] font-serif text-[.8rem] ${caseIntakeState.step < 4 ? "cursor-not-allowed opacity-25" : caseIntakeState.step <= 4 ? "bg-black/10 cursor-pointer" : "hover:bg-black/10 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100"} `}
         onClick={() => {
           if (caseIntakeState.step >= 4) {
             setCaseIntakeState((prev) => ({ ...prev, step: 4 }));
@@ -130,12 +130,12 @@ const CreateCaseMenu = ({
         }}
       >
         <div
-          className={`rounded-full p-2 ${caseIntakeState.step <= 4 ? "bg-black" : "bg-green-600/60"}`}
+          className={`rounded-full p-2 ${caseIntakeState.step <= 4 ? "bg-black text-white" : "bg-green-600/60 text-black"} transition-colors ease-in duration-150`}
         >
           {caseIntakeState.step <= 4 ? (
-            <Target className="w-4 h-4 text-white" />
+            <Target className="w-4 h-4" />
           ) : (
-            <CheckSquare className="w-4 h-4 text-black" />
+            <CheckSquare className="w-4 h-4" />
           )}
         </div>
         <div className="flex flex-col">
@@ -144,7 +144,7 @@ const CreateCaseMenu = ({
         </div>
       </div>
       <div
-        className={`p-2 rounded-lg flex items-center gap-[.7rem] font-serif text-[.8rem] ${caseIntakeState.step < 5 ? "cursor-not-allowed opacity-25" : caseIntakeState.step <= 5 ? "bg-gray-300/60 cursor-pointer" : "hover:bg-gray-300/60 cursor-pointer"} `}
+        className={`p-2 rounded-lg flex items-center gap-[.7rem] font-serif text-[.8rem] ${caseIntakeState.step < 5 ? "cursor-not-allowed opacity-25" : caseIntakeState.step <= 5 ? "bg-black/10 cursor-pointer" : "hover:bg-black/10 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100"} `}
         onClick={() => {
           if (caseIntakeState.step >= 5) {
             setCaseIntakeState((prev) => ({ ...prev, step: 5 }));
@@ -152,12 +152,12 @@ const CreateCaseMenu = ({
         }}
       >
         <div
-          className={`rounded-full p-2 ${caseIntakeState.step <= 5 ? "bg-black" : "bg-green-600/60"}`}
+          className={`rounded-full p-2 ${caseIntakeState.step <= 5 ? "bg-black text-white" : "bg-green-600/60 text-black"} transition-colors ease-in duration-150`}
         >
           {caseIntakeState.step <= 5 ? (
-            <Users className="w-4 h-4 text-white" />
+            <Users className="w-4 h-4" />
           ) : (
-            <CheckSquare className="w-4 h-4 text-black" />
+            <CheckSquare className="w-4 h-4" />
           )}
         </div>
         <div className="flex flex-col">
@@ -166,7 +166,7 @@ const CreateCaseMenu = ({
         </div>
       </div>
       <div
-        className={`p-2 rounded-lg flex items-center gap-[.7rem] font-serif text-[.8rem] ${caseIntakeState.step < 6 ? "cursor-not-allowed opacity-25" : caseIntakeState.step <= 6 ? "bg-gray-300/60 cursor-pointer" : "hover:bg-gray-300/60 cursor-pointer"} `}
+        className={`p-2 rounded-lg flex items-center gap-[.7rem] font-serif text-[.8rem] ${caseIntakeState.step < 6 ? "cursor-not-allowed opacity-25" : caseIntakeState.step <= 6 ? "bg-black/10 cursor-pointer" : "hover:bg-black/10 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100"} `}
         onClick={() => {
           if (caseIntakeState.step >= 6) {
             setCaseIntakeState((prev) => ({ ...prev, step: 6 }));
@@ -174,12 +174,12 @@ const CreateCaseMenu = ({
         }}
       >
         <div
-          className={`rounded-full p-2 ${caseIntakeState.step <= 6 ? "bg-black" : "bg-green-600/60"}`}
+          className={`rounded-full p-2 ${caseIntakeState.step <= 6 ? "bg-black text-white" : "bg-green-600/60 text-black"} transition-colors ease-in duration-150`}
         >
           {caseIntakeState.step <= 6 ? (
-            <FileTextIcon className="w-4 h-4 text-white" />
+            <FileTextIcon className="w-4 h-4" />
           ) : (
-            <CheckSquare className="w-4 h-4 text-black" />
+            <CheckSquare className="w-4 h-4" />
           )}
         </div>
         <div className="flex flex-col">

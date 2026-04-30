@@ -73,7 +73,7 @@ export default function ThemeToggle() {
       onClick={toggleMode}
       aria-label={label}
       title={label}
-      className="px-2 py-1 rounded bg-black/10 hover:bg-black/20 focus:outline-none focus:ring-2 focus:ring-gray-400 cursor-pointer"
+      className="px-2 py-1 rounded bg-black/10 hover:bg-black/10 focus:outline-none focus:ring-2 focus:ring-gray-400 cursor-pointer"
     >
       {mode === "auto" ? "Auto" : mode === "dark" ? "Dark" : "Light"}
     </button>

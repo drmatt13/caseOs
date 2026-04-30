@@ -9,6 +9,7 @@ import { EcsServicesStack } from "../lib/ecs-services-stack";
 import { RdsStack } from "../lib/rds-stack";
 import { WebSocketApiStack } from "../lib/websocket-api-stack";
 import { WebSocketLambdaFunctionsStack } from "../lib/websocket-lambda-functions-stack";
+import { PromoCodesStack } from "../lib/promo-codes-stack";
 
 // Context Flags (with defaults)
 //
@@ -120,6 +121,10 @@ const googleClientId = googleClientIdContext
 const googleClientSecret = googleClientSecretContext
   ? cdk.SecretValue.unsafePlainText(String(googleClientSecretContext))
   : undefined;
+
+new PromoCodesStack(app, "PromoCodesStack", {
+  env: stackEnv,
+});
 
 // Created only in local mode (useLocalImplementations=true).
 const devLambdaReplayStack = useLocalImplementations

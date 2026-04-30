@@ -53,8 +53,8 @@ const WorkspaceMenu = () => {
       {viewMenuItems.map(({ value, label, icon: Icon }) => (
         <div
           key={value}
-          className={`p-2 rounded-lg flex items-center gap-2 cursor-pointer ${
-            workSpace === value ? "bg-gray-300/60" : "hover:bg-gray-300/60"
+          className={`p-2 rounded-lg flex items-center gap-2 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100 ${
+            workSpace === value ? "bg-black/10" : "hover:bg-black/10"
           }`}
           onClick={() => setWorkSpace(value)}
         >

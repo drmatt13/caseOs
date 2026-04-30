@@ -15,8 +15,7 @@ export const lambdaHandler = async (
       !process.env.DEV_LAMBDA_REPLAY_BUCKET_NAME ||
       !process.env.DEV_LAMBDA_REPLAY_QUEUE_URL
     ) {
-      const message =
-        "Missing required replay configuration. Set DEV_LAMBDA_REPLAY_BUCKET_NAME and DEV_LAMBDA_REPLAY_QUEUE_URL before invoking the Cognito post-confirmation trigger with USE_LOCAL_IMPLEMENTATIONS=true.";
+      const message = `Missing required replay configuration. Set DEV_LAMBDA_REPLAY_BUCKET_NAME and DEV_LAMBDA_REPLAY_QUEUE_URL before invoking the Cognito post-confirmation trigger with USE_LOCAL_IMPLEMENTATIONS=true.`;
       console.error(message);
       throw new Error(message);
     }

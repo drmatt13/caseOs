@@ -58,7 +58,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <SettingsContext.Provider
           value={{ showSettingsModal, setShowSettingsModal }}
         >
-          <body className="bg-gray-100 font-geist antialiased mx-auto h-dvh text-black text-sm">
+          <body className="bg-gray-100 font-geist antialiased mx-auto h-dvh text-black text-sm /overflow-y-scroll">
             <SettingsModal />
             {children}
             <TanStackDevtools

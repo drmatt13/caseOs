@@ -58,7 +58,7 @@ function RouteComponent() {
         <UserPanel user={user!} settings={true} />
         <div className="text-xs flex gap-1.5 items-center">
           <Link to="/">
-            <div className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer">
+            <div className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
               <ArrowLeft className="w-3 h-3" />
             </div>
           </Link>

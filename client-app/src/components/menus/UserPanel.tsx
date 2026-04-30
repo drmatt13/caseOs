@@ -47,7 +47,7 @@ const UserPanel = ({ user, settings = false }: UserPanelProps) => {
         {settings && (
           <div
             onClick={() => setShowSettingsModal(true)}
-            className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer"
+            className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100"
           >
             <Settings className="w-5 h-5 text-black" />
           </div>

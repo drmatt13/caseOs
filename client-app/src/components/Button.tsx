@@ -29,7 +29,7 @@ const Button = ({
   const variantClassName =
     style === "primary"
       ? "border-transparent bg-[#282828] text-white"
-      : "border-black/10 bg-gray-300/60 text-black/75 shadow-sm";
+      : "border-black/10 bg-black/10 text-black/75 shadow-sm";
   const stateClassName = disabled
     ? "border-transparent bg-gray-300 text-gray-600 cursor-not-allowed"
     : suppressHover

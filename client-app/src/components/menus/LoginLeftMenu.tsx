@@ -12,19 +12,19 @@ const LoginLeftMenu = () => {
         </p>
       </div>
       <div className="w-full /bg-black/10 grid grid-cols-2 gap-4">
-        <div className="w-full h-36 p-4 bg-neutral-300 border border-neutral-400 shadow-md rounded-2xl">
+        <div className="w-full h-36 p-4 border rounded-2xl bg-white/40 backdrop-blur-sm border-mist-400/50 shadow-md">
           <div className="flex flex-col">
             <div className="text-[1rem]">header</div>
             <div>content</div>
           </div>
         </div>
-        <div className="w-full h-36 p-4 bg-neutral-300 border border-neutral-400 shadow-md rounded-2xl">
+        <div className="w-full h-36 p-4 border rounded-2xl bg-white/40 backdrop-blur-sm border-mist-400/50 shadow-md">
           <div className="flex flex-col">
             <div className="text-[1rem]">header</div>
             <div>content</div>
           </div>
         </div>
-        <div className="w-full h-36 p-4 bg-neutral-300 border border-neutral-400 shadow-md rounded-2xl col-span-2">
+        <div className="w-full h-36 p-4 border rounded-2xl bg-white/40 backdrop-blur-sm border-mist-400/50 shadow-md col-span-2">
           <div className="flex flex-col">
             <div className="text-[1rem]">header</div>
             <div>content</div>

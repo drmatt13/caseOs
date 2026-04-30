@@ -228,7 +228,7 @@ function RouteComponent() {
       <WorkPanelLayout>
         <div className="flex flex-col gap-6">
           {renderStep()}
-          <div className="flex items-end justify-between gap-3 rounded-2xl /border /border-black/10 /bg-white/70 /p-4">
+          <div className="flex items-end justify-between gap-3 rounded-2xl">
             <p className="text-sm text-black/55">
               {caseIntakeState.step !== CASE_INTAKE_TOTAL_STEPS &&
                 `Step ${caseIntakeState.step} of ${CASE_INTAKE_TOTAL_STEPS - 1}`}

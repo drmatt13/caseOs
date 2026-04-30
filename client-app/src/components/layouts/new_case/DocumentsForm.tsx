@@ -83,7 +83,7 @@ const DocumentsForm = ({
         className="rounded-2xl border-2 border-dashed p-5 text-xs flex flex-col items-center justify-center gap-0.5 text-center py-12 cursor-pointer group border-black/15 hover:border-black/40 hover:bg-gray-300/20 transition-colors"
         onClick={openFilePicker}
       >
-        <div className="rounded-full aspect-square p-4 flex justify-center items-center mb-2.5 bg-gray-300/60 group-hover:bg-gray-300 transition-colors">
+        <div className="rounded-full aspect-square p-4 flex justify-center items-center mb-2.5 bg-black/10 group-hover:bg-gray-300 transition-colors">
           <Upload className="w-5 h-5 text-gray-500" />
         </div>
 
@@ -103,7 +103,7 @@ const DocumentsForm = ({
             className="border border-black/15 w-full flex justify-between items-center rounded-lg p-3"
           >
             <div className="flex gap-2.5">
-              <div className="rounded-lg aspect-square p-2 flex justify-center items-center bg-gray-300/60">
+              <div className="rounded-lg aspect-square p-2 flex justify-center items-center bg-black/10">
                 <FileText className="w-4 h-4 text-gray-700" />
               </div>
               <div className="flex flex-col items-start justify-start">

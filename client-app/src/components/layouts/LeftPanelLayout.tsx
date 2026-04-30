@@ -13,9 +13,10 @@ const LeftPanelLayout = ({ children }: LeftPanelLayoutProps) => {
           AI-Powered Case Intelligence Workspace
         </p>
       </div>
-      <div className="sticky top-4 h-max max-h-[calc(100dvh-12.60rem)] rounded-2xl border border-black/15 shadow-md overflow-hidden">
+      {/* border rounded-2xl bg-white/40 backdrop-blur-sm border-mist-400/50 shadow-md */}
+      <div className="sticky top-4 h-max max-h-[calc(100dvh-12.60rem)] rounded-2xl border border-mist-400/50 shadow-md overflow-hidden">
         <div className="overflow-y-auto max-h-[inherit]">
-          <div className="font-serif text-xs bg-white pt-6 pb-4 px-4 flex flex-col gap-2">
+          <div className="font-serif text-xs bg-white/40 backdrop-blur-sm pt-6 pb-4 px-4 flex flex-col gap-2">
             {children}
           </div>
         </div>
