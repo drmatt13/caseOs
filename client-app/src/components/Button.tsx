@@ -1,6 +1,6 @@
 // import React from 'react'
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface ButtonProps {
   style?: "primary" | "secondary";
@@ -8,11 +8,20 @@ interface ButtonProps {
   onClick?: () => void;
   disabled?: boolean;
   rainbow?: boolean;
-  icon?: "sparkles";
+  icon?: "reset" | "save" | "sparkles" | "upload";
   submit?: boolean;
+  fullWidth?: boolean;
+  initiallyDisabled?: boolean;
 }
 
-import { Sparkles } from "lucide-react";
+import { ImageUp, RotateCcw, Save, Sparkles } from "lucide-react";
+
+const buttonIcons = {
+  reset: RotateCcw,
+  save: Save,
+  sparkles: Sparkles,
+  upload: ImageUp,
+} as const;
 
 const Button = ({
   style = "primary",
@@ -22,16 +31,28 @@ const Button = ({
   rainbow = false,
   icon = undefined,
   submit = false,
+  fullWidth = false,
+  initiallyDisabled = false,
 }: ButtonProps) => {
   const [suppressHover, setSuppressHover] = useState(false);
-  const isRainbowPrimary = rainbow && style === "primary" && !disabled;
-  const baseClassName = `${icon ? "pl-3.5 pr-4" : "px-4"} relative isolate inline-flex items-center justify-center py-2 rounded border transition-colors overflow-visible`;
+  const [initialDisabled, setInitialDisabled] = useState(initiallyDisabled);
+  const isDisabled = disabled || initialDisabled;
+  const isRainbowPrimary = rainbow && style === "primary" && !isDisabled;
+  const Icon = icon ? buttonIcons[icon] : null;
+
+  useEffect(() => {
+    if (initialDisabled) {
+      setInitialDisabled(false);
+    }
+  }, [initialDisabled]);
+
+  const baseClassName = `${fullWidth ? "w-full" : ""} ${icon ? "pl-3.5 pr-4" : "px-4"} relative isolate inline-flex items-center justify-center py-2 rounded border transition-colors ease-in duration-150 hover:ease-out hover:duration-100 overflow-visible`;
   const variantClassName =
     style === "primary"
       ? "border-transparent bg-[#282828] text-white"
       : "border-black/10 bg-black/10 text-black/75 shadow-sm";
-  const stateClassName = disabled
-    ? "border-transparent bg-gray-300 text-gray-600 cursor-not-allowed"
+  const stateClassName = isDisabled
+    ? "border-transparent bg-gray-300 !text-gray-400 cursor-not-allowed"
     : suppressHover
       ? "cursor-pointer"
       : style === "primary"
@@ -57,7 +78,7 @@ const Button = ({
         onClick();
       }}
       onMouseLeave={() => setSuppressHover(false)}
-      disabled={disabled}
+      disabled={isDisabled}
       type={submit ? "submit" : "button"}
     >
       <span
@@ -67,7 +88,7 @@ const Button = ({
             : "relative z-0 inline-flex items-center gap-2"
         }
       >
-        {icon === "sparkles" && <Sparkles className="h-4 w-4" />}
+        {Icon && <Icon className="h-4 w-4" />}
         {text}
       </span>
     </button>

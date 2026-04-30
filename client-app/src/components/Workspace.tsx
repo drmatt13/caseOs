@@ -53,7 +53,8 @@ const Workspace = () => {
             <UserPanel
               user={
                 {
-                  firstName: "John",
+                  displayName: "caseos-user",
+                  firstName: "Jane",
                   lastName: "Doe",
                 } as z.infer<typeof userSchema>
               }
@@ -66,7 +67,8 @@ const Workspace = () => {
             <UserPanel
               user={
                 {
-                  firstName: "John",
+                  displayName: "caseos-user",
+                  firstName: "Jane",
                   lastName: "Doe",
                 } as z.infer<typeof userSchema>
               }
@@ -76,7 +78,8 @@ const Workspace = () => {
             <UserPanel
               user={
                 {
-                  firstName: "John",
+                  displayName: "caseos-user",
+                  firstName: "Jane",
                   lastName: "Doe",
                 } as z.infer<typeof userSchema>
               }
@@ -86,7 +89,8 @@ const Workspace = () => {
             <UserPanel
               user={
                 {
-                  firstName: "John",
+                  displayName: "caseos-user",
+                  firstName: "Jane",
                   lastName: "Doe",
                 } as z.infer<typeof userSchema>
               }
@@ -96,7 +100,8 @@ const Workspace = () => {
             <UserPanel
               user={
                 {
-                  firstName: "John",
+                  displayName: "caseos-user",
+                  firstName: "Jane",
                   lastName: "Doe",
                 } as z.infer<typeof userSchema>
               }

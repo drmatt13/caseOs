@@ -50,7 +50,7 @@ function App() {
   return (
     <AppLayout>
       <LeftPanelLayout>
-        <UserPanel user={user!} settings={true} />
+        <UserPanel user={user!} settings={true} showTier={true} />
         <p className="truncate text-xs">Select Workspace</p>
         <div className="text-xs flex gap-1.5 mb-0.5 items-center">
           <select

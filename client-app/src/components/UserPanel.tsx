@@ -10,6 +10,7 @@ import { PopupContext } from "#/context/PopupContext";
 interface UserPanelProps {
   user: z.infer<typeof userSchema>;
   settings?: boolean;
+  showTier?: boolean;
 }
 
 const accountTierLabels = {
@@ -19,7 +20,11 @@ const accountTierLabels = {
   ENTERPRISE: "Enterprise",
 } as const;
 
-const UserPanel = ({ user, settings = false }: UserPanelProps) => {
+const UserPanel = ({
+  user,
+  settings = false,
+  showTier = false,
+}: UserPanelProps) => {
   const { togglePopup } = useContext(PopupContext);
   const [imageFailed, setImageFailed] = useState(false);
 
@@ -36,7 +41,7 @@ const UserPanel = ({ user, settings = false }: UserPanelProps) => {
           {user.profilePicture && !imageFailed ? (
             <img
               src={user.profilePicture}
-              alt={`${user.firstName} ${user.lastName}`}
+              alt={`${user.displayName}`}
               referrerPolicy="no-referrer"
               onError={() => setImageFailed(true)}
               className="h-10 w-10 shrink-0 rounded-full object-cover"
@@ -49,11 +54,15 @@ const UserPanel = ({ user, settings = false }: UserPanelProps) => {
           )}
           <div className="flex min-w-0 flex-1 flex-col">
             <p className="text-sm truncate">
-              {user.firstName} {user.lastName}
+              {user.displayName
+                ? user.displayName
+                : `${user.firstName} ${user.lastName}`.trim()}
             </p>
-            <p className="text-xs text-gray-500 truncate">
-              Tier: {accountTierLabels[user.accountTier]}
-            </p>
+            {showTier && (
+              <p className="text-xs text-gray-500 truncate">
+                Tier: {accountTierLabels[user.accountTier]}
+              </p>
+            )}
           </div>
         </div>
         {settings && (

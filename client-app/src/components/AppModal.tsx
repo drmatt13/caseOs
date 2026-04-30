@@ -43,7 +43,7 @@ const SettingsModal = () => {
       />
 
       <div
-        className={`top-24 h-max w-lg max-w-full text-sm relative z-20 px-4 py-3 border rounded-xl bg-white/90 backdrop-blur-sm border-black/15 shadow-md transition-all p-2 flex flex-col gap-2 items-start ${
+        className={`top-24 h-max /w-lg max-w-full text-sm relative z-20 px-4 py-3 border rounded-xl bg-white/90 backdrop-blur-sm border-black/15 shadow-md transition-all p-2 flex flex-col gap-2 items-start ${
           modal
             ? "duration-100 ease-out scale-100 opacity-100 translate-0"
             : "duration-150 ease-in scale-95 opacity-0 translate-y-8"
