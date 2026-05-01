@@ -7,9 +7,9 @@ import {
   useContext,
 } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { UserRound, XIcon } from "lucide-react";
 import Button from "#/components/Button";
-import { fetchWithAuthRefresh } from "#/lib/auth";
 
 // context
 import { AppModalContext } from "#/context/AppModalContext";
@@ -18,10 +18,72 @@ import { AppModalContext } from "#/context/AppModalContext";
 import { getUser } from "#/api/getUser";
 import { getS3Permissions } from "#/api/getS3Permissions";
 
+const PROFILE_PICTURE_SIZE = 200;
+const PROFILE_PICTURE_CONTENT_TYPE = "image/jpeg";
+
+function getAwsRegion(): string {
+  const region = String(import.meta.env.VITE_AWS_REGION ?? "");
+
+  if (!region) {
+    throw new Error("Missing VITE_AWS_REGION");
+  }
+
+  return region;
+}
+
+async function createProfilePictureJpeg(file: File): Promise<Blob> {
+  const image = await createImageBitmap(file);
+  const cropSize = Math.min(image.width, image.height);
+  const sourceX = (image.width - cropSize) / 2;
+  const sourceY = (image.height - cropSize) / 2;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = PROFILE_PICTURE_SIZE;
+  canvas.height = PROFILE_PICTURE_SIZE;
+
+  const context = canvas.getContext("2d");
+
+  if (!context) {
+    throw new Error("Could not prepare profile picture upload.");
+  }
+
+  context.drawImage(
+    image,
+    sourceX,
+    sourceY,
+    cropSize,
+    cropSize,
+    0,
+    0,
+    PROFILE_PICTURE_SIZE,
+    PROFILE_PICTURE_SIZE,
+  );
+
+  image.close();
+
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) {
+          reject(new Error("Could not convert profile picture to JPEG."));
+          return;
+        }
+
+        resolve(blob);
+      },
+      PROFILE_PICTURE_CONTENT_TYPE,
+      0.9,
+    );
+  });
+}
+
 const EditUserModal = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imageFailed, setImageFailed] = useState(false);
   const [localProfilePicture, setLocalProfilePicture] = useState<string | null>(
+    null,
+  );
+  const [profilePictureFile, setProfilePictureFile] = useState<File | null>(
     null,
   );
   const [firstName, setFirstName] = useState("");
@@ -65,6 +127,7 @@ const EditUserModal = () => {
     setDisplayName(user.displayName ?? "");
     setProfilePictureUrl(user.profilePicture ?? "");
     setLocalProfilePicture(null);
+    setProfilePictureFile(null);
     setImageFailed(false);
     clearFileInput();
   }, [user, clearFileInput]);
@@ -90,7 +153,7 @@ const EditUserModal = () => {
       lastName !== (user.lastName ?? "") ||
       displayName !== (user.displayName ?? "") ||
       profilePictureUrl !== (user.profilePicture ?? "") ||
-      !!localProfilePicture);
+      !!profilePictureFile);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -101,6 +164,7 @@ const EditUserModal = () => {
     }
 
     setLocalProfilePicture(URL.createObjectURL(file));
+    setProfilePictureFile(file);
     setImageFailed(false);
     event.currentTarget.value = "";
   };
@@ -113,6 +177,7 @@ const EditUserModal = () => {
     setDisplayName(user.displayName ?? "");
     setProfilePictureUrl(user.profilePicture ?? "");
     setLocalProfilePicture(null);
+    setProfilePictureFile(null);
     setImageFailed(false);
     clearFileInput();
   };
@@ -120,20 +185,44 @@ const EditUserModal = () => {
   const updateUser = useCallback(async () => {
     if (!user) return;
     setModalLocked(true);
-    // const res = await fetchWithAuthRefresh("/update-user", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify({
-    //     firstName,
-    //     lastName,
-    //     displayName,
-    //     profilePicture: profilePictureUrl,
-    //   }),
-    // });
-    setModalLocked(false);
-  }, [firstName, lastName, displayName, profilePictureUrl, setModalLocked]);
+
+    try {
+      if (profilePictureFile) {
+        if (!getS3PermissionsResult?.success) {
+          throw new Error("Could not load S3 upload permissions.");
+        }
+
+        const { aws, bucketName } = getS3PermissionsResult.data;
+        const profilePictureBody =
+          await createProfilePictureJpeg(profilePictureFile);
+        const profilePictureKey = `profile-pictures/${user.cognitoSub}.jpg`;
+        const s3Client = new S3Client({
+          region: getAwsRegion(),
+          credentials: {
+            accessKeyId: aws.accessKeyId,
+            secretAccessKey: aws.secretAccessKey,
+            sessionToken: aws.sessionToken,
+          },
+        });
+
+        await s3Client.send(
+          new PutObjectCommand({
+            Bucket: bucketName,
+            Key: profilePictureKey,
+            Body: profilePictureBody,
+            ContentType: PROFILE_PICTURE_CONTENT_TYPE,
+          }),
+        );
+      }
+    } finally {
+      setModalLocked(false);
+    }
+  }, [
+    getS3PermissionsResult,
+    profilePictureFile,
+    setModalLocked,
+    user,
+  ]);
 
   if (getUserPending || getS3PermissionsPending) {
     return (

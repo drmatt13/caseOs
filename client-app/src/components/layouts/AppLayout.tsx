@@ -7,7 +7,7 @@ interface AppLayoutProps {
 const AppLayout = ({ children }: AppLayoutProps) => {
   return (
     <div className="relative isolate min-h-dvh overflow-x-hidden">
-      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-svh overflow-hidden /bg-black">
+      <div className="pointer-events-none /absolute fixed inset-x-0 top-0 -z-10 h-svh overflow-hidden">
         <img
           // src="/3bbac7c2-1835-48be-8a6d-d9788a25e9aa.png"
           src="/2c45b176-a993-4c95-8ee6-01f684898607.png"

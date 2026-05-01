@@ -219,7 +219,7 @@ function RouteComponent() {
   return (
     <AppLayout>
       <LeftPanelLayout>
-        <UserPanel user={user} settings={true} />
+        <UserPanel user={user} settings={true} showTier={true} />
         <CreateCaseMenu
           caseIntakeState={caseIntakeState}
           setCaseIntakeState={setCaseIntakeState}

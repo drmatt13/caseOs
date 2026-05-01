@@ -56,7 +56,7 @@ function RouteComponent() {
   return (
     <AppLayout>
       <LeftPanelLayout>
-        <UserPanel user={user} settings={true} />
+        <UserPanel user={user} settings={true} showTier={true} />
         <div className="text-xs flex gap-1.5 items-center">
           <Link to="/">
             <div className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
