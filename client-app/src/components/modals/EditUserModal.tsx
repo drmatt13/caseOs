@@ -1,17 +1,22 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useContext,
+} from "react";
 import { useQuery } from "@tanstack/react-query";
-import { BadgeCheck, UserRound } from "lucide-react";
-import Button from "../Button";
+import { UserRound, XIcon } from "lucide-react";
+import Button from "#/components/Button";
+import { fetchWithAuthRefresh } from "#/lib/auth";
+
+// context
+import { AppModalContext } from "#/context/AppModalContext";
 
 // query functions
 import { getUser } from "#/api/getUser";
-
-const accountTierLabels = {
-  FREE: "Free",
-  TRIAL: "Trial",
-  PRO: "Pro",
-  ENTERPRISE: "Enterprise",
-} as const;
+import { getS3Permissions } from "#/api/getS3Permissions";
 
 const EditUserModal = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -22,17 +27,30 @@ const EditUserModal = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [displayName, setDisplayName] = useState("");
-  const [userName, setUserName] = useState("");
   const [profilePictureUrl, setProfilePictureUrl] = useState("");
 
+  const { setModal, modalLocked, setModalLocked } = useContext(AppModalContext);
+
   const {
-    data: { user } = {},
-    isPending,
-    error,
+    data: getUserResult,
+    isPending: getUserPending,
+    error: getUserError,
   } = useQuery({
     queryKey: ["user"],
     queryFn: getUser,
   });
+  const user = getUserResult?.success ? getUserResult.data.user : undefined;
+
+  const {
+    data: getS3PermissionsResult,
+    isPending: getS3PermissionsPending,
+    error: getS3PermissionsError,
+  } = useQuery({
+    queryKey: ["s3Permissions"],
+    queryFn: getS3Permissions,
+  });
+
+  console.log("getS3PermissionsResult:", getS3PermissionsResult);
 
   const clearFileInput = useCallback(() => {
     if (fileInputRef.current) {
@@ -42,11 +60,9 @@ const EditUserModal = () => {
 
   useEffect(() => {
     if (!user) return;
-
     setFirstName(user.firstName ?? "");
     setLastName(user.lastName ?? "");
     setDisplayName(user.displayName ?? "");
-    setUserName(user.userName ?? "");
     setProfilePictureUrl(user.profilePicture ?? "");
     setLocalProfilePicture(null);
     setImageFailed(false);
@@ -73,7 +89,6 @@ const EditUserModal = () => {
     (firstName !== (user.firstName ?? "") ||
       lastName !== (user.lastName ?? "") ||
       displayName !== (user.displayName ?? "") ||
-      userName !== (user.userName ?? "") ||
       profilePictureUrl !== (user.profilePicture ?? "") ||
       !!localProfilePicture);
 
@@ -96,14 +111,31 @@ const EditUserModal = () => {
     setFirstName(user.firstName ?? "");
     setLastName(user.lastName ?? "");
     setDisplayName(user.displayName ?? "");
-    setUserName(user.userName ?? "");
     setProfilePictureUrl(user.profilePicture ?? "");
     setLocalProfilePicture(null);
     setImageFailed(false);
     clearFileInput();
   };
 
-  if (isPending) {
+  const updateUser = useCallback(async () => {
+    if (!user) return;
+    setModalLocked(true);
+    // const res = await fetchWithAuthRefresh("/update-user", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({
+    //     firstName,
+    //     lastName,
+    //     displayName,
+    //     profilePicture: profilePictureUrl,
+    //   }),
+    // });
+    setModalLocked(false);
+  }, [firstName, lastName, displayName, profilePictureUrl, setModalLocked]);
+
+  if (getUserPending || getS3PermissionsPending) {
     return (
       <div className="w-lg max-w-[calc(100vw-3rem)] p-2 text-xs">
         <div className="h-4 w-24 rounded bg-black/10" />
@@ -118,7 +150,7 @@ const EditUserModal = () => {
     );
   }
 
-  if (error || !user) {
+  if (getUserError || getS3PermissionsError || !user) {
     return (
       <div className="w-lg max-w-[calc(100vw-3rem)] p-2 text-xs">
         <p className="font-serif text-base">Edit User</p>
@@ -135,10 +167,14 @@ const EditUserModal = () => {
           <p className="mt-0.5 truncate text-gray-600">{user.email}</p>
         </div>
 
-        <div className="flex items-center gap-1 rounded-full border border-black/10 bg-black/5 px-2 py-1 text-[0.7rem]">
-          <BadgeCheck className="h-3.5 w-3.5" />
-          <span>{accountTierLabels[user.accountTier]}</span>
-        </div>
+        <button
+          type="button"
+          aria-label="Close modal"
+          onClick={() => setModal(null)}
+          className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100"
+        >
+          <XIcon className="w-5 h-5 text-black" />
+        </button>
       </div>
 
       <div className="flex gap-4">
@@ -205,41 +241,8 @@ const EditUserModal = () => {
               />
             </div>
           </label>
-          {/* 
-          <label className="col-span-2 flex flex-col gap-1">
-            <span className="text-gray-600">Username</span>
-            <input
-              value={userName}
-              onChange={(event) => setUserName(event.target.value)}
-              placeholder="caseos-user"
-              className="rounded-lg border border-black/15 bg-white/70 px-2 py-2 outline-none transition-colors placeholder:text-gray-400 focus:border-black/40"
-            />
-          </label>
-
-          <label className="col-span-2 flex flex-col gap-1">
-            <span className="text-gray-600">Profile picture URL</span>
-            <input
-              value={profilePictureUrl}
-              onChange={(event) => {
-                setProfilePictureUrl(event.target.value);
-                setLocalProfilePicture(null);
-                setImageFailed(false);
-                clearFileInput();
-              }}
-              placeholder="https://..."
-              className="rounded-lg border border-black/15 bg-white/70 px-2 py-2 outline-none transition-colors placeholder:text-gray-400 focus:border-black/40"
-            />
-          </label> */}
         </div>
       </div>
-      {/* 
-      <div className="mt-4 rounded-xl border border-black/10 bg-black/5 p-3">
-        <div className="flex items-center gap-2 text-gray-700">
-          <Mail className="h-3.5 w-3.5" />
-          <span className="truncate">{user.billingEmail || user.email}</span>
-        </div>
-      </div> */}
-
       <div className="mt-4 flex justify-end gap-2">
         <Button
           text="Reset"
@@ -253,6 +256,7 @@ const EditUserModal = () => {
         <Button
           text="Save"
           icon="save"
+          onClick={updateUser}
           disabled={!hasChanges}
           initiallyDisabled
         />

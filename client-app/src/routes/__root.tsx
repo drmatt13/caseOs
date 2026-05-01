@@ -47,6 +47,7 @@ const queryClient = new QueryClient({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   const [modal, setModal] = useState<Modal>(null);
+  const [modalLocked, setModalLocked] = useState(false);
   const [popupState, setPopupState] = useState<{
     activePopup: PopupId | null;
     referenceElement: HTMLElement | null;
@@ -100,7 +101,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <QueryClientProvider client={queryClient}>
-        <AppModalContext.Provider value={{ modal, setModal }}>
+        <AppModalContext.Provider
+          value={{ modal, setModal, modalLocked, setModalLocked }}
+        >
           <PopupContext.Provider
             value={{
               activePopup: popupState.activePopup,
@@ -110,21 +113,23 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               closePopup,
             }}
           >
-            <body className="bg-gray-100 font-geist antialiased mx-auto h-dvh text-black text-sm /overflow-y-scroll">
+            <body className="bg-gray-100 font-geist antialiased mx-auto h-dvh overflow-hidden text-black text-sm">
               <SettingsPopup />
               <AppModal />
-              {children}
-              <TanStackDevtools
-                config={{
-                  position: "bottom-right",
-                }}
-                plugins={[
-                  {
-                    name: "Tanstack Router",
-                    render: <TanStackRouterDevtoolsPanel />,
-                  },
-                ]}
-              />
+              <div className="h-dvh overflow-y-scroll overflow-x-hidden">
+                {children}
+                <TanStackDevtools
+                  config={{
+                    position: "bottom-right",
+                  }}
+                  plugins={[
+                    {
+                      name: "Tanstack Router",
+                      render: <TanStackRouterDevtoolsPanel />,
+                    },
+                  ]}
+                />
+              </div>
               <Scripts />
             </body>
           </PopupContext.Provider>

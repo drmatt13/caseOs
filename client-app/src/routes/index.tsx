@@ -21,19 +21,20 @@ export const Route = createFileRoute("/")({
 
 function App() {
   const {
-    data: { user } = {},
-    isPending,
-    error,
+    data: getUserResult,
+    isPending: getUserPending,
+    error: getUserError,
   } = useQuery({
     queryKey: ["user"],
     queryFn: getUser,
   });
+  const user = getUserResult?.success ? getUserResult.data.user : undefined;
 
   useEffect(() => {
     console.log("User data:", user);
   }, [user]);
 
-  if (isPending) {
+  if (getUserPending) {
     return (
       <>
         <div className="w-full h-full flex justify-center items-center">
@@ -43,14 +44,14 @@ function App() {
     );
   }
 
-  if (error) {
+  if (getUserError || !user) {
     return <>placeholder for error</>;
   }
 
   return (
     <AppLayout>
       <LeftPanelLayout>
-        <UserPanel user={user!} settings={true} showTier={true} />
+        <UserPanel user={user} settings={true} showTier={true} />
         <p className="truncate text-xs">Select Workspace</p>
         <div className="text-xs flex gap-1.5 mb-0.5 items-center">
           <select

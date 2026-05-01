@@ -17,6 +17,23 @@ const API_URL = import.meta.env.VITE_API_GATEWAY_URL;
 const COGNITO_DOMAIN_URL = import.meta.env.VITE_COGNITO_DOMAIN;
 const USER_POOL_CLIENT_ID = import.meta.env.VITE_USER_POOL_CLIENT_ID;
 
+export const API_ROUTES = [
+  "/get-subscription",
+  "/get-user",
+  "/oauth/callback",
+  "/refresh",
+  "/s3-access-broker",
+  "/sign-in",
+  "/sign-out",
+  "/update-user",
+  "/verify-user",
+] as const;
+
+export type ApiRoute = (typeof API_ROUTES)[number];
+type ApiRouteInput = ApiRoute | `${ApiRoute}?${string}`;
+type AbsoluteUrl = `${"http" | "https"}://${string}`;
+type FetchWithAuthRefreshInput = ApiRouteInput | AbsoluteUrl | URL | Request;
+
 type AuthState = { authenticated: boolean };
 type WebStorage = Pick<Storage, "getItem" | "removeItem" | "setItem">;
 
@@ -113,6 +130,30 @@ function getCognitoDomainUrl(): string {
   return domainUrl;
 }
 
+function getApiUrl(): string {
+  const apiUrl = String(API_URL ?? "").replace(/\/+$/, "");
+
+  if (!apiUrl) {
+    throw new Error("Missing VITE_API_GATEWAY_URL");
+  }
+
+  return apiUrl;
+}
+
+function getApiRequestInput(
+  input: FetchWithAuthRefreshInput,
+): string | URL | Request {
+  if (typeof input !== "string") {
+    return input;
+  }
+
+  if (input.startsWith("http://") || input.startsWith("https://")) {
+    return input;
+  }
+
+  return `${getApiUrl()}${input}`;
+}
+
 function generateOAuthState(): string {
   const bytes = new Uint8Array(16);
   window.crypto.getRandomValues(bytes);
@@ -202,10 +243,9 @@ function initializeAuthSync(): void {
   if (typeof BroadcastChannel !== "undefined") {
     authBroadcastChannel = new BroadcastChannel(AUTH_SYNC_CHANNEL_NAME);
     authBroadcastChannel.onmessage = (event: MessageEvent<unknown>) => {
-      const data =
-        event.data as
-          | { reason?: "sign-in" | "sign-out"; type?: string }
-          | undefined;
+      const data = event.data as
+        | { reason?: "sign-in" | "sign-out"; type?: string }
+        | undefined;
       if (data?.type === "auth-state-changed") {
         handleExternalAuthStateChange(data.reason);
       }
@@ -349,15 +389,16 @@ export async function refreshSession(cookieHeader?: string): Promise<boolean> {
 }
 
 export async function fetchWithAuthRefresh(
-  input: RequestInfo | URL,
+  input: FetchWithAuthRefreshInput,
   init: RequestInit = {},
 ): Promise<Response> {
+  const requestInput = getApiRequestInput(input);
   const requestInit: RequestInit = {
     ...init,
     credentials: init.credentials ?? "include",
   };
 
-  const response = await fetch(input, requestInit);
+  const response = await fetch(requestInput, requestInit);
   if (response.status !== 401) {
     return response;
   }
@@ -366,7 +407,7 @@ export async function fetchWithAuthRefresh(
     return response;
   }
 
-  return fetch(input, requestInit);
+  return fetch(requestInput, requestInit);
 }
 
 export async function checkSession(): Promise<AuthState> {

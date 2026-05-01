@@ -26,13 +26,14 @@ function RouteComponent() {
   // const { id } = Route.useParams();
 
   const {
-    data: { user } = {},
+    data: userResult,
     isPending,
     error,
   } = useQuery({
     queryKey: ["user"],
     queryFn: getUser,
   });
+  const user = userResult?.success ? userResult.data.user : undefined;
 
   useEffect(() => {
     console.log("User data:", user);
@@ -48,14 +49,14 @@ function RouteComponent() {
     );
   }
 
-  if (error) {
+  if (error || !user) {
     return <>placeholder for error</>;
   }
 
   return (
     <AppLayout>
       <LeftPanelLayout>
-        <UserPanel user={user!} settings={true} />
+        <UserPanel user={user} settings={true} />
         <div className="text-xs flex gap-1.5 items-center">
           <Link to="/">
             <div className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100">

@@ -3,6 +3,8 @@ import { Construct } from "constructs";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as nodejs from "aws-cdk-lib/aws-lambda-nodejs";
 import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
+import * as iam from "aws-cdk-lib/aws-iam";
+import * as s3 from "aws-cdk-lib/aws-s3";
 import * as path from "path";
 
 export interface HttpUserPoolAuthorizerConfig {
@@ -15,16 +17,18 @@ export interface SynchronousLambdaFunctionsStackProps extends cdk.StackProps {
   userPoolClientId: string;
   userPoolDomainUrl: string;
   primaryDatabaseSecretArn?: string;
+  caseOSBucket: s3.IBucket;
 }
 
 export class SynchronousLambdaFunctionsStack extends cdk.Stack {
+  public readonly httpUserPoolAuthorizerConfig: HttpUserPoolAuthorizerConfig;
   public readonly signInFn: nodejs.NodejsFunction;
   public readonly signOutFn: nodejs.NodejsFunction;
   public readonly oauthCallbackFn: nodejs.NodejsFunction;
   public readonly verifyUserFn: nodejs.NodejsFunction;
   public readonly refreshFn: nodejs.NodejsFunction;
   public readonly getUserFn: nodejs.NodejsFunction;
-  public readonly httpUserPoolAuthorizerConfig: HttpUserPoolAuthorizerConfig;
+  public readonly s3AccessBrokerFn: nodejs.NodejsFunction;
 
   constructor(
     scope: Construct,
@@ -204,16 +208,79 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
       },
     });
 
+    this.s3AccessBrokerFn = new nodejs.NodejsFunction(this, "S3AccessBroker", {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      entry: path.join(
+        __dirname,
+        "..",
+        "lambda_functions",
+        "s3-access-broker",
+        "index.ts",
+      ),
+      handler: "lambdaHandler",
+      bundling: {
+        minify: true,
+        sourceMap: false,
+        target: "es2020",
+        commandHooks: {
+          beforeInstall() {
+            return [];
+          },
+          beforeBundling() {
+            return ["npm run generate --workspace @repo/database"];
+          },
+          afterBundling() {
+            return [];
+          },
+        },
+      },
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(30),
+      environment: {
+        USER_POOL_ID: props.userPoolId,
+        USER_POOL_CLIENT_ID: props.userPoolClientId,
+        CASEOS_STORAGE_BUCKET_ARN: props.caseOSBucket.bucketArn,
+        ...(props.primaryDatabaseSecretArn
+          ? {
+              PRIMARY_DATABASE_SECRET_ARN: props.primaryDatabaseSecretArn,
+            }
+          : {}),
+      },
+    });
+
+    this.s3AccessBrokerFn.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:ListBucket",
+        ],
+        resources: [
+          props.caseOSBucket.bucketArn,
+          `${props.caseOSBucket.bucketArn}/*`,
+        ],
+      }),
+    );
+
+    this.s3AccessBrokerFn.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ["sts:GetFederationToken"],
+        resources: ["*"],
+      }),
+    );
+
     if (props.primaryDatabaseSecretArn) {
       const primaryDatabaseCredentialsSecret =
         secretsmanager.Secret.fromSecretCompleteArn(
-        this,
-        "SynchronousPrimaryDatabaseCredentialsSecret",
-        props.primaryDatabaseSecretArn,
-      );
+          this,
+          "SynchronousPrimaryDatabaseCredentialsSecret",
+          props.primaryDatabaseSecretArn,
+        );
 
       primaryDatabaseCredentialsSecret.grantRead(this.getUserFn);
       primaryDatabaseCredentialsSecret.grantRead(this.oauthCallbackFn);
+      primaryDatabaseCredentialsSecret.grantRead(this.s3AccessBrokerFn);
     }
 
     // Outputs
@@ -245,6 +312,11 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
     new cdk.CfnOutput(this, "GetUserLambdaArn", {
       value: this.getUserFn.functionArn,
       exportName: "SynchronousLambdaFunctionsStack:GetUserFnLambdaArn",
+    });
+
+    new cdk.CfnOutput(this, "S3AccessBrokerLambdaArn", {
+      value: this.s3AccessBrokerFn.functionArn,
+      exportName: "SynchronousLambdaFunctionsStack:S3AccessBrokerFnLambdaArn",
     });
   }
 }

@@ -2,8 +2,6 @@ import { userSchema } from "@repo/database/table.schemas";
 import { z } from "zod";
 import { fetchWithAuthRefresh } from "#/lib/auth";
 
-const API_URL = import.meta.env.VITE_API_GATEWAY_URL;
-
 type Subscription = z.infer<typeof userSchema>;
 
 interface GetSubscriptionResponse {
@@ -11,7 +9,7 @@ interface GetSubscriptionResponse {
 }
 
 export async function getSubscription(): Promise<GetSubscriptionResponse> {
-  const res = await fetchWithAuthRefresh(`${API_URL}/get-subscription`, {
+  const res = await fetchWithAuthRefresh("/get-subscription", {
     method: "GET",
   });
 

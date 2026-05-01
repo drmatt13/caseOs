@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 import * as cdk from "aws-cdk-lib";
+import * as fs from "fs";
+import * as path from "path";
 import { HttpApiGatewayStack } from "../lib/http-api-gateway-stack";
 import { SynchronousLambdaFunctionsStack } from "../lib/synchronous-lambda-functions-stack";
 import { AsynchronousLambdaFunctionsStack } from "../lib/asynchronous-lambda-functions-stack";
@@ -10,6 +12,46 @@ import { RdsStack } from "../lib/rds-stack";
 import { WebSocketApiStack } from "../lib/websocket-api-stack";
 import { WebSocketLambdaFunctionsStack } from "../lib/websocket-lambda-functions-stack";
 import { PromoCodesStack } from "../lib/promo-codes-stack";
+import { S3Stack } from "../lib/s3-stack";
+
+const loadDotEnv = (envPath: string) => {
+  if (!fs.existsSync(envPath)) {
+    return;
+  }
+
+  const envFile = fs.readFileSync(envPath, "utf8");
+
+  for (const line of envFile.split(/\r?\n/)) {
+    const trimmedLine = line.trim();
+
+    if (!trimmedLine || trimmedLine.startsWith("#")) {
+      continue;
+    }
+
+    const separatorIndex = trimmedLine.indexOf("=");
+    if (separatorIndex === -1) {
+      continue;
+    }
+
+    const key = trimmedLine.slice(0, separatorIndex).trim();
+    let value = trimmedLine.slice(separatorIndex + 1).trim();
+
+    if (!key || process.env[key] !== undefined) {
+      continue;
+    }
+
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+
+    process.env[key] = value;
+  }
+};
+
+loadDotEnv(path.join(__dirname, "..", ".env"));
 
 // Context Flags (with defaults)
 //
@@ -23,8 +65,8 @@ import { PromoCodesStack } from "../lib/promo-codes-stack";
 //
 // -c frontendUrl                   (default: "http://localhost:3000")
 //
-// -c googleClientId                (default: undefined)
-// -c googleClientSecret            (default: undefined)
+// -c googleClientId                (default: GOOGLE_CLIENT_ID from .env)
+// -c googleClientSecret            (default: GOOGLE_CLIENT_SECRET from .env)
 
 // Complete Synth:
 // cdk synth --all -c useLocalImplementations=false -c enableRdsProxy=true -c skipEmailVerification=false -c useCustomWsAuthorizer=true -c enableWebSockets=true
@@ -117,13 +159,20 @@ const googleClientIdContext = app.node.tryGetContext("googleClientId");
 const googleClientSecretContext = app.node.tryGetContext("googleClientSecret");
 const googleClientId = googleClientIdContext
   ? String(googleClientIdContext)
-  : undefined;
+  : process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = googleClientSecretContext
   ? cdk.SecretValue.unsafePlainText(String(googleClientSecretContext))
-  : undefined;
+  : process.env.GOOGLE_CLIENT_SECRET
+    ? cdk.SecretValue.unsafePlainText(process.env.GOOGLE_CLIENT_SECRET)
+    : undefined;
 
 new PromoCodesStack(app, "PromoCodesStack", {
   env: stackEnv,
+});
+
+const s3Stack = new S3Stack(app, "S3Stack", {
+  env: stackEnv,
+  retainStatefulResouces,
 });
 
 // Created only in local mode (useLocalImplementations=true).
@@ -192,9 +241,11 @@ const synchronousLambdaFunctionsStack = new SynchronousLambdaFunctionsStack(
     userPoolClientId: cognitoStack.userPoolClientId,
     userPoolDomainUrl: cognitoStack.userPoolDomainUrl,
     primaryDatabaseSecretArn: rdsStack?.credentialsSecretArn,
+    caseOSBucket: s3Stack.caseOSBucket,
   },
 );
 synchronousLambdaFunctionsStack.addDependency(cognitoStack);
+synchronousLambdaFunctionsStack.addDependency(s3Stack);
 
 // Created only in cloud mode (useLocalImplementations=false).
 const ecsServicesStack =
@@ -223,6 +274,7 @@ const httpApiGatewayStack = !useLocalImplementations
       verifyUserFn: synchronousLambdaFunctionsStack.verifyUserFn,
       refreshFn: synchronousLambdaFunctionsStack.refreshFn,
       getUserFn: synchronousLambdaFunctionsStack.getUserFn,
+      s3AccessBrokerFn: synchronousLambdaFunctionsStack.s3AccessBrokerFn,
       // <LambdaFunctionName>: synchronousLambdaFunctionsStack.<LambdaFunctionExport>,
 
       // ECS integrations

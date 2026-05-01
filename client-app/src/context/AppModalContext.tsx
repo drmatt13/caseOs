@@ -9,9 +9,13 @@ export type Modal =
 export interface AppModalContextType {
   modal: Modal;
   setModal: Dispatch<SetStateAction<Modal>>;
+  modalLocked: boolean;
+  setModalLocked: Dispatch<SetStateAction<boolean>>;
 }
 
 export const AppModalContext = createContext<AppModalContextType>({
   modal: null,
   setModal: () => {},
+  modalLocked: false,
+  setModalLocked: () => {},
 });

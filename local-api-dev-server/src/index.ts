@@ -12,6 +12,7 @@ import { lambdaHandler as oauthCallback } from "../../cdk-app/lambda_functions/o
 import { lambdaHandler as verifyUser } from "../../cdk-app/lambda_functions/verify-user/index";
 import { lambdaHandler as refresh } from "../../cdk-app/lambda_functions/refresh/index";
 import { lambdaHandler as getUser } from "../../cdk-app/lambda_functions/get-user/index";
+import { lambdaHandler as s3AccessBroker } from "../../cdk-app/lambda_functions/s3-access-broker/index";
 
 dotenv.config({
   path: "./.env",
@@ -69,12 +70,11 @@ app.get("/", (req, res) => {
 });
 
 // Lambda function routes
+
+// Public Routes
 app.all("/sign-in", async (req, res) => {
   console.log("Sign-in request received");
   return invokeLambdaFunction(req, res, signIn);
-});
-app.all("/verify-user", async (req, res) => {
-  return invokeLambdaFunction(req, res, verifyUser);
 });
 
 app.all("/sign-out", async (req, res) => {
@@ -89,8 +89,17 @@ app.all("/refresh", async (req, res) => {
   return invokeLambdaFunction(req, res, refresh);
 });
 
+// Authenticated Routes
 app.all("/get-user", async (req, res) => {
   return invokeLambdaFunction(req, res, getUser);
+});
+
+app.all("/verify-user", async (req, res) => {
+  return invokeLambdaFunction(req, res, verifyUser);
+});
+
+app.all("/s3-access-broker", async (req, res) => {
+  return invokeLambdaFunction(req, res, s3AccessBroker);
 });
 
 // ECS container routes

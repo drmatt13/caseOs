@@ -125,8 +125,8 @@ export const userSchema: z.ZodType<User> = z.object({
   email: emailSchema,
   billingEmail: z.string().trim().email().nullable(),
   displayName: z.string().nullable(),
-  firstName: z.string().nullable(),
-  lastName: z.string().nullable(),
+  firstName: z.string(),
+  lastName: z.string(),
   profilePicture: z.string().nullable(),
   userName: z.string().nullable(),
   isPlatformAdmin: z.boolean(),
@@ -140,12 +140,12 @@ export const userSchema: z.ZodType<User> = z.object({
   subscriptionStatus: subscriptionStatusSchema,
   billingInterval: billingIntervalSchema.nullable(),
   cancelAtPeriodEnd: z.boolean(),
-  currentPeriodStart: z.date().nullable(),
-  currentPeriodEnd: z.date().nullable(),
-  trialStartsAt: z.date().nullable(),
-  trialEndsAt: z.date().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  currentPeriodStart: dateSchema.nullable(),
+  currentPeriodEnd: dateSchema.nullable(),
+  trialStartsAt: dateSchema.nullable(),
+  trialEndsAt: dateSchema.nullable(),
+  createdAt: dateSchema,
+  updatedAt: dateSchema,
 });
 
 export const workspaceSchema: z.ZodType<Workspace> = z.object({
@@ -155,8 +155,8 @@ export const workspaceSchema: z.ZodType<Workspace> = z.object({
   storageBucket: nonEmptyStringSchema,
   storagePrefix: nonEmptyStringSchema,
   status: workspaceStatusSchema,
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: dateSchema,
+  updatedAt: dateSchema,
 });
 
 export const workspaceMembershipSchema: z.ZodType<WorkspaceMembership> =
@@ -166,7 +166,7 @@ export const workspaceMembershipSchema: z.ZodType<WorkspaceMembership> =
     userId: uuidSchema,
     role: membershipRoleSchema,
     membershipStatus: membershipStatusSchema,
-    joinedAt: z.date(),
+    joinedAt: dateSchema,
   });
 
 export const workspaceInvitationSchema: z.ZodType<WorkspaceInvitation> =
@@ -177,8 +177,8 @@ export const workspaceInvitationSchema: z.ZodType<WorkspaceInvitation> =
     role: invitationRoleSchema,
     invitationToken: nonEmptyStringSchema,
     status: invitationStatusSchema,
-    expiresAt: z.date(),
-    createdAt: z.date(),
+    expiresAt: dateSchema,
+    createdAt: dateSchema,
   });
 
 export const caseSchema: z.ZodType<Case> = z.object({
@@ -190,8 +190,8 @@ export const caseSchema: z.ZodType<Case> = z.object({
   status: caseStatusSchema,
   intake: jsonSchema.nullable(),
   currentManifestNumber: z.number().int().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: dateSchema,
+  updatedAt: dateSchema,
 });
 
 export const caseDocumentIndexSchema: z.ZodType<CaseDocumentIndex> = z.object({
@@ -215,12 +215,12 @@ export const caseDocumentIndexSchema: z.ZodType<CaseDocumentIndex> = z.object({
   status: documentStatusSchema,
   createdBy: actorTypeSchema,
   version: z.number().int(),
-  relevantDate: z.date().nullable(),
+  relevantDate: dateSchema.nullable(),
   dateConfidence: dateConfidenceSchema.nullable(),
   referencedBy: jsonSchema.nullable(),
   searchText: z.string().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: dateSchema,
+  updatedAt: dateSchema,
 });
 
 export const caseRecordIndexSchema: z.ZodType<CaseRecordIndex> = z.object({
@@ -249,12 +249,12 @@ export const caseRecordIndexSchema: z.ZodType<CaseRecordIndex> = z.object({
   supersedes: jsonSchema.nullable(),
   supersededBy: jsonSchema.nullable(),
   searchText: z.string().nullable(),
-  eventDate: z.date().nullable(),
-  dueDate: z.date().nullable(),
+  eventDate: dateSchema.nullable(),
+  dueDate: dateSchema.nullable(),
   dateConfidence: dateConfidenceSchema.nullable(),
-  lastUpdatedAt: z.date(),
+  lastUpdatedAt: dateSchema,
   lastUpdatedByUserId: z.string().uuid().nullable(),
-  createdAt: z.date(),
+  createdAt: dateSchema,
 });
 
 export const caseViewIndexSchema: z.ZodType<CaseViewIndex> = z.object({
@@ -277,8 +277,8 @@ export const caseViewIndexSchema: z.ZodType<CaseViewIndex> = z.object({
   generatedBy: z.string().nullable(),
   createdBy: actorTypeSchema,
   createdByUserId: z.string().uuid().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: dateSchema,
+  updatedAt: dateSchema,
 });
 
 export const caseStateManifestSchema: z.ZodType<CaseStateManifest> = z.object({
@@ -294,7 +294,7 @@ export const caseStateManifestSchema: z.ZodType<CaseStateManifest> = z.object({
   sourceHash: z.string().nullable(),
   isCurrent: z.boolean(),
   notes: z.string().nullable(),
-  createdAt: z.date(),
+  createdAt: dateSchema,
 });
 
 export const llmUsageEventSchema: z.ZodType<LlmUsageEvent> = z.object({
@@ -312,7 +312,7 @@ export const llmUsageEventSchema: z.ZodType<LlmUsageEvent> = z.object({
   estimatedCostUsd: prismaDecimalSchema.nullable(),
   requestFiles: jsonSchema.nullable(),
   metadata: jsonSchema.nullable(),
-  createdAt: z.date(),
+  createdAt: dateSchema,
 });
 
 export const workspaceUsageMonthlySchema: z.ZodType<WorkspaceUsageMonthly> =
@@ -320,7 +320,7 @@ export const workspaceUsageMonthlySchema: z.ZodType<WorkspaceUsageMonthly> =
     id: uuidSchema,
     workspaceId: uuidSchema,
     billedToUserId: uuidSchema,
-    usageMonth: z.date(),
+    usageMonth: dateSchema,
     totalInputTokens: z.bigint(),
     totalOutputTokens: z.bigint(),
     totalTokens: z.bigint(),
@@ -330,7 +330,7 @@ export const workspaceUsageMonthlySchema: z.ZodType<WorkspaceUsageMonthly> =
 export const userUsageMonthlySchema: z.ZodType<UserUsageMonthly> = z.object({
   id: uuidSchema,
   userId: uuidSchema,
-  usageMonth: z.date(),
+  usageMonth: dateSchema,
   totalInputTokens: z.bigint(),
   totalOutputTokens: z.bigint(),
   totalTokens: z.bigint(),
@@ -346,9 +346,9 @@ export const stripeEventLogSchema: z.ZodType<StripeEventLog> = z.object({
   stripeCustomerId: z.string().nullable(),
   stripeSubscriptionId: z.string().nullable(),
   processed: z.boolean(),
-  processedAt: z.date().nullable(),
-  eventCreatedAt: z.date().nullable(),
-  receivedAt: z.date(),
+  processedAt: dateSchema.nullable(),
+  eventCreatedAt: dateSchema.nullable(),
+  receivedAt: dateSchema,
   payload: jsonSchema,
 });
 
@@ -358,8 +358,8 @@ export const accountTierLimitSchema: z.ZodType<AccountTierLimit> = z.object({
   maxMembersPerWorkspace: z.number().int(),
   maxCasesPerWorkspace: z.number().int(),
   monthlyTokenLimit: z.bigint(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: dateSchema,
+  updatedAt: dateSchema,
 });
 
 // ---------- input / transport schemas ----------
@@ -498,8 +498,8 @@ export const createLlmUsageEventSchema = z.object({
 export const updateUserSchema = z.object({
   billingEmail: z.string().trim().email().optional().nullable(),
   displayName: z.string().optional().nullable(),
-  firstName: z.string().optional().nullable(),
-  lastName: z.string().optional().nullable(),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
   profilePicture: z.string().optional().nullable(),
   userName: z.string().optional().nullable(),
   accountTier: accountTierSchema.optional(),
@@ -575,3 +575,4 @@ export type CreateLlmUsageEventInput = z.infer<
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
 export type UpdateWorkspaceInput = z.infer<typeof updateWorkspaceSchema>;
 export type UpdateCaseInput = z.infer<typeof updateCaseSchema>;
+

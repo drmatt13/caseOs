@@ -9,9 +9,15 @@ import ModifySubscription from "./modals/ModifySubscription";
 import ManageWorkspaces from "./modals/ManageWorkspaces";
 
 const SettingsModal = () => {
-  const { modal, setModal } = useContext(AppModalContext);
+  const { modal, setModal, modalLocked } = useContext(AppModalContext);
   const [prevmodal, setPrevModal] = useState(modal);
   const visibleModal = modal ?? prevmodal;
+
+  const handleBackdropClick = () => {
+    if (modalLocked) return;
+
+    setModal(null);
+  };
 
   useEffect(() => {
     if (modal) setPrevModal(modal);
@@ -19,7 +25,7 @@ const SettingsModal = () => {
 
   return (
     <div
-      className={`absolute inset-0 z-10 flex items-start justify-center overflow-hidden ${
+      className={`fixed inset-0 z-10 flex items-start justify-center overflow-hidden ${
         modal ? "pointer-events-auto" : "pointer-events-none"
       }`}
     >
@@ -39,7 +45,7 @@ const SettingsModal = () => {
             ? "duration-200 ease-out opacity-100"
             : "duration-300 ease-in opacity-0"
         }`}
-        onClick={() => setModal(null)}
+        onClick={handleBackdropClick}
       />
 
       <div

@@ -32,7 +32,7 @@ export const lambdaHandler = async (
         headers: {
           "content-type": "application/json",
         },
-        body: JSON.stringify({ message: "Unauthorized" }),
+        body: JSON.stringify({ error: "Unauthorized" }),
       };
     }
 
@@ -49,7 +49,7 @@ export const lambdaHandler = async (
         headers: {
           "content-type": "application/json",
         },
-        body: JSON.stringify({ message: "Unauthorized" }),
+        body: JSON.stringify({ error: "Unauthorized" }),
       };
     }
 
@@ -77,7 +77,7 @@ export const lambdaHandler = async (
         headers: {
           "content-type": "application/json",
         },
-        body: JSON.stringify({ message: "User not found" }),
+        body: JSON.stringify({ error: "User not found" }),
       };
     }
 
@@ -98,7 +98,7 @@ export const lambdaHandler = async (
       headers: {
         "content-type": "application/json",
       },
-      body: JSON.stringify({ message: "Unauthorized" }),
+      body: JSON.stringify({ error: "Unauthorized" }),
     };
   }
 };

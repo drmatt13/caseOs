@@ -40,13 +40,14 @@ export const Route = createFileRoute("/cases/new")({
 
 function RouteComponent() {
   const {
-    data: { user } = {},
+    data: userResult,
     isPending,
     error,
   } = useQuery({
     queryKey: ["user"],
     queryFn: getUser,
   });
+  const user = userResult?.success ? userResult.data.user : undefined;
 
   useEffect(() => {
     console.log("User data:", user);
@@ -211,14 +212,14 @@ function RouteComponent() {
     );
   }
 
-  if (error) {
+  if (error || !user) {
     return <>placeholder for error</>;
   }
 
   return (
     <AppLayout>
       <LeftPanelLayout>
-        <UserPanel user={user!} settings={true} />
+        <UserPanel user={user} settings={true} />
         <CreateCaseMenu
           caseIntakeState={caseIntakeState}
           setCaseIntakeState={setCaseIntakeState}
