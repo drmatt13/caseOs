@@ -113,10 +113,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               closePopup,
             }}
           >
-            <body className="bg-gray-100 font-geist antialiased mx-auto h-dvh overflow-hidden text-black text-sm">
+            <body className="bg-gray-100 font-geist antialiased mx-auto min-h-dvh overflow-y-scroll overflow-x-clip [scrollbar-gutter:stable] text-black text-sm">
               <SettingsPopup />
               <AppModal />
-              <div className="h-dvh overflow-y-scroll overflow-x-hidden">
+              <div className="min-h-dvh overflow-x-clip">
                 {children}
                 <TanStackDevtools
                   config={{
