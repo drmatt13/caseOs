@@ -86,7 +86,7 @@ function RouteComponent() {
   return (
     <>
       <LoginLayout>
-        <div className="flex flex-col w-sm">
+        <div className="flex flex-col w-88">
           <form
             onSubmit={handleSubmit}
             id="login-form"
