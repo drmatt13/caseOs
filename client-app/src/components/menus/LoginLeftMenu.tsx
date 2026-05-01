@@ -134,40 +134,40 @@ const LoginLeftMenu = () => {
           <div className="flex flex-row gap-4 items-start h-full">
             {/* content */}
             {/* LEFT */}
-            <div className="flex-1 h-full flex text-[.6rem] pr-2">
+            <div className="flex-1 h-full flex text-[.6rem] pr-2 py-0.5">
               <div className="flex-1 flex flex-col justify-center">
-                <div className="w-full h-16 rounded-lg bg-blue-200/50 border border-blue-300/60 flex flex-col text-blue-700 justify-center items-center gap-0.5">
-                  <ScaleIcon className="h-5 w-5" />
+                <div className="w-full h-14 rounded-lg bg-sky-100/80 border border-sky-300/60 flex flex-col text-blue-700/75 justify-center items-center gap-0.5">
+                  <ScaleIcon className="h-5 w-5" strokeWidth={1.75} />
                   <p>Legal Issue</p>
                 </div>
               </div>
               <div className="w-8"></div>
               <div className="flex-1 flex flex-col justify-between">
-                <div className="w-full h-16 rounded-lg bg-green-200/75 border border-green-300/80 flex flex-col text-green-700 justify-center items-center gap-0.5">
-                  <ShieldCheckIcon className="h-5 w-5" />
-                  <p>Arguements</p>
+                <div className="w-full h-14 rounded-lg bg-emerald-100/80 border border-emerald-300/70 flex flex-col text-emerald-700/85 justify-center items-center gap-0.5">
+                  <ShieldCheckIcon className="h-5 w-5" strokeWidth={1.75} />
+                  <p>Facts</p>
                 </div>
 
-                <div className="w-full h-16 rounded-lg bg-red-200/75 border border-red-300/80 flex flex-col text-red-800 justify-center items-center gap-0.5">
-                  <ShieldAlertIcon className="h-5 w-5" />
-                  <p>Arguements</p>
+                <div className="w-full h-14 rounded-lg bg-rose-100/80 border border-rose-300/70 flex flex-col text-rose-700/85 justify-center items-center gap-0.5">
+                  <ShieldAlertIcon className="h-5 w-5" strokeWidth={1.75} />
+                  <p>Challenges</p>
                 </div>
               </div>
               <div className="w-8"></div>
               <div className="flex-1 flex flex-col justify-between">
-                <div className="w-full h-16 rounded-lg bg-purple-200/60 border border-purple-300/80 flex flex-col text-purple-800 justify-center items-center gap-0.5">
-                  <BookOpenCheckIcon className="h-5 w-5" />
+                <div className="w-full h-14 rounded-lg bg-violet-100/80 border border-violet-300/70 flex flex-col text-violet-700/80 justify-center items-center gap-0.5">
+                  <BookOpenCheckIcon className="h-5 w-5" strokeWidth={1.75} />
                   <p>Precedent</p>
                 </div>
-                <div className="w-full h-16 rounded-lg bg-purple-200/60 border border-purple-300/80 flex flex-col text-purple-800 justify-center items-center gap-0.5">
-                  <FileSearchIcon className="h-5 w-5" />
+                <div className="w-full h-14 rounded-lg bg-slate-200/70 border border-slate-300/80 flex flex-col text-slate-600/90 justify-center items-center gap-0.5">
+                  <FileSearchIcon className="h-5 w-5" strokeWidth={1.75} />
                   <p>Evidence</p>
                 </div>
               </div>
               <div className="w-8"></div>
               <div className="flex-1 flex flex-col justify-center">
-                <div className="w-full h-16 rounded-lg bg-orange-200/50 border border-orange-300/60 flex flex-col text-orange-700 justify-center items-center gap-0.5">
-                  <LightbulbIcon className="h-5 w-5" />
+                <div className="w-full h-14 rounded-lg bg-amber-100/80 border border-amber-300/70 flex flex-col text-amber-700/85 justify-center items-center gap-0.5">
+                  <LightbulbIcon className="h-5 w-5" strokeWidth={1.75} />
                   <p>Insights</p>
                 </div>
               </div>
