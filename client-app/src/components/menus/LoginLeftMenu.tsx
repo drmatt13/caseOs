@@ -1,10 +1,14 @@
 import {
   FileSearchIcon,
   FileCheck2Icon,
+  BriefcaseBusinessIcon,
   LandmarkIcon,
+  LockKeyholeIcon,
   LightbulbIcon,
   ScaleIcon,
+  ShieldCheckIcon,
   TriangleAlertIcon,
+  UsersRoundIcon,
 } from "lucide-react";
 
 const connectorClassName =
@@ -332,11 +336,65 @@ const LoginLeftMenu = () => {
           </div>
         </div>
       </div>
-      <div className="mt-4 w-full bg-black/10 flex flex-row justify-between">
-        <div>x</div>
-        <div>x</div>
-        <div>x</div>
-        <div>x</div>
+      <div className="mt-3.5 w-full flex flex-row justify-between gap-6">
+        <div className="flex min-w-0 flex-1 items-start gap-3">
+          <BriefcaseBusinessIcon
+            className="mt-0.5 h-6 w-6 shrink-0 text-blue-500"
+            strokeWidth={1.5}
+          />
+          <div className="min-w-0">
+            <p className="text-xs font-semibold text-gray-900">
+              Built for Legal Work
+            </p>
+            <p className="mt-0.75 text-[.68rem] leading-snug text-gray-600">
+              Matches how you build cases, linking facts, issues, evidence, and
+              arguments together.
+            </p>
+          </div>
+        </div>
+        <div className="flex min-w-0 flex-1 items-start gap-3">
+          <ShieldCheckIcon
+            className="mt-0.5 h-6 w-6 shrink-0 text-blue-500"
+            strokeWidth={1.5}
+          />
+          <div className="min-w-0">
+            <p className="text-xs font-semibold text-gray-900">
+              Fully Traceable
+            </p>
+            <p className="mt-0.75 text-[.68rem] leading-snug text-gray-600">
+              Every record links to its source and connects through your case,
+              so nothing is assumed.
+            </p>
+          </div>
+        </div>
+        <div className="flex min-w-0 flex-1 items-start gap-3">
+          <UsersRoundIcon
+            className="mt-0.5 h-6 w-6 shrink-0 text-blue-500"
+            strokeWidth={1.5}
+          />
+          <div className="min-w-0">
+            <p className="text-xs font-semibold text-gray-900">Work Together</p>
+            <p className="mt-0.75 text-[.68rem] leading-snug text-gray-600">
+              Invite your team into shared workspaces to build and reason across
+              cases together.
+            </p>
+          </div>
+        </div>
+        <div className="flex min-w-0 flex-1 items-start gap-3">
+          <LockKeyholeIcon
+            className="mt-0.5 h-6 w-6 shrink-0 text-blue-500"
+            strokeWidth={1.5}
+          />
+          <div className="min-w-0">
+            <p className="text-xs font-semibold text-gray-900">
+              Private & Secure
+            </p>
+            <p className="mt-0.75 text-[.68rem] leading-snug text-gray-600">
+              Your data remains encrypted, isolated, and fully under your
+              control at every step.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

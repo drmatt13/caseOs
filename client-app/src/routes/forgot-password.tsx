@@ -114,7 +114,7 @@ function RouteComponent() {
   return (
     <LoginLayout>
       <div className="flex flex-col w-84">
-        <div className="flex flex-col px-5 pt-8 pb-5 mb-8 rounded-2xl bg-white/40 backdrop-blur-sm border border-black/15 shadow-md">
+        <div className="flex flex-col px-5 pt-8 pb-5 rounded-2xl bg-white/40 backdrop-blur-sm border border-black/15 shadow-md">
           <p className="text-[1.7rem] font-bold">Reset your password</p>
           <p className="mt-0.5 text-sm text-gray-600">
             {step === "request"
@@ -146,7 +146,6 @@ function RouteComponent() {
                 type="email"
                 id="forgot-password-email"
                 autoComplete="email"
-                autoFocus
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -192,7 +191,6 @@ function RouteComponent() {
                 id="reset-code"
                 inputMode="numeric"
                 autoComplete="one-time-code"
-                autoFocus
                 required
                 value={code}
                 onChange={(e) => setCode(e.target.value)}

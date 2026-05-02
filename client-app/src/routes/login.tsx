@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import Button from "#/components/Button";
 import LoginLayout from "#/components/layouts/LoginLayout";
@@ -29,19 +29,12 @@ function RouteComponent() {
   const { email: userEmail, "account-verified": accountVerified } =
     Route.useSearch();
   const navigate = useNavigate();
-  const passwordInputRef = useRef<HTMLInputElement | null>(null);
 
   const [email, setEmail] = useState(userEmail ?? "");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-
-  useEffect(() => {
-    if (accountVerified) {
-      passwordInputRef.current?.focus();
-    }
-  }, [accountVerified]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -90,7 +83,7 @@ function RouteComponent() {
           <form
             onSubmit={handleSubmit}
             id="login-form"
-            className="flex flex-col px-5 pt-8 pb-5 mb-8 rounded-2xl bg-white/40 backdrop-blur-sm border border-black/15 shadow-md"
+            className="flex flex-col px-5 pt-8 pb-5 rounded-2xl bg-white/40 backdrop-blur-sm border border-black/15 shadow-md"
           >
             <p className="text-[1.7rem] font-bold">Welcome back</p>
             <p className="mt-0.5 text-sm text-gray-600">
@@ -126,7 +119,6 @@ function RouteComponent() {
             <input
               type="password"
               id="password"
-              ref={passwordInputRef}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="rounded-md px-2 py-2.5 mb-3 text-xs bg-gray-100 border border-black/15"

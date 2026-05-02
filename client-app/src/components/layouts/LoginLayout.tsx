@@ -17,7 +17,7 @@ const LoginLayout = ({ children }: LoginLayoutProps) => {
           className="pointer-events-none absolute inset-x-0 top-0 /h-[45svh] min-h-56 /max-h-128 w-full object-cover object-top mask-[linear-gradient(to_bottom,black_0%,rgb(0_0_0/0.25)_25%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_0%,rgb(0_0_0/0.25)_25%,transparent_100%)]"
         />
       </div>
-      <div className="relative z-10 mx-auto min-h-dvh flex flex-col gap-6 pb-16 /px-8 font-sans max-w-5xl w-full pt-24">
+      <div className="relative z-10 mx-auto min-h-dvh flex flex-col gap-6 pb-10 /px-8 font-sans max-w-5xl w-full pt-22">
         <div className="flex gap-6">
           <LoginLeftMenu />
           {children}

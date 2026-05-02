@@ -139,7 +139,7 @@ function RouteComponent() {
   return (
     <LoginLayout>
       <div className="flex flex-col w-84">
-        <div className="flex flex-col px-5 pt-8 pb-5 mb-8 rounded-2xl bg-white/40 backdrop-blur-sm border border-black/15 shadow-md">
+        <div className="flex flex-col px-5 pt-8 pb-5 rounded-2xl bg-white/40 backdrop-blur-sm border border-black/15 shadow-md">
           <p className="text-[1.7rem] font-bold">Verify your account</p>
           <p className="mt-0.5 text-sm text-gray-600">
             {status === "loading"
@@ -174,7 +174,6 @@ function RouteComponent() {
                 id="verification-code"
                 inputMode="numeric"
                 autoComplete="one-time-code"
-                autoFocus={!codeFromUrl}
                 value={manualCode}
                 onChange={(e) => setManualCode(e.target.value)}
                 className="w-full rounded-md px-2 py-2.5 mb-3 text-xs bg-gray-100 border border-black/15"
