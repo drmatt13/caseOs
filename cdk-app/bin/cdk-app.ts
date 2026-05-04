@@ -165,6 +165,8 @@ const googleClientSecret = googleClientSecretContext
   : process.env.GOOGLE_CLIENT_SECRET
     ? cdk.SecretValue.unsafePlainText(process.env.GOOGLE_CLIENT_SECRET)
     : undefined;
+const stripePublishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 
 new PromoCodesStack(app, "PromoCodesStack", {
   env: stackEnv,
@@ -172,6 +174,7 @@ new PromoCodesStack(app, "PromoCodesStack", {
 
 const s3Stack = new S3Stack(app, "S3Stack", {
   env: stackEnv,
+  frontendUrl: normalizedFrontendUrl,
   retainStatefulResouces,
 });
 
@@ -206,6 +209,8 @@ const asynchronousLambdaFunctionsStack = new AsynchronousLambdaFunctionsStack(
     replayBucket: devLambdaReplayStack?.bucket,
     // If RDS is not created, the function falls back to its local/runtime env flow.
     primaryDatabaseSecretArn: rdsStack?.credentialsSecretArn,
+    stripePublishableKey,
+    stripeSecretKey,
   },
 );
 if (devLambdaReplayStack) {
@@ -242,6 +247,8 @@ const synchronousLambdaFunctionsStack = new SynchronousLambdaFunctionsStack(
     userPoolDomainUrl: cognitoStack.userPoolDomainUrl,
     primaryDatabaseSecretArn: rdsStack?.credentialsSecretArn,
     caseOSBucket: s3Stack.caseOSBucket,
+    stripePublishableKey,
+    stripeSecretKey,
   },
 );
 synchronousLambdaFunctionsStack.addDependency(cognitoStack);
@@ -274,6 +281,7 @@ const httpApiGatewayStack = !useLocalImplementations
       verifyUserFn: synchronousLambdaFunctionsStack.verifyUserFn,
       refreshFn: synchronousLambdaFunctionsStack.refreshFn,
       getUserFn: synchronousLambdaFunctionsStack.getUserFn,
+      updateUserFn: synchronousLambdaFunctionsStack.updateUserFn,
       s3AccessBrokerFn: synchronousLambdaFunctionsStack.s3AccessBrokerFn,
       // <LambdaFunctionName>: synchronousLambdaFunctionsStack.<LambdaFunctionExport>,
 

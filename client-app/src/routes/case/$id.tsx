@@ -35,14 +35,10 @@ function RouteComponent() {
   });
   const user = userResult?.success ? userResult.data.user : undefined;
 
-  useEffect(() => {
-    console.log("User data:", user);
-  }, [user]);
-
   if (isPending) {
     return (
       <>
-        <div className="w-full h-full flex justify-center items-center">
+        <div className="w-full h-dvh flex justify-center items-center">
           <LoadingSpinner />
         </div>
       </>

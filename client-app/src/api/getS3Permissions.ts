@@ -7,6 +7,7 @@ const GetS3PermissionsResponseSchema = z.object({
   bucketArn: z.string(),
   bucketName: z.string(),
   profilePictureKey: z.string(),
+  profilePictureUrl: z.string(),
 });
 
 export async function getS3Permissions() {

@@ -4,6 +4,7 @@ import {
   getDatabaseUrl,
 } from "@repo/shared-lambda-utils";
 import { getPrismaClient } from "@repo/database";
+import Stripe from "stripe";
 
 export const lambdaHandler = async (
   event: PostConfirmationTriggerEvent,
@@ -44,9 +45,38 @@ export const lambdaHandler = async (
 
   // Create a new user in the database based on the Cognito user attributes
   const { sub, email, given_name, family_name } = event.request.userAttributes;
+  const displayName = [given_name, family_name].filter(Boolean).join(" ");
+
+  const existingUser = await prisma.user.findFirst({
+    where: {
+      OR: [{ cognitoSub: sub }, { email }],
+    },
+  });
+
+  if (existingUser) {
+    if (existingUser.cognitoSub !== sub) {
+      throw new Error(
+        `A user already exists for email ${email} with a different Cognito sub.`,
+      );
+    }
+
+    console.log(
+      "User already exists in database for Cognito sub; skipping post-confirmation creation:",
+      sub,
+    );
+    return event;
+  }
+
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error(
+      "STRIPE_SECRET_KEY must be set before creating Stripe customers.",
+    );
+  }
+
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
   // Create the user in the database, using the Cognito sub as a unique identifier
-  await prisma.user.create({
+  const user = await prisma.user.create({
     data: {
       cognitoSub: sub,
       email,
@@ -56,12 +86,36 @@ export const lambdaHandler = async (
       accountStatus: "ACTIVE",
       createdAt: new Date(),
       updatedAt: new Date(),
-      displayName: `${given_name} ${family_name}`,
+      displayName,
+    },
+  });
+
+  const stripeCustomer = await stripe.customers.create(
+    {
+      email,
+      name: displayName || undefined,
+      metadata: {
+        cognitoSub: sub,
+        userId: user.id,
+      },
+    },
+    {
+      idempotencyKey: `cognito-post-confirmation-${sub}`,
+    },
+  );
+
+  await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      billingEmail: stripeCustomer.email ?? email,
+      stripeCustomerId: stripeCustomer.id,
     },
   });
 
   // CREATE RETRY LOGIC HERE LATER IF DESIRED - COGNITO TRIGGERS HAVE A BUILT-IN RETRY MECHANISM, BUT IT MAY NOT BE SUFFICIENT FOR ALL FAILURE SCENARIOS
 
-  console.log("User created in database with Cognito sub:", sub);
+  console.log("User created with Cognito sub:", sub);
   return event;
 };

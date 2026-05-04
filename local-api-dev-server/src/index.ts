@@ -12,6 +12,7 @@ import { lambdaHandler as oauthCallback } from "../../cdk-app/lambda_functions/o
 import { lambdaHandler as verifyUser } from "../../cdk-app/lambda_functions/verify-user/index";
 import { lambdaHandler as refresh } from "../../cdk-app/lambda_functions/refresh/index";
 import { lambdaHandler as getUser } from "../../cdk-app/lambda_functions/get-user/index";
+import { lambdaHandler as updateUser } from "../../cdk-app/lambda_functions/update-user/index";
 import { lambdaHandler as s3AccessBroker } from "../../cdk-app/lambda_functions/s3-access-broker/index";
 
 dotenv.config({
@@ -92,6 +93,10 @@ app.all("/refresh", async (req, res) => {
 // Authenticated Routes
 app.all("/get-user", async (req, res) => {
   return invokeLambdaFunction(req, res, getUser);
+});
+
+app.all("/update-user", async (req, res) => {
+  return invokeLambdaFunction(req, res, updateUser);
 });
 
 app.all("/verify-user", async (req, res) => {

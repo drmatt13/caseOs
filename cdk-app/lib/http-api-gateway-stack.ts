@@ -14,6 +14,7 @@ export interface HttpApiGatewayStackProps extends cdk.StackProps {
   verifyUserFn: IFunction;
   refreshFn: IFunction;
   getUserFn: IFunction;
+  updateUserFn: IFunction;
   s3AccessBrokerFn: IFunction;
   httpUserPoolAuthorizerConfig: HttpUserPoolAuthorizerConfig;
   frontendUrl: string;
@@ -130,6 +131,13 @@ export class HttpApiGatewayStack extends cdk.Stack {
       "/get-user",
       [apigwv2.HttpMethod.ANY],
       props.getUserFn,
+    );
+
+    addAuthenticatedRoute(
+      "UpdateUserIntegration",
+      "/update-user",
+      [apigwv2.HttpMethod.ANY],
+      props.updateUserFn,
     );
 
     addAuthenticatedRoute(

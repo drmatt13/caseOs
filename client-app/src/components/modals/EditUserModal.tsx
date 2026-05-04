@@ -1,84 +1,47 @@
 import {
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useRef,
   useState,
-  useContext,
 } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { UserRound, XIcon } from "lucide-react";
+
 import Button from "#/components/Button";
-
-// context
 import { AppModalContext } from "#/context/AppModalContext";
-
-// query functions
 import { getUser } from "#/api/getUser";
 import { getS3Permissions } from "#/api/getS3Permissions";
+import { updateUser as updateUserProfile } from "#/api/updateUser";
+import {
+  createProfilePictureJpeg,
+  PROFILE_PICTURE_CONTENT_TYPE,
+} from "#/lib/profilePicture";
 
-const PROFILE_PICTURE_SIZE = 200;
-const PROFILE_PICTURE_CONTENT_TYPE = "image/jpeg";
+const inputClass =
+  "rounded-lg border border-black/15 bg-white/70 px-2 py-2 outline-none transition-colors focus:border-black/40 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400";
 
-function getAwsRegion(): string {
+function getAwsRegion() {
   const region = String(import.meta.env.VITE_AWS_REGION ?? "");
-
-  if (!region) {
-    throw new Error("Missing VITE_AWS_REGION");
-  }
-
+  if (!region) throw new Error("Missing VITE_AWS_REGION");
   return region;
 }
 
-async function createProfilePictureJpeg(file: File): Promise<Blob> {
-  const image = await createImageBitmap(file);
-  const cropSize = Math.min(image.width, image.height);
-  const sourceX = (image.width - cropSize) / 2;
-  const sourceY = (image.height - cropSize) / 2;
-
-  const canvas = document.createElement("canvas");
-  canvas.width = PROFILE_PICTURE_SIZE;
-  canvas.height = PROFILE_PICTURE_SIZE;
-
-  const context = canvas.getContext("2d");
-
-  if (!context) {
-    throw new Error("Could not prepare profile picture upload.");
-  }
-
-  context.drawImage(
-    image,
-    sourceX,
-    sourceY,
-    cropSize,
-    cropSize,
-    0,
-    0,
-    PROFILE_PICTURE_SIZE,
-    PROFILE_PICTURE_SIZE,
+function getInitials(firstName: string, lastName: string) {
+  return (
+    `${firstName.trim()[0] ?? ""}${lastName.trim()[0] ?? ""}`.toUpperCase() ||
+    "U"
   );
-
-  image.close();
-
-  return new Promise((resolve, reject) => {
-    canvas.toBlob(
-      (blob) => {
-        if (!blob) {
-          reject(new Error("Could not convert profile picture to JPEG."));
-          return;
-        }
-
-        resolve(blob);
-      },
-      PROFILE_PICTURE_CONTENT_TYPE,
-      0.9,
-    );
-  });
 }
 
 const EditUserModal = () => {
+  const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { setModal, setModalLocked } = useContext(AppModalContext);
+
   const [imageFailed, setImageFailed] = useState(false);
   const [localProfilePicture, setLocalProfilePicture] = useState<string | null>(
     null,
@@ -86,42 +49,75 @@ const EditUserModal = () => {
   const [profilePictureFile, setProfilePictureFile] = useState<File | null>(
     null,
   );
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [profilePictureUrl, setProfilePictureUrl] = useState("");
-
-  const { setModal, modalLocked, setModalLocked } = useContext(AppModalContext);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const {
-    data: getUserResult,
-    isPending: getUserPending,
-    error: getUserError,
+    data: userResult,
+    isPending: userPending,
+    error: userError,
   } = useQuery({
     queryKey: ["user"],
     queryFn: getUser,
   });
-  const user = getUserResult?.success ? getUserResult.data.user : undefined;
 
   const {
-    data: getS3PermissionsResult,
-    isPending: getS3PermissionsPending,
-    error: getS3PermissionsError,
+    data: s3PermissionsResult,
+    isPending: s3PermissionsPending,
+    error: s3PermissionsError,
   } = useQuery({
     queryKey: ["s3Permissions"],
     queryFn: getS3Permissions,
   });
 
-  console.log("getS3PermissionsResult:", getS3PermissionsResult);
+  const user = userResult?.success ? userResult.data.user : undefined;
 
   const clearFileInput = useCallback(() => {
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
   }, []);
 
-  useEffect(() => {
-    if (!user) return;
+  const closeModal = useCallback(() => {
+    if (isUpdating) return;
+    setModal(null);
+  }, [isUpdating, setModal]);
+
+  const handleImageError = useCallback(() => {
+    setImageFailed(true);
+  }, []);
+
+  const openFilePicker = useCallback(() => {
+    if (isUpdating) return;
+    fileInputRef.current?.click();
+  }, [isUpdating]);
+
+  const handleFirstNameChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setFirstName(event.target.value);
+    },
+    [],
+  );
+
+  const handleLastNameChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setLastName(event.target.value);
+    },
+    [],
+  );
+
+  const handleDisplayNameChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setDisplayName(event.target.value);
+    },
+    [],
+  );
+
+  const resetDraft = useCallback(() => {
+    if (!user || isUpdating) return;
+
     setFirstName(user.firstName ?? "");
     setLastName(user.lastName ?? "");
     setDisplayName(user.displayName ?? "");
@@ -130,7 +126,9 @@ const EditUserModal = () => {
     setProfilePictureFile(null);
     setImageFailed(false);
     clearFileInput();
-  }, [user, clearFileInput]);
+  }, [clearFileInput, isUpdating, user]);
+
+  useEffect(resetDraft, [resetDraft]);
 
   useEffect(() => {
     return () => {
@@ -140,13 +138,13 @@ const EditUserModal = () => {
     };
   }, [localProfilePicture]);
 
-  const initials = useMemo(() => {
-    const firstInitial = firstName.trim()[0] ?? "";
-    const lastInitial = lastName.trim()[0] ?? "";
-    return `${firstInitial}${lastInitial}`.toUpperCase() || "U";
-  }, [firstName, lastName]);
+  const initials = useMemo(
+    () => getInitials(firstName, lastName),
+    [firstName, lastName],
+  );
 
   const profilePicture = localProfilePicture || profilePictureUrl.trim();
+
   const hasChanges =
     !!user &&
     (firstName !== (user.firstName ?? "") ||
@@ -155,76 +153,117 @@ const EditUserModal = () => {
       profilePictureUrl !== (user.profilePicture ?? "") ||
       !!profilePictureFile);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const handleFileChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (isUpdating) return;
 
-    if (localProfilePicture?.startsWith("blob:")) {
-      URL.revokeObjectURL(localProfilePicture);
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      if (localProfilePicture?.startsWith("blob:")) {
+        URL.revokeObjectURL(localProfilePicture);
+      }
+
+      setLocalProfilePicture(URL.createObjectURL(file));
+      setProfilePictureFile(file);
+      setImageFailed(false);
+      event.currentTarget.value = "";
+    },
+    [isUpdating, localProfilePicture],
+  );
+
+  const uploadProfilePicture = useCallback(async () => {
+    if (!profilePictureFile) return profilePictureUrl;
+
+    if (!s3PermissionsResult?.success) {
+      throw new Error("Could not load S3 upload permissions.");
     }
 
-    setLocalProfilePicture(URL.createObjectURL(file));
-    setProfilePictureFile(file);
-    setImageFailed(false);
-    event.currentTarget.value = "";
-  };
+    const {
+      aws,
+      bucketName,
+      profilePictureKey,
+      profilePictureUrl: uploadedProfilePictureUrl,
+    } = s3PermissionsResult.data;
 
-  const resetDraft = () => {
-    if (!user) return;
+    const jpeg = await createProfilePictureJpeg(profilePictureFile);
+    const body = new Uint8Array(await jpeg.arrayBuffer());
 
-    setFirstName(user.firstName ?? "");
-    setLastName(user.lastName ?? "");
-    setDisplayName(user.displayName ?? "");
-    setProfilePictureUrl(user.profilePicture ?? "");
-    setLocalProfilePicture(null);
-    setProfilePictureFile(null);
-    setImageFailed(false);
-    clearFileInput();
-  };
+    const s3Client = new S3Client({
+      region: getAwsRegion(),
+      credentials: {
+        accessKeyId: aws.accessKeyId,
+        secretAccessKey: aws.secretAccessKey,
+        sessionToken: aws.sessionToken,
+      },
+    });
 
-  const updateUser = useCallback(async () => {
-    if (!user) return;
+    await s3Client.send(
+      new PutObjectCommand({
+        Bucket: bucketName,
+        Key: profilePictureKey,
+        Body: body,
+        ContentType: PROFILE_PICTURE_CONTENT_TYPE,
+      }),
+    );
+
+    setProfilePictureUrl(uploadedProfilePictureUrl);
+    return uploadedProfilePictureUrl;
+  }, [profilePictureFile, profilePictureUrl, s3PermissionsResult]);
+
+  const saveUser = useCallback(async () => {
+    if (!user || isUpdating) return;
+
+    setIsUpdating(true);
     setModalLocked(true);
 
     try {
-      if (profilePictureFile) {
-        if (!getS3PermissionsResult?.success) {
-          throw new Error("Could not load S3 upload permissions.");
-        }
+      const nextProfilePictureUrl = await uploadProfilePicture();
 
-        const { aws, bucketName } = getS3PermissionsResult.data;
-        const profilePictureBody =
-          await createProfilePictureJpeg(profilePictureFile);
-        const profilePictureKey = `profile-pictures/${user.cognitoSub}.jpg`;
-        const s3Client = new S3Client({
-          region: getAwsRegion(),
-          credentials: {
-            accessKeyId: aws.accessKeyId,
-            secretAccessKey: aws.secretAccessKey,
-            sessionToken: aws.sessionToken,
-          },
-        });
+      const payload = {
+        ...(firstName !== (user.firstName ?? "") && { firstName }),
+        ...(lastName !== (user.lastName ?? "") && { lastName }),
+        ...(displayName !== (user.displayName ?? "") && { displayName }),
+        ...((profilePictureFile ||
+          nextProfilePictureUrl !== (user.profilePicture ?? "")) && {
+          profilePicture: nextProfilePictureUrl,
+        }),
+      };
 
-        await s3Client.send(
-          new PutObjectCommand({
-            Bucket: bucketName,
-            Key: profilePictureKey,
-            Body: profilePictureBody,
-            ContentType: PROFILE_PICTURE_CONTENT_TYPE,
-          }),
-        );
+      if (Object.keys(payload).length === 0) {
+        setModal(null);
+        return;
       }
+
+      const result = await updateUserProfile(payload);
+
+      if (!result.success) {
+        throw new Error("Failed to update user");
+      }
+
+      await queryClient.invalidateQueries({ queryKey: ["user"] });
+      setModal(null);
+    } catch (error) {
+      console.error("Error updating user:", error);
+      alert("An error occurred while updating your profile. Please try again.");
     } finally {
+      setIsUpdating(false);
       setModalLocked(false);
     }
   }, [
-    getS3PermissionsResult,
+    displayName,
+    firstName,
+    isUpdating,
+    lastName,
+    queryClient,
     profilePictureFile,
+    setModal,
     setModalLocked,
+    uploadProfilePicture,
     user,
   ]);
 
-  if (getUserPending || getS3PermissionsPending) {
+  if (userPending || s3PermissionsPending) {
     return (
       <div className="w-lg max-w-[calc(100vw-3rem)] p-2 text-xs">
         <div className="h-4 w-24 rounded bg-black/10" />
@@ -239,7 +278,7 @@ const EditUserModal = () => {
     );
   }
 
-  if (getUserError || getS3PermissionsError || !user) {
+  if (userError || s3PermissionsError || !user) {
     return (
       <div className="w-lg max-w-[calc(100vw-3rem)] p-2 text-xs">
         <p className="font-serif text-base">Edit User</p>
@@ -259,10 +298,11 @@ const EditUserModal = () => {
         <button
           type="button"
           aria-label="Close modal"
-          onClick={() => setModal(null)}
-          className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100"
+          disabled={isUpdating}
+          onClick={closeModal}
+          className="cursor-pointer rounded-lg p-1.5 transition-colors duration-150 ease-in hover:bg-black/15 hover:duration-100 hover:ease-out disabled:cursor-not-allowed disabled:text-gray-400 disabled:hover:bg-transparent"
         >
-          <XIcon className="w-5 h-5 text-black" />
+          <XIcon className="h-5 w-5 text-black" />
         </button>
       </div>
 
@@ -274,7 +314,7 @@ const EditUserModal = () => {
                 src={profilePicture}
                 alt={`${firstName} ${lastName}`.trim() || "Profile picture"}
                 referrerPolicy="no-referrer"
-                onError={() => setImageFailed(true)}
+                onError={handleImageError}
                 className="h-full w-full object-cover"
               />
             ) : (
@@ -283,10 +323,12 @@ const EditUserModal = () => {
               </div>
             )}
           </div>
+
           <input
             ref={fileInputRef}
             type="file"
             accept="image/*"
+            disabled={isUpdating}
             onChange={handleFileChange}
             className="hidden"
           />
@@ -295,7 +337,8 @@ const EditUserModal = () => {
             text="Upload"
             style="secondary"
             icon="upload"
-            onClick={() => fileInputRef.current?.click()}
+            onClick={openFilePicker}
+            disabled={isUpdating}
             fullWidth
           />
         </div>
@@ -305,8 +348,9 @@ const EditUserModal = () => {
             <span className="text-gray-600">First name</span>
             <input
               value={firstName}
-              onChange={(event) => setFirstName(event.target.value)}
-              className="rounded-lg border border-black/15 bg-white/70 px-2 py-2 outline-none transition-colors focus:border-black/40"
+              disabled={isUpdating}
+              onChange={handleFirstNameChange}
+              className={inputClass}
             />
           </label>
 
@@ -314,8 +358,9 @@ const EditUserModal = () => {
             <span className="text-gray-600">Last name</span>
             <input
               value={lastName}
-              onChange={(event) => setLastName(event.target.value)}
-              className="rounded-lg border border-black/15 bg-white/70 px-2 py-2 outline-none transition-colors focus:border-black/40"
+              disabled={isUpdating}
+              onChange={handleLastNameChange}
+              className={inputClass}
             />
           </label>
 
@@ -325,28 +370,30 @@ const EditUserModal = () => {
               <UserRound className="h-3.5 w-3.5 shrink-0 text-gray-500" />
               <input
                 value={displayName}
-                onChange={(event) => setDisplayName(event.target.value)}
-                className="min-w-0 flex-1 bg-transparent py-2 outline-none"
+                disabled={isUpdating}
+                onChange={handleDisplayNameChange}
+                className="min-w-0 flex-1 bg-transparent py-2 outline-none disabled:cursor-not-allowed disabled:text-gray-400"
               />
             </div>
           </label>
         </div>
       </div>
+
       <div className="mt-4 flex justify-end gap-2">
         <Button
           text="Reset"
           style="secondary"
           icon="reset"
           onClick={resetDraft}
-          disabled={!hasChanges}
+          disabled={isUpdating || !hasChanges}
           initiallyDisabled
         />
 
         <Button
           text="Save"
           icon="save"
-          onClick={updateUser}
-          disabled={!hasChanges}
+          onClick={saveUser}
+          disabled={isUpdating || !hasChanges}
           initiallyDisabled
         />
       </div>

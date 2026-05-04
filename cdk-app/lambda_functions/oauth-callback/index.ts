@@ -6,6 +6,7 @@ import {
 import { createRemoteJWKSet, jwtVerify } from "jose";
 import { getDatabaseUrl } from "@repo/shared-lambda-utils";
 import { getPrismaClient } from "@repo/database";
+import Stripe from "stripe";
 
 interface OAuthCallbackBody {
   code?: string;
@@ -171,6 +172,7 @@ export const lambdaHandler = async (
         : "";
     const profilePicture =
       typeof payload.picture === "string" ? payload.picture : null;
+    const displayName = getDisplayName(firstName, lastName, email);
 
     const databaseUrl = await getDatabaseUrl({
       primaryDatabaseSecretArn: process.env.PRIMARY_DATABASE_SECRET_ARN,
@@ -197,29 +199,68 @@ export const lambdaHandler = async (
       };
     }
 
-    await prisma.user.upsert({
+    const existingUserWithSub = await prisma.user.findUnique({
       where: { cognitoSub: payload.sub },
-      create: {
-        cognitoSub: payload.sub,
-        email,
-        firstName,
-        lastName,
-        profilePicture,
-        displayName: getDisplayName(firstName, lastName, email),
-        accountTier: "FREE",
-        accountStatus: "ACTIVE",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      update: {
-        email,
-        firstName,
-        lastName,
-        profilePicture,
-        displayName: getDisplayName(firstName, lastName, email),
-        updatedAt: new Date(),
-      },
     });
+
+    if (existingUserWithSub) {
+      await prisma.user.update({
+        where: { id: existingUserWithSub.id },
+        data: {
+          email,
+          firstName,
+          lastName,
+          profilePicture,
+          displayName,
+          updatedAt: new Date(),
+        },
+      });
+    } else {
+      if (!process.env.STRIPE_SECRET_KEY) {
+        throw new Error(
+          "STRIPE_SECRET_KEY must be set before creating Stripe customers.",
+        );
+      }
+
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+      const user = await prisma.user.create({
+        data: {
+          cognitoSub: payload.sub,
+          email,
+          firstName,
+          lastName,
+          profilePicture,
+          displayName,
+          accountTier: "FREE",
+          accountStatus: "ACTIVE",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      });
+
+      const stripeCustomer = await stripe.customers.create(
+        {
+          email,
+          name: displayName,
+          metadata: {
+            cognitoSub: payload.sub,
+            userId: user.id,
+          },
+        },
+        {
+          idempotencyKey: `cognito-oauth-signup-${payload.sub}`,
+        },
+      );
+
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          billingEmail: stripeCustomer.email ?? email,
+          stripeCustomerId: stripeCustomer.id,
+        },
+      });
+    }
 
     const accessMaxAge = tokens.expires_in ?? 3600;
     const refreshMaxAge = rememberMe ? 30 * 24 * 60 * 60 : undefined;

@@ -7,6 +7,21 @@ const GetUserResponseSchema = z.object({
   idToken: z.string(),
 });
 
+function addProfilePictureCacheVersion(
+  profilePicture: string | null,
+  updatedAt: Date,
+) {
+  if (!profilePicture) return profilePicture;
+
+  try {
+    const profilePictureUrl = new URL(profilePicture);
+    profilePictureUrl.searchParams.set("v", updatedAt.toISOString());
+    return profilePictureUrl.toString();
+  } catch {
+    return profilePicture;
+  }
+}
+
 export async function getUser() {
   const res = await fetchWithAuthRefresh("/get-user", {
     method: "GET",
@@ -16,5 +31,21 @@ export async function getUser() {
     throw new Error(`Request failed: ${res.status}`);
   }
 
-  return GetUserResponseSchema.safeParse(await res.json());
+  const parsed = GetUserResponseSchema.safeParse(await res.json());
+
+  if (!parsed.success) return parsed;
+
+  return {
+    success: true,
+    data: {
+      ...parsed.data,
+      user: {
+        ...parsed.data.user,
+        profilePicture: addProfilePictureCacheVersion(
+          parsed.data.user.profilePicture,
+          parsed.data.user.updatedAt,
+        ),
+      },
+    },
+  };
 }

@@ -17,7 +17,8 @@
     "@repo/database": "*",
     "@repo/shared-lambda-utils": "*",
     "esbuild": "^0.27.4",
-    "jose": "^6.2.3"
+    "jose": "^6.2.3",
+    "stripe": "^22.1.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.161",

@@ -125,6 +125,8 @@ services:
     build:
       context: ./local-api-dev-server
       dockerfile: dockerfile
+    env_file:
+      - ./cdk-app/.env
     environment:
       <<: [*aws-env, *nodemon-env, *cognito-env, *local-api-dev-server-env]
     ports:

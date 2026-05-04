@@ -80,8 +80,9 @@ export const lambdaHandler = async (
     //
     // CONTINUE BELOW
 
-    const profilePictureKey = `profile-pictures/${payload.sub}`;
+    const profilePictureKey = `profile-pictures/${payload.sub}.jpg`;
     const bucketName = getBucketNameFromArn(CASEOS_STORAGE_BUCKET_ARN);
+    const profilePictureUrl = `https://${bucketName}.s3.${AWS_REGION}.amazonaws.com/${profilePictureKey}`;
 
     const federationToken = await stsClient.send(
       new GetFederationTokenCommand({
@@ -93,7 +94,7 @@ export const lambdaHandler = async (
             {
               Effect: "Allow",
               Action: "s3:PutObject",
-              Resource: `${CASEOS_STORAGE_BUCKET_ARN}/profile-pictures/${payload.sub}.jpg`,
+              Resource: `${CASEOS_STORAGE_BUCKET_ARN}/${profilePictureKey}`,
             },
           ],
         }),
@@ -126,6 +127,7 @@ export const lambdaHandler = async (
         bucketArn: CASEOS_STORAGE_BUCKET_ARN,
         bucketName,
         profilePictureKey,
+        profilePictureUrl,
       }),
     };
   } catch (error) {
