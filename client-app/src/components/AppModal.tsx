@@ -5,8 +5,8 @@ import { AppModalContext } from "#/context/AppModalContext";
 
 // modals
 import EditUserModal from "./modals/EditUserModal";
-import ModifySubscription from "./modals/ModifySubscription";
-import ManageWorkspaces from "./modals/ManageWorkspaces";
+import ModifySubscriptionModal from "./modals/ModifySubscriptionModal";
+import ManageWorkspacesModal from "./modals/ManageWorkspacesModal";
 
 const SettingsModal = () => {
   const { modal, setModal, modalLocked } = useContext(AppModalContext);
@@ -59,8 +59,10 @@ const SettingsModal = () => {
         {/* MODAL */}
         <div>
           {visibleModal === "edit user" && <EditUserModal />}
-          {visibleModal === "manage subscription" && <ModifySubscription />}
-          {visibleModal === "manage workspaces" && <ManageWorkspaces />}
+          {visibleModal === "manage subscription" && (
+            <ModifySubscriptionModal />
+          )}
+          {visibleModal === "manage workspaces" && <ManageWorkspacesModal />}
         </div>
         {/* MODAL */}
       </div>
