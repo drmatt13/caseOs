@@ -6,16 +6,20 @@ export type Modal =
   | "manage workspaces"
   | null;
 
+export type ModalGuardState = "unlocked" | "state-modified" | "locked";
+
 export interface AppModalContextType {
   modal: Modal;
   setModal: Dispatch<SetStateAction<Modal>>;
-  modalLocked: boolean;
-  setModalLocked: Dispatch<SetStateAction<boolean>>;
+  modalGuardState: ModalGuardState;
+  setModalGuardState: Dispatch<SetStateAction<ModalGuardState>>;
+  requestCloseModal: () => boolean;
 }
 
 export const AppModalContext = createContext<AppModalContextType>({
   modal: null,
   setModal: () => {},
-  modalLocked: false,
-  setModalLocked: () => {},
+  modalGuardState: "unlocked",
+  setModalGuardState: () => {},
+  requestCloseModal: () => false,
 });

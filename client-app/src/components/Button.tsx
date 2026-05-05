@@ -8,15 +8,16 @@ interface ButtonProps {
   onClick?: () => void;
   disabled?: boolean;
   rainbow?: boolean;
-  icon?: "reset" | "save" | "sparkles" | "upload";
+  icon?: "continue" | "reset" | "save" | "sparkles" | "upload";
   submit?: boolean;
   fullWidth?: boolean;
   initiallyDisabled?: boolean;
 }
 
-import { ImageUp, RotateCcw, Save, Sparkles } from "lucide-react";
+import { ArrowRight, ImageUp, RotateCcw, Save, Sparkles } from "lucide-react";
 
 const buttonIcons = {
+  continue: ArrowRight,
   reset: RotateCcw,
   save: Save,
   sparkles: Sparkles,

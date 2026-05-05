@@ -118,7 +118,15 @@ export class HttpApiGatewayStack extends cdk.Stack {
       props.refreshFn,
     );
 
-    // Authenticated Routes
+    // Stripe Webhook Routes
+    addPublicRoute(
+      "RefreshIntegration",
+      "/refresh",
+      [apigwv2.HttpMethod.ANY],
+      props.refreshFn,
+    );
+
+    // Cognito Authenticated Routes
     addAuthenticatedRoute(
       "VerifyUserIntegration",
       "/verify-user",

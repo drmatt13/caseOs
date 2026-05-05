@@ -11,8 +11,10 @@ import {
 } from "@floating-ui/react";
 import { useContext, useEffect, useCallback } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import Button from "../Button";
 import logout from "#/lib/logout";
+import { getUser } from "#/api/getUser";
 import { BriefcaseBusiness, CreditCard, UserPen, XIcon } from "lucide-react";
 
 // context
@@ -25,6 +27,17 @@ const SettingsPopup = () => {
   const { activePopup, referenceElement, closePopup } =
     useContext(PopupContext);
   const isOpen = activePopup === "settings";
+  const {
+    data: userResult,
+    isPending: userPending,
+    error: userError,
+  } = useQuery({
+    queryKey: ["user"],
+    queryFn: getUser,
+  });
+  const user = userResult?.success ? userResult.data.user : undefined;
+  const manageWorkspacesDisabled =
+    userPending || !!userError || user?.accountTier === "FREE";
   const { refs, floatingStyles, context } = useFloating({
     open: isOpen,
     onOpenChange: (open) => {
@@ -100,8 +113,16 @@ const SettingsPopup = () => {
         </div>
 
         <div
-          onClick={() => toggleModal("manage workspaces")}
-          className="pr-4 mr-3 flex text-xs p-2 rounded-lg hover:bg-black/10 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100"
+          onClick={() => {
+            if (manageWorkspacesDisabled) return;
+
+            toggleModal("manage workspaces");
+          }}
+          className={`pr-4 mr-3 flex text-xs p-2 rounded-lg transition-colors ease-in duration-150 hover:ease-out hover:duration-100 ${
+            manageWorkspacesDisabled
+              ? "cursor-not-allowed text-gray-400"
+              : "hover:bg-black/10 cursor-pointer"
+          }`}
         >
           <BriefcaseBusiness className="w-4 h-4 mr-2" />
           <p className="truncate">Manage Workspaces</p>

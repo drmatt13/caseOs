@@ -9,18 +9,20 @@ import ModifySubscriptionModal from "./modals/ModifySubscriptionModal";
 import ManageWorkspacesModal from "./modals/ManageWorkspacesModal";
 
 const SettingsModal = () => {
-  const { modal, setModal, modalLocked } = useContext(AppModalContext);
+  const { modal, requestCloseModal } = useContext(AppModalContext);
   const [prevmodal, setPrevModal] = useState(modal);
+  const [modalOpenKey, setModalOpenKey] = useState(0);
   const visibleModal = modal ?? prevmodal;
 
   const handleBackdropClick = () => {
-    if (modalLocked) return;
-
-    setModal(null);
+    requestCloseModal();
   };
 
   useEffect(() => {
-    if (modal) setPrevModal(modal);
+    if (modal) {
+      setPrevModal(modal);
+      setModalOpenKey((currentKey) => currentKey + 1);
+    }
   }, [modal]);
 
   return (
@@ -57,7 +59,10 @@ const SettingsModal = () => {
         onClick={(e) => e.stopPropagation()}
       >
         {/* MODAL */}
-        <div className="max-h-[calc(100vh-6rem)] overflow-x-hidden overflow-y-auto px-4 py-3">
+        <div
+          key={`${visibleModal ?? "empty"}-${modalOpenKey}`}
+          className="max-h-[calc(100vh-6rem)] overflow-x-hidden overflow-y-auto px-4 py-3"
+        >
           {visibleModal === "edit user" && <EditUserModal />}
           {visibleModal === "manage subscription" && (
             <ModifySubscriptionModal />

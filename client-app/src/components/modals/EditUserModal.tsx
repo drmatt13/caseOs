@@ -40,7 +40,8 @@ const EditUserModal = () => {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { setModal, setModalLocked } = useContext(AppModalContext);
+  const { setModal, requestCloseModal, setModalGuardState } =
+    useContext(AppModalContext);
 
   const [imageFailed, setImageFailed] = useState(false);
   const [localProfilePicture, setLocalProfilePicture] = useState<string | null>(
@@ -81,9 +82,8 @@ const EditUserModal = () => {
   }, []);
 
   const closeModal = useCallback(() => {
-    if (isUpdating) return;
-    setModal(null);
-  }, [isUpdating, setModal]);
+    requestCloseModal();
+  }, [requestCloseModal]);
 
   const handleImageError = useCallback(() => {
     setImageFailed(true);
@@ -153,6 +153,21 @@ const EditUserModal = () => {
       profilePictureUrl !== (user.profilePicture ?? "") ||
       !!profilePictureFile);
 
+  useEffect(() => {
+    if (isUpdating) {
+      setModalGuardState("locked");
+      return;
+    }
+
+    setModalGuardState(hasChanges ? "state-modified" : "unlocked");
+  }, [hasChanges, isUpdating, setModalGuardState]);
+
+  useEffect(() => {
+    return () => {
+      setModalGuardState("unlocked");
+    };
+  }, [setModalGuardState]);
+
   const handleFileChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       if (isUpdating) return;
@@ -215,7 +230,7 @@ const EditUserModal = () => {
     if (!user || isUpdating) return;
 
     setIsUpdating(true);
-    setModalLocked(true);
+    setModalGuardState("locked");
 
     try {
       const nextProfilePictureUrl = await uploadProfilePicture();
@@ -248,7 +263,7 @@ const EditUserModal = () => {
       alert("An error occurred while updating your profile. Please try again.");
     } finally {
       setIsUpdating(false);
-      setModalLocked(false);
+      setModalGuardState("unlocked");
     }
   }, [
     displayName,
@@ -258,7 +273,7 @@ const EditUserModal = () => {
     queryClient,
     profilePictureFile,
     setModal,
-    setModalLocked,
+    setModalGuardState,
     uploadProfilePicture,
     user,
   ]);

@@ -8,7 +8,11 @@ import AppModal from "#/components/AppModal";
 
 // context
 import { PopupContext, type PopupId } from "#/context/PopupContext";
-import { AppModalContext, type Modal } from "#/context/AppModalContext";
+import {
+  AppModalContext,
+  type Modal,
+  type ModalGuardState,
+} from "#/context/AppModalContext";
 
 import appCss from "../styles.css?url";
 
@@ -47,7 +51,8 @@ const queryClient = new QueryClient({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   const [modal, setModal] = useState<Modal>(null);
-  const [modalLocked, setModalLocked] = useState(false);
+  const [modalGuardState, setModalGuardState] =
+    useState<ModalGuardState>("unlocked");
   const [popupState, setPopupState] = useState<{
     activePopup: PopupId | null;
     referenceElement: HTMLElement | null;
@@ -90,6 +95,22 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const requestCloseModal = useCallback(() => {
+    if (modalGuardState === "locked") return false;
+
+    if (modalGuardState === "state-modified") {
+      const shouldClose = window.confirm(
+        "You have unsaved changes. Are you sure you want to close this modal?",
+      );
+
+      if (!shouldClose) return false;
+    }
+
+    setModal(null);
+    setModalGuardState("unlocked");
+    return true;
+  }, [modalGuardState]);
+
   return (
     <html
       lang="en"
@@ -102,7 +123,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <QueryClientProvider client={queryClient}>
         <AppModalContext.Provider
-          value={{ modal, setModal, modalLocked, setModalLocked }}
+          value={{
+            modal,
+            setModal,
+            modalGuardState,
+            setModalGuardState,
+            requestCloseModal,
+          }}
         >
           <PopupContext.Provider
             value={{
