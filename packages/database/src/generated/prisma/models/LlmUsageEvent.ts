@@ -8,7 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
-import type * as runtime from "@prisma/client/runtime/client"
+import type * as runtime from "@prisma/client/runtime/library"
 import type * as $Enums from "../enums.js"
 import type * as Prisma from "../internal/prismaNamespace.js"
 
@@ -266,7 +266,7 @@ export type LlmUsageEventGroupByOutputType = {
   _max: LlmUsageEventMaxAggregateOutputType | null
 }
 
-export type GetLlmUsageEventGroupByPayload<T extends LlmUsageEventGroupByArgs> = Prisma.PrismaPromise<
+type GetLlmUsageEventGroupByPayload<T extends LlmUsageEventGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<LlmUsageEventGroupByOutputType, T['by']> &
       {
@@ -2070,11 +2070,6 @@ export type LlmUsageEventFindManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * Skip the first `n` LlmUsageEvents.
    */
   skip?: number
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-   * 
-   * Filter by unique combinations of LlmUsageEvents.
-   */
   distinct?: Prisma.LlmUsageEventScalarFieldEnum | Prisma.LlmUsageEventScalarFieldEnum[]
 }
 

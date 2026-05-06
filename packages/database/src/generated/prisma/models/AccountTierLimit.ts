@@ -8,7 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
-import type * as runtime from "@prisma/client/runtime/client"
+import type * as runtime from "@prisma/client/runtime/library"
 import type * as $Enums from "../enums.js"
 import type * as Prisma from "../internal/prismaNamespace.js"
 
@@ -218,7 +218,7 @@ export type AccountTierLimitGroupByOutputType = {
   _max: AccountTierLimitMaxAggregateOutputType | null
 }
 
-export type GetAccountTierLimitGroupByPayload<T extends AccountTierLimitGroupByArgs> = Prisma.PrismaPromise<
+type GetAccountTierLimitGroupByPayload<T extends AccountTierLimitGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<AccountTierLimitGroupByOutputType, T['by']> &
       {
@@ -1072,11 +1072,6 @@ export type AccountTierLimitFindManyArgs<ExtArgs extends runtime.Types.Extension
    * Skip the first `n` AccountTierLimits.
    */
   skip?: number
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-   * 
-   * Filter by unique combinations of AccountTierLimits.
-   */
   distinct?: Prisma.AccountTierLimitScalarFieldEnum | Prisma.AccountTierLimitScalarFieldEnum[]
 }
 

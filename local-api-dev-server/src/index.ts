@@ -19,7 +19,6 @@ import { lambdaHandler as s3AccessBroker } from "../../cdk-app/lambda_functions/
 import { lambdaHandler as billingListProducts } from "../../cdk-app/lambda_functions/billing-list-products/index";
 import { lambdaHandler as billingCreateSetupIntent } from "../../cdk-app/lambda_functions/billing-create-setup-intent/index";
 import { lambdaHandler as billingCreateSubscription } from "../../cdk-app/lambda_functions/billing-create-subscription/index";
-import { lambdaHandler as stripeWebhook } from "../../cdk-app/lambda_functions/stripe-webhook/index";
 
 dotenv.config({
   path: "./.env",
@@ -69,16 +68,18 @@ pollingInterval = setInterval(() => {
 //          Emulates API Gateway for local development
 // ************************************************************
 
-// Root endpoint
+/*********************************
+ *         Root Endpoint         *
+ *********************************/
 app.get("/", (req, res) => {
   return res.send(
     "Welcome to the Local API Dev Server! Use this server to test your Lambda functions and ECS containers locally.",
   );
 });
 
-// Lambda function routes
-
-// Public Routes
+/*********************************
+ *         Public Routes         *
+ *********************************/
 app.all("/sign-in", async (req, res) => {
   console.log("Sign-in request received");
   return invokeLambdaFunction(req, res, signIn);
@@ -96,7 +97,9 @@ app.all("/refresh", async (req, res) => {
   return invokeLambdaFunction(req, res, refresh);
 });
 
-// Authenticated Routes
+/*********************************
+ *     Authenticated Routes      *
+ *********************************/
 app.all("/get-user", async (req, res) => {
   return invokeLambdaFunction(req, res, getUser);
 });
@@ -113,7 +116,7 @@ app.all("/s3-access-broker", async (req, res) => {
   return invokeLambdaFunction(req, res, s3AccessBroker);
 });
 
-// Stripe-related routes
+// -- Stripe Routes --
 app.all("/billing/list-products", async (req, res) => {
   return invokeLambdaFunction(req, res, billingListProducts);
 });
@@ -126,15 +129,9 @@ app.all("/billing/create-subscription", async (req, res) => {
   return invokeLambdaFunction(req, res, billingCreateSubscription);
 });
 
-app.all("/stripe-webhook", async (req, res) => {
-  return invokeLambdaFunction(req, res, stripeWebhook);
-});
-
-app.all("/stripe/webhook", async (req, res) => {
-  return invokeLambdaFunction(req, res, stripeWebhook);
-});
-
-// ECS container routes
+/*********************************
+ *     ECS Service Routes        *
+ *********************************/
 app.use("/langgraph-service", (req, res) => {
   return proxyToContainer(
     req,
@@ -144,7 +141,10 @@ app.use("/langgraph-service", (req, res) => {
   );
 });
 
-// Start server
+/*********************************
+ *        Server Startup         *
+ *********************************/
+
 app.listen(PORT, () => {
   console.log(`Local API Dev Server is running on port ${PORT}`);
 });

@@ -8,7 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
-import type * as runtime from "@prisma/client/runtime/client"
+import type * as runtime from "@prisma/client/runtime/library"
 import type * as $Enums from "../enums.js"
 import type * as Prisma from "../internal/prismaNamespace.js"
 
@@ -225,7 +225,7 @@ export type WorkspaceUsageMonthlyGroupByOutputType = {
   _max: WorkspaceUsageMonthlyMaxAggregateOutputType | null
 }
 
-export type GetWorkspaceUsageMonthlyGroupByPayload<T extends WorkspaceUsageMonthlyGroupByArgs> = Prisma.PrismaPromise<
+type GetWorkspaceUsageMonthlyGroupByPayload<T extends WorkspaceUsageMonthlyGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<WorkspaceUsageMonthlyGroupByOutputType, T['by']> &
       {
@@ -1449,11 +1449,6 @@ export type WorkspaceUsageMonthlyFindManyArgs<ExtArgs extends runtime.Types.Exte
    * Skip the first `n` WorkspaceUsageMonthlies.
    */
   skip?: number
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-   * 
-   * Filter by unique combinations of WorkspaceUsageMonthlies.
-   */
   distinct?: Prisma.WorkspaceUsageMonthlyScalarFieldEnum | Prisma.WorkspaceUsageMonthlyScalarFieldEnum[]
 }
 

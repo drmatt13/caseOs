@@ -61,6 +61,9 @@ build/Release
 node_modules/
 jspm_packages/
 
+# Prisma generates platform-specific native engines next to generated clients.
+packages/database/src/generated/prisma/*.node
+
 # TypeScript v1 declaration files
 typings/
 

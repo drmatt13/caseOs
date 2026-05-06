@@ -92,7 +92,7 @@ services:
       [
         "sh",
         "-lc",
-        "if [ -f src/generated/prisma/client.ts ] && [ -f src/generated/prisma/browser.ts ]; then echo 'Prisma client already generated; skipping.'; else npx prisma generate; fi",
+        "npx prisma generate",
       ]
     volumes:
       - ./:/workspace

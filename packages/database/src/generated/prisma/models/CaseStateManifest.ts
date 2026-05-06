@@ -8,7 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
-import type * as runtime from "@prisma/client/runtime/client"
+import type * as runtime from "@prisma/client/runtime/library"
 import type * as $Enums from "../enums.js"
 import type * as Prisma from "../internal/prismaNamespace.js"
 
@@ -248,7 +248,7 @@ export type CaseStateManifestGroupByOutputType = {
   _max: CaseStateManifestMaxAggregateOutputType | null
 }
 
-export type GetCaseStateManifestGroupByPayload<T extends CaseStateManifestGroupByArgs> = Prisma.PrismaPromise<
+type GetCaseStateManifestGroupByPayload<T extends CaseStateManifestGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<CaseStateManifestGroupByOutputType, T['by']> &
       {
@@ -2083,11 +2083,6 @@ export type CaseStateManifestFindManyArgs<ExtArgs extends runtime.Types.Extensio
    * Skip the first `n` CaseStateManifests.
    */
   skip?: number
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-   * 
-   * Filter by unique combinations of CaseStateManifests.
-   */
   distinct?: Prisma.CaseStateManifestScalarFieldEnum | Prisma.CaseStateManifestScalarFieldEnum[]
 }
 

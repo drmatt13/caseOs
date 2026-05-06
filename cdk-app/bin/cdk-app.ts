@@ -11,7 +11,7 @@ import { EcsServicesStack } from "../lib/ecs-services-stack";
 import { RdsStack } from "../lib/rds-stack";
 import { WebSocketApiStack } from "../lib/websocket-api-stack";
 import { WebSocketLambdaFunctionsStack } from "../lib/websocket-lambda-functions-stack";
-import { PromoCodesStack } from "../lib/promo-codes-stack";
+// import { PromoCodesStack } from "../lib/promo-codes-stack";
 import { S3Stack } from "../lib/s3-stack";
 
 const loadDotEnv = (envPath: string) => {
@@ -168,9 +168,9 @@ const googleClientSecret = googleClientSecretContext
 const stripePublishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 
-new PromoCodesStack(app, "PromoCodesStack", {
-  env: stackEnv,
-});
+// new PromoCodesStack(app, "PromoCodesStack", {
+//   env: stackEnv,
+// });
 
 const s3Stack = new S3Stack(app, "S3Stack", {
   env: stackEnv,

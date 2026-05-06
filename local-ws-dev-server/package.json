@@ -20,8 +20,6 @@
   "dependencies": {
     "@aws-sdk/client-apigatewaymanagementapi": "^3.1013.0",
     "dotenv": "^16.4.7",
-    "install": "^0.13.0",
-    "npm": "^11.2.0",
     "ws": "^8.18.1"
   }
 }

@@ -73,6 +73,7 @@ export class HttpApiGatewayStack extends cdk.Stack {
       },
     );
 
+    // Helper functions to add routes with less repetition
     const addPublicRoute = (
       id: string,
       path: string,
@@ -100,7 +101,9 @@ export class HttpApiGatewayStack extends cdk.Stack {
       });
     };
 
-    // Public Routes
+    /*********************************
+     *         Public Routes         *
+     *********************************/
     addPublicRoute(
       "SignInIntegration",
       "/sign-in",
@@ -129,7 +132,9 @@ export class HttpApiGatewayStack extends cdk.Stack {
       props.refreshFn,
     );
 
-    // Cognito Authenticated Routes
+    /*********************************
+     *     Authenticated Routes      *
+     *********************************/
     addAuthenticatedRoute(
       "VerifyUserIntegration",
       "/verify-user",
@@ -158,7 +163,7 @@ export class HttpApiGatewayStack extends cdk.Stack {
       props.s3AccessBrokerFn,
     );
 
-    // Stripe Routes
+    // -- Stripe Routes --
     addAuthenticatedRoute(
       "BillingListProductsIntegration",
       "/billing/list-products",
@@ -180,6 +185,9 @@ export class HttpApiGatewayStack extends cdk.Stack {
       props.billingCreateSubscriptionFn,
     );
 
+    /*********************************
+     *        Webhook Routes         *
+     *********************************/
     addPublicRoute(
       "StripeWebhookIntegration",
       "/stripe/webhook",
@@ -187,7 +195,9 @@ export class HttpApiGatewayStack extends cdk.Stack {
       props.stripeWebhookFn,
     );
 
-    // ECS Service Routes (e.g. langgraph)
+    /*********************************
+     *     ECS Service Routes        *
+     *********************************/
     if (!props.useLocalImplementations && props.langgraphServiceUrl) {
       api.addRoutes({
         path: "/langgraph/{proxy+}",
@@ -199,6 +209,7 @@ export class HttpApiGatewayStack extends cdk.Stack {
       });
     }
 
+    // Outputs
     new cdk.CfnOutput(this, "HttpApiUrl", {
       value: api.apiEndpoint,
       exportName: "HttpApiGatewayStack:HttpApiUrl",
