@@ -6,27 +6,19 @@ import type {
 import Stripe from "stripe";
 import {
   getDatabaseUrl,
+  jsonResponse,
   requireAuthenticatedSub,
 } from "@repo/shared-lambda-utils";
 import { getPrismaClient } from "@repo/database";
-
-const jsonResponse = (
-  statusCode: number,
-  body: unknown,
-): APIGatewayProxyResult => ({
-  statusCode,
-  headers: {
-    "content-type": "application/json",
-  },
-  body: JSON.stringify(body),
-});
 
 export const lambdaHandler = async (
   event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResult> => {
   try {
+    // Validate the Cognito session and expose the Cognito subject.
     const cognitoSub = await requireAuthenticatedSub(event);
 
+    // Return 401 when the request has no valid session.
     if (!cognitoSub) {
       return jsonResponse(401, { error: "Unauthorized" });
     }
@@ -37,17 +29,21 @@ export const lambdaHandler = async (
       });
     }
 
+    // Resolve the production or local database URL.
     const databaseUrl = await getDatabaseUrl({
       primaryDatabaseSecretArn: process.env.PRIMARY_DATABASE_SECRET_ARN,
       primaryDatabaseUrl: process.env.PRIMARY_DATABASE_URL,
       primaryDatabaseSslmode: process.env.PRIMARY_DATABASE_SSLMODE,
     });
 
+    // Initialize Prisma with the resolved database URL.
     const prisma = getPrismaClient(databaseUrl);
+    // Fetch the user by Cognito subject.
     const user = await prisma.user.findUnique({
       where: { cognitoSub },
     });
 
+    // Return 404 when the authenticated user has no database record.
     if (!user) {
       return jsonResponse(404, { error: "User not found" });
     }
@@ -55,7 +51,7 @@ export const lambdaHandler = async (
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
     let stripeCustomerId = user.stripeCustomerId;
 
-    // If the user doesn't have a Stripe customer ID, create a new customer in Stripe and save the ID in the database
+    // Create and persist a Stripe customer when the user does not have one.
     if (!stripeCustomerId) {
       const stripeCustomer = await stripe.customers.create(
         {
@@ -84,6 +80,7 @@ export const lambdaHandler = async (
       });
     }
 
+    // Create a SetupIntent for future off-session subscription payments.
     const setupIntent = await stripe.setupIntents.create({
       customer: stripeCustomerId,
       usage: "off_session",
@@ -96,6 +93,7 @@ export const lambdaHandler = async (
       },
     });
 
+    // Return the SetupIntent details needed by the client.
     return jsonResponse(200, {
       success: true,
       clientSecret: setupIntent.client_secret,

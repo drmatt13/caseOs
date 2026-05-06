@@ -4,18 +4,15 @@ import type {
   APIGatewayProxyResult,
 } from "aws-lambda";
 import { GetFederationTokenCommand, STSClient } from "@aws-sdk/client-sts";
-import { requireAuthenticatedSub } from "@repo/shared-lambda-utils";
+import {
+  jsonResponse,
+  requireAuthenticatedSub,
+} from "@repo/shared-lambda-utils";
 
-// Get required environment variables and throw an error if any are missing
-const {
-  AWS_REGION,
-  CASEOS_STORAGE_BUCKET_ARN,
-} = process.env;
+// Validate required environment configuration at startup.
+const { AWS_REGION, CASEOS_STORAGE_BUCKET_ARN } = process.env;
 
-if (
-  !AWS_REGION ||
-  !CASEOS_STORAGE_BUCKET_ARN
-) {
+if (!AWS_REGION || !CASEOS_STORAGE_BUCKET_ARN) {
   throw new Error("Missing S3 access broker environment variables");
 }
 
@@ -36,28 +33,20 @@ export const lambdaHandler = async (
   event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResult> => {
   try {
+    // Validate the Cognito session and expose the Cognito subject.
     const cognitoSub = await requireAuthenticatedSub(event);
 
+    // Return 401 when the request has no valid session.
     if (!cognitoSub) {
-      return {
-        statusCode: 401,
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({ message: "Unauthorized" }),
-      };
+      return jsonResponse(401, { message: "Unauthorized" });
     }
 
-    // DO NOTHING WITH DATABASE YET, THAT FUNCTIONALTY COMES AFTER YOU CAN CREATE WORKSPACES AND ADD USERS TO THOSE WORKSPACES.
-    //
-    //
-    //
-    // CONTINUE BELOW
-
+    // Build the user's profile-picture object key and public URL.
     const profilePictureKey = `profile-pictures/${cognitoSub}.jpg`;
     const bucketName = getBucketNameFromArn(CASEOS_STORAGE_BUCKET_ARN);
     const profilePictureUrl = `https://${bucketName}.s3.${AWS_REGION}.amazonaws.com/${profilePictureKey}`;
 
+    // Issue short-lived credentials scoped to the user's profile picture.
     const federationToken = await stsClient.send(
       new GetFederationTokenCommand({
         Name: `caseos-${cognitoSub.slice(0, 24)}`,
@@ -77,6 +66,7 @@ export const lambdaHandler = async (
 
     const credentials = federationToken.Credentials;
 
+    // Validate the STS response contains the expected credentials.
     if (
       !credentials?.AccessKeyId ||
       !credentials.SecretAccessKey ||
@@ -86,33 +76,22 @@ export const lambdaHandler = async (
       throw new Error("STS did not return complete session credentials");
     }
 
-    return {
-      statusCode: 200,
-      headers: {
-        "content-type": "application/json",
+    // Return temporary AWS credentials and upload target details.
+    return jsonResponse(200, {
+      aws: {
+        accessKeyId: credentials.AccessKeyId,
+        secretAccessKey: credentials.SecretAccessKey,
+        sessionToken: credentials.SessionToken,
+        expiration: credentials.Expiration.toISOString(),
       },
-      body: JSON.stringify({
-        aws: {
-          accessKeyId: credentials.AccessKeyId,
-          secretAccessKey: credentials.SecretAccessKey,
-          sessionToken: credentials.SessionToken,
-          expiration: credentials.Expiration.toISOString(),
-        },
-        bucketArn: CASEOS_STORAGE_BUCKET_ARN,
-        bucketName,
-        profilePictureKey,
-        profilePictureUrl,
-      }),
-    };
+      bucketArn: CASEOS_STORAGE_BUCKET_ARN,
+      bucketName,
+      profilePictureKey,
+      profilePictureUrl,
+    });
   } catch (error) {
     console.error("Error brokering S3 access:", error);
 
-    return {
-      statusCode: 401,
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({ message: "Unauthorized" }),
-    };
+    return jsonResponse(401, { message: "Unauthorized" });
   }
 };

@@ -5,6 +5,11 @@ import {
 } from "aws-lambda";
 import {
   getDatabaseUrl,
+  getHttpMethod,
+  jsonResponse,
+  makeAuthCookie,
+  optionsResponse,
+  parseJsonBody,
   verifyCognitoIdToken,
 } from "@repo/shared-lambda-utils";
 import { getPrismaClient } from "@repo/database";
@@ -22,13 +27,6 @@ interface CognitoTokenResponse {
   expires_in?: number;
   error?: string;
   error_description?: string;
-}
-
-function makeCookie(name: string, value: string, maxAge?: number): string {
-  const maxAgeAttribute =
-    typeof maxAge === "number" ? `; Max-Age=${maxAge}` : "";
-
-  return `${name}=${value}; HttpOnly; Secure; SameSite=None; Path=/${maxAgeAttribute}`;
 }
 
 function getDisplayName(
@@ -67,23 +65,18 @@ export const lambdaHandler = async (
   event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResult> => {
   try {
-    const method =
-      "httpMethod" in event
-        ? event.httpMethod
-        : event.requestContext?.http?.method;
-
-    if (method === "OPTIONS") {
-      return { statusCode: 204, body: "" };
+    if (getHttpMethod(event) === "OPTIONS") {
+      return optionsResponse();
     }
 
     let body: OAuthCallbackBody;
     try {
-      body = JSON.parse(event.body ?? "{}") as OAuthCallbackBody;
+      body = parseJsonBody<OAuthCallbackBody>(event.body);
     } catch {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ success: false, error: "Invalid request body" }),
-      };
+      return jsonResponse(400, {
+        success: false,
+        error: "Invalid request body",
+      });
     }
 
     const code = body.code?.trim();
@@ -92,13 +85,10 @@ export const lambdaHandler = async (
     const cognitoConfig = getRequiredCognitoConfig();
 
     if (!code || !redirectUri) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
-          success: false,
-          error: "Authorization code and redirect URI are required",
-        }),
-      };
+      return jsonResponse(400, {
+        success: false,
+        error: "Authorization code and redirect URI are required",
+      });
     }
 
     const tokenResponse = await fetch(
@@ -123,36 +113,27 @@ export const lambdaHandler = async (
       !tokens.access_token ||
       !tokens.refresh_token
     ) {
-      return {
-        statusCode: 401,
-        body: JSON.stringify({
-          success: false,
-          error:
-            tokens.error_description ||
-            tokens.error ||
-            "Unable to complete OAuth sign in",
-        }),
-      };
+      return jsonResponse(401, {
+        success: false,
+        error:
+          tokens.error_description ||
+          tokens.error ||
+          "Unable to complete OAuth sign in",
+      });
     }
 
     const payload = await verifyCognitoIdToken(tokens.id_token);
 
     if (!payload) {
-      return {
-        statusCode: 401,
-        body: JSON.stringify({ success: false, error: "Invalid ID token" }),
-      };
+      return jsonResponse(401, { success: false, error: "Invalid ID token" });
     }
 
     const email = typeof payload.email === "string" ? payload.email : "";
     if (!email) {
-      return {
-        statusCode: 401,
-        body: JSON.stringify({
-          success: false,
-          error: "OAuth provider did not return an email address",
-        }),
-      };
+      return jsonResponse(401, {
+        success: false,
+        error: "OAuth provider did not return an email address",
+      });
     }
 
     const firstName =
@@ -182,14 +163,11 @@ export const lambdaHandler = async (
       existingUserWithEmail &&
       existingUserWithEmail.cognitoSub !== payload.sub
     ) {
-      return {
-        statusCode: 409,
-        body: JSON.stringify({
-          success: false,
-          error:
-            "An account already exists with this email. Sign in with email and password first.",
-        }),
-      };
+      return jsonResponse(409, {
+        success: false,
+        error:
+          "An account already exists with this email. Sign in with email and password first.",
+      });
     }
 
     const existingUserWithSub = await prisma.user.findUnique({
@@ -229,25 +207,24 @@ export const lambdaHandler = async (
     const accessMaxAge = tokens.expires_in ?? 3600;
     const refreshMaxAge = rememberMe ? 30 * 24 * 60 * 60 : undefined;
 
-    return {
-      statusCode: 200,
-      multiValueHeaders: {
-        "Set-Cookie": [
-          makeCookie("idToken", tokens.id_token, accessMaxAge),
-          makeCookie("accessToken", tokens.access_token, accessMaxAge),
-          makeCookie("refreshToken", tokens.refresh_token, refreshMaxAge),
-        ],
+    return jsonResponse(
+      200,
+      { success: true },
+      {
+        multiValueHeaders: {
+          "Set-Cookie": [
+            makeAuthCookie("idToken", tokens.id_token, accessMaxAge),
+            makeAuthCookie("accessToken", tokens.access_token, accessMaxAge),
+            makeAuthCookie("refreshToken", tokens.refresh_token, refreshMaxAge),
+          ],
+        },
       },
-      body: JSON.stringify({ success: true }),
-    };
+    );
   } catch (error) {
     console.error("OAuth callback error:", error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        success: false,
-        error: error instanceof Error ? error.message : "OAuth sign in failed",
-      }),
-    };
+    return jsonResponse(500, {
+      success: false,
+      error: error instanceof Error ? error.message : "OAuth sign in failed",
+    });
   }
 };

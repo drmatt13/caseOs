@@ -12,7 +12,7 @@ export interface HttpApiGatewayStackProps extends cdk.StackProps {
   signInFn: IFunction;
   signOutFn: IFunction;
   oauthCallbackFn: IFunction;
-  verifyUserFn: IFunction;
+  verifySessionFn: IFunction;
   refreshFn: IFunction;
   getUserFn: IFunction;
   updateUserFn: IFunction;
@@ -136,10 +136,10 @@ export class HttpApiGatewayStack extends cdk.Stack {
      *     Authenticated Routes      *
      *********************************/
     addAuthenticatedRoute(
-      "VerifyUserIntegration",
-      "/verify-user",
+      "VerifySessionIntegration",
+      "/verify-session",
       [apigwv2.HttpMethod.ANY],
-      props.verifyUserFn,
+      props.verifySessionFn,
     );
 
     addAuthenticatedRoute(

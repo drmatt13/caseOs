@@ -1,7 +1,7 @@
 {
-  "name": "verify-user",
+  "name": "verify-session",
   "version": "1.0.0",
-  "description": "A Lambda function to verify user authentication and return user information.",
+  "description": "A Lambda function to verify user session authentication.",
   "main": "index.ts",
   "repository": "",
   "author": "Matthew Sweeney",

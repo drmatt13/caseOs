@@ -4,16 +4,11 @@ import type {
   APIGatewayProxyResult,
 } from "aws-lambda";
 import Stripe from "stripe";
-import { getDatabaseUrl } from "@repo/shared-lambda-utils";
+import {
+  getDatabaseUrl,
+  jsonResponse,
+} from "@repo/shared-lambda-utils";
 import { getPrismaClient } from "@repo/database";
-
-const jsonResponse = (statusCode: number, body: unknown): APIGatewayProxyResult => ({
-  statusCode,
-  headers: {
-    "content-type": "application/json",
-  },
-  body: JSON.stringify(body),
-});
 
 function normalizeSubscriptionStatus(status: string) {
   switch (status) {

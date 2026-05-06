@@ -29,7 +29,7 @@ export const API_ROUTES = [
   "/sign-in",
   "/sign-out",
   "/update-user",
-  "/verify-user",
+  "/verify-session",
 ] as const;
 
 export type ApiRoute = (typeof API_ROUTES)[number];
@@ -296,7 +296,7 @@ async function checkSessionOnServer(): Promise<AuthState> {
       return { authenticated: false };
     }
 
-    const response = await fetch(`${API_URL}/verify-user`, {
+    const response = await fetch(`${API_URL}/verify-session`, {
       method: "GET",
       headers: { cookie: cookieHeader },
       credentials: "include",
@@ -338,7 +338,7 @@ async function checkSessionOnClient(): Promise<AuthState> {
 
   clientAuthRequest = (async (): Promise<AuthState> => {
     try {
-      const response = await fetch(`${API_URL}/verify-user`, {
+      const response = await fetch(`${API_URL}/verify-session`, {
         method: "GET",
         credentials: "include",
       });

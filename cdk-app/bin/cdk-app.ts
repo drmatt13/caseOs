@@ -276,7 +276,7 @@ const httpApiGatewayStack = !useLocalImplementations
       signInFn: synchronousLambdaFunctionsStack.signInFn,
       signOutFn: synchronousLambdaFunctionsStack.signOutFn,
       oauthCallbackFn: synchronousLambdaFunctionsStack.oauthCallbackFn,
-      verifyUserFn: synchronousLambdaFunctionsStack.verifyUserFn,
+      verifySessionFn: synchronousLambdaFunctionsStack.verifySessionFn,
       refreshFn: synchronousLambdaFunctionsStack.refreshFn,
       getUserFn: synchronousLambdaFunctionsStack.getUserFn,
       updateUserFn: synchronousLambdaFunctionsStack.updateUserFn,

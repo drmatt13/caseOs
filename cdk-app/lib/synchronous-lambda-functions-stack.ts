@@ -27,7 +27,7 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
   public readonly signInFn: nodejs.NodejsFunction;
   public readonly signOutFn: nodejs.NodejsFunction;
   public readonly oauthCallbackFn: nodejs.NodejsFunction;
-  public readonly verifyUserFn: nodejs.NodejsFunction;
+  public readonly verifySessionFn: nodejs.NodejsFunction;
   public readonly refreshFn: nodejs.NodejsFunction;
   public readonly getUserFn: nodejs.NodejsFunction;
   public readonly updateUserFn: nodejs.NodejsFunction;
@@ -135,13 +135,13 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
       },
     });
 
-    this.verifyUserFn = new nodejs.NodejsFunction(this, "VerifyUser", {
+    this.verifySessionFn = new nodejs.NodejsFunction(this, "VerifySession", {
       runtime: lambda.Runtime.NODEJS_20_X,
       entry: path.join(
         __dirname,
         "..",
         "lambda_functions",
-        "verify-user",
+        "verify-session",
         "index.ts",
       ),
       handler: "lambdaHandler",
@@ -526,9 +526,9 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
       exportName: "SynchronousLambdaFunctionsStack:OAuthCallbackFnLambdaArn",
     });
 
-    new cdk.CfnOutput(this, "VerifyUserLambdaArn", {
-      value: this.verifyUserFn.functionArn,
-      exportName: "SynchronousLambdaFunctionsStack:VerifyUserFnLambdaArn",
+    new cdk.CfnOutput(this, "VerifySessionLambdaArn", {
+      value: this.verifySessionFn.functionArn,
+      exportName: "SynchronousLambdaFunctionsStack:VerifySessionFnLambdaArn",
     });
 
     new cdk.CfnOutput(this, "RefreshLambdaArn", {

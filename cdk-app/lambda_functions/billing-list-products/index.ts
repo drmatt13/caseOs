@@ -4,17 +4,12 @@ import type {
   APIGatewayProxyResult,
 } from "aws-lambda";
 import Stripe from "stripe";
-import { requireAuthenticatedSub } from "@repo/shared-lambda-utils";
+import {
+  jsonResponse,
+  requireAuthenticatedSub,
+} from "@repo/shared-lambda-utils";
 
 type AccountTier = "PRO" | "ENTERPRISE";
-
-const jsonResponse = (statusCode: number, body: unknown): APIGatewayProxyResult => ({
-  statusCode,
-  headers: {
-    "content-type": "application/json",
-  },
-  body: JSON.stringify(body),
-});
 
 function normalizeTier(value: unknown): AccountTier | null {
   if (typeof value !== "string") return null;
@@ -44,8 +39,10 @@ export const lambdaHandler = async (
   event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResult> => {
   try {
+    // Validate the Cognito session and expose the Cognito subject.
     const cognitoSub = await requireAuthenticatedSub(event);
 
+    // Return 401 when the request has no valid session.
     if (!cognitoSub) {
       return jsonResponse(401, { error: "Unauthorized" });
     }
@@ -55,6 +52,7 @@ export const lambdaHandler = async (
     }
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    // Load active monthly prices with their Stripe products.
     const prices = await stripe.prices.list({
       active: true,
       expand: ["data.product"],
@@ -93,6 +91,7 @@ export const lambdaHandler = async (
       )
       .sort((a, b) => a.amount - b.amount);
 
+    // Return the available billing products.
     return jsonResponse(200, { success: true, products });
   } catch (error) {
     console.error("Error listing Stripe billing products:", error);

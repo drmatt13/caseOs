@@ -6,6 +6,8 @@ import type {
 import Stripe from "stripe";
 import {
   getDatabaseUrl,
+  jsonResponse,
+  parseJsonBody,
   requireAuthenticatedSub,
 } from "@repo/shared-lambda-utils";
 import { getPrismaClient } from "@repo/database";
@@ -17,19 +19,6 @@ type SubscriptionBody = {
   paymentMethodId?: unknown;
   startTrial?: unknown;
 };
-
-const jsonResponse = (statusCode: number, body: unknown): APIGatewayProxyResult => ({
-  statusCode,
-  headers: {
-    "content-type": "application/json",
-  },
-  body: JSON.stringify(body),
-});
-
-function parseBody(body: string | null | undefined): SubscriptionBody {
-  if (!body) return {};
-  return JSON.parse(body) as SubscriptionBody;
-}
 
 function normalizeTier(value: unknown): AccountTier | null {
   if (typeof value !== "string") return null;
@@ -69,8 +58,10 @@ export const lambdaHandler = async (
   event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResult> => {
   try {
+    // Validate the Cognito session and expose the Cognito subject.
     const cognitoSub = await requireAuthenticatedSub(event);
 
+    // Return 401 when the request has no valid session.
     if (!cognitoSub) {
       return jsonResponse(401, { error: "Unauthorized" });
     }
@@ -82,11 +73,13 @@ export const lambdaHandler = async (
     let body: SubscriptionBody;
 
     try {
-      body = parseBody(event.body);
+      // Parse the JSON request body.
+      body = parseJsonBody<SubscriptionBody>(event.body);
     } catch {
       return jsonResponse(400, { error: "Invalid JSON body" });
     }
 
+    // Validate the requested subscription inputs.
     const tier = normalizeTier(body.tier);
     const priceId = typeof body.priceId === "string" ? body.priceId : null;
     const paymentMethodId =
@@ -99,17 +92,21 @@ export const lambdaHandler = async (
       });
     }
 
+    // Resolve the production or local database URL.
     const databaseUrl = await getDatabaseUrl({
       primaryDatabaseSecretArn: process.env.PRIMARY_DATABASE_SECRET_ARN,
       primaryDatabaseUrl: process.env.PRIMARY_DATABASE_URL,
       primaryDatabaseSslmode: process.env.PRIMARY_DATABASE_SSLMODE,
     });
 
+    // Initialize Prisma with the resolved database URL.
     const prisma = getPrismaClient(databaseUrl);
+    // Fetch the user by Cognito subject.
     const user = await prisma.user.findUnique({
       where: { cognitoSub },
     });
 
+    // Return 404 when the authenticated user has no database record.
     if (!user) {
       return jsonResponse(404, { error: "User not found" });
     }
@@ -121,6 +118,7 @@ export const lambdaHandler = async (
     }
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    // Verify the selected Stripe price matches the requested tier.
     const price = await stripe.prices.retrieve(priceId, {
       expand: ["product"],
     });
@@ -144,6 +142,7 @@ export const lambdaHandler = async (
     const startTrial =
       tier === "PRO" && requestedTrial && !user.hasHadActiveSubscription;
 
+    // Attach the payment method and set it as the customer's invoice default.
     await stripe.paymentMethods.attach(paymentMethodId, {
       customer: user.stripeCustomerId,
     }).catch((error: unknown) => {
@@ -159,6 +158,7 @@ export const lambdaHandler = async (
       },
     });
 
+    // Create the Stripe subscription with idempotency.
     const subscription = await stripe.subscriptions.create(
       {
         customer: user.stripeCustomerId,
@@ -184,6 +184,7 @@ export const lambdaHandler = async (
       trial_end?: number | null;
     };
 
+    // Persist subscription details on the user record.
     await prisma.user.update({
       where: { id: user.id },
       data: {
@@ -204,6 +205,7 @@ export const lambdaHandler = async (
       },
     });
 
+    // Return the created subscription summary.
     return jsonResponse(200, {
       success: true,
       subscriptionId: subscription.id,
