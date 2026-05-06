@@ -15,6 +15,12 @@ import { lambdaHandler as getUser } from "../../cdk-app/lambda_functions/get-use
 import { lambdaHandler as updateUser } from "../../cdk-app/lambda_functions/update-user/index";
 import { lambdaHandler as s3AccessBroker } from "../../cdk-app/lambda_functions/s3-access-broker/index";
 
+// Stripe-related Lambda functions
+import { lambdaHandler as billingListProducts } from "../../cdk-app/lambda_functions/billing-list-products/index";
+import { lambdaHandler as billingCreateSetupIntent } from "../../cdk-app/lambda_functions/billing-create-setup-intent/index";
+import { lambdaHandler as billingCreateSubscription } from "../../cdk-app/lambda_functions/billing-create-subscription/index";
+import { lambdaHandler as stripeWebhook } from "../../cdk-app/lambda_functions/stripe-webhook/index";
+
 dotenv.config({
   path: "./.env",
 });
@@ -105,6 +111,27 @@ app.all("/verify-user", async (req, res) => {
 
 app.all("/s3-access-broker", async (req, res) => {
   return invokeLambdaFunction(req, res, s3AccessBroker);
+});
+
+// Stripe-related routes
+app.all("/billing/list-products", async (req, res) => {
+  return invokeLambdaFunction(req, res, billingListProducts);
+});
+
+app.all("/billing/create-setup-intent", async (req, res) => {
+  return invokeLambdaFunction(req, res, billingCreateSetupIntent);
+});
+
+app.all("/billing/create-subscription", async (req, res) => {
+  return invokeLambdaFunction(req, res, billingCreateSubscription);
+});
+
+app.all("/stripe-webhook", async (req, res) => {
+  return invokeLambdaFunction(req, res, stripeWebhook);
+});
+
+app.all("/stripe/webhook", async (req, res) => {
+  return invokeLambdaFunction(req, res, stripeWebhook);
 });
 
 // ECS container routes

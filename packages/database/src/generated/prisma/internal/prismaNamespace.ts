@@ -1503,6 +1503,7 @@ export const UserScalarFieldEnum = {
   profilePicture: 'profilePicture',
   userName: 'userName',
   isPlatformAdmin: 'isPlatformAdmin',
+  hasHadActiveSubscription: 'hasHadActiveSubscription',
   accountTier: 'accountTier',
   accountStatus: 'accountStatus',
   stripeCustomerId: 'stripeCustomerId',

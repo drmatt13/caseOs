@@ -209,8 +209,6 @@ const asynchronousLambdaFunctionsStack = new AsynchronousLambdaFunctionsStack(
     replayBucket: devLambdaReplayStack?.bucket,
     // If RDS is not created, the function falls back to its local/runtime env flow.
     primaryDatabaseSecretArn: rdsStack?.credentialsSecretArn,
-    stripePublishableKey,
-    stripeSecretKey,
   },
 );
 if (devLambdaReplayStack) {
@@ -283,6 +281,13 @@ const httpApiGatewayStack = !useLocalImplementations
       getUserFn: synchronousLambdaFunctionsStack.getUserFn,
       updateUserFn: synchronousLambdaFunctionsStack.updateUserFn,
       s3AccessBrokerFn: synchronousLambdaFunctionsStack.s3AccessBrokerFn,
+      billingListProductsFn:
+        synchronousLambdaFunctionsStack.billingListProductsFn,
+      billingCreateSetupIntentFn:
+        synchronousLambdaFunctionsStack.billingCreateSetupIntentFn,
+      billingCreateSubscriptionFn:
+        synchronousLambdaFunctionsStack.billingCreateSubscriptionFn,
+      stripeWebhookFn: synchronousLambdaFunctionsStack.stripeWebhookFn,
       // <LambdaFunctionName>: synchronousLambdaFunctionsStack.<LambdaFunctionExport>,
 
       // ECS integrations

@@ -4,7 +4,6 @@ import {
   getDatabaseUrl,
 } from "@repo/shared-lambda-utils";
 import { getPrismaClient } from "@repo/database";
-import Stripe from "stripe";
 
 export const lambdaHandler = async (
   event: PostConfirmationTriggerEvent,
@@ -67,19 +66,12 @@ export const lambdaHandler = async (
     return event;
   }
 
-  if (!process.env.STRIPE_SECRET_KEY) {
-    throw new Error(
-      "STRIPE_SECRET_KEY must be set before creating Stripe customers.",
-    );
-  }
-
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
   // Create the user in the database, using the Cognito sub as a unique identifier
-  const user = await prisma.user.create({
+  await prisma.user.create({
     data: {
       cognitoSub: sub,
       email,
+      billingEmail: email,
       firstName: given_name,
       lastName: family_name,
       accountTier: "FREE",
@@ -87,30 +79,6 @@ export const lambdaHandler = async (
       createdAt: new Date(),
       updatedAt: new Date(),
       displayName,
-    },
-  });
-
-  const stripeCustomer = await stripe.customers.create(
-    {
-      email,
-      name: displayName || undefined,
-      metadata: {
-        cognitoSub: sub,
-        userId: user.id,
-      },
-    },
-    {
-      idempotencyKey: `cognito-post-confirmation-${sub}`,
-    },
-  );
-
-  await prisma.user.update({
-    where: {
-      id: user.id,
-    },
-    data: {
-      billingEmail: stripeCustomer.email ?? email,
-      stripeCustomerId: stripeCustomer.id,
     },
   });
 

@@ -6,7 +6,6 @@ import {
 import { createRemoteJWKSet, jwtVerify } from "jose";
 import { getDatabaseUrl } from "@repo/shared-lambda-utils";
 import { getPrismaClient } from "@repo/database";
-import Stripe from "stripe";
 
 interface OAuthCallbackBody {
   code?: string;
@@ -216,18 +215,11 @@ export const lambdaHandler = async (
         },
       });
     } else {
-      if (!process.env.STRIPE_SECRET_KEY) {
-        throw new Error(
-          "STRIPE_SECRET_KEY must be set before creating Stripe customers.",
-        );
-      }
-
-      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
-      const user = await prisma.user.create({
+      await prisma.user.create({
         data: {
           cognitoSub: payload.sub,
           email,
+          billingEmail: email,
           firstName,
           lastName,
           profilePicture,
@@ -236,28 +228,6 @@ export const lambdaHandler = async (
           accountStatus: "ACTIVE",
           createdAt: new Date(),
           updatedAt: new Date(),
-        },
-      });
-
-      const stripeCustomer = await stripe.customers.create(
-        {
-          email,
-          name: displayName,
-          metadata: {
-            cognitoSub: payload.sub,
-            userId: user.id,
-          },
-        },
-        {
-          idempotencyKey: `cognito-oauth-signup-${payload.sub}`,
-        },
-      );
-
-      await prisma.user.update({
-        where: { id: user.id },
-        data: {
-          billingEmail: stripeCustomer.email ?? email,
-          stripeCustomerId: stripeCustomer.id,
         },
       });
     }

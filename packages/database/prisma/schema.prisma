@@ -170,6 +170,7 @@ model User {
   profilePicture               String?            @map("profile_picture")
   userName                     String?            @unique @map("user_name")
   isPlatformAdmin              Boolean            @default(false) @map("is_platform_admin")
+  hasHadActiveSubscription     Boolean            @default(false) @map("has_had_active_subscription")
   accountTier                  AccountTier        @default(FREE) @map("account_tier")
   accountStatus                AccountStatus      @default(ACTIVE) @map("account_status")
   stripeCustomerId             String?            @unique @map("stripe_customer_id")

@@ -8,6 +8,7 @@ import { IFunction } from "aws-cdk-lib/aws-lambda";
 import { HttpUserPoolAuthorizerConfig } from "./synchronous-lambda-functions-stack";
 
 export interface HttpApiGatewayStackProps extends cdk.StackProps {
+  // standard functions
   signInFn: IFunction;
   signOutFn: IFunction;
   oauthCallbackFn: IFunction;
@@ -16,10 +17,20 @@ export interface HttpApiGatewayStackProps extends cdk.StackProps {
   getUserFn: IFunction;
   updateUserFn: IFunction;
   s3AccessBrokerFn: IFunction;
+
+  // stripe functions
+  billingListProductsFn: IFunction;
+  billingCreateSetupIntentFn: IFunction;
+  billingCreateSubscriptionFn: IFunction;
+  stripeWebhookFn: IFunction;
+
+  // ECS service URL for langgraph, if applicable. If not provided, the /langgraph/* route will not be added to the API Gateway, and local implementations will be used instead (if useLocalImplementations is true)
+  langgraphServiceUrl?: string;
+
+  // config
   httpUserPoolAuthorizerConfig: HttpUserPoolAuthorizerConfig;
   frontendUrl: string;
   useLocalImplementations: boolean;
-  langgraphServiceUrl?: string;
 }
 
 export class HttpApiGatewayStack extends cdk.Stack {
@@ -118,14 +129,6 @@ export class HttpApiGatewayStack extends cdk.Stack {
       props.refreshFn,
     );
 
-    // Stripe Webhook Routes
-    addPublicRoute(
-      "RefreshIntegration",
-      "/refresh",
-      [apigwv2.HttpMethod.ANY],
-      props.refreshFn,
-    );
-
     // Cognito Authenticated Routes
     addAuthenticatedRoute(
       "VerifyUserIntegration",
@@ -155,6 +158,36 @@ export class HttpApiGatewayStack extends cdk.Stack {
       props.s3AccessBrokerFn,
     );
 
+    // Stripe Routes
+    addAuthenticatedRoute(
+      "BillingListProductsIntegration",
+      "/billing/list-products",
+      [apigwv2.HttpMethod.ANY],
+      props.billingListProductsFn,
+    );
+
+    addAuthenticatedRoute(
+      "BillingCreateSetupIntentIntegration",
+      "/billing/create-setup-intent",
+      [apigwv2.HttpMethod.ANY],
+      props.billingCreateSetupIntentFn,
+    );
+
+    addAuthenticatedRoute(
+      "BillingCreateSubscriptionIntegration",
+      "/billing/create-subscription",
+      [apigwv2.HttpMethod.ANY],
+      props.billingCreateSubscriptionFn,
+    );
+
+    addPublicRoute(
+      "StripeWebhookIntegration",
+      "/stripe/webhook",
+      [apigwv2.HttpMethod.ANY],
+      props.stripeWebhookFn,
+    );
+
+    // ECS Service Routes (e.g. langgraph)
     if (!props.useLocalImplementations && props.langgraphServiceUrl) {
       api.addRoutes({
         path: "/langgraph/{proxy+}",

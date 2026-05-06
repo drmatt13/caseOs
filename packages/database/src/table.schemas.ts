@@ -130,6 +130,7 @@ export const userSchema: z.ZodType<User> = z.object({
   profilePicture: z.string().nullable(),
   userName: z.string().nullable(),
   isPlatformAdmin: z.boolean(),
+  hasHadActiveSubscription: z.boolean(),
   accountTier: accountTierSchema,
   accountStatus: accountStatusSchema,
   stripeCustomerId: z.string().nullable(),

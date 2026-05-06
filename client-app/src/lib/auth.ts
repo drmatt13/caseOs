@@ -20,6 +20,9 @@ const USER_POOL_CLIENT_ID = import.meta.env.VITE_USER_POOL_CLIENT_ID;
 export const API_ROUTES = [
   "/get-subscription",
   "/get-user",
+  "/billing/create-setup-intent",
+  "/billing/create-subscription",
+  "/billing/list-products",
   "/oauth/callback",
   "/refresh",
   "/s3-access-broker",

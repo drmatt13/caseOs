@@ -35,6 +35,7 @@ export type UserMinAggregateOutputType = {
   profilePicture: string | null
   userName: string | null
   isPlatformAdmin: boolean | null
+  hasHadActiveSubscription: boolean | null
   accountTier: $Enums.AccountTier | null
   accountStatus: $Enums.AccountStatus | null
   stripeCustomerId: string | null
@@ -64,6 +65,7 @@ export type UserMaxAggregateOutputType = {
   profilePicture: string | null
   userName: string | null
   isPlatformAdmin: boolean | null
+  hasHadActiveSubscription: boolean | null
   accountTier: $Enums.AccountTier | null
   accountStatus: $Enums.AccountStatus | null
   stripeCustomerId: string | null
@@ -93,6 +95,7 @@ export type UserCountAggregateOutputType = {
   profilePicture: number
   userName: number
   isPlatformAdmin: number
+  hasHadActiveSubscription: number
   accountTier: number
   accountStatus: number
   stripeCustomerId: number
@@ -124,6 +127,7 @@ export type UserMinAggregateInputType = {
   profilePicture?: true
   userName?: true
   isPlatformAdmin?: true
+  hasHadActiveSubscription?: true
   accountTier?: true
   accountStatus?: true
   stripeCustomerId?: true
@@ -153,6 +157,7 @@ export type UserMaxAggregateInputType = {
   profilePicture?: true
   userName?: true
   isPlatformAdmin?: true
+  hasHadActiveSubscription?: true
   accountTier?: true
   accountStatus?: true
   stripeCustomerId?: true
@@ -182,6 +187,7 @@ export type UserCountAggregateInputType = {
   profilePicture?: true
   userName?: true
   isPlatformAdmin?: true
+  hasHadActiveSubscription?: true
   accountTier?: true
   accountStatus?: true
   stripeCustomerId?: true
@@ -284,6 +290,7 @@ export type UserGroupByOutputType = {
   profilePicture: string | null
   userName: string | null
   isPlatformAdmin: boolean
+  hasHadActiveSubscription: boolean
   accountTier: $Enums.AccountTier
   accountStatus: $Enums.AccountStatus
   stripeCustomerId: string | null
@@ -334,6 +341,7 @@ export type UserWhereInput = {
   profilePicture?: Prisma.StringNullableFilter<"User"> | string | null
   userName?: Prisma.StringNullableFilter<"User"> | string | null
   isPlatformAdmin?: Prisma.BoolFilter<"User"> | boolean
+  hasHadActiveSubscription?: Prisma.BoolFilter<"User"> | boolean
   accountTier?: Prisma.EnumAccountTierFilter<"User"> | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFilter<"User"> | $Enums.AccountStatus
   stripeCustomerId?: Prisma.StringNullableFilter<"User"> | string | null
@@ -376,6 +384,7 @@ export type UserOrderByWithRelationInput = {
   profilePicture?: Prisma.SortOrderInput | Prisma.SortOrder
   userName?: Prisma.SortOrderInput | Prisma.SortOrder
   isPlatformAdmin?: Prisma.SortOrder
+  hasHadActiveSubscription?: Prisma.SortOrder
   accountTier?: Prisma.SortOrder
   accountStatus?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -423,6 +432,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   lastName?: Prisma.StringFilter<"User"> | string
   profilePicture?: Prisma.StringNullableFilter<"User"> | string | null
   isPlatformAdmin?: Prisma.BoolFilter<"User"> | boolean
+  hasHadActiveSubscription?: Prisma.BoolFilter<"User"> | boolean
   accountTier?: Prisma.EnumAccountTierFilter<"User"> | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFilter<"User"> | $Enums.AccountStatus
   stripePriceId?: Prisma.StringNullableFilter<"User"> | string | null
@@ -463,6 +473,7 @@ export type UserOrderByWithAggregationInput = {
   profilePicture?: Prisma.SortOrderInput | Prisma.SortOrder
   userName?: Prisma.SortOrderInput | Prisma.SortOrder
   isPlatformAdmin?: Prisma.SortOrder
+  hasHadActiveSubscription?: Prisma.SortOrder
   accountTier?: Prisma.SortOrder
   accountStatus?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -498,6 +509,7 @@ export type UserScalarWhereWithAggregatesInput = {
   profilePicture?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   userName?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   isPlatformAdmin?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  hasHadActiveSubscription?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   accountTier?: Prisma.EnumAccountTierWithAggregatesFilter<"User"> | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusWithAggregatesFilter<"User"> | $Enums.AccountStatus
   stripeCustomerId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
@@ -527,6 +539,7 @@ export type UserCreateInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -569,6 +582,7 @@ export type UserUncheckedCreateInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -611,6 +625,7 @@ export type UserUpdateInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -653,6 +668,7 @@ export type UserUncheckedUpdateInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -695,6 +711,7 @@ export type UserCreateManyInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -724,6 +741,7 @@ export type UserUpdateManyMutationInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -753,6 +771,7 @@ export type UserUncheckedUpdateManyInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -782,6 +801,7 @@ export type UserCountOrderByAggregateInput = {
   profilePicture?: Prisma.SortOrder
   userName?: Prisma.SortOrder
   isPlatformAdmin?: Prisma.SortOrder
+  hasHadActiveSubscription?: Prisma.SortOrder
   accountTier?: Prisma.SortOrder
   accountStatus?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrder
@@ -811,6 +831,7 @@ export type UserMaxOrderByAggregateInput = {
   profilePicture?: Prisma.SortOrder
   userName?: Prisma.SortOrder
   isPlatformAdmin?: Prisma.SortOrder
+  hasHadActiveSubscription?: Prisma.SortOrder
   accountTier?: Prisma.SortOrder
   accountStatus?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrder
@@ -840,6 +861,7 @@ export type UserMinOrderByAggregateInput = {
   profilePicture?: Prisma.SortOrder
   userName?: Prisma.SortOrder
   isPlatformAdmin?: Prisma.SortOrder
+  hasHadActiveSubscription?: Prisma.SortOrder
   accountTier?: Prisma.SortOrder
   accountStatus?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrder
@@ -1111,6 +1133,7 @@ export type UserCreateWithoutOwnedWorkspacesInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -1152,6 +1175,7 @@ export type UserUncheckedCreateWithoutOwnedWorkspacesInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -1209,6 +1233,7 @@ export type UserUpdateWithoutOwnedWorkspacesInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1250,6 +1275,7 @@ export type UserUncheckedUpdateWithoutOwnedWorkspacesInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1291,6 +1317,7 @@ export type UserCreateWithoutWorkspaceMembershipsInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -1332,6 +1359,7 @@ export type UserUncheckedCreateWithoutWorkspaceMembershipsInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -1389,6 +1417,7 @@ export type UserUpdateWithoutWorkspaceMembershipsInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1430,6 +1459,7 @@ export type UserUncheckedUpdateWithoutWorkspaceMembershipsInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1471,6 +1501,7 @@ export type UserCreateWithoutCreatedCasesInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -1512,6 +1543,7 @@ export type UserUncheckedCreateWithoutCreatedCasesInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -1569,6 +1601,7 @@ export type UserUpdateWithoutCreatedCasesInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1610,6 +1643,7 @@ export type UserUncheckedUpdateWithoutCreatedCasesInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1651,6 +1685,7 @@ export type UserCreateWithoutUploadedDocumentsInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -1692,6 +1727,7 @@ export type UserUncheckedCreateWithoutUploadedDocumentsInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -1749,6 +1785,7 @@ export type UserUpdateWithoutUploadedDocumentsInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1790,6 +1827,7 @@ export type UserUncheckedUpdateWithoutUploadedDocumentsInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1831,6 +1869,7 @@ export type UserCreateWithoutCreatedRecordIndexesInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -1872,6 +1911,7 @@ export type UserUncheckedCreateWithoutCreatedRecordIndexesInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -1918,6 +1958,7 @@ export type UserCreateWithoutUpdatedRecordIndexesInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -1959,6 +2000,7 @@ export type UserUncheckedCreateWithoutUpdatedRecordIndexesInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -2016,6 +2058,7 @@ export type UserUpdateWithoutCreatedRecordIndexesInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2057,6 +2100,7 @@ export type UserUncheckedUpdateWithoutCreatedRecordIndexesInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2109,6 +2153,7 @@ export type UserUpdateWithoutUpdatedRecordIndexesInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2150,6 +2195,7 @@ export type UserUncheckedUpdateWithoutUpdatedRecordIndexesInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2191,6 +2237,7 @@ export type UserCreateWithoutCreatedViewIndexesInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -2232,6 +2279,7 @@ export type UserUncheckedCreateWithoutCreatedViewIndexesInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -2289,6 +2337,7 @@ export type UserUpdateWithoutCreatedViewIndexesInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2330,6 +2379,7 @@ export type UserUncheckedUpdateWithoutCreatedViewIndexesInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2371,6 +2421,7 @@ export type UserCreateWithoutManifestsCreatedInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -2412,6 +2463,7 @@ export type UserUncheckedCreateWithoutManifestsCreatedInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -2469,6 +2521,7 @@ export type UserUpdateWithoutManifestsCreatedInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2510,6 +2563,7 @@ export type UserUncheckedUpdateWithoutManifestsCreatedInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2551,6 +2605,7 @@ export type UserCreateWithoutActorUsageEventsInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -2592,6 +2647,7 @@ export type UserUncheckedCreateWithoutActorUsageEventsInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -2638,6 +2694,7 @@ export type UserCreateWithoutBilledUsageEventsInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -2679,6 +2736,7 @@ export type UserUncheckedCreateWithoutBilledUsageEventsInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -2736,6 +2794,7 @@ export type UserUpdateWithoutActorUsageEventsInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2777,6 +2836,7 @@ export type UserUncheckedUpdateWithoutActorUsageEventsInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2829,6 +2889,7 @@ export type UserUpdateWithoutBilledUsageEventsInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2870,6 +2931,7 @@ export type UserUncheckedUpdateWithoutBilledUsageEventsInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2911,6 +2973,7 @@ export type UserCreateWithoutWorkspaceBilledUsageMonthlyInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -2952,6 +3015,7 @@ export type UserUncheckedCreateWithoutWorkspaceBilledUsageMonthlyInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -3009,6 +3073,7 @@ export type UserUpdateWithoutWorkspaceBilledUsageMonthlyInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3050,6 +3115,7 @@ export type UserUncheckedUpdateWithoutWorkspaceBilledUsageMonthlyInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3091,6 +3157,7 @@ export type UserCreateWithoutIndividualUsageMonthlyInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -3132,6 +3199,7 @@ export type UserUncheckedCreateWithoutIndividualUsageMonthlyInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -3189,6 +3257,7 @@ export type UserUpdateWithoutIndividualUsageMonthlyInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3230,6 +3299,7 @@ export type UserUncheckedUpdateWithoutIndividualUsageMonthlyInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3271,6 +3341,7 @@ export type UserCreateWithoutStripeEventsInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -3312,6 +3383,7 @@ export type UserUncheckedCreateWithoutStripeEventsInput = {
   profilePicture?: string | null
   userName?: string | null
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: $Enums.AccountTier
   accountStatus?: $Enums.AccountStatus
   stripeCustomerId?: string | null
@@ -3369,6 +3441,7 @@ export type UserUpdateWithoutStripeEventsInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3410,6 +3483,7 @@ export type UserUncheckedUpdateWithoutStripeEventsInput = {
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPlatformAdmin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasHadActiveSubscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accountTier?: Prisma.EnumAccountTierFieldUpdateOperationsInput | $Enums.AccountTier
   accountStatus?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3590,6 +3664,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   profilePicture?: boolean
   userName?: boolean
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: boolean
   accountStatus?: boolean
   stripeCustomerId?: boolean
@@ -3633,6 +3708,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   profilePicture?: boolean
   userName?: boolean
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: boolean
   accountStatus?: boolean
   stripeCustomerId?: boolean
@@ -3662,6 +3738,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   profilePicture?: boolean
   userName?: boolean
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: boolean
   accountStatus?: boolean
   stripeCustomerId?: boolean
@@ -3691,6 +3768,7 @@ export type UserSelectScalar = {
   profilePicture?: boolean
   userName?: boolean
   isPlatformAdmin?: boolean
+  hasHadActiveSubscription?: boolean
   accountTier?: boolean
   accountStatus?: boolean
   stripeCustomerId?: boolean
@@ -3709,7 +3787,7 @@ export type UserSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "cognitoSub" | "email" | "billingEmail" | "displayName" | "firstName" | "lastName" | "profilePicture" | "userName" | "isPlatformAdmin" | "accountTier" | "accountStatus" | "stripeCustomerId" | "stripeSubscriptionId" | "stripePriceId" | "stripeProductId" | "stripeDefaultPaymentMethodId" | "subscriptionStatus" | "billingInterval" | "cancelAtPeriodEnd" | "currentPeriodStart" | "currentPeriodEnd" | "trialStartsAt" | "trialEndsAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "cognitoSub" | "email" | "billingEmail" | "displayName" | "firstName" | "lastName" | "profilePicture" | "userName" | "isPlatformAdmin" | "hasHadActiveSubscription" | "accountTier" | "accountStatus" | "stripeCustomerId" | "stripeSubscriptionId" | "stripePriceId" | "stripeProductId" | "stripeDefaultPaymentMethodId" | "subscriptionStatus" | "billingInterval" | "cancelAtPeriodEnd" | "currentPeriodStart" | "currentPeriodEnd" | "trialStartsAt" | "trialEndsAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ownedWorkspaces?: boolean | Prisma.User$ownedWorkspacesArgs<ExtArgs>
   workspaceMemberships?: boolean | Prisma.User$workspaceMembershipsArgs<ExtArgs>
@@ -3757,6 +3835,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     profilePicture: string | null
     userName: string | null
     isPlatformAdmin: boolean
+    hasHadActiveSubscription: boolean
     accountTier: $Enums.AccountTier
     accountStatus: $Enums.AccountStatus
     stripeCustomerId: string | null
@@ -4219,6 +4298,7 @@ export interface UserFieldRefs {
   readonly profilePicture: Prisma.FieldRef<"User", 'String'>
   readonly userName: Prisma.FieldRef<"User", 'String'>
   readonly isPlatformAdmin: Prisma.FieldRef<"User", 'Boolean'>
+  readonly hasHadActiveSubscription: Prisma.FieldRef<"User", 'Boolean'>
   readonly accountTier: Prisma.FieldRef<"User", 'AccountTier'>
   readonly accountStatus: Prisma.FieldRef<"User", 'AccountStatus'>
   readonly stripeCustomerId: Prisma.FieldRef<"User", 'String'>

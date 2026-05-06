@@ -33,6 +33,12 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
   public readonly updateUserFn: nodejs.NodejsFunction;
   public readonly s3AccessBrokerFn: nodejs.NodejsFunction;
 
+  // stripe functions
+  public readonly billingListProductsFn: nodejs.NodejsFunction;
+  public readonly billingCreateSetupIntentFn: nodejs.NodejsFunction;
+  public readonly billingCreateSubscriptionFn: nodejs.NodejsFunction;
+  public readonly stripeWebhookFn: nodejs.NodejsFunction;
+
   constructor(
     scope: Construct,
     id: string,
@@ -326,6 +332,182 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
       primaryDatabaseCredentialsSecret.grantRead(this.getUserFn);
       primaryDatabaseCredentialsSecret.grantRead(this.oauthCallbackFn);
       primaryDatabaseCredentialsSecret.grantRead(this.s3AccessBrokerFn);
+      primaryDatabaseCredentialsSecret.grantRead(this.updateUserFn);
+    }
+
+    // Stripe functions
+    this.billingListProductsFn = new nodejs.NodejsFunction(
+      this,
+      "BillingListProducts",
+      {
+        runtime: lambda.Runtime.NODEJS_20_X,
+        entry: path.join(
+          __dirname,
+          "..",
+          "lambda_functions",
+          "billing-list-products",
+          "index.ts",
+        ),
+        handler: "lambdaHandler",
+        bundling: {
+          minify: true,
+          sourceMap: true,
+          target: "es2020",
+        },
+        memorySize: 256,
+        timeout: cdk.Duration.seconds(15),
+        environment: {
+          USER_POOL_ID: props.userPoolId,
+          USER_POOL_CLIENT_ID: props.userPoolClientId,
+          STRIPE_SECRET_KEY: props.stripeSecretKey ?? "",
+        },
+      },
+    );
+
+    this.billingCreateSetupIntentFn = new nodejs.NodejsFunction(
+      this,
+      "BillingCreateSetupIntent",
+      {
+        runtime: lambda.Runtime.NODEJS_20_X,
+        entry: path.join(
+          __dirname,
+          "..",
+          "lambda_functions",
+          "billing-create-setup-intent",
+          "index.ts",
+        ),
+        handler: "lambdaHandler",
+        bundling: {
+          minify: true,
+          sourceMap: true,
+          target: "es2020",
+          commandHooks: {
+            beforeInstall() {
+              return [];
+            },
+            beforeBundling() {
+              return ["npm run generate --workspace @repo/database"];
+            },
+            afterBundling() {
+              return [];
+            },
+          },
+        },
+        memorySize: 512,
+        timeout: cdk.Duration.seconds(30),
+        environment: {
+          USER_POOL_ID: props.userPoolId,
+          USER_POOL_CLIENT_ID: props.userPoolClientId,
+          STRIPE_SECRET_KEY: props.stripeSecretKey ?? "",
+          ...(props.primaryDatabaseSecretArn
+            ? {
+                PRIMARY_DATABASE_SECRET_ARN: props.primaryDatabaseSecretArn,
+              }
+            : {}),
+        },
+      },
+    );
+
+    this.billingCreateSubscriptionFn = new nodejs.NodejsFunction(
+      this,
+      "BillingCreateSubscription",
+      {
+        runtime: lambda.Runtime.NODEJS_20_X,
+        entry: path.join(
+          __dirname,
+          "..",
+          "lambda_functions",
+          "billing-create-subscription",
+          "index.ts",
+        ),
+        handler: "lambdaHandler",
+        bundling: {
+          minify: true,
+          sourceMap: true,
+          target: "es2020",
+          commandHooks: {
+            beforeInstall() {
+              return [];
+            },
+            beforeBundling() {
+              return ["npm run generate --workspace @repo/database"];
+            },
+            afterBundling() {
+              return [];
+            },
+          },
+        },
+        memorySize: 512,
+        timeout: cdk.Duration.seconds(30),
+        environment: {
+          USER_POOL_ID: props.userPoolId,
+          USER_POOL_CLIENT_ID: props.userPoolClientId,
+          STRIPE_SECRET_KEY: props.stripeSecretKey ?? "",
+          ...(props.primaryDatabaseSecretArn
+            ? {
+                PRIMARY_DATABASE_SECRET_ARN: props.primaryDatabaseSecretArn,
+              }
+            : {}),
+        },
+      },
+    );
+
+    this.stripeWebhookFn = new nodejs.NodejsFunction(this, "StripeWebhook", {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      entry: path.join(
+        __dirname,
+        "..",
+        "lambda_functions",
+        "stripe-webhook",
+        "index.ts",
+      ),
+      handler: "lambdaHandler",
+      bundling: {
+        minify: true,
+        sourceMap: true,
+        target: "es2020",
+        commandHooks: {
+          beforeInstall() {
+            return [];
+          },
+          beforeBundling() {
+            return ["npm run generate --workspace @repo/database"];
+          },
+          afterBundling() {
+            return [];
+          },
+        },
+      },
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(30),
+      environment: {
+        USER_POOL_ID: props.userPoolId,
+        USER_POOL_CLIENT_ID: props.userPoolClientId,
+        STRIPE_SECRET_KEY: props.stripeSecretKey ?? "",
+        STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET ?? "",
+        ...(props.primaryDatabaseSecretArn
+          ? {
+              PRIMARY_DATABASE_SECRET_ARN: props.primaryDatabaseSecretArn,
+            }
+          : {}),
+      },
+    });
+
+    if (props.primaryDatabaseSecretArn) {
+      const billingDatabaseCredentialsSecret =
+        secretsmanager.Secret.fromSecretCompleteArn(
+          this,
+          "SynchronousBillingDatabaseCredentialsSecret",
+          props.primaryDatabaseSecretArn,
+        );
+
+      billingDatabaseCredentialsSecret.grantRead(
+        this.billingCreateSetupIntentFn,
+      );
+      billingDatabaseCredentialsSecret.grantRead(
+        this.billingCreateSubscriptionFn,
+      );
+      billingDatabaseCredentialsSecret.grantRead(this.stripeWebhookFn);
     }
 
     // Outputs

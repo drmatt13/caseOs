@@ -14,8 +14,6 @@ export interface AsynchronousLambdaFunctionsStackProps extends cdk.StackProps {
   replayQueueUrl?: string;
   replayBucket?: s3.IBucket;
   primaryDatabaseSecretArn?: string;
-  stripePublishableKey?: string;
-  stripeSecretKey?: string;
 }
 
 export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
@@ -121,8 +119,6 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
           USE_LOCAL_IMPLEMENTATIONS: useLocalImplementations ? "true" : "false",
           DEV_LAMBDA_REPLAY_BUCKET_NAME: replayBucketName,
           DEV_LAMBDA_REPLAY_QUEUE_URL: replayQueueUrl,
-          STRIPE_PUBLISHABLE_KEY: props?.stripePublishableKey ?? "",
-          STRIPE_SECRET_KEY: props?.stripeSecretKey ?? "",
           ...(props?.primaryDatabaseSecretArn
             ? {
                 PRIMARY_DATABASE_SECRET_ARN: props.primaryDatabaseSecretArn,
