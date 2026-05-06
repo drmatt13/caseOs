@@ -3,8 +3,10 @@ import {
   APIGatewayProxyEventV2,
   APIGatewayProxyResult,
 } from "aws-lambda";
-import { createRemoteJWKSet, jwtVerify } from "jose";
-import { getDatabaseUrl } from "@repo/shared-lambda-utils";
+import {
+  getDatabaseUrl,
+  verifyCognitoIdToken,
+} from "@repo/shared-lambda-utils";
 import { getPrismaClient } from "@repo/database";
 
 interface OAuthCallbackBody {
@@ -55,13 +57,8 @@ function getRequiredCognitoConfig() {
     throw new Error("Missing Cognito OAuth environment variables");
   }
 
-  const issuer = `https://cognito-idp.${AWS_REGION}.amazonaws.com/${USER_POOL_ID}`;
-  const jwks = createRemoteJWKSet(new URL(`${issuer}/.well-known/jwks.json`));
-
   return {
     cognitoDomainUrl: COGNITO_DOMAIN_URL,
-    issuer,
-    jwks,
     userPoolClientId: USER_POOL_CLIENT_ID,
   };
 }
@@ -138,12 +135,9 @@ export const lambdaHandler = async (
       };
     }
 
-    const { payload } = await jwtVerify(tokens.id_token, cognitoConfig.jwks, {
-      issuer: cognitoConfig.issuer,
-      audience: cognitoConfig.userPoolClientId,
-    });
+    const payload = await verifyCognitoIdToken(tokens.id_token);
 
-    if (payload.token_use !== "id" || !payload.sub) {
+    if (!payload) {
       return {
         statusCode: 401,
         body: JSON.stringify({ success: false, error: "Invalid ID token" }),

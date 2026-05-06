@@ -8,8 +8,8 @@
     "compile": "tsc"
   },
   "dependencies": {
-    "esbuild": "^0.25.1",
-    "jose": "^6.2.3"
+    "@repo/shared-lambda-utils": "*",
+    "esbuild": "^0.25.1"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.92",

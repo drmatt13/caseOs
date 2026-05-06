@@ -3,45 +3,23 @@ import type {
   APIGatewayProxyEventV2,
   APIGatewayProxyResult,
 } from "aws-lambda";
-import cookie from "cookie";
-import { createRemoteJWKSet, jwtVerify } from "jose";
 import Stripe from "stripe";
-import { getDatabaseUrl } from "@repo/shared-lambda-utils";
+import {
+  getDatabaseUrl,
+  requireAuthenticatedSub,
+} from "@repo/shared-lambda-utils";
 import { getPrismaClient } from "@repo/database";
 
-const { AWS_REGION, USER_POOL_ID, USER_POOL_CLIENT_ID } = process.env;
-
-if (!AWS_REGION || !USER_POOL_ID || !USER_POOL_CLIENT_ID) {
-  throw new Error("Missing Cognito environment variables");
-}
-
-const issuer = `https://cognito-idp.${AWS_REGION}.amazonaws.com/${USER_POOL_ID}`;
-const jwks = createRemoteJWKSet(new URL(`${issuer}/.well-known/jwks.json`));
-
-const jsonResponse = (statusCode: number, body: unknown): APIGatewayProxyResult => ({
+const jsonResponse = (
+  statusCode: number,
+  body: unknown,
+): APIGatewayProxyResult => ({
   statusCode,
   headers: {
     "content-type": "application/json",
   },
   body: JSON.stringify(body),
 });
-
-async function requireAuthenticatedSub(
-  event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
-) {
-  const idToken = cookie.parse(event.headers.cookie ?? "").idToken;
-
-  if (!idToken) return null;
-
-  const { payload } = await jwtVerify(idToken, jwks, {
-    issuer,
-    audience: USER_POOL_CLIENT_ID,
-  });
-
-  if (payload.token_use !== "id" || !payload.sub) return null;
-
-  return payload.sub;
-}
 
 export const lambdaHandler = async (
   event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
@@ -54,7 +32,9 @@ export const lambdaHandler = async (
     }
 
     if (!process.env.STRIPE_SECRET_KEY) {
-      return jsonResponse(500, { error: "STRIPE_SECRET_KEY is not configured" });
+      return jsonResponse(500, {
+        error: "STRIPE_SECRET_KEY is not configured",
+      });
     }
 
     const databaseUrl = await getDatabaseUrl({
@@ -75,6 +55,7 @@ export const lambdaHandler = async (
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
     let stripeCustomerId = user.stripeCustomerId;
 
+    // If the user doesn't have a Stripe customer ID, create a new customer in Stripe and save the ID in the database
     if (!stripeCustomerId) {
       const stripeCustomer = await stripe.customers.create(
         {

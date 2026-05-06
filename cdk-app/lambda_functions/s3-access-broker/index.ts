@@ -4,28 +4,21 @@ import type {
   APIGatewayProxyResult,
 } from "aws-lambda";
 import { GetFederationTokenCommand, STSClient } from "@aws-sdk/client-sts";
-import cookie from "cookie";
-import { createRemoteJWKSet, jwtVerify } from "jose";
+import { requireAuthenticatedSub } from "@repo/shared-lambda-utils";
 
 // Get required environment variables and throw an error if any are missing
 const {
   AWS_REGION,
-  USER_POOL_ID,
-  USER_POOL_CLIENT_ID,
   CASEOS_STORAGE_BUCKET_ARN,
 } = process.env;
 
 if (
   !AWS_REGION ||
-  !USER_POOL_ID ||
-  !USER_POOL_CLIENT_ID ||
   !CASEOS_STORAGE_BUCKET_ARN
 ) {
   throw new Error("Missing S3 access broker environment variables");
 }
 
-const issuer = `https://cognito-idp.${AWS_REGION}.amazonaws.com/${USER_POOL_ID}`;
-const jwks = createRemoteJWKSet(new URL(`${issuer}/.well-known/jwks.json`));
 const stsClient = new STSClient({ region: AWS_REGION });
 
 const getBucketNameFromArn = (bucketArn: string): string => {
@@ -43,28 +36,9 @@ export const lambdaHandler = async (
   event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResult> => {
   try {
-    // Get the ID token from the cookies
-    const idToken = cookie.parse(event.headers.cookie ?? "").idToken;
+    const cognitoSub = await requireAuthenticatedSub(event);
 
-    // If no token is found, return an unauthorized response
-    if (!idToken) {
-      return {
-        statusCode: 401,
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({ message: "Unauthorized" }),
-      };
-    }
-
-    // Verify the ID token and extract the payload
-    const { payload } = await jwtVerify(idToken, jwks, {
-      issuer,
-      audience: USER_POOL_CLIENT_ID,
-    });
-
-    // If the token is valid but doesn't contain the expected claims, return an unauthorized response
-    if (payload.token_use !== "id" || !payload.sub) {
+    if (!cognitoSub) {
       return {
         statusCode: 401,
         headers: {
@@ -80,13 +54,13 @@ export const lambdaHandler = async (
     //
     // CONTINUE BELOW
 
-    const profilePictureKey = `profile-pictures/${payload.sub}.jpg`;
+    const profilePictureKey = `profile-pictures/${cognitoSub}.jpg`;
     const bucketName = getBucketNameFromArn(CASEOS_STORAGE_BUCKET_ARN);
     const profilePictureUrl = `https://${bucketName}.s3.${AWS_REGION}.amazonaws.com/${profilePictureKey}`;
 
     const federationToken = await stsClient.send(
       new GetFederationTokenCommand({
-        Name: `caseos-${String(payload.sub).slice(0, 24)}`,
+        Name: `caseos-${cognitoSub.slice(0, 24)}`,
         DurationSeconds: 900,
         Policy: JSON.stringify({
           Version: "2012-10-17",

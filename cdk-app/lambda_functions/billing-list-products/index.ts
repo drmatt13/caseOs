@@ -3,20 +3,10 @@ import type {
   APIGatewayProxyEventV2,
   APIGatewayProxyResult,
 } from "aws-lambda";
-import cookie from "cookie";
-import { createRemoteJWKSet, jwtVerify } from "jose";
 import Stripe from "stripe";
+import { requireAuthenticatedSub } from "@repo/shared-lambda-utils";
 
 type AccountTier = "PRO" | "ENTERPRISE";
-
-const { AWS_REGION, USER_POOL_ID, USER_POOL_CLIENT_ID } = process.env;
-
-if (!AWS_REGION || !USER_POOL_ID || !USER_POOL_CLIENT_ID) {
-  throw new Error("Missing Cognito environment variables");
-}
-
-const issuer = `https://cognito-idp.${AWS_REGION}.amazonaws.com/${USER_POOL_ID}`;
-const jwks = createRemoteJWKSet(new URL(`${issuer}/.well-known/jwks.json`));
 
 const jsonResponse = (statusCode: number, body: unknown): APIGatewayProxyResult => ({
   statusCode,
@@ -25,27 +15,6 @@ const jsonResponse = (statusCode: number, body: unknown): APIGatewayProxyResult 
   },
   body: JSON.stringify(body),
 });
-
-async function requireAuthenticatedUser(
-  event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
-) {
-  const idToken = cookie.parse(event.headers.cookie ?? "").idToken;
-
-  if (!idToken) {
-    return null;
-  }
-
-  const { payload } = await jwtVerify(idToken, jwks, {
-    issuer,
-    audience: USER_POOL_CLIENT_ID,
-  });
-
-  if (payload.token_use !== "id" || !payload.sub) {
-    return null;
-  }
-
-  return payload;
-}
 
 function normalizeTier(value: unknown): AccountTier | null {
   if (typeof value !== "string") return null;
@@ -75,9 +44,9 @@ export const lambdaHandler = async (
   event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResult> => {
   try {
-    const payload = await requireAuthenticatedUser(event);
+    const cognitoSub = await requireAuthenticatedSub(event);
 
-    if (!payload) {
+    if (!cognitoSub) {
       return jsonResponse(401, { error: "Unauthorized" });
     }
 

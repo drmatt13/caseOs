@@ -3,10 +3,11 @@ import type {
   APIGatewayProxyEventV2,
   APIGatewayProxyResult,
 } from "aws-lambda";
-import cookie from "cookie";
-import { createRemoteJWKSet, jwtVerify } from "jose";
 import Stripe from "stripe";
-import { getDatabaseUrl } from "@repo/shared-lambda-utils";
+import {
+  getDatabaseUrl,
+  requireAuthenticatedSub,
+} from "@repo/shared-lambda-utils";
 import { getPrismaClient } from "@repo/database";
 
 type AccountTier = "PRO" | "ENTERPRISE";
@@ -16,15 +17,6 @@ type SubscriptionBody = {
   paymentMethodId?: unknown;
   startTrial?: unknown;
 };
-
-const { AWS_REGION, USER_POOL_ID, USER_POOL_CLIENT_ID } = process.env;
-
-if (!AWS_REGION || !USER_POOL_ID || !USER_POOL_CLIENT_ID) {
-  throw new Error("Missing Cognito environment variables");
-}
-
-const issuer = `https://cognito-idp.${AWS_REGION}.amazonaws.com/${USER_POOL_ID}`;
-const jwks = createRemoteJWKSet(new URL(`${issuer}/.well-known/jwks.json`));
 
 const jsonResponse = (statusCode: number, body: unknown): APIGatewayProxyResult => ({
   statusCode,
@@ -71,23 +63,6 @@ function normalizeSubscriptionStatus(status: string) {
 
 function toDate(epochSeconds: unknown): Date | null {
   return typeof epochSeconds === "number" ? new Date(epochSeconds * 1000) : null;
-}
-
-async function requireAuthenticatedSub(
-  event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
-) {
-  const idToken = cookie.parse(event.headers.cookie ?? "").idToken;
-
-  if (!idToken) return null;
-
-  const { payload } = await jwtVerify(idToken, jwks, {
-    issuer,
-    audience: USER_POOL_CLIENT_ID,
-  });
-
-  if (payload.token_use !== "id" || !payload.sub) return null;
-
-  return payload.sub;
 }
 
 export const lambdaHandler = async (

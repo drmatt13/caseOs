@@ -3,28 +3,26 @@ import type {
   APIGatewayProxyEventV2,
   APIGatewayProxyResult,
 } from "aws-lambda";
-import cookie from "cookie";
-import { createRemoteJWKSet, jwtVerify } from "jose";
-import { getDatabaseUrl } from "@repo/shared-lambda-utils";
+import {
+  getDatabaseUrl,
+  requireAuthenticatedSub,
+} from "@repo/shared-lambda-utils";
 import { getPrismaClient } from "@repo/database";
 import { updateUserSchema } from "@repo/database/table.schemas";
 
-// Get required environment variables and throw an error if any are missing
-const { AWS_REGION, USER_POOL_ID, USER_POOL_CLIENT_ID } = process.env;
-
-if (!AWS_REGION || !USER_POOL_ID || !USER_POOL_CLIENT_ID) {
-  throw new Error("Missing Cognito environment variables");
-}
-
-const issuer = `https://cognito-idp.${AWS_REGION}.amazonaws.com/${USER_POOL_ID}`;
-const jwks = createRemoteJWKSet(new URL(`${issuer}/.well-known/jwks.json`));
-
 const UpdateUserRequestSchema = updateUserSchema
   .pick({
+    billingEmail: true,
     firstName: true,
     lastName: true,
     displayName: true,
     profilePicture: true,
+  })
+  .extend({
+    displayName: updateUserSchema.shape.displayName.refine(
+      (value) => value == null || value.trim().length >= 3,
+      "Display name must be at least 3 characters",
+    ),
   })
   .strict();
 
@@ -45,22 +43,9 @@ export const lambdaHandler = async (
   event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResult> => {
   try {
-    // Get the ID token from the cookies
-    const idToken = cookie.parse(event.headers.cookie ?? "").idToken;
+    const cognitoSub = await requireAuthenticatedSub(event);
 
-    // If no token is found, return an unauthorized response
-    if (!idToken) {
-      return jsonResponse(401, { error: "Unauthorized" });
-    }
-
-    // Verify the ID token and extract the payload
-    const { payload } = await jwtVerify(idToken, jwks, {
-      issuer,
-      audience: USER_POOL_CLIENT_ID,
-    });
-
-    // If the token is valid but doesn't contain the expected claims, return an unauthorized response
-    if (payload.token_use !== "id" || !payload.sub) {
+    if (!cognitoSub) {
       return jsonResponse(401, { error: "Unauthorized" });
     }
 
@@ -91,7 +76,7 @@ export const lambdaHandler = async (
     const prisma = getPrismaClient(databaseUrl);
 
     const user = await prisma.user.update({
-      where: { cognitoSub: payload.sub },
+      where: { cognitoSub },
       data: parsedBody.data,
     });
 

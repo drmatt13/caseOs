@@ -8,7 +8,7 @@ import {
 } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { UserRound, XIcon } from "lucide-react";
+import { Mail, UserRound, XIcon } from "lucide-react";
 
 import Button from "#/components/Button";
 import { AppModalContext } from "#/context/AppModalContext";
@@ -36,6 +36,10 @@ function getInitials(firstName: string, lastName: string) {
   );
 }
 
+function isValidEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+}
+
 const EditUserModal = () => {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -54,6 +58,7 @@ const EditUserModal = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [billingEmail, setBillingEmail] = useState("");
   const [profilePictureUrl, setProfilePictureUrl] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -115,12 +120,20 @@ const EditUserModal = () => {
     [],
   );
 
+  const handleBillingEmailChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setBillingEmail(event.target.value);
+    },
+    [],
+  );
+
   const resetDraft = useCallback(() => {
     if (!user || isUpdating) return;
 
     setFirstName(user.firstName ?? "");
     setLastName(user.lastName ?? "");
     setDisplayName(user.displayName ?? "");
+    setBillingEmail(user.billingEmail ?? user.email ?? "");
     setProfilePictureUrl(user.profilePicture ?? "");
     setLocalProfilePicture(null);
     setProfilePictureFile(null);
@@ -144,14 +157,18 @@ const EditUserModal = () => {
   );
 
   const profilePicture = localProfilePicture || profilePictureUrl.trim();
+  const displayNameIsValid = displayName.trim().length >= 3;
+  const billingEmailIsValid = isValidEmail(billingEmail);
 
   const hasChanges =
     !!user &&
     (firstName !== (user.firstName ?? "") ||
       lastName !== (user.lastName ?? "") ||
       displayName !== (user.displayName ?? "") ||
+      billingEmail !== (user.billingEmail ?? user.email ?? "") ||
       profilePictureUrl !== (user.profilePicture ?? "") ||
       !!profilePictureFile);
+  const canSave = hasChanges && displayNameIsValid && billingEmailIsValid;
 
   useEffect(() => {
     if (isUpdating) {
@@ -228,6 +245,7 @@ const EditUserModal = () => {
 
   const saveUser = useCallback(async () => {
     if (!user || isUpdating) return;
+    if (!displayNameIsValid || !billingEmailIsValid) return;
 
     setIsUpdating(true);
     setModalGuardState("locked");
@@ -239,6 +257,9 @@ const EditUserModal = () => {
         ...(firstName !== (user.firstName ?? "") && { firstName }),
         ...(lastName !== (user.lastName ?? "") && { lastName }),
         ...(displayName !== (user.displayName ?? "") && { displayName }),
+        ...(billingEmail !== (user.billingEmail ?? user.email ?? "") && {
+          billingEmail,
+        }),
         ...((profilePictureFile ||
           nextProfilePictureUrl !== (user.profilePicture ?? "")) && {
           profilePicture: nextProfilePictureUrl,
@@ -267,6 +288,9 @@ const EditUserModal = () => {
     }
   }, [
     displayName,
+    billingEmail,
+    billingEmailIsValid,
+    displayNameIsValid,
     firstName,
     isUpdating,
     lastName,
@@ -390,6 +414,30 @@ const EditUserModal = () => {
                 className="min-w-0 flex-1 bg-transparent py-2 outline-none disabled:cursor-not-allowed disabled:text-gray-400"
               />
             </div>
+            {!displayNameIsValid && (
+              <span className="text-[11px] text-red-600">
+                Display name must be at least 3 characters.
+              </span>
+            )}
+          </label>
+
+          <label className="col-span-2 flex flex-col gap-1">
+            <span className="text-gray-600">Billing email</span>
+            <div className="flex items-center gap-2 rounded-lg border border-black/15 bg-white/70 px-2 transition-colors focus-within:border-black/40">
+              <Mail className="h-3.5 w-3.5 shrink-0 text-gray-500" />
+              <input
+                value={billingEmail}
+                type="email"
+                disabled={isUpdating}
+                onChange={handleBillingEmailChange}
+                className="min-w-0 flex-1 bg-transparent py-2 outline-none disabled:cursor-not-allowed disabled:text-gray-400"
+              />
+            </div>
+            {!billingEmailIsValid && (
+              <span className="text-[11px] text-red-600">
+                Enter a valid billing email.
+              </span>
+            )}
           </label>
         </div>
       </div>
@@ -408,7 +456,7 @@ const EditUserModal = () => {
           text="Save"
           icon="save"
           onClick={saveUser}
-          disabled={isUpdating || !hasChanges}
+          disabled={isUpdating || !canSave}
           initiallyDisabled
         />
       </div>

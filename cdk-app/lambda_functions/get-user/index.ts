@@ -3,47 +3,19 @@ import type {
   APIGatewayProxyEventV2,
   APIGatewayProxyResult,
 } from "aws-lambda";
-import cookie from "cookie";
-import { createRemoteJWKSet, jwtVerify } from "jose";
-import { getDatabaseUrl } from "@repo/shared-lambda-utils";
+import {
+  getDatabaseUrl,
+  requireAuthenticatedSession,
+} from "@repo/shared-lambda-utils";
 import { getPrismaClient } from "@repo/database";
-
-// Get required environment variables and throw an error if any are missing
-const { AWS_REGION, USER_POOL_ID, USER_POOL_CLIENT_ID } = process.env;
-
-if (!AWS_REGION || !USER_POOL_ID || !USER_POOL_CLIENT_ID) {
-  throw new Error("Missing Cognito environment variables");
-}
-
-const issuer = `https://cognito-idp.${AWS_REGION}.amazonaws.com/${USER_POOL_ID}`;
-const jwks = createRemoteJWKSet(new URL(`${issuer}/.well-known/jwks.json`));
 
 export const lambdaHandler = async (
   event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResult> => {
   try {
-    // Get the ID token from the cookies
-    const idToken = cookie.parse(event.headers.cookie ?? "").idToken;
+    const session = await requireAuthenticatedSession(event);
 
-    // If no token is found, return an unauthorized response
-    if (!idToken) {
-      return {
-        statusCode: 401,
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({ error: "Unauthorized" }),
-      };
-    }
-
-    // Verify the ID token and extract the payload
-    const { payload } = await jwtVerify(idToken, jwks, {
-      issuer,
-      audience: USER_POOL_CLIENT_ID,
-    });
-
-    // If the token is valid but doesn't contain the expected claims, return an unauthorized response
-    if (payload.token_use !== "id" || !payload.sub) {
+    if (!session) {
       return {
         statusCode: 401,
         headers: {
@@ -66,7 +38,7 @@ export const lambdaHandler = async (
     // Fetch the user from the database using the Cognito sub from the token payload
     const user = await prisma.user.findUnique({
       where: {
-        cognitoSub: payload.sub,
+        cognitoSub: session.payload.sub,
       },
     });
 
@@ -87,7 +59,7 @@ export const lambdaHandler = async (
       headers: {
         "content-type": "application/json",
       },
-      body: JSON.stringify({ user, idToken }),
+      body: JSON.stringify({ user, idToken: session.idToken }),
     };
 
     // If any errors occur during token verification or database access, return an unauthorized response

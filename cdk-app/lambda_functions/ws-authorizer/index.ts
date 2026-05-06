@@ -1,15 +1,5 @@
 import { APIGatewayAuthorizerResult } from "aws-lambda";
-import { createRemoteJWKSet, jwtVerify } from "jose";
-
-const { AWS_REGION, USER_POOL_ID, USER_POOL_CLIENT_ID } = process.env;
-
-if (!AWS_REGION || !USER_POOL_ID || !USER_POOL_CLIENT_ID) {
-  throw new Error("Missing Cognito environment variables");
-}
-
-const issuer = `https://cognito-idp.${AWS_REGION}.amazonaws.com/${USER_POOL_ID}`;
-
-const jwks = createRemoteJWKSet(new URL(`${issuer}/.well-known/jwks.json`));
+import { verifyCognitoIdToken } from "@repo/shared-lambda-utils";
 
 interface WebSocketAuthorizerEvent {
   type: string;
@@ -48,14 +38,9 @@ export const lambdaHandler = async (
   }
 
   try {
-    // Verify the token and extract the payload
-    const { payload } = await jwtVerify(token, jwks, {
-      issuer,
-      audience: USER_POOL_CLIENT_ID,
-    });
+    const payload = await verifyCognitoIdToken(token);
 
-    // If the token is valid but doesn't contain the expected claims, deny access
-    if (payload.token_use !== "id" || !payload.sub) {
+    if (!payload) {
       return {
         principalId: "anonymous",
         policyDocument: {

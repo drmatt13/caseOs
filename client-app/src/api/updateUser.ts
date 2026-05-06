@@ -8,6 +8,7 @@ export const updateUserResponseSchema = z.object({
 });
 
 export type UpdateUserPayload = {
+  billingEmail?: string | null;
   firstName?: string;
   lastName?: string;
   displayName?: string | null;
