@@ -1,6 +1,6 @@
 import type { ChangeEventHandler, ReactNode } from "react";
 
-import type { SelectOption } from "#/components/layouts/new_case/caseIntakeForm";
+import type { SelectOption } from "#/components/features/case-intake/caseIntakeForm";
 import {
   Clock,
   Target,

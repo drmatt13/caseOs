@@ -9,7 +9,7 @@ import {
   CheckSquare,
   ArrowLeft,
 } from "lucide-react";
-import type { CaseIntakeWizardState } from "#/components/layouts/new_case/caseIntakeForm";
+import type { CaseIntakeWizardState } from "#/components/features/case-intake/caseIntakeForm";
 
 interface CreateCaseMenuProps {
   caseIntakeState: CaseIntakeWizardState;

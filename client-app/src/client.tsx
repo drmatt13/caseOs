@@ -7,6 +7,7 @@ const app = <StartClient />;
 startTransition(() => {
   hydrateRoot(
     document,
-    import.meta.env.DEV ? app : <StrictMode>{app}</StrictMode>,
+    // import.meta.env.DEV ? app : <StrictMode>{app}</StrictMode>,
+    app,
   );
 });

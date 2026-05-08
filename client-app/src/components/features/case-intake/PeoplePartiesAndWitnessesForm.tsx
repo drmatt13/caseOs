@@ -2,7 +2,7 @@ import type { CaseIntake } from "#/types/caseWorkspace";
 import {
   FormSection,
   TextAreaField,
-} from "#/components/layouts/new_case/fields";
+} from "#/components/features/case-intake/fields";
 
 type PeoplePartiesAndWitnessesFormProps = {
   caseIntake: CaseIntake;

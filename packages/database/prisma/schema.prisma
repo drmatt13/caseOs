@@ -11,7 +11,7 @@ generator lambda_client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  // url      = env("DATABASE_URL")
 }
 
 enum AccountTier {
@@ -163,6 +163,7 @@ enum FileMimeFamily {
 // Stripe subscription statuses include values like incomplete, trialing, active, past_due, canceled, unpaid, and paused, so your app should sync access from Stripe events, not manually guess it.
 
 model User {
+  // in use
   id                           String             @id @default(uuid()) @db.Uuid
   cognitoSub                   String             @unique @map("cognito_sub")
   email                        String             @unique
@@ -171,25 +172,27 @@ model User {
   firstName                    String             @map("first_name")
   lastName                     String             @map("last_name")
   profilePicture               String?            @map("profile_picture")
-  userName                     String?            @unique @map("user_name")
-  isPlatformAdmin              Boolean            @default(false) @map("is_platform_admin")
-  hasHadActiveSubscription     Boolean            @default(false) @map("has_had_active_subscription")
-  accountTier                  AccountTier        @default(FREE) @map("account_tier")
-  accountStatus                AccountStatus      @default(ACTIVE) @map("account_status")
-  stripeCustomerId             String?            @unique @map("stripe_customer_id")
-  stripeSubscriptionId         String?            @unique @map("stripe_subscription_id")
-  stripePriceId                String?            @map("stripe_price_id")
-  stripeProductId              String?            @map("stripe_product_id")
-  stripeDefaultPaymentMethodId String?            @map("stripe_default_payment_method_id")
-  subscriptionStatus           SubscriptionStatus @default(INACTIVE) @map("subscription_status")
-  billingInterval              BillingInterval?   @map("billing_interval")
-  cancelAtPeriodEnd            Boolean            @default(false) @map("cancel_at_period_end")
-  currentPeriodStart           DateTime?          @map("current_period_start") @db.Timestamptz(6)
-  currentPeriodEnd             DateTime?          @map("current_period_end") @db.Timestamptz(6)
-  trialStartsAt                DateTime?          @map("trial_starts_at") @db.Timestamptz(6)
-  trialEndsAt                  DateTime?          @map("trial_ends_at") @db.Timestamptz(6)
   createdAt                    DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt                    DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+  // stripe related
+  accountTier                  AccountTier        @default(FREE) @map("account_tier")
+  stripeCustomerId             String?            @unique @map("stripe_customer_id")
+  stripeDefaultPaymentMethodId String?            @map("stripe_default_payment_method_id")
+  cancelAtPeriodEnd            Boolean            @default(false) @map("cancel_at_period_end")
+  stripePriceId                String?            @map("stripe_price_id")
+  stripeProductId              String?            @map("stripe_product_id")
+  stripeSubscriptionId         String?            @unique @map("stripe_subscription_id")
+  subscriptionStatus           SubscriptionStatus @default(INACTIVE) @map("subscription_status")
+  hasHadActiveSubscription     Boolean            @default(false) @map("has_had_active_subscription")
+
+  userName           String?          @unique @map("user_name")
+  isPlatformAdmin    Boolean          @default(false) @map("is_platform_admin")
+  accountStatus      AccountStatus    @default(ACTIVE) @map("account_status")
+  billingInterval    BillingInterval? @map("billing_interval")
+  currentPeriodStart DateTime?        @map("current_period_start") @db.Timestamptz(6)
+  currentPeriodEnd   DateTime?        @map("current_period_end") @db.Timestamptz(6)
+  trialStartsAt      DateTime?        @map("trial_starts_at") @db.Timestamptz(6)
+  trialEndsAt        DateTime?        @map("trial_ends_at") @db.Timestamptz(6)
 
   ownedWorkspaces             Workspace[]             @relation("WorkspaceOwner")
   workspaceMemberships        WorkspaceMembership[]

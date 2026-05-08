@@ -1,11 +1,11 @@
 import type { CaseIntake } from "#/types/caseWorkspace";
-import { caseStatusOptions } from "#/components/layouts/new_case/caseIntakeForm";
+import { caseStatusOptions } from "#/components/features/case-intake/caseIntakeForm";
 import {
   FormSection,
   SelectField,
   TextAreaField,
   TextInputField,
-} from "#/components/layouts/new_case/fields";
+} from "#/components/features/case-intake/fields";
 
 type DisputeDetailsFormProps = {
   caseIntake: CaseIntake;

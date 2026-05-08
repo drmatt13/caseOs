@@ -3,25 +3,25 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 
 import AppLayout from "#/components/layouts/AppLayout";
-import CaseBasicsForm from "#/components/layouts/new_case/CaseBasicsForm";
-import DisputeDetailsForm from "#/components/layouts/new_case/DisputeDetailsForm";
-import DocumentsForm from "#/components/layouts/new_case/DocumentsForm";
-import GoalsObjectivesAndRisksForm from "#/components/layouts/new_case/GoalsObjectivesAndRisksForm";
-import PeoplePartiesAndWitnessesForm from "#/components/layouts/new_case/PeoplePartiesAndWitnessesForm";
-import TimelineAndUrgencyForm from "#/components/layouts/new_case/TimelineAndUrgencyForm";
-import ReviewForm from "#/components/layouts/new_case/ReviewForm";
+import CaseBasicsForm from "#/components/features/case-intake/CaseBasicsForm";
+import DisputeDetailsForm from "#/components/features/case-intake/DisputeDetailsForm";
+import DocumentsForm from "#/components/features/case-intake/DocumentsForm";
+import GoalsObjectivesAndRisksForm from "#/components/features/case-intake/GoalsObjectivesAndRisksForm";
+import PeoplePartiesAndWitnessesForm from "#/components/features/case-intake/PeoplePartiesAndWitnessesForm";
+import TimelineAndUrgencyForm from "#/components/features/case-intake/TimelineAndUrgencyForm";
+import ReviewForm from "#/components/features/case-intake/ReviewForm";
 import LeftPanelLayout from "#/components/layouts/LeftPanelLayout";
 import {
   CASE_INTAKE_TOTAL_STEPS,
   initialCaseIntake,
-} from "#/components/layouts/new_case/caseIntakeForm";
+} from "#/components/features/case-intake/caseIntakeForm";
 import WorkPanelLayout from "#/components/layouts/WorkPanelLayout";
 import CreateCaseMenu from "#/components/menus/CreateCaseMenu";
 import UserPanel from "#/components/UserPanel";
 import Button from "#/components/Button";
 
 import type { CaseIntake } from "#/types/caseWorkspace";
-import type { CaseIntakeWizardState } from "#/components/layouts/new_case/caseIntakeForm";
+import type { CaseIntakeWizardState } from "#/components/features/case-intake/caseIntakeForm";
 import LoadingSpinner from "#/components/LoadingSpinner";
 
 // route guards
