@@ -30,6 +30,7 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
   public readonly verifySessionFn: nodejs.NodejsFunction;
   public readonly refreshFn: nodejs.NodejsFunction;
   public readonly getUserFn: nodejs.NodejsFunction;
+  public readonly graphqlApiFn: nodejs.NodejsFunction;
   public readonly updateUserFn: nodejs.NodejsFunction;
   public readonly s3AccessBrokerFn: nodejs.NodejsFunction;
 
@@ -188,6 +189,45 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
         "..",
         "lambda_functions",
         "get-user",
+        "index.ts",
+      ),
+      handler: "lambdaHandler",
+      bundling: {
+        minify: true,
+        sourceMap: false,
+        target: "es2020",
+        commandHooks: {
+          beforeInstall() {
+            return [];
+          },
+          beforeBundling() {
+            return ["npm run generate --workspace @repo/database"];
+          },
+          afterBundling() {
+            return [];
+          },
+        },
+      },
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(30),
+      environment: {
+        USER_POOL_ID: props.userPoolId,
+        USER_POOL_CLIENT_ID: props.userPoolClientId,
+        ...(props.primaryDatabaseSecretArn
+          ? {
+              PRIMARY_DATABASE_SECRET_ARN: props.primaryDatabaseSecretArn,
+            }
+          : {}),
+      },
+    });
+
+    this.graphqlApiFn = new nodejs.NodejsFunction(this, "GraphQLApi", {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      entry: path.join(
+        __dirname,
+        "..",
+        "lambda_functions",
+        "graphql-api",
         "index.ts",
       ),
       handler: "lambdaHandler",

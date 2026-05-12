@@ -11,7 +11,12 @@ generator lambda_client {
 
 datasource db {
   provider = "postgresql"
-  // url      = env("DATABASE_URL")
+  url      = env("DATABASE_URL")
+}
+
+generator typegraphql {
+  provider = "typegraphql-prisma"
+  output   = "../src/generated/typegraphql"
 }
 
 enum AccountTier {
@@ -184,7 +189,10 @@ model User {
   stripeSubscriptionId         String?            @unique @map("stripe_subscription_id")
   subscriptionStatus           SubscriptionStatus @default(INACTIVE) @map("subscription_status")
   hasHadActiveSubscription     Boolean            @default(false) @map("has_had_active_subscription")
+  // relationships
+  ownedWorkspaces              Workspace[]        @relation("WorkspaceOwner")
 
+  // questionable
   userName           String?          @unique @map("user_name")
   isPlatformAdmin    Boolean          @default(false) @map("is_platform_admin")
   accountStatus      AccountStatus    @default(ACTIVE) @map("account_status")
@@ -194,19 +202,18 @@ model User {
   trialStartsAt      DateTime?        @map("trial_starts_at") @db.Timestamptz(6)
   trialEndsAt        DateTime?        @map("trial_ends_at") @db.Timestamptz(6)
 
-  ownedWorkspaces             Workspace[]             @relation("WorkspaceOwner")
-  workspaceMemberships        WorkspaceMembership[]
-  createdCases                Case[]                  @relation("CaseCreatedByUser")
-  uploadedDocuments           CaseDocumentIndex[]     @relation("CaseDocumentUploadedByUser")
-  createdRecordIndexes        CaseRecordIndex[]       @relation("CaseRecordIndexCreatedByUser")
-  updatedRecordIndexes        CaseRecordIndex[]       @relation("CaseRecordIndexUpdatedByUser")
-  createdViewIndexes          CaseViewIndex[]         @relation("CaseViewIndexCreatedByUser")
-  manifestsCreated            CaseStateManifest[]     @relation("CaseStateManifestCreatedByUser")
-  actorUsageEvents            LlmUsageEvent[]         @relation("LlmUsageActorUser")
-  billedUsageEvents           LlmUsageEvent[]         @relation("LlmUsageBilledToUser")
-  stripeEvents                StripeEventLog[]
-  individualUsageMonthly      UserUsageMonthly[]
-  workspaceBilledUsageMonthly WorkspaceUsageMonthly[]
+  workspaceMemberships WorkspaceMembership[]
+  createdCases         ManagedCase[]         @relation("CaseCreatedByUser")
+  uploadedDocuments    CaseDocumentIndex[]   @relation("CaseDocumentUploadedByUser")
+  createdRecordIndexes CaseRecordIndex[]     @relation("CaseRecordIndexCreatedByUser")
+  updatedRecordIndexes CaseRecordIndex[]     @relation("CaseRecordIndexUpdatedByUser")
+  createdViewIndexes   CaseViewIndex[]       @relation("CaseViewIndexCreatedByUser")
+  manifestsCreated     CaseStateManifest[]   @relation("CaseStateManifestCreatedByUser")
+  actorUsageEvents     LlmUsageEvent[]       @relation("LlmUsageActorUser")
+  billedUsageEvents    LlmUsageEvent[]       @relation("LlmUsageBilledToUser")
+  // stripeEvents                StripeEventLog[]
+  // individualUsageMonthly      UserUsageMonthly[]
+  // workspaceBilledUsageMonthly WorkspaceUsageMonthly[]
 
   @@index([accountTier])
   @@index([accountStatus])
@@ -214,26 +221,28 @@ model User {
 }
 
 model Workspace {
+  // in use
   id            String          @id @default(uuid()) @db.Uuid
   name          String
+  owner         User            @relation("WorkspaceOwner", fields: [ownerUserId], references: [id], onDelete: Restrict)
   ownerUserId   String          @map("owner_user_id") @db.Uuid
-  storageBucket String          @map("storage_bucket")
   storagePrefix String          @unique @map("storage_prefix")
   status        WorkspaceStatus @default(ACTIVE)
   createdAt     DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  owner           User                    @relation("WorkspaceOwner", fields: [ownerUserId], references: [id], onDelete: Restrict)
+  // questionable
+  storageBucket   String                @map("storage_bucket")
   memberships     WorkspaceMembership[]
   invitations     WorkspaceInvitation[]
-  cases           Case[]
+  cases           ManagedCase[]
   documentIndexes CaseDocumentIndex[]
   recordIndexes   CaseRecordIndex[]
   viewIndexes     CaseViewIndex[]
   manifests       CaseStateManifest[]
   llmUsageEvents  LlmUsageEvent[]
-  monthlyUsage    WorkspaceUsageMonthly[]
-  stripeEvents    StripeEventLog[]
+  // monthlyUsage    WorkspaceUsageMonthly[]
+  // stripeEvents    StripeEventLog[]
 
   @@index([ownerUserId])
   @@index([status])
@@ -275,7 +284,7 @@ model WorkspaceInvitation {
   @@map("workspace_invitations")
 }
 
-model Case {
+model ManagedCase {
   id                    String     @id @default(uuid()) @db.Uuid
   workspaceId           String     @map("workspace_id") @db.Uuid
   createdByUserId       String     @map("created_by_user_id") @db.Uuid
@@ -329,9 +338,9 @@ model CaseDocumentIndex {
   createdAt        DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt        DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  workspace      Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  case           Case      @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  uploadedByUser User?     @relation("CaseDocumentUploadedByUser", fields: [uploadedByUserId], references: [id], onDelete: SetNull)
+  workspace      Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  case           ManagedCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  uploadedByUser User?       @relation("CaseDocumentUploadedByUser", fields: [uploadedByUserId], references: [id], onDelete: SetNull)
 
   @@index([workspaceId, category])
   @@index([caseId, category])
@@ -374,7 +383,7 @@ model CaseRecordIndex {
   createdAt           DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
 
   workspace         Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  case              Case               @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  case              ManagedCase        @relation(fields: [caseId], references: [id], onDelete: Cascade)
   manifest          CaseStateManifest? @relation(fields: [manifestId], references: [id], onDelete: SetNull)
   createdByUser     User?              @relation("CaseRecordIndexCreatedByUser", fields: [createdByUserId], references: [id], onDelete: SetNull)
   lastUpdatedByUser User?              @relation("CaseRecordIndexUpdatedByUser", fields: [lastUpdatedByUserId], references: [id], onDelete: SetNull)
@@ -414,7 +423,7 @@ model CaseViewIndex {
   updatedAt       DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   workspace     Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  case          Case               @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  case          ManagedCase        @relation(fields: [caseId], references: [id], onDelete: Cascade)
   manifest      CaseStateManifest? @relation(fields: [manifestId], references: [id], onDelete: SetNull)
   createdByUser User?              @relation("CaseViewIndexCreatedByUser", fields: [createdByUserId], references: [id], onDelete: SetNull)
 
@@ -441,7 +450,7 @@ model CaseStateManifest {
   createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
 
   workspace     Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  case          Case?             @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  case          ManagedCase?      @relation(fields: [caseId], references: [id], onDelete: Cascade)
   createdByUser User?             @relation("CaseStateManifestCreatedByUser", fields: [createdByUserId], references: [id], onDelete: SetNull)
   recordIndexes CaseRecordIndex[]
   viewIndexes   CaseViewIndex[]
@@ -456,7 +465,7 @@ model CaseStateManifest {
 model LlmUsageEvent {
   id               String   @id @default(uuid()) @db.Uuid
   workspaceId      String   @map("workspace_id") @db.Uuid
-  caseId           String?  @map("case_id") @db.Uuid
+  caseId           String   @map("case_id") @db.Uuid
   actorUserId      String?  @map("actor_user_id") @db.Uuid
   billedToUserId   String   @map("billed_to_user_id") @db.Uuid
   provider         String
@@ -470,87 +479,85 @@ model LlmUsageEvent {
   metadata         Json?
   createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  case         Case?     @relation(fields: [caseId], references: [id], onDelete: SetNull)
-  actorUser    User?     @relation("LlmUsageActorUser", fields: [actorUserId], references: [id], onDelete: SetNull)
-  billedToUser User      @relation("LlmUsageBilledToUser", fields: [billedToUserId], references: [id], onDelete: Restrict)
+  workspace    Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  case         ManagedCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  actorUser    User?       @relation("LlmUsageActorUser", fields: [actorUserId], references: [id], onDelete: SetNull)
+  billedToUser User        @relation("LlmUsageBilledToUser", fields: [billedToUserId], references: [id], onDelete: Restrict)
 
   @@index([workspaceId, createdAt])
   @@index([caseId])
-  @@index([actorUserId])
   @@index([billedToUserId, createdAt])
-  @@index([provider, model])
   @@map("llm_usage_events")
 }
 
-model WorkspaceUsageMonthly {
-  id                    String   @id @default(uuid()) @db.Uuid
-  workspaceId           String   @map("workspace_id") @db.Uuid
-  billedToUserId        String   @map("billed_to_user_id") @db.Uuid
-  usageMonth            DateTime @map("usage_month") @db.Date
-  totalInputTokens      BigInt   @default(0) @map("total_input_tokens")
-  totalOutputTokens     BigInt   @default(0) @map("total_output_tokens")
-  totalTokens           BigInt   @default(0) @map("total_tokens")
-  totalEstimatedCostUsd Decimal  @default(0) @map("total_estimated_cost_usd") @db.Decimal(12, 6)
+// model WorkspaceUsageMonthly {
+//   id                    String   @id @default(uuid()) @db.Uuid
+//   workspaceId           String   @map("workspace_id") @db.Uuid
+//   billedToUserId        String   @map("billed_to_user_id") @db.Uuid
+//   usageMonth            DateTime @map("usage_month") @db.Date
+//   totalInputTokens      BigInt   @default(0) @map("total_input_tokens")
+//   totalOutputTokens     BigInt   @default(0) @map("total_output_tokens")
+//   totalTokens           BigInt   @default(0) @map("total_tokens")
+//   totalEstimatedCostUsd Decimal  @default(0) @map("total_estimated_cost_usd") @db.Decimal(12, 6)
 
-  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  billedToUser User      @relation(fields: [billedToUserId], references: [id], onDelete: Cascade)
+//   workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+//   billedToUser User      @relation(fields: [billedToUserId], references: [id], onDelete: Cascade)
 
-  @@unique([workspaceId, usageMonth])
-  @@index([billedToUserId, usageMonth])
-  @@index([usageMonth])
-  @@map("workspace_usage_monthly")
-}
+//   @@unique([workspaceId, usageMonth])
+//   @@index([billedToUserId, usageMonth])
+//   @@index([usageMonth])
+//   @@map("workspace_usage_monthly")
+// }
 
-model UserUsageMonthly {
-  id                    String   @id @default(uuid()) @db.Uuid
-  userId                String   @map("user_id") @db.Uuid
-  usageMonth            DateTime @map("usage_month") @db.Date
-  totalInputTokens      BigInt   @default(0) @map("total_input_tokens")
-  totalOutputTokens     BigInt   @default(0) @map("total_output_tokens")
-  totalTokens           BigInt   @default(0) @map("total_tokens")
-  totalEstimatedCostUsd Decimal  @default(0) @map("total_estimated_cost_usd") @db.Decimal(12, 6)
+// model UserUsageMonthly {
+//   id                    String   @id @default(uuid()) @db.Uuid
+//   userId                String   @map("user_id") @db.Uuid
+//   usageMonth            DateTime @map("usage_month") @db.Date
+//   totalInputTokens      BigInt   @default(0) @map("total_input_tokens")
+//   totalOutputTokens     BigInt   @default(0) @map("total_output_tokens")
+//   totalTokens           BigInt   @default(0) @map("total_tokens")
+//   totalEstimatedCostUsd Decimal  @default(0) @map("total_estimated_cost_usd") @db.Decimal(12, 6)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+//   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, usageMonth])
-  @@index([usageMonth])
-  @@map("user_usage_monthly")
-}
+//   @@unique([userId, usageMonth])
+//   @@index([usageMonth])
+//   @@map("user_usage_monthly")
+// }
 
-model StripeEventLog {
-  id                   String    @id @default(uuid()) @db.Uuid
-  stripeEventId        String    @unique @map("stripe_event_id")
-  stripeEventType      String    @map("stripe_event_type")
-  userId               String?   @map("user_id") @db.Uuid
-  workspaceId          String?   @map("workspace_id") @db.Uuid
-  stripeCustomerId     String?   @map("stripe_customer_id")
-  stripeSubscriptionId String?   @map("stripe_subscription_id")
-  processed            Boolean   @default(false)
-  processedAt          DateTime? @map("processed_at") @db.Timestamptz(6)
-  eventCreatedAt       DateTime? @map("event_created_at") @db.Timestamptz(6)
-  receivedAt           DateTime  @default(now()) @map("received_at") @db.Timestamptz(6)
-  payload              Json
+// model StripeEventLog {
+//   id                   String    @id @default(uuid()) @db.Uuid
+//   stripeEventId        String    @unique @map("stripe_event_id")
+//   stripeEventType      String    @map("stripe_event_type")
+//   userId               String?   @map("user_id") @db.Uuid
+//   workspaceId          String?   @map("workspace_id") @db.Uuid
+//   stripeCustomerId     String?   @map("stripe_customer_id")
+//   stripeSubscriptionId String?   @map("stripe_subscription_id")
+//   processed            Boolean   @default(false)
+//   processedAt          DateTime? @map("processed_at") @db.Timestamptz(6)
+//   eventCreatedAt       DateTime? @map("event_created_at") @db.Timestamptz(6)
+//   receivedAt           DateTime  @default(now()) @map("received_at") @db.Timestamptz(6)
+//   payload              Json
 
-  user      User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
-  workspace Workspace? @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
+//   user      User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+//   workspace Workspace? @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
 
-  @@index([userId])
-  @@index([workspaceId])
-  @@index([stripeCustomerId])
-  @@index([stripeSubscriptionId])
-  @@index([processed, receivedAt])
-  @@map("stripe_event_log")
-}
+//   @@index([userId])
+//   @@index([workspaceId])
+//   @@index([stripeCustomerId])
+//   @@index([stripeSubscriptionId])
+//   @@index([processed, receivedAt])
+//   @@map("stripe_event_log")
+// }
 
-model AccountTierLimit {
-  tier                   AccountTier @id
-  maxWorkspacesOwned     Int         @map("max_workspaces_owned")
-  maxMembersPerWorkspace Int         @map("max_members_per_workspace")
-  maxCasesPerWorkspace   Int         @map("max_cases_per_workspace")
-  monthlyTokenLimit      BigInt      @map("monthly_token_limit")
-  createdAt              DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt              DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
+// model AccountTierLimit {
+//   tier                   AccountTier @id
+//   maxWorkspacesOwned     Int         @map("max_workspaces_owned")
+//   maxMembersPerWorkspace Int         @map("max_members_per_workspace")
+//   maxCasesPerWorkspace   Int         @map("max_cases_per_workspace")
+//   monthlyTokenLimit      BigInt      @map("monthly_token_limit")
+//   createdAt              DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+//   updatedAt              DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  @@map("account_tier_limits")
-}
+//   @@map("account_tier_limits")
+// }

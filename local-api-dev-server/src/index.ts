@@ -12,6 +12,7 @@ import { lambdaHandler as oauthCallback } from "../../cdk-app/lambda_functions/o
 import { lambdaHandler as verifySession } from "../../cdk-app/lambda_functions/verify-session/index";
 import { lambdaHandler as refresh } from "../../cdk-app/lambda_functions/refresh/index";
 import { lambdaHandler as getUser } from "../../cdk-app/lambda_functions/get-user/index";
+import { lambdaHandler as graphqlApi } from "../../cdk-app/lambda_functions/graphql-api/index";
 import { lambdaHandler as updateUser } from "../../cdk-app/lambda_functions/update-user/index";
 import { lambdaHandler as s3AccessBroker } from "../../cdk-app/lambda_functions/s3-access-broker/index";
 
@@ -102,6 +103,10 @@ app.all("/refresh", async (req, res) => {
  *********************************/
 app.all("/get-user", async (req, res) => {
   return invokeLambdaFunction(req, res, getUser);
+});
+
+app.all("/graphql", async (req, res) => {
+  return invokeLambdaFunction(req, res, graphqlApi);
 });
 
 app.all("/update-user", async (req, res) => {

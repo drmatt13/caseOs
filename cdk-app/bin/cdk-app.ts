@@ -207,7 +207,7 @@ const asynchronousLambdaFunctionsStack = new AsynchronousLambdaFunctionsStack(
     replayBucketName: devLambdaReplayStack?.bucket.bucketName,
     replayQueueUrl: devLambdaReplayStack?.queue.queueUrl,
     replayBucket: devLambdaReplayStack?.bucket,
-    // If RDS is not created, the function falls back to its local/runtime env flow.
+    // If RDS is not created, the async function will fall back to its local/runtime env flow.
     primaryDatabaseSecretArn: rdsStack?.credentialsSecretArn,
   },
 );
@@ -279,6 +279,7 @@ const httpApiGatewayStack = !useLocalImplementations
       verifySessionFn: synchronousLambdaFunctionsStack.verifySessionFn,
       refreshFn: synchronousLambdaFunctionsStack.refreshFn,
       getUserFn: synchronousLambdaFunctionsStack.getUserFn,
+      graphqlApiFn: synchronousLambdaFunctionsStack.graphqlApiFn,
       updateUserFn: synchronousLambdaFunctionsStack.updateUserFn,
       s3AccessBrokerFn: synchronousLambdaFunctionsStack.s3AccessBrokerFn,
       billingListProductsFn:

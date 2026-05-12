@@ -32,16 +32,12 @@ import type {
   Workspace,
   WorkspaceMembership,
   WorkspaceInvitation,
-  Case,
+  ManagedCase,
   CaseDocumentIndex,
   CaseRecordIndex,
   CaseViewIndex,
   CaseStateManifest,
   LlmUsageEvent,
-  WorkspaceUsageMonthly,
-  UserUsageMonthly,
-  StripeEventLog,
-  AccountTierLimit,
 } from "./generated/prisma/browser";
 
 // ---------- shared helpers ----------
@@ -182,7 +178,7 @@ export const workspaceInvitationSchema: z.ZodType<WorkspaceInvitation> =
     createdAt: dateSchema,
   });
 
-export const caseSchema: z.ZodType<Case> = z.object({
+export const caseSchema: z.ZodType<ManagedCase> = z.object({
   id: uuidSchema,
   workspaceId: uuidSchema,
   createdByUserId: uuidSchema,
@@ -301,7 +297,7 @@ export const caseStateManifestSchema: z.ZodType<CaseStateManifest> = z.object({
 export const llmUsageEventSchema: z.ZodType<LlmUsageEvent> = z.object({
   id: uuidSchema,
   workspaceId: uuidSchema,
-  caseId: z.string().uuid().nullable(),
+  caseId: uuidSchema,
   actorUserId: z.string().uuid().nullable(),
   billedToUserId: uuidSchema,
   provider: nonEmptyStringSchema,
@@ -314,53 +310,6 @@ export const llmUsageEventSchema: z.ZodType<LlmUsageEvent> = z.object({
   requestFiles: jsonSchema.nullable(),
   metadata: jsonSchema.nullable(),
   createdAt: dateSchema,
-});
-
-export const workspaceUsageMonthlySchema: z.ZodType<WorkspaceUsageMonthly> =
-  z.object({
-    id: uuidSchema,
-    workspaceId: uuidSchema,
-    billedToUserId: uuidSchema,
-    usageMonth: dateSchema,
-    totalInputTokens: z.bigint(),
-    totalOutputTokens: z.bigint(),
-    totalTokens: z.bigint(),
-    totalEstimatedCostUsd: prismaDecimalSchema,
-  });
-
-export const userUsageMonthlySchema: z.ZodType<UserUsageMonthly> = z.object({
-  id: uuidSchema,
-  userId: uuidSchema,
-  usageMonth: dateSchema,
-  totalInputTokens: z.bigint(),
-  totalOutputTokens: z.bigint(),
-  totalTokens: z.bigint(),
-  totalEstimatedCostUsd: prismaDecimalSchema,
-});
-
-export const stripeEventLogSchema: z.ZodType<StripeEventLog> = z.object({
-  id: uuidSchema,
-  stripeEventId: nonEmptyStringSchema,
-  stripeEventType: nonEmptyStringSchema,
-  userId: z.string().uuid().nullable(),
-  workspaceId: z.string().uuid().nullable(),
-  stripeCustomerId: z.string().nullable(),
-  stripeSubscriptionId: z.string().nullable(),
-  processed: z.boolean(),
-  processedAt: dateSchema.nullable(),
-  eventCreatedAt: dateSchema.nullable(),
-  receivedAt: dateSchema,
-  payload: jsonSchema,
-});
-
-export const accountTierLimitSchema: z.ZodType<AccountTierLimit> = z.object({
-  tier: accountTierSchema,
-  maxWorkspacesOwned: z.number().int(),
-  maxMembersPerWorkspace: z.number().int(),
-  maxCasesPerWorkspace: z.number().int(),
-  monthlyTokenLimit: z.bigint(),
-  createdAt: dateSchema,
-  updatedAt: dateSchema,
 });
 
 // ---------- input / transport schemas ----------
@@ -546,12 +495,6 @@ export const caseRecordIndexesSchema = z.array(caseRecordIndexSchema);
 export const caseViewIndexesSchema = z.array(caseViewIndexSchema);
 export const caseStateManifestsSchema = z.array(caseStateManifestSchema);
 export const llmUsageEventsSchema = z.array(llmUsageEventSchema);
-export const workspaceUsageMonthlyRowsSchema = z.array(
-  workspaceUsageMonthlySchema,
-);
-export const userUsageMonthlyRowsSchema = z.array(userUsageMonthlySchema);
-export const stripeEventLogsSchema = z.array(stripeEventLogSchema);
-export const accountTierLimitsSchema = z.array(accountTierLimitSchema);
 
 // ---------- inferred types from zod ----------
 

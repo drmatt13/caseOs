@@ -15,6 +15,7 @@ export interface HttpApiGatewayStackProps extends cdk.StackProps {
   verifySessionFn: IFunction;
   refreshFn: IFunction;
   getUserFn: IFunction;
+  graphqlApiFn: IFunction;
   updateUserFn: IFunction;
   s3AccessBrokerFn: IFunction;
 
@@ -147,6 +148,13 @@ export class HttpApiGatewayStack extends cdk.Stack {
       "/get-user",
       [apigwv2.HttpMethod.ANY],
       props.getUserFn,
+    );
+
+    addAuthenticatedRoute(
+      "GraphQLApiIntegration",
+      "/graphql",
+      [apigwv2.HttpMethod.ANY],
+      props.graphqlApiFn,
     );
 
     addAuthenticatedRoute(
