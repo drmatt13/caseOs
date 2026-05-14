@@ -61,12 +61,14 @@ export async function createSetupIntent() {
   return createSetupIntentResponseSchema.parse(await res.json());
 }
 
-export async function createSubscription(input: {
+export type CreateSubscriptionInput = {
   tier: BillingTier;
   priceId: string;
   paymentMethodId: string;
   startTrial: boolean;
-}) {
+};
+
+export async function createSubscription(input: CreateSubscriptionInput) {
   const res = await fetchWithAuthRefresh("/billing/create-subscription", {
     method: "POST",
     headers: {

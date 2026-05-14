@@ -35,6 +35,7 @@ x-local-api-dev-server-env: &local-api-dev-server-env
   PORT: "8080"
   LANGGRAPH_SERVICE_URL: "http://langgraph-service"
   PRIMARY_DATABASE_URL: "postgresql://admin:password@postgres:5432/app_db" # In development you should always use local Postgres for database access
+  GRAPHQL_GRAPHIQL_ENABLED: "true"
   # Source: S3Stack output key `CaseOSBucketArn`
   CASEOS_STORAGE_BUCKET_ARN: "arn:aws:s3:::caseos-270473543328-us-east-1"
   # Never capture event-driven functions in local dev

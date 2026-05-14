@@ -1,6 +1,4 @@
-import { useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import AppLayout from "#/components/layouts/AppLayout";
 // import SelectCaseMenu from "#/components/menus/SelectCaseMenu";
 import WorkspaceMenu from "#/components/menus/WorkspaceMenu";
@@ -14,8 +12,7 @@ import LoadingSpinner from "#/components/LoadingSpinner";
 // route guards
 import { requireAuth } from "#/lib/auth";
 
-// query functions
-import { getUser } from "#/api/getUser";
+import { useCurrentUserQuery } from "#/api/react-query/currentUser";
 
 export const Route = createFileRoute("/case/$id")({
   beforeLoad: requireAuth,
@@ -29,11 +26,8 @@ function RouteComponent() {
     data: userResult,
     isPending,
     error,
-  } = useQuery({
-    queryKey: ["user"],
-    queryFn: getUser,
-  });
-  const user = userResult?.success ? userResult.data.user : undefined;
+  } = useCurrentUserQuery();
+  const user = userResult?.currentUser.user;
 
   if (isPending) {
     return (

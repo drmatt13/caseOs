@@ -13,7 +13,6 @@ import { lambdaHandler as verifySession } from "../../cdk-app/lambda_functions/v
 import { lambdaHandler as refresh } from "../../cdk-app/lambda_functions/refresh/index";
 import { lambdaHandler as getUser } from "../../cdk-app/lambda_functions/get-user/index";
 import { lambdaHandler as graphqlApi } from "../../cdk-app/lambda_functions/graphql-api/index";
-import { lambdaHandler as updateUser } from "../../cdk-app/lambda_functions/update-user/index";
 import { lambdaHandler as s3AccessBroker } from "../../cdk-app/lambda_functions/s3-access-broker/index";
 
 // Stripe-related Lambda functions
@@ -107,10 +106,6 @@ app.all("/get-user", async (req, res) => {
 
 app.all("/graphql", async (req, res) => {
   return invokeLambdaFunction(req, res, graphqlApi);
-});
-
-app.all("/update-user", async (req, res) => {
-  return invokeLambdaFunction(req, res, updateUser);
 });
 
 app.all("/verify-session", async (req, res) => {

@@ -1,24 +1,30 @@
 import { useContext, useEffect, useState } from "react";
 import { Settings } from "lucide-react";
-
-import { userSchema } from "@repo/database/table.schemas";
-import z from "zod";
+import type { AccountTier } from "#/api/generated/graphql";
 
 // context
 import { PopupContext } from "#/context/PopupContext";
-
-interface UserPanelProps {
-  user: z.infer<typeof userSchema>;
-  settings?: boolean;
-  showTier?: boolean;
-}
 
 const accountTierLabels = {
   FREE: "Free",
   TRIAL: "Trial",
   PRO: "Pro",
   ENTERPRISE: "Enterprise",
-} as const;
+} satisfies Record<AccountTier, string>;
+
+export type UserPanelUser = {
+  displayName?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  profilePicture?: string | null;
+  accountTier?: AccountTier | null;
+};
+
+interface UserPanelProps {
+  user: UserPanelUser;
+  settings?: boolean;
+  showTier?: boolean;
+}
 
 const UserPanel = ({
   user,
@@ -60,7 +66,10 @@ const UserPanel = ({
             </p>
             {showTier && (
               <p className="text-xs text-gray-500 truncate">
-                Tier: {accountTierLabels[user.accountTier]}
+                Tier:{" "}
+                {user.accountTier
+                  ? accountTierLabels[user.accountTier]
+                  : "Unknown"}
               </p>
             )}
           </div>

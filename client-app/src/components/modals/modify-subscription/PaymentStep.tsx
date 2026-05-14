@@ -1,9 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
-
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 
-import { createSetupIntent } from "#/api/billing";
+import { useBillingSetupIntentQuery } from "#/api/react-query/billing";
 import StripePaymentForm from "./StripePaymentForm";
 import { type PaymentStepProps } from "#/components/modals/modify-subscription/types";
 
@@ -16,11 +14,7 @@ const PaymentStep = (props: PaymentStepProps) => {
     data: setupIntent,
     isPending: setupIntentPending,
     error: setupIntentError,
-  } = useQuery({
-    queryKey: ["billing-setup-intent", props.selectedOption.tier],
-    queryFn: createSetupIntent,
-    staleTime: 0,
-  });
+  } = useBillingSetupIntentQuery(props.selectedOption.tier);
 
   return (
     <>

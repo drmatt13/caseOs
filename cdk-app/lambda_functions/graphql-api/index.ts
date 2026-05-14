@@ -3,105 +3,40 @@ import type {
   APIGatewayProxyEventV2,
   APIGatewayProxyResult,
 } from "aws-lambda";
-import { createSchema, createYoga } from "graphql-yoga";
+import { createYoga } from "graphql-yoga";
 import {
   getHttpMethod,
   jsonResponse,
   getDatabaseUrl,
   requireAuthenticatedSession,
-  type AuthenticatedCognitoSession,
 } from "@repo/shared-lambda-utils";
 import { getPrismaClient } from "@repo/database";
+import type { GraphQLContext } from "./graphql-context";
+import {
+  getRequestBody,
+  getRequestHeaders,
+  getRequestUrl,
+  toApiGatewayResult,
+} from "./lib/api-gateway-fetch";
+import { schema } from "./schema";
 
-type GraphQLContext = {
-  session: AuthenticatedCognitoSession;
-  prisma: ReturnType<typeof getPrismaClient>;
-};
-
-const yoga = createYoga<GraphQLContext>({
-  schema: createSchema({
-    typeDefs: /* GraphQL */ `
-      type Query {
-        health: String!
-        hello: String!
-        echo(message: String): String!
-      }
-    `,
-    resolvers: {
-      Query: {
-        health: () => "ok",
-        hello: () => "Hello from graphql-api",
-        echo: (_parent: unknown, { message }: { message?: string }) =>
-          message ?? "",
-      },
-    },
-  }),
-  graphqlEndpoint: "/graphql",
-  graphiql: false,
-});
-
-function getRequestUrl(
-  event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
-): string {
-  if ("rawPath" in event) {
-    const protocol = event.headers["x-forwarded-proto"] ?? "https";
-    const host =
-      event.headers.host ??
-      event.headers.Host ??
-      event.requestContext.domainName ??
-      "localhost";
-    const queryString = event.rawQueryString ? `?${event.rawQueryString}` : "";
-
-    return `${protocol}://${host}${event.rawPath}${queryString}`;
-  }
-
-  const protocol = event.headers["x-forwarded-proto"] ?? "https";
-  const host =
-    event.headers.host ?? event.headers.Host ?? event.requestContext.domainName;
-  const path = event.path || "/graphql";
-  const queryString = event.queryStringParameters
-    ? `?${new URLSearchParams(
-        Object.entries(event.queryStringParameters).filter(
-          (entry): entry is [string, string] => typeof entry[1] === "string",
-        ),
-      ).toString()}`
-    : "";
-
-  return `${protocol}://${host ?? "localhost"}${path}${queryString}`;
+function isGraphiqlEnabled(): boolean {
+  return process.env.GRAPHQL_GRAPHIQL_ENABLED === "true";
 }
 
-function getRequestHeaders(
-  event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
-): Headers {
-  const headers = new Headers();
-
-  for (const [key, value] of Object.entries(event.headers)) {
-    if (typeof value === "string") {
-      headers.set(key, value);
-    }
-  }
-
-  return headers;
+function createGraphQLYoga() {
+  return createYoga<GraphQLContext>({
+    schema,
+    graphqlEndpoint: "/graphql",
+    graphiql: isGraphiqlEnabled(),
+  });
 }
 
-function getRequestBody(
-  event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
-): BodyInit | undefined {
-  if (!event.body) {
-    return undefined;
-  }
+let yoga: ReturnType<typeof createGraphQLYoga> | null = null;
 
-  return event.isBase64Encoded ? Buffer.from(event.body, "base64") : event.body;
-}
-
-async function toApiGatewayResult(
-  response: Response,
-): Promise<APIGatewayProxyResult> {
-  return {
-    statusCode: response.status,
-    headers: Object.fromEntries(response.headers.entries()),
-    body: await response.text(),
-  };
+function getYoga(): ReturnType<typeof createGraphQLYoga> {
+  yoga ??= createGraphQLYoga();
+  return yoga;
 }
 
 export const lambdaHandler = async (
@@ -132,6 +67,7 @@ export const lambdaHandler = async (
       return jsonResponse(405, { error: "Method Not Allowed" });
     }
 
+    const yoga = getYoga();
     const response = await yoga.fetch(
       getRequestUrl(event),
       {

@@ -1,9 +1,8 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { XIcon } from "lucide-react";
 
-import { getUser } from "#/api/getUser";
-import { listBillingProducts } from "#/api/billing";
+import { useCurrentUserQuery } from "#/api/react-query/currentUser";
+import { useBillingProductsQuery } from "#/api/react-query/billing";
 import { AppModalContext } from "#/context/AppModalContext";
 import PaymentStep from "#/components/modals/modify-subscription/PaymentStep";
 import SelectTierStep from "#/components/modals/modify-subscription/SelectTierStep";
@@ -30,19 +29,13 @@ const ModifySubscriptionModal = () => {
     data: userResult,
     isPending: userPending,
     error: userError,
-  } = useQuery({
-    queryKey: ["user"],
-    queryFn: getUser,
-  });
+  } = useCurrentUserQuery();
 
   const {
     data: billingProductsResult,
     isPending: productsPending,
     error: productsError,
-  } = useQuery({
-    queryKey: ["billing-products"],
-    queryFn: listBillingProducts,
-  });
+  } = useBillingProductsQuery();
 
   const tierOptions = useMemo(
     () => buildTierOptions(billingProductsResult?.products),
@@ -54,7 +47,7 @@ const ModifySubscriptionModal = () => {
   );
   const selectedTierLabel = selectedOption?.name ?? "No tier selected";
   const selectedPrice = selectedOption?.price ?? null;
-  const user = userResult?.success ? userResult.data.user : undefined;
+  const user = userResult?.currentUser.user;
   const hasHadActiveSubscription = user?.hasHadActiveSubscription ?? false;
   const currentTier: AccountTier = user?.accountTier ?? "FREE";
   const canStartTrial = selectedTier === "PRO" && !hasHadActiveSubscription;

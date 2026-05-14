@@ -18,8 +18,8 @@ const COGNITO_DOMAIN_URL = import.meta.env.VITE_COGNITO_DOMAIN;
 const USER_POOL_CLIENT_ID = import.meta.env.VITE_USER_POOL_CLIENT_ID;
 
 export const API_ROUTES = [
+  "/graphql",
   "/get-subscription",
-  "/get-user",
   "/billing/create-setup-intent",
   "/billing/create-subscription",
   "/billing/list-products",
@@ -28,7 +28,6 @@ export const API_ROUTES = [
   "/s3-access-broker",
   "/sign-in",
   "/sign-out",
-  "/update-user",
   "/verify-session",
 ] as const;
 
@@ -329,13 +328,6 @@ async function checkSessionOnClient(): Promise<AuthState> {
 
   const hasSessionHint = getSessionHint();
 
-  if (!hasSessionHint) {
-    const noSession: AuthState = { authenticated: false };
-    clientAuthCache = noSession;
-    clientAuthRequest = Promise.resolve(noSession);
-    return noSession;
-  }
-
   clientAuthRequest = (async (): Promise<AuthState> => {
     try {
       const response = await fetch(`${API_URL}/verify-session`, {
@@ -344,10 +336,22 @@ async function checkSessionOnClient(): Promise<AuthState> {
       });
 
       if (response.ok) {
+        if (!hasSessionHint) {
+          try {
+            setSessionHint(window.sessionStorage);
+          } catch {}
+        }
+
         return { authenticated: true };
       }
 
       if (response.status === 401 && (await refreshSession())) {
+        if (!hasSessionHint) {
+          try {
+            setSessionHint(window.sessionStorage);
+          } catch {}
+        }
+
         return { authenticated: true };
       }
 

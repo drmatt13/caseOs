@@ -11,10 +11,9 @@ import {
 } from "@floating-ui/react";
 import { useContext, useEffect, useCallback } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import Button from "../Button";
 import logout from "#/lib/logout";
-import { getUser } from "#/api/getUser";
+import { useCurrentUserQuery } from "#/api/react-query/currentUser";
 import { BriefcaseBusiness, CreditCard, UserPen, XIcon } from "lucide-react";
 
 // context
@@ -31,11 +30,8 @@ const SettingsPopup = () => {
     data: userResult,
     isPending: userPending,
     error: userError,
-  } = useQuery({
-    queryKey: ["user"],
-    queryFn: getUser,
-  });
-  const user = userResult?.success ? userResult.data.user : undefined;
+  } = useCurrentUserQuery();
+  const user = userResult?.currentUser.user;
   const manageWorkspacesDisabled =
     userPending || !!userError || user?.accountTier === "FREE";
   const { refs, floatingStyles, context } = useFloating({

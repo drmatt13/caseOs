@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 
 import AppLayout from "#/components/layouts/AppLayout";
 import CaseBasicsForm from "#/components/features/case-intake/CaseBasicsForm";
@@ -27,8 +26,7 @@ import LoadingSpinner from "#/components/LoadingSpinner";
 // route guards
 import { requireAuth } from "#/lib/auth";
 
-// query functions
-import { getUser } from "#/api/getUser";
+import { useCurrentUserQuery } from "#/api/react-query/currentUser";
 
 // test data
 import { testCaseIntake } from "#/lib/test_data";
@@ -39,15 +37,8 @@ export const Route = createFileRoute("/cases/new")({
 });
 
 function RouteComponent() {
-  const {
-    data: userResult,
-    isPending,
-    error,
-  } = useQuery({
-    queryKey: ["user"],
-    queryFn: getUser,
-  });
-  const user = userResult?.success ? userResult.data.user : undefined;
+  const { data: userResult, isPending, error } = useCurrentUserQuery();
+  const user = userResult?.currentUser.user;
 
   const [caseIntakeState, setCaseIntakeState] = useState<CaseIntakeWizardState>(
     {

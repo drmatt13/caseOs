@@ -1,5 +1,5 @@
 {
   "watch": ["../cdk-app/lambda_functions", "../cdk-app/ecs_containers", "./src"],
   "ext": "ts",
-  "exec": "npx tsx src/index.ts"
+  "exec": "npx ts-node --transpile-only --project tsconfig.json src/index.ts"
 }

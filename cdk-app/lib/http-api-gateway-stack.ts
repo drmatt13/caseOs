@@ -158,13 +158,6 @@ export class HttpApiGatewayStack extends cdk.Stack {
     );
 
     addAuthenticatedRoute(
-      "UpdateUserIntegration",
-      "/update-user",
-      [apigwv2.HttpMethod.ANY],
-      props.updateUserFn,
-    );
-
-    addAuthenticatedRoute(
       "S3AccessBrokerIntegration",
       "/s3-access-broker",
       [apigwv2.HttpMethod.ANY],

@@ -1,0 +1,80 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+enum AccountStatus {
+  ACTIVE
+  DISABLED
+}
+
+enum AccountTier {
+  ENTERPRISE
+  FREE
+  PRO
+  TRIAL
+}
+
+type CurrentUser {
+  accountStatus: AccountStatus
+  accountTier: AccountTier
+  billingEmail: String
+  displayName: String
+  email: String
+  firstName: String
+  hasHadActiveSubscription: Boolean
+  id: ID
+  lastName: String
+  profilePicture: String
+  subscriptionStatus: SubscriptionStatus
+  updatedAt: String
+  userName: String
+}
+
+type CurrentUserPayload {
+  idToken: String
+  user: CurrentUser
+}
+
+type Mutation {
+  updateCurrentUser(data: UpdateCurrentUserInput!): UpdateCurrentUserPayload
+}
+
+type Query {
+  currentUser: CurrentUserPayload
+  userById(id: ID!): UserProfile
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  INACTIVE
+  INCOMPLETE
+  INCOMPLETE_EXPIRED
+  PAST_DUE
+  TRIALING
+  UNPAID
+}
+
+input UpdateCurrentUserInput {
+  billingEmail: String
+  displayName: String
+  firstName: String
+  lastName: String
+  profilePicture: String
+}
+
+type UpdateCurrentUserPayload {
+  success: Boolean
+  user: CurrentUser
+}
+
+type UserProfile {
+  displayName: String
+  email: String
+  firstName: String
+  id: ID
+  lastName: String
+  profilePicture: String
+  userName: String
+}

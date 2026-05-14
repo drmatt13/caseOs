@@ -6,15 +6,16 @@ import {
   useRef,
   useState,
 } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { Mail, UserRound, XIcon } from "lucide-react";
 
 import Button from "#/components/Button";
 import { AppModalContext } from "#/context/AppModalContext";
-import { getUser } from "#/api/getUser";
-import { getS3Permissions } from "#/api/getS3Permissions";
-import { updateUser as updateUserProfile } from "#/api/updateUser";
+import {
+  useCurrentUserQuery,
+  useUpdateUserMutation,
+} from "#/api/react-query/currentUser";
+import { useS3PermissionsQuery } from "#/api/react-query/s3Permissions";
 import {
   createProfilePictureJpeg,
   PROFILE_PICTURE_CONTENT_TYPE,
@@ -41,7 +42,6 @@ function isValidEmail(value: string) {
 }
 
 const EditUserModal = () => {
-  const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { setModal, requestCloseModal, setModalGuardState } =
@@ -66,21 +66,17 @@ const EditUserModal = () => {
     data: userResult,
     isPending: userPending,
     error: userError,
-  } = useQuery({
-    queryKey: ["user"],
-    queryFn: getUser,
-  });
+  } = useCurrentUserQuery();
 
   const {
     data: s3PermissionsResult,
     isPending: s3PermissionsPending,
     error: s3PermissionsError,
-  } = useQuery({
-    queryKey: ["s3Permissions"],
-    queryFn: getS3Permissions,
-  });
+  } = useS3PermissionsQuery();
 
-  const user = userResult?.success ? userResult.data.user : undefined;
+  const updateUserMutation = useUpdateUserMutation();
+
+  const user = userResult?.currentUser.user;
 
   const clearFileInput = useCallback(() => {
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -271,13 +267,7 @@ const EditUserModal = () => {
         return;
       }
 
-      const result = await updateUserProfile(payload);
-
-      if (!result.success) {
-        throw new Error("Failed to update user");
-      }
-
-      await queryClient.invalidateQueries({ queryKey: ["user"] });
+      await updateUserMutation.mutateAsync(payload);
       setModal(null);
     } catch (error) {
       console.error("Error updating user:", error);
@@ -294,11 +284,11 @@ const EditUserModal = () => {
     firstName,
     isUpdating,
     lastName,
-    queryClient,
     profilePictureFile,
     setModal,
     setModalGuardState,
     uploadProfilePicture,
+    updateUserMutation,
     user,
   ]);
 

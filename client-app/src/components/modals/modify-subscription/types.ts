@@ -1,4 +1,7 @@
-import type { BillingProduct, BillingTier } from "#/api/billing";
+import type {
+  BillingProduct,
+  BillingTier,
+} from "#/api/query-functions/rest/billing";
 
 export type AccountTier = "FREE" | "TRIAL" | "PRO" | "ENTERPRISE";
 export type SelectableAccountTier = BillingTier;

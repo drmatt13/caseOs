@@ -15,11 +15,14 @@
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider": "^3.0.0",
     "@aws-sdk/client-secrets-manager": "^3.930.0",
+    "@pothos/core": "^4.12.0",
+    "@pothos/plugin-prisma": "^4.14.3",
     "@repo/database": "*",
     "@repo/shared-lambda-utils": "*",
     "esbuild": "^0.27.4",
     "graphql": "^16.14.0",
-    "graphql-yoga": "^5.21.0"
+    "graphql-yoga": "^5.21.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.161",

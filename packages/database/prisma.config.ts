@@ -3,8 +3,7 @@
 import "dotenv/config";
 import { defineConfig } from "prisma/config";
 
-// typegraphql-prisma currently declares Prisma 5 support, but generation works
-// for this Prisma 6 schema. Keep the override scoped to Prisma commands.
+// Keep Prisma generator compatibility checks scoped to Prisma commands.
 process.env.SKIP_PRISMA_VERSION_CHECK ??= "true";
 
 export default defineConfig({

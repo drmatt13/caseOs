@@ -3,6 +3,9 @@
   "author": "Matthew Sweeney",
   "license": "UNLICENSED",
   "private": true,
+  "scripts": {
+    "codegen": "graphql-codegen --config codegen.ts"
+  },
   "workspaces": [
     "client-app",
     "local-api-dev-server",
@@ -12,5 +15,9 @@
     "packages/*",
     "frontend-ws-connection-and-payload-tester",
     "local-ws-dev-server"
-  ]
+  ],
+  "devDependencies": {
+    "@graphql-codegen/cli": "^7.0.0",
+    "@graphql-codegen/schema-ast": "^6.0.0"
+  }
 }

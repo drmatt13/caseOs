@@ -14,9 +14,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-generator typegraphql {
-  provider = "typegraphql-prisma"
-  output   = "../src/generated/typegraphql"
+generator pothos {
+  provider     = "prisma-pothos-types"
+  clientOutput = "@prisma/client"
+  output       = "../src/generated/pothos.ts"
 }
 
 enum AccountTier {

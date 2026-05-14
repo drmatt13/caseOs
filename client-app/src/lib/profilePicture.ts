@@ -2,6 +2,23 @@ const PROFILE_PICTURE_SIZE = 200;
 
 export const PROFILE_PICTURE_CONTENT_TYPE = "image/jpeg";
 
+export function addProfilePictureCacheVersion(
+  profilePicture: string | null,
+  updatedAt: Date | string,
+) {
+  if (!profilePicture) return profilePicture;
+
+  try {
+    const profilePictureUrl = new URL(profilePicture);
+    const updatedAtDate =
+      typeof updatedAt === "string" ? new Date(updatedAt) : updatedAt;
+    profilePictureUrl.searchParams.set("v", updatedAtDate.toISOString());
+    return profilePictureUrl.toString();
+  } catch {
+    return profilePicture;
+  }
+}
+
 export async function createProfilePictureJpeg(file: File): Promise<Blob> {
   const image = await createImageBitmap(file);
   const cropSize = Math.min(image.width, image.height);

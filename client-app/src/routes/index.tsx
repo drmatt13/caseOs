@@ -1,6 +1,5 @@
-import { useEffect } from "react";
+// import { useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import AppLayout from "#/components/layouts/AppLayout";
 import LeftPanelLayout from "#/components/layouts/LeftPanelLayout";
 import SelectCaseMenu from "#/components/menus/SelectCaseMenu";
@@ -11,8 +10,7 @@ import LoadingSpinner from "#/components/LoadingSpinner";
 // route guards
 import { requireAuth } from "#/lib/auth";
 
-// query functions
-import { getUser } from "#/api/getUser";
+import { useCurrentUserQuery } from "#/api/react-query/currentUser";
 
 export const Route = createFileRoute("/")({
   beforeLoad: requireAuth,
@@ -24,11 +22,8 @@ function App() {
     data: getUserResult,
     isPending: getUserPending,
     error: getUserError,
-  } = useQuery({
-    queryKey: ["user"],
-    queryFn: getUser,
-  });
-  const user = getUserResult?.success ? getUserResult.data.user : undefined;
+  } = useCurrentUserQuery();
+  const user = getUserResult?.currentUser.user;
 
   if (getUserPending) {
     return (

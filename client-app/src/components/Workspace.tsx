@@ -8,9 +8,6 @@ import {
 } from "lucide-react";
 import UserPanel from "./UserPanel";
 
-import { userSchema } from "@repo/database/table.schemas";
-import z from "zod";
-
 const Workspace = () => {
   return (
     <div className="flex-1 min-w-0 max-w-full flex flex-col gap-4 py-3 /px-4 /border /h-[80vh] h-max border rounded-2xl bg-white/40 backdrop-blur-sm border-black/15 shadow-md">
@@ -51,13 +48,11 @@ const Workspace = () => {
         <div className="flex flex-col gap-1">
           <div className="flex justify-between items-center p-2 cursor-pointer hover:bg-black/10 rounded-xl group transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
             <UserPanel
-              user={
-                {
-                  displayName: "caseos-user",
-                  firstName: "Jane",
-                  lastName: "Doe",
-                } as z.infer<typeof userSchema>
-              }
+              user={{
+                displayName: "caseos-user",
+                firstName: "Jane",
+                lastName: "Doe",
+              }}
             />
             <div className="h-full bg-black/10 px-2.5 py-1 rounded-lg text-xs group-hover:bg-black/15 transition-colors ease-in duration-150 group-hover:ease-out group-hover:duration-100">
               Owner
@@ -65,46 +60,38 @@ const Workspace = () => {
           </div>
           <div className="flex justify-between items-center p-2 cursor-pointer hover:bg-black/10 rounded-xl group transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
             <UserPanel
-              user={
-                {
-                  displayName: "caseos-user",
-                  firstName: "Jane",
-                  lastName: "Doe",
-                } as z.infer<typeof userSchema>
-              }
+              user={{
+                displayName: "caseos-user",
+                firstName: "Jane",
+                lastName: "Doe",
+              }}
             />
           </div>
           <div className="flex justify-between items-center p-2 cursor-pointer hover:bg-black/10 rounded-xl group transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
             <UserPanel
-              user={
-                {
-                  displayName: "caseos-user",
-                  firstName: "Jane",
-                  lastName: "Doe",
-                } as z.infer<typeof userSchema>
-              }
+              user={{
+                displayName: "caseos-user",
+                firstName: "Jane",
+                lastName: "Doe",
+              }}
             />
           </div>
           <div className="flex justify-between items-center p-2 cursor-pointer hover:bg-black/10 rounded-xl group transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
             <UserPanel
-              user={
-                {
-                  displayName: "caseos-user",
-                  firstName: "Jane",
-                  lastName: "Doe",
-                } as z.infer<typeof userSchema>
-              }
+              user={{
+                displayName: "caseos-user",
+                firstName: "Jane",
+                lastName: "Doe",
+              }}
             />
           </div>
           <div className="flex justify-between items-center p-2 cursor-pointer hover:bg-black/10 rounded-xl group transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
             <UserPanel
-              user={
-                {
-                  displayName: "caseos-user",
-                  firstName: "Jane",
-                  lastName: "Doe",
-                } as z.infer<typeof userSchema>
-              }
+              user={{
+                displayName: "caseos-user",
+                firstName: "Jane",
+                lastName: "Doe",
+              }}
             />
           </div>
         </div>

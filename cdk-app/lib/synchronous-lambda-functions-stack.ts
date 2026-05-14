@@ -260,45 +260,6 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
       },
     });
 
-    this.updateUserFn = new nodejs.NodejsFunction(this, "UpdateUser", {
-      runtime: lambda.Runtime.NODEJS_20_X,
-      entry: path.join(
-        __dirname,
-        "..",
-        "lambda_functions",
-        "update-user",
-        "index.ts",
-      ),
-      handler: "lambdaHandler",
-      bundling: {
-        minify: true,
-        sourceMap: false,
-        target: "es2020",
-        commandHooks: {
-          beforeInstall() {
-            return [];
-          },
-          beforeBundling() {
-            return ["npm run generate --workspace @repo/database"];
-          },
-          afterBundling() {
-            return [];
-          },
-        },
-      },
-      memorySize: 512,
-      timeout: cdk.Duration.seconds(30),
-      environment: {
-        USER_POOL_ID: props.userPoolId,
-        USER_POOL_CLIENT_ID: props.userPoolClientId,
-        ...(props.primaryDatabaseSecretArn
-          ? {
-              PRIMARY_DATABASE_SECRET_ARN: props.primaryDatabaseSecretArn,
-            }
-          : {}),
-      },
-    });
-
     this.s3AccessBrokerFn = new nodejs.NodejsFunction(this, "S3AccessBroker", {
       runtime: lambda.Runtime.NODEJS_20_X,
       entry: path.join(
@@ -370,6 +331,7 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
         );
 
       primaryDatabaseCredentialsSecret.grantRead(this.getUserFn);
+      primaryDatabaseCredentialsSecret.grantRead(this.graphqlApiFn);
       primaryDatabaseCredentialsSecret.grantRead(this.oauthCallbackFn);
       primaryDatabaseCredentialsSecret.grantRead(this.s3AccessBrokerFn);
       primaryDatabaseCredentialsSecret.grantRead(this.updateUserFn);

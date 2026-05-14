@@ -2,6 +2,7 @@ import {
   GetSecretValueCommand,
   SecretsManagerClient,
 } from "@aws-sdk/client-secrets-manager";
+import { randomUUID } from "crypto";
 
 const secretsManagerClient = new SecretsManagerClient({});
 
@@ -93,9 +94,12 @@ export async function getDatabaseUrl({
   }
 
   if (primaryDatabaseUrl) {
-    console.log("Using PRIMARY_DATABASE_URL from environment for Prisma.", {
-      databaseUrl: primaryDatabaseUrl.replace(/:[^:@]+@/, ":****@"),
-    });
+    // const localDatabaseRequestId = randomUUID();
+
+    // console.log("Prisma:", {
+    //   localDatabaseRequestId,
+    //   databaseUrl: primaryDatabaseUrl.replace(/:[^:@]+@/, ":****@"),
+    // });
 
     return primaryDatabaseUrl;
   }

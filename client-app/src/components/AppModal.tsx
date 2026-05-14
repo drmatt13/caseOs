@@ -9,10 +9,11 @@ import ModifySubscriptionModal from "./modals/ModifySubscriptionModal";
 import ManageWorkspacesModal from "./modals/ManageWorkspacesModal";
 
 const SettingsModal = () => {
-  const { modal, requestCloseModal } = useContext(AppModalContext);
-  const [prevmodal, setPrevModal] = useState(modal);
+  const { modal, requestCloseModal, modalClearKey } =
+    useContext(AppModalContext);
+  const [prevModal, setPrevModal] = useState(modal);
   const [modalOpenKey, setModalOpenKey] = useState(0);
-  const visibleModal = modal ?? prevmodal;
+  const visibleModal = modal ?? prevModal;
 
   const handleBackdropClick = () => {
     requestCloseModal();
@@ -24,6 +25,10 @@ const SettingsModal = () => {
       setModalOpenKey((currentKey) => currentKey + 1);
     }
   }, [modal]);
+
+  useEffect(() => {
+    setPrevModal(null);
+  }, [modalClearKey]);
 
   return (
     <div

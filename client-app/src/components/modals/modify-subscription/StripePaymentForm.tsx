@@ -8,7 +8,8 @@ import {
 } from "@stripe/react-stripe-js";
 
 import Button from "#/components/Button";
-import { createSubscription } from "#/api/billing";
+import { currentUserQueryKey } from "#/api/react-query/currentUser";
+import { useCreateSubscriptionMutation } from "#/api/react-query/billing";
 import { formatPrice } from "#/components/modals/modify-subscription/types";
 import { type PaymentStepProps } from "#/components/modals/modify-subscription/types";
 
@@ -22,6 +23,7 @@ function StripePaymentForm({
   const stripe = useStripe();
   const elements = useElements();
   const queryClient = useQueryClient();
+  const createSubscriptionMutation = useCreateSubscriptionMutation();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -57,14 +59,14 @@ function StripePaymentForm({
     }
 
     try {
-      await createSubscription({
+      await createSubscriptionMutation.mutateAsync({
         tier: selectedOption.tier,
         priceId: selectedOption.price.stripePriceId,
         paymentMethodId,
         startTrial,
       });
 
-      await queryClient.invalidateQueries({ queryKey: ["user"] });
+      await queryClient.invalidateQueries({ queryKey: currentUserQueryKey });
       onPaymentStatusChange("success");
       setIsProcessing(false);
       onSubscribed();
@@ -79,6 +81,7 @@ function StripePaymentForm({
     elements,
     onSubscribed,
     queryClient,
+    createSubscriptionMutation,
     selectedOption.price?.stripePriceId,
     selectedOption.tier,
     onPaymentStatusChange,
