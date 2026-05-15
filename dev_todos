@@ -1,0 +1,3 @@
+Workspace.tsx: 
+- [] update canCreateWorkspace to take into account workspace limits based on accounttier
+- [] only workspace owner should see Settings button 

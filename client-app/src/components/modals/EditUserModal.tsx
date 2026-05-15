@@ -14,8 +14,8 @@ import { AppModalContext } from "#/context/AppModalContext";
 import {
   useCurrentUserQuery,
   useUpdateUserMutation,
-} from "#/api/react-query/currentUser";
-import { useS3PermissionsQuery } from "#/api/react-query/s3Permissions";
+} from "#/api/currentUser/hooks";
+import { useS3PermissionsQuery } from "#/api/s3Permissions/hooks";
 import {
   createProfilePictureJpeg,
   PROFILE_PICTURE_CONTENT_TYPE,

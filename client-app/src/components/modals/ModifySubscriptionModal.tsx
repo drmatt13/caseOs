@@ -1,8 +1,8 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { XIcon } from "lucide-react";
 
-import { useCurrentUserQuery } from "#/api/react-query/currentUser";
-import { useBillingProductsQuery } from "#/api/react-query/billing";
+import { useCurrentUserQuery } from "#/api/currentUser/hooks";
+import { useBillingProductsQuery } from "#/api/billing/hooks";
 import { AppModalContext } from "#/context/AppModalContext";
 import PaymentStep from "#/components/modals/modify-subscription/PaymentStep";
 import SelectTierStep from "#/components/modals/modify-subscription/SelectTierStep";

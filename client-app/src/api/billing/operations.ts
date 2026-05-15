@@ -1,10 +1,16 @@
 import { z } from "zod";
+import type {
+  AccountStatus,
+  AccountTier,
+  SubscriptionStatus,
+} from "#/api/generated/graphql";
 import { fetchWithAuthRefresh } from "#/lib/auth";
 
 export const billingTierSchema = z.enum(["PRO", "ENTERPRISE"]);
 
 export type BillingTier = z.infer<typeof billingTierSchema>;
 
+// Typed GraphQL documents for this feature's operations.
 const billingProductSchema = z.object({
   tier: billingTierSchema,
   name: z.string(),
@@ -35,8 +41,25 @@ const createSubscriptionResponseSchema = z.object({
   startTrial: z.boolean(),
 });
 
+type Subscription = {
+  accountTier?: AccountTier | null;
+  accountStatus?: AccountStatus | null;
+  subscriptionStatus?: SubscriptionStatus | null;
+  billingInterval?: string | null;
+  cancelAtPeriodEnd?: boolean | null;
+  currentPeriodStart?: string | null;
+  currentPeriodEnd?: string | null;
+  trialStartsAt?: string | null;
+  trialEndsAt?: string | null;
+};
+
+interface GetSubscriptionResponse {
+  subscription: Subscription;
+}
+
 export type BillingProduct = z.infer<typeof billingProductSchema>;
 
+// API operations consumed by hooks and other feature callers.
 export async function listBillingProducts() {
   const res = await fetchWithAuthRefresh("/billing/list-products", {
     method: "GET",
@@ -83,4 +106,16 @@ export async function createSubscription(input: CreateSubscriptionInput) {
   }
 
   return createSubscriptionResponseSchema.parse(await res.json());
+}
+
+export async function getSubscription(): Promise<GetSubscriptionResponse> {
+  const res = await fetchWithAuthRefresh("/get-subscription", {
+    method: "GET",
+  });
+
+  if (!res.ok) {
+    throw new Error(`Request failed: ${res.status}`);
+  }
+
+  return (await res.json()) as GetSubscriptionResponse;
 }

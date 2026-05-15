@@ -26,7 +26,7 @@ import LoadingSpinner from "#/components/LoadingSpinner";
 // route guards
 import { requireAuth } from "#/lib/auth";
 
-import { useCurrentUserQuery } from "#/api/react-query/currentUser";
+import { useCurrentUserQuery } from "#/api/currentUser/hooks";
 
 // test data
 import { testCaseIntake } from "#/lib/test_data";

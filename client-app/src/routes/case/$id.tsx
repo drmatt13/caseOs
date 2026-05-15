@@ -12,7 +12,7 @@ import LoadingSpinner from "#/components/LoadingSpinner";
 // route guards
 import { requireAuth } from "#/lib/auth";
 
-import { useCurrentUserQuery } from "#/api/react-query/currentUser";
+import { useCurrentUserQuery } from "#/api/currentUser/hooks";
 
 export const Route = createFileRoute("/case/$id")({
   beforeLoad: requireAuth,

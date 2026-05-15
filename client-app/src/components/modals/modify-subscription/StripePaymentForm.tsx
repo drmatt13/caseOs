@@ -8,8 +8,8 @@ import {
 } from "@stripe/react-stripe-js";
 
 import Button from "#/components/Button";
-import { currentUserQueryKey } from "#/api/react-query/currentUser";
-import { useCreateSubscriptionMutation } from "#/api/react-query/billing";
+import { currentUserQueryKey } from "#/api/currentUser/hooks";
+import { useCreateSubscriptionMutation } from "#/api/billing/hooks";
 import { formatPrice } from "#/components/modals/modify-subscription/types";
 import { type PaymentStepProps } from "#/components/modals/modify-subscription/types";
 

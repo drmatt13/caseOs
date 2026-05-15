@@ -1,4 +1,4 @@
-// import { useEffect } from "react";
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import AppLayout from "#/components/layouts/AppLayout";
 import LeftPanelLayout from "#/components/layouts/LeftPanelLayout";
@@ -10,7 +10,7 @@ import LoadingSpinner from "#/components/LoadingSpinner";
 // route guards
 import { requireAuth } from "#/lib/auth";
 
-import { useCurrentUserQuery } from "#/api/react-query/currentUser";
+import { useCurrentUserQuery } from "#/api/currentUser/hooks";
 
 export const Route = createFileRoute("/")({
   beforeLoad: requireAuth,
@@ -18,6 +18,34 @@ export const Route = createFileRoute("/")({
 });
 
 function App() {
+  const [workspaces, setWorkspaces] = useState<string[]>([
+    // "Workspace 1",
+    // "Workspace 2",
+    // "Workspace 3",
+    // "Workspace 4",
+    // "Workspace 5",
+  ]);
+  const [workspace, setWorkspace] = useState<string | null>(
+    // "Workspace 1",
+    null,
+  );
+  const [cases, setCases] = useState<
+    {
+      id: string;
+      name: string;
+    }[]
+  >([
+    {
+      id: "v0dusfua0s9",
+      name: "Sweeney et al. v. Corcoran Management Co., Inc.",
+    },
+    {
+      id: "9w8ufw98wsd",
+      name: "In re: Residential Tenancy Dispute – Unit 71-612-21",
+    },
+    { id: "98sufs98euf", name: "Smith v. Jones – 2023 LT Case No. 12345" },
+  ]);
+
   const {
     data: getUserResult,
     isPending: getUserPending,
@@ -43,21 +71,32 @@ function App() {
     <AppLayout>
       <LeftPanelLayout>
         <UserPanel user={user} settings={true} showTier={true} />
-        <p className="truncate text-xs">Select Workspace</p>
-        <div className="text-xs flex gap-1.5 mb-0.5 items-center">
-          <select
-            className="rounded-lg px-2 py-2.5 /mx-2 text-xs bg-gray-100 border border-black/15"
-            name="Workspace"
-            id="Workspace"
-          >
-            <option value="">Workspace 1</option>
-            <option value="">Workspace 2</option>
-            <option value="">Workspace 3</option>
-          </select>
-        </div>
-        <SelectCaseMenu />
+        {workspaces.length === 0 && (
+          <div className="w-full /font-sans">
+            <p>No workspaces available</p>
+          </div>
+        )}
+        {workspaces.length > 0 && (
+          <>
+            <p className="truncate text-xs">Select Workspace</p>
+            <div className="text-xs flex gap-1.5 mb-0.5 items-center">
+              <select
+                className="rounded-lg px-2 py-2.5 /mx-2 text-xs bg-gray-100 border border-black/15"
+                name="Workspace"
+                id="Workspace"
+              >
+                {workspaces.map((workspace, index) => (
+                  <option key={index} value={workspace}>
+                    {workspace}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <SelectCaseMenu cases={cases} />
+          </>
+        )}
       </LeftPanelLayout>
-      <Workspace />
+      <Workspace workspace={workspace} />
     </AppLayout>
   );
 }

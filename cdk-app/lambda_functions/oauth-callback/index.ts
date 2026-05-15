@@ -174,19 +174,7 @@ export const lambdaHandler = async (
       where: { cognitoSub: payload.sub },
     });
 
-    if (existingUserWithSub) {
-      await prisma.user.update({
-        where: { id: existingUserWithSub.id },
-        data: {
-          email,
-          firstName,
-          lastName,
-          profilePicture,
-          displayName,
-          updatedAt: new Date(),
-        },
-      });
-    } else {
+    if (!existingUserWithSub) {
       await prisma.user.create({
         data: {
           cognitoSub: payload.sub,

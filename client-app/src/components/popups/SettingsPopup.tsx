@@ -13,7 +13,7 @@ import { useContext, useEffect, useCallback } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import Button from "../Button";
 import logout from "#/lib/logout";
-import { useCurrentUserQuery } from "#/api/react-query/currentUser";
+import { useCurrentUserQuery } from "#/api/currentUser/hooks";
 import { BriefcaseBusiness, CreditCard, UserPen, XIcon } from "lucide-react";
 
 // context

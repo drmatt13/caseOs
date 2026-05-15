@@ -5,7 +5,6 @@ import { useCallback, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import SettingsPopup from "#/components/popups/SettingsPopup";
 import AppModal from "#/components/AppModal";
-import ClearQueriesButton from "#/components/ClearQueriesButton";
 
 // context
 import { PopupContext, type PopupId } from "#/context/PopupContext";
@@ -54,7 +53,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   const [modal, setModal] = useState<Modal>(null);
   const [modalGuardState, setModalGuardState] =
     useState<ModalGuardState>("unlocked");
-  const [modalClearKey, setModalClearKey] = useState(0);
   const [popupState, setPopupState] = useState<{
     activePopup: PopupId | null;
     referenceElement: HTMLElement | null;
@@ -113,12 +111,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     return true;
   }, [modalGuardState]);
 
-  const clearModal = useCallback(() => {
-    setModal(null);
-    setModalGuardState("unlocked");
-    setModalClearKey((currentKey) => currentKey + 1);
-  }, []);
-
   return (
     <html
       lang="en"
@@ -138,8 +130,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             modalGuardState,
             setModalGuardState,
             requestCloseModal,
-            clearModal,
-            modalClearKey,
           }}
         >
           <PopupContext.Provider
@@ -159,7 +149,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               <AppModal />
               <div className="min-h-dvh overflow-x-clip">
                 {children}
-                <ClearQueriesButton />
                 {/* <TanStackDevtools
                   config={{
                     position: "bottom-right",

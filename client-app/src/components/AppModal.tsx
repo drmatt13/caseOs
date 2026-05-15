@@ -9,8 +9,7 @@ import ModifySubscriptionModal from "./modals/ModifySubscriptionModal";
 import ManageWorkspacesModal from "./modals/ManageWorkspacesModal";
 
 const SettingsModal = () => {
-  const { modal, requestCloseModal, modalClearKey } =
-    useContext(AppModalContext);
+  const { modal, requestCloseModal } = useContext(AppModalContext);
   const [prevModal, setPrevModal] = useState(modal);
   const [modalOpenKey, setModalOpenKey] = useState(0);
   const visibleModal = modal ?? prevModal;
@@ -25,10 +24,6 @@ const SettingsModal = () => {
       setModalOpenKey((currentKey) => currentKey + 1);
     }
   }, [modal]);
-
-  useEffect(() => {
-    setPrevModal(null);
-  }, [modalClearKey]);
 
   return (
     <div

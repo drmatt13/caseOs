@@ -1,7 +1,7 @@
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 
-import { useBillingSetupIntentQuery } from "#/api/react-query/billing";
+import { useBillingSetupIntentQuery } from "#/api/billing/hooks";
 import StripePaymentForm from "./StripePaymentForm";
 import { type PaymentStepProps } from "#/components/modals/modify-subscription/types";
 

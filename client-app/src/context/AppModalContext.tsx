@@ -14,8 +14,6 @@ export interface AppModalContextType {
   modalGuardState: ModalGuardState;
   setModalGuardState: Dispatch<SetStateAction<ModalGuardState>>;
   requestCloseModal: () => boolean;
-  clearModal: () => void;
-  modalClearKey: number;
 }
 
 export const AppModalContext = createContext<AppModalContextType>({
@@ -24,6 +22,4 @@ export const AppModalContext = createContext<AppModalContextType>({
   modalGuardState: "unlocked",
   setModalGuardState: () => {},
   requestCloseModal: () => false,
-  clearModal: () => {},
-  modalClearKey: 0,
 });

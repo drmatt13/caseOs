@@ -4,8 +4,7 @@ import {
   createSubscription,
   listBillingProducts,
   type CreateSubscriptionInput,
-} from "#/api/query-functions/rest/billing";
-import { logMutationInvocation, logQueryCacheMiss } from "#/api/logging";
+} from "./operations";
 
 export const billingProductsQueryKey = ["billing-products"] as const;
 
@@ -16,12 +15,7 @@ export function billingSetupIntentQueryKey(tier: string) {
 export function useBillingProductsQuery() {
   return useQuery({
     queryKey: billingProductsQueryKey,
-    queryFn: () => {
-      logQueryCacheMiss("useBillingProductsQuery", {
-        queryKey: billingProductsQueryKey,
-      });
-      return listBillingProducts();
-    },
+    queryFn: listBillingProducts,
   });
 }
 
@@ -30,19 +24,13 @@ export function useBillingSetupIntentQuery(tier: string) {
 
   return useQuery({
     queryKey,
-    queryFn: () => {
-      logQueryCacheMiss("useBillingSetupIntentQuery", { queryKey, tier });
-      return createSetupIntent();
-    },
+    queryFn: createSetupIntent,
     staleTime: 0,
   });
 }
 
 export function useCreateSubscriptionMutation() {
   return useMutation({
-    mutationFn: (input: CreateSubscriptionInput) => {
-      logMutationInvocation("useCreateSubscriptionMutation", input);
-      return createSubscription(input);
-    },
+    mutationFn: (input: CreateSubscriptionInput) => createSubscription(input),
   });
 }
