@@ -1,12 +1,19 @@
 // import React from "react";
-import { Sparkles, FileText, Clock, Scale, Users } from "lucide-react";
+import {
+  Sparkles,
+  FileText,
+  Clock,
+  Scale,
+  Users,
+  BriefcaseBusiness,
+} from "lucide-react";
 
 const ReviewForm = () => {
   return (
     <>
       <div className="/bg-black/10 pt-10 pb-6 flex flex-col items-center">
-        <div className="rounded-full aspect-square p-4 flex justify-center items-center mb-4 bg-black/10">
-          <Sparkles className="w-7 h-7 text-black" />
+        <div className="mb-4 flex aspect-square items-center justify-center rounded-full border border-black/10 bg-black/[0.06] p-4">
+          <Sparkles className="w-7 h-7 text-black/75" />
         </div>
         <h2 className="text-lg font-semibold">Generate your case workspace</h2>
         <p className="text-gray-600 text-center mt-1 text-xs">

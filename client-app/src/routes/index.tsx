@@ -19,13 +19,13 @@ export const Route = createFileRoute("/")({
 
 function App() {
   const [workspaces, setWorkspaces] = useState<string[]>([
-    // "Workspace 1",
+    "Workspace 1",
     // "Workspace 2",
     // "Workspace 3",
     // "Workspace 4",
     // "Workspace 5",
   ]);
-  const [workspace, setWorkspace] = useState<string | null>(
+  const [activeWorkspace, setActiveWorkspace] = useState<string | null>(
     // "Workspace 1",
     null,
   );
@@ -84,7 +84,14 @@ function App() {
                 className="rounded-lg px-2 py-2.5 /mx-2 text-xs bg-gray-100 border border-black/15"
                 name="Workspace"
                 id="Workspace"
+                value={activeWorkspace ?? ""}
+                onChange={(event) =>
+                  setActiveWorkspace(event.target.value || null)
+                }
               >
+                <option value="" disabled>
+                  Choose workspace
+                </option>
                 {workspaces.map((workspace, index) => (
                   <option key={index} value={workspace}>
                     {workspace}
@@ -96,7 +103,7 @@ function App() {
           </>
         )}
       </LeftPanelLayout>
-      <Workspace workspace={workspace} />
+      <Workspace workspace={activeWorkspace} />
     </AppLayout>
   );
 }

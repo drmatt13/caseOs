@@ -8,16 +8,36 @@ interface ButtonProps {
   onClick?: () => void;
   disabled?: boolean;
   rainbow?: boolean;
-  icon?: "continue" | "reset" | "save" | "sparkles" | "upload";
+  icon?:
+    | "briefcase"
+    | "continue"
+    | "mail"
+    | "plus"
+    | "reset"
+    | "save"
+    | "sparkles"
+    | "upload";
   submit?: boolean;
   fullWidth?: boolean;
   initiallyDisabled?: boolean;
 }
 
-import { ArrowRight, ImageUp, RotateCcw, Save, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  BriefcaseBusiness,
+  ImageUp,
+  Mail,
+  PlusIcon,
+  RotateCcw,
+  Save,
+  Sparkles,
+} from "lucide-react";
 
 const buttonIcons = {
+  briefcase: BriefcaseBusiness,
   continue: ArrowRight,
+  mail: Mail,
+  plus: PlusIcon,
   reset: RotateCcw,
   save: Save,
   sparkles: Sparkles,
