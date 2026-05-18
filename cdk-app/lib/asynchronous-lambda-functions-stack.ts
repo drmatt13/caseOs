@@ -9,7 +9,8 @@ import * as path from "path";
 
 export interface AsynchronousLambdaFunctionsStackProps extends cdk.StackProps {
   frontendUrl?: string;
-  useLocalImplementations?: boolean;
+  useLocalDevStack?: boolean;
+  skipEmailVerification?: boolean;
   replayBucketName?: string;
   replayQueueUrl?: string;
   replayBucket?: s3.IBucket;
@@ -29,7 +30,8 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
     super(scope, id, props);
 
     const frontendUrl = props?.frontendUrl ?? "http://localhost:3000";
-    const useLocalImplementations = props?.useLocalImplementations ?? true;
+    const useLocalDevStack = props?.useLocalDevStack ?? true;
+    const skipEmailVerification = props?.skipEmailVerification ?? false;
     const replayBucketName = props?.replayBucketName ?? "default-bucket-name";
     const replayQueueUrl = props?.replayQueueUrl ?? "default-queue-url";
 
@@ -51,6 +53,9 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
           minify: true,
           sourceMap: true,
           target: "es2020",
+        },
+        environment: {
+          SKIP_EMAIL_VERIFICATION: skipEmailVerification ? "true" : "false",
         },
         memorySize: 128,
         timeout: cdk.Duration.seconds(10),
@@ -116,7 +121,7 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
           },
         },
         environment: {
-          USE_LOCAL_IMPLEMENTATIONS: useLocalImplementations ? "true" : "false",
+          USE_LOCAL_DEV_STACK: useLocalDevStack ? "true" : "false",
           DEV_LAMBDA_REPLAY_BUCKET_NAME: replayBucketName,
           DEV_LAMBDA_REPLAY_QUEUE_URL: replayQueueUrl,
           ...(props?.primaryDatabaseSecretArn
@@ -130,7 +135,7 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
       },
     );
 
-    if (useLocalImplementations && props?.replayBucket) {
+    if (useLocalDevStack && props?.replayBucket) {
       props.replayBucket.grantWrite(this.cognitoPostConfirmationTriggerFn);
     }
 

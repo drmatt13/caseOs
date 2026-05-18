@@ -29,7 +29,13 @@ import { requireAuth } from "#/lib/auth";
 import { useCurrentUserQuery } from "#/api/currentUser/hooks";
 
 // test data
-import { testCaseIntake } from "#/lib/test_data";
+// import { testCaseIntake } from "#/lib/test_data";
+
+const createBlankCaseIntake = (): CaseIntake => ({
+  ...initialCaseIntake,
+  id: `case-intake-${Date.now()}`,
+  documents: {},
+});
 
 export const Route = createFileRoute("/cases/new")({
   beforeLoad: requireAuth,
@@ -39,11 +45,13 @@ export const Route = createFileRoute("/cases/new")({
 function RouteComponent() {
   const { data: userResult, isPending, error } = useCurrentUserQuery();
   const user = userResult?.currentUser.user;
+  const [blankCaseIntake] = useState(createBlankCaseIntake);
 
   const [caseIntakeState, setCaseIntakeState] = useState<CaseIntakeWizardState>(
     {
-      step: 6,
-      caseIntake: testCaseIntake,
+      step: 1,
+      // caseIntake: testCaseIntake,
+      caseIntake: blankCaseIntake,
     },
   );
 
@@ -52,7 +60,7 @@ function RouteComponent() {
   const hasUnsavedCaseIntake =
     uploadedFiles.length > 0 ||
     Object.entries(caseIntakeState.caseIntake).some(([key, value]) => {
-      const initialValue = initialCaseIntake[key as keyof CaseIntake];
+      const initialValue = blankCaseIntake[key as keyof CaseIntake];
 
       if (typeof value === "string" && typeof initialValue === "string") {
         return value.trim() !== initialValue.trim();

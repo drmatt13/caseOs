@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 import {
   Bot,
   Clock,
@@ -20,17 +18,18 @@ import type { LucideIcon } from "lucide-react";
 
 import type { ViewTypes } from "#/types/caseWorkspace";
 
-// interface WorkspaceMenuProps {
-//   workSpace: string;
-//   setWorkSpace: React.Dispatch<React.SetStateAction<string>>;
-// }
+interface WorkspaceMenuProps {
+  activeView: ViewTypes;
+  onSelectView: (view: ViewTypes) => void;
+  counts?: Partial<Record<ViewTypes, number>>;
+}
 
 const viewMenuItems: Array<{
   value: ViewTypes;
   label: string;
   icon: LucideIcon;
 }> = [
-  { value: "agent_config", label: "Agent Config", icon: Bot },
+  { value: "agent_config", label: "Case Agent", icon: Bot },
   { value: "case_summary", label: "Case Summary", icon: FileText },
   { value: "arguments", label: "Arguments", icon: Gavel },
   { value: "case_notes", label: "Case Notes", icon: NotebookPen },
@@ -45,21 +44,30 @@ const viewMenuItems: Array<{
   { value: "documents_index", label: "Documents", icon: Folder },
 ];
 
-const WorkspaceMenu = () => {
-  const [workSpace, setWorkSpace] = useState<ViewTypes | null>(null);
-
+const WorkspaceMenu = ({
+  activeView,
+  onSelectView,
+  counts = {},
+}: WorkspaceMenuProps) => {
   return (
     <>
       {viewMenuItems.map(({ value, label, icon: Icon }) => (
         <div
           key={value}
-          className={`p-2 rounded-lg flex items-center gap-2 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100 ${
-            workSpace === value ? "bg-black/10" : "hover:bg-black/10"
+          className={`p-2 rounded-lg flex items-center justify-between gap-2 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100 ${
+            activeView === value ? "bg-black/10" : "hover:bg-black/10"
           }`}
-          onClick={() => setWorkSpace(value)}
+          onClick={() => onSelectView(value)}
         >
-          <Icon className="w-4 h-4" />
-          <div>{label}</div>
+          <div className="flex min-w-0 items-center gap-2">
+            <Icon className="w-4 h-4 shrink-0" />
+            <div className="truncate">{label}</div>
+          </div>
+          {counts[value] != null && (
+            <span className="rounded-full bg-black/10 px-1.5 py-0.5 text-[10px] text-black/60">
+              {counts[value]}
+            </span>
+          )}
         </div>
       ))}
     </>

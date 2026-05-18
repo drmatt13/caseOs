@@ -1,4 +1,4 @@
-import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
+import { Outlet, createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { useCallback, useState } from "react";
@@ -14,30 +14,8 @@ import {
   type ModalGuardState,
 } from "#/context/AppModalContext";
 
-import appCss from "../styles.css?url";
-
 export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      {
-        charSet: "utf-8",
-      },
-      {
-        name: "viewport",
-        content: "width=device-width, initial-scale=1",
-      },
-      {
-        title: "CaseOS",
-      },
-    ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-    ],
-  }),
-  shellComponent: RootDocument,
+  component: RootComponent,
 });
 
 const queryClient = new QueryClient({
@@ -49,7 +27,7 @@ const queryClient = new QueryClient({
   },
 });
 
-function RootDocument({ children }: { children: React.ReactNode }) {
+function RootComponent() {
   const [modal, setModal] = useState<Modal>(null);
   const [modalGuardState, setModalGuardState] =
     useState<ModalGuardState>("unlocked");
@@ -112,44 +90,30 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   }, [modalGuardState]);
 
   return (
-    <html
-      lang="en"
-      className="light"
-      data-theme="light"
-      style={{ colorScheme: "light" }}
-      suppressHydrationWarning
-    >
-      <head>
-        <HeadContent />
-      </head>
-      <QueryClientProvider client={queryClient}>
-        <AppModalContext.Provider
+    <QueryClientProvider client={queryClient}>
+      <AppModalContext.Provider
+        value={{
+          modal,
+          setModal,
+          modalGuardState,
+          setModalGuardState,
+          requestCloseModal,
+        }}
+      >
+        <PopupContext.Provider
           value={{
-            modal,
-            setModal,
-            modalGuardState,
-            setModalGuardState,
-            requestCloseModal,
+            activePopup: popupState.activePopup,
+            referenceElement: popupState.referenceElement,
+            openPopup,
+            togglePopup,
+            closePopup,
           }}
         >
-          <PopupContext.Provider
-            value={{
-              activePopup: popupState.activePopup,
-              referenceElement: popupState.referenceElement,
-              openPopup,
-              togglePopup,
-              closePopup,
-            }}
-          >
-            <body
-              className="bg-gray-100 font-geist antialiased mx-auto min-h-dvh /overflow-y-scroll overflow-x-clip [scrollbar-gutter:stable] text-black text-sm"
-              suppressHydrationWarning
-            >
-              <SettingsPopup />
-              <AppModal />
-              <div className="min-h-dvh overflow-x-clip">
-                {children}
-                {/* <TanStackDevtools
+          <SettingsPopup />
+          <AppModal />
+          <div className="min-h-dvh overflow-x-clip">
+            <Outlet />
+            {/* <TanStackDevtools
                   config={{
                     position: "bottom-right",
                   }}
@@ -160,12 +124,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                     },
                   ]}
                 /> */}
-              </div>
-              <Scripts />
-            </body>
-          </PopupContext.Provider>
-        </AppModalContext.Provider>
-      </QueryClientProvider>
-    </html>
+          </div>
+        </PopupContext.Provider>
+      </AppModalContext.Provider>
+    </QueryClientProvider>
   );
 }

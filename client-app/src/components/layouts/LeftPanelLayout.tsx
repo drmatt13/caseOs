@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import AppLogo from "../AppLogo";
 
 interface LeftPanelLayoutProps {
   children: ReactNode;
@@ -7,12 +8,13 @@ interface LeftPanelLayoutProps {
 const LeftPanelLayout = ({ children }: LeftPanelLayoutProps) => {
   return (
     <div className="w-64 min-w-64 flex flex-col /border gap-4">
-      <div className="flex flex-col gap-1 h-14">
+      {/* <div className="flex flex-col gap-1 h-14">
         <p className="text-3xl /font-noto-serif-jp font-bj-cree">CaseOS</p>
         <p className="text-xs font-inconsolata">
           AI-Powered Case Intelligence Workspace
         </p>
-      </div>
+      </div> */}
+      <AppLogo LeftPanelLayout={true} />
       {/* border rounded-2xl bg-white/40 backdrop-blur-sm border-black/15 shadow-md */}
       <div className="sticky top-4 h-max max-h-[calc(100dvh-12.60rem)] rounded-2xl border border-black/15 shadow-md overflow-hidden">
         <div className="overflow-y-auto max-h-[inherit]">

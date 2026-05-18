@@ -17,7 +17,7 @@ export interface SynchronousLambdaFunctionsStackProps extends cdk.StackProps {
   userPoolClientId: string;
   userPoolDomainUrl: string;
   primaryDatabaseSecretArn?: string;
-  caseOSBucket: s3.IBucket;
+  applicationDataBucket: s3.IBucket;
   stripePublishableKey?: string;
   stripeSecretKey?: string;
 }
@@ -31,7 +31,6 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
   public readonly refreshFn: nodejs.NodejsFunction;
   public readonly getUserFn: nodejs.NodejsFunction;
   public readonly graphqlApiFn: nodejs.NodejsFunction;
-  public readonly updateUserFn: nodejs.NodejsFunction;
   public readonly s3AccessBrokerFn: nodejs.NodejsFunction;
 
   // stripe functions
@@ -291,7 +290,7 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
       environment: {
         USER_POOL_ID: props.userPoolId,
         USER_POOL_CLIENT_ID: props.userPoolClientId,
-        CASEOS_STORAGE_BUCKET_ARN: props.caseOSBucket.bucketArn,
+        APPLICATION_DATA_BUCKET_ARN: props.applicationDataBucket.bucketArn,
         ...(props.primaryDatabaseSecretArn
           ? {
               PRIMARY_DATABASE_SECRET_ARN: props.primaryDatabaseSecretArn,
@@ -309,8 +308,8 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
           "s3:ListBucket",
         ],
         resources: [
-          props.caseOSBucket.bucketArn,
-          `${props.caseOSBucket.bucketArn}/*`,
+          props.applicationDataBucket.bucketArn,
+          `${props.applicationDataBucket.bucketArn}/*`,
         ],
       }),
     );
@@ -334,7 +333,6 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
       primaryDatabaseCredentialsSecret.grantRead(this.graphqlApiFn);
       primaryDatabaseCredentialsSecret.grantRead(this.oauthCallbackFn);
       primaryDatabaseCredentialsSecret.grantRead(this.s3AccessBrokerFn);
-      primaryDatabaseCredentialsSecret.grantRead(this.updateUserFn);
     }
 
     // Stripe functions

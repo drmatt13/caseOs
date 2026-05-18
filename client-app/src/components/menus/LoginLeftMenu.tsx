@@ -10,6 +10,7 @@ import {
   TriangleAlertIcon,
   UsersRoundIcon,
 } from "lucide-react";
+import AppLogo from "../AppLogo";
 
 const connectorClassName =
   "h-full w-8 shrink-0 overflow-visible text-slate-400/80 [--arrow-stroke:1.5]";
@@ -119,14 +120,7 @@ const MergeConnector = () => (
 const LoginLeftMenu = () => {
   return (
     <div className="flex-1 flex flex-col gap-1 justify-start">
-      <div className="flex flex-col gap-1 h-14 -translate-y-2.5">
-        <p className="text-4xl /font-noto-serif-jp font-bj-cree -translate-x-0.5">
-          CaseOS
-        </p>
-        <p className="text-[.8rem] font-inconsolata -translate-y-0.5 translate-x-px">
-          Structured case intelligence, built for real cases.
-        </p>
-      </div>
+      <AppLogo />
       <div className="w-full /bg-black/10 grid grid-cols-2 gap-4">
         <div className="w-full h-52 p-4 border rounded-2xl bg-white/40 backdrop-blur-sm border-black/15 shadow-md">
           <div className="flex flex-row-reverse gap-4 items-start h-full">
@@ -147,22 +141,22 @@ const LoginLeftMenu = () => {
             <div className="flex flex-col w-36 h-full items-start">
               <div className="flex flex-col flex-1">
                 <p className="text-sm font-medium">
-                  Structured Case Intelligence
+                  Connect Your Facts, Issues & Claims
                 </p>
                 <div className="flex-1 flex flex-col gap-1 justify-start text-xs text-gray-600 mt-1.5">
                   <p>
-                    CaseOS helps you create and connect structured records from
-                    facts, issues, and claims as they evolve to surface relevant
-                    context across your cases.
+                    Automatically organize structured records from facts,
+                    issues, and claims as litigation develops to link related
+                    case context and evolving relationships.
                   </p>
                 </div>
               </div>
               <div className="text-[.625rem] flex px-2.5 py-1 justify-start items-center bg-blue-200/50 text-blue-500 rounded-full -translate-x-1 translate-y-1.5">
-                <div>Facts</div>
+                <div>Organize</div>
                 <div className="px-1 text-[.6rem]">•</div>
-                <div>Issues</div>
+                <div>Trace</div>
                 <div className="px-1 text-[.6rem]">•</div>
-                <div>Claims</div>
+                <div>Connect</div>
               </div>
             </div>
             {/* RIGHT */}
@@ -228,7 +222,7 @@ const LoginLeftMenu = () => {
             <div className="flex flex-col w-36 h-full items-start">
               <div className="flex flex-col flex-1">
                 <p className="text-sm font-medium">
-                  Timeline That Builds Itself
+                  Timelines Built From Your Case Records
                 </p>
                 <div className="flex-1 flex flex-col gap-1 justify-start text-xs text-gray-600 mt-1.5">
                   <p>
@@ -236,8 +230,8 @@ const LoginLeftMenu = () => {
                     in context.
                   </p>
                   <p>
-                    Track what has happened, what matters now, and how things
-                    are unfolding.
+                    Track procedural history, key developments, and evolving
+                    case activity.
                   </p>
                 </div>
               </div>
@@ -311,24 +305,24 @@ const LoginLeftMenu = () => {
             <div className="flex flex-col w-36 h-full items-start">
               <div className="flex flex-col flex-1">
                 <p className="text-sm font-medium">
-                  AI That Understands Your Case
+                  Case-Aware Legal Intelligence
                 </p>
                 <div className="flex-1 flex flex-col gap-1 justify-start text-xs text-gray-600 mt-1.5">
                   <p>
-                    CaseOS links facts, issues, evidence, and precedent through
-                    its contextual reasoning system to uncover material insights
-                    across your cases.
+                    Surface strategic insights from your case’s evolving
+                    context, supported by key facts, evidence, relevant
+                    precedent, and developing legal strategy.
                   </p>
                 </div>
               </div>
               <div className="text-[.625rem] flex px-2.5 py-1 justify-start items-center bg-blue-200/50 text-blue-500 rounded-full -translate-x-1 translate-y-1.5">
+                <div>Understand</div>
+                <div className="px-1 text-[.6rem]">•</div>
                 <div>Analyze</div>
                 <div className="px-1 text-[.6rem]">•</div>
-                <div>Link</div>
+                <div>Reason</div>
                 <div className="px-1 text-[.6rem]">•</div>
-                <div>Organize</div>
-                <div className="px-1 text-[.6rem]">•</div>
-                <div>Understand</div>
+                <div>Strategize</div>
               </div>
             </div>
             {/* RIGHT */}

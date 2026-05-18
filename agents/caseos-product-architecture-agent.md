@@ -152,9 +152,20 @@ User actions should generally include:
 - Ask an agent to enrich an existing record.
 - Edit a proposed record before accepting it.
 - Reject a proposed record with optional rationale.
+- Delete a proposed record when it should be removed from the review queue rather than preserved as a rejected proposal.
+- Ask an agent to suggest edits to a proposed record before accepting or rejecting it.
 - Supersede an accepted record when new case context changes it.
 - Review incoming/outgoing links affected by a change.
 - Compare current and superseded versions.
+
+For a newly proposed record, the default review actions should be:
+
+- `Accept proposal`: promote the record into accepted case knowledge.
+- `Reject proposal`: require or strongly encourage the user to enter a reason so the rejection is auditable and useful to later agents.
+- `Delete proposal`: remove the proposal from the active review surface when it is noise, duplicate, or not worth preserving as a rejected item.
+- `Suggest edits`: use a compact AI/sparkle action that lets the user ask for a revised proposal instead of manually rewriting it.
+
+If the proposal is intended to supersede another record, the UI must make that explicit before the user acts. Show that it is a proposed superseding record, reference the record it wants to supersede, and give the user a way to inspect or compare the target record.
 
 When implementing this lifecycle, preserve auditability:
 

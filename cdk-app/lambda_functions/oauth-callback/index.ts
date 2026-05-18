@@ -163,10 +163,16 @@ export const lambdaHandler = async (
       existingUserWithEmail &&
       existingUserWithEmail.cognitoSub !== payload.sub
     ) {
-      return jsonResponse(409, {
-        success: false,
-        error:
-          "An account already exists with this email. Sign in with email and password first.",
+      await prisma.user.update({
+        where: { id: existingUserWithEmail.id },
+        data: {
+          cognitoSub: payload.sub,
+          firstName,
+          lastName,
+          profilePicture,
+          displayName,
+          updatedAt: new Date(),
+        },
       });
     }
 

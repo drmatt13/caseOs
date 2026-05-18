@@ -36,8 +36,8 @@ function App() {
     }[]
   >([
     {
-      id: "v0dusfua0s9",
-      name: "Sweeney et al. v. Corcoran Management Co., Inc.",
+      id: "case-faxon-commons-demo",
+      name: "Faxon Commons v. Sweeney",
     },
     {
       id: "9w8ufw98wsd",
@@ -78,7 +78,9 @@ function App() {
         )}
         {workspaces.length > 0 && (
           <>
-            <p className="truncate text-xs">Select Workspace</p>
+            <div className="h-6 flex items-center">
+              <p className="truncate text-xs">Select Workspace</p>
+            </div>
             <div className="text-xs flex gap-1.5 mb-0.5 items-center">
               <select
                 className="rounded-lg px-2 py-2.5 /mx-2 text-xs bg-gray-100 border border-black/15"

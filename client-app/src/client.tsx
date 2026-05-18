@@ -1,13 +1,18 @@
-import { StrictMode, startTransition } from "react";
-import { hydrateRoot } from "react-dom/client";
-import { StartClient } from "@tanstack/react-start/client";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { RouterProvider } from "@tanstack/react-router";
+import { getRouter } from "./router";
 
-const app = <StartClient />;
+import "./styles.css";
 
-startTransition(() => {
-  hydrateRoot(
-    document,
-    // import.meta.env.DEV ? app : <StrictMode>{app}</StrictMode>,
-    app,
-  );
-});
+const rootElement = document.getElementById("root");
+
+if (!rootElement) {
+  throw new Error("Root element #root was not found.");
+}
+
+createRoot(rootElement).render(
+  <StrictMode>
+    <RouterProvider router={getRouter()} />
+  </StrictMode>,
+);

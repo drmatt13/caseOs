@@ -3,15 +3,15 @@ import * as iam from "aws-cdk-lib/aws-iam";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import { Construct } from "constructs";
 
-export interface S3StackProps extends cdk.StackProps {
+export interface ApplicationS3StackProps extends cdk.StackProps {
   frontendUrl?: string;
   retainStatefulResouces?: boolean;
 }
 
-export class S3Stack extends cdk.Stack {
-  public readonly caseOSBucket: s3.Bucket;
+export class ApplicationS3Stack extends cdk.Stack {
+  public readonly applicationDataBucket: s3.Bucket;
 
-  constructor(scope: Construct, id: string, props?: S3StackProps) {
+  constructor(scope: Construct, id: string, props?: ApplicationS3StackProps) {
     super(scope, id, props);
 
     const retainStatefulResouces = props?.retainStatefulResouces ?? false;
@@ -20,8 +20,8 @@ export class S3Stack extends cdk.Stack {
       "",
     );
 
-    this.caseOSBucket = new s3.Bucket(this, "CaseOSBucket", {
-      bucketName: `caseos-${this.account}-${this.region}`,
+    this.applicationDataBucket = new s3.Bucket(this, "ApplicationDataBucket", {
+      bucketName: `caseos-application-data-${this.account}-${this.region}`,
       blockPublicAccess: new s3.BlockPublicAccess({
         blockPublicAcls: true,
         ignorePublicAcls: true,
@@ -50,24 +50,26 @@ export class S3Stack extends cdk.Stack {
       autoDeleteObjects: !retainStatefulResouces,
     });
 
-    this.caseOSBucket.addToResourcePolicy(
+    this.applicationDataBucket.addToResourcePolicy(
       new iam.PolicyStatement({
         sid: "AllowPublicReadProfilePictures",
         effect: iam.Effect.ALLOW,
         principals: [new iam.AnyPrincipal()],
         actions: ["s3:GetObject"],
-        resources: [`${this.caseOSBucket.bucketArn}/profile-pictures/*`],
+        resources: [
+          `${this.applicationDataBucket.bucketArn}/profile-pictures/*`,
+        ],
       }),
     );
 
-    new cdk.CfnOutput(this, "CaseOSBucketName", {
-      value: this.caseOSBucket.bucketName,
-      exportName: "S3Stack:CaseOSBucketName",
+    new cdk.CfnOutput(this, "ApplicationDataBucketName", {
+      value: this.applicationDataBucket.bucketName,
+      exportName: "ApplicationS3Stack:ApplicationDataBucketName",
     });
 
-    new cdk.CfnOutput(this, "CaseOSBucketArn", {
-      value: this.caseOSBucket.bucketArn,
-      exportName: "S3Stack:CaseOSBucketArn",
+    new cdk.CfnOutput(this, "ApplicationDataBucketArn", {
+      value: this.applicationDataBucket.bucketArn,
+      exportName: "ApplicationS3Stack:ApplicationDataBucketArn",
     });
   }
 }

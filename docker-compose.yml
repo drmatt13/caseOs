@@ -26,9 +26,9 @@ x-langgraph-service-env: &langgraph-service-env
 
 # Shared Cognito configuration for local services that validate Cognito tokens.
 x-cognito-env: &cognito-env
-  USER_POOL_ID: "us-east-1_IlwKgxNDU"
-  USER_POOL_CLIENT_ID: "6muao0u8oh0f6nref7aq8j5uu5"
-  COGNITO_DOMAIN_URL: "https://localdevkit-73543328.auth.us-east-1.amazoncognito.com"
+  USER_POOL_ID: "${USER_POOL_ID}"
+  USER_POOL_CLIENT_ID: "${USER_POOL_CLIENT_ID}"
+  COGNITO_DOMAIN_URL: "${COGNITO_DOMAIN_URL}"
 
 # The local API dev servers environment variables
 x-local-api-dev-server-env: &local-api-dev-server-env
@@ -36,14 +36,14 @@ x-local-api-dev-server-env: &local-api-dev-server-env
   LANGGRAPH_SERVICE_URL: "http://langgraph-service"
   PRIMARY_DATABASE_URL: "postgresql://admin:password@postgres:5432/app_db" # In development you should always use local Postgres for database access
   GRAPHQL_GRAPHIQL_ENABLED: "true"
-  # Source: S3Stack output key `CaseOSBucketArn`
-  CASEOS_STORAGE_BUCKET_ARN: "arn:aws:s3:::caseos-270473543328-us-east-1"
+  # Source: ApplicationS3Stack output key `ApplicationDataBucketArn`
+  APPLICATION_DATA_BUCKET_ARN: "${APPLICATION_DATA_BUCKET_ARN}"
   # Never capture event-driven functions in local dev
-  USE_LOCAL_IMPLEMENTATIONS: "false"
+  USE_LOCAL_DEV_STACK: "false"
   # Source: DevLambdaReplayStack output key `ReplayBucketName`
-  DEV_LAMBDA_REPLAY_BUCKET_NAME: "devlambdareplaystack-devlambdareplaybucketb5032f6f-qs7jsfgfyfse"
+  DEV_LAMBDA_REPLAY_BUCKET_NAME: "${DEV_LAMBDA_REPLAY_BUCKET_NAME}"
   # Source: DevLambdaReplayStack output key `ReplayQueueUrl`
-  DEV_LAMBDA_REPLAY_QUEUE_URL: "https://sqs.us-east-1.amazonaws.com/270473543328/DevLambdaReplayStack-DevLambdaReplayQueue864CD58E-DBtknEL8LqH7"
+  DEV_LAMBDA_REPLAY_QUEUE_URL: "${DEV_LAMBDA_REPLAY_QUEUE_URL}"
 
 # Local Prisma environment variables for Docker-networked database access.
 x-local-prisma-env: &local-prisma-env
@@ -58,7 +58,7 @@ x-local-ws-dev-server-env: &local-ws-dev-server-env
 x-frontend-ws-connection-and-payload-tester-env: &frontend-ws-connection-and-payload-tester-env
   VITE_LOCAL_WS_URL: "ws://localhost:8081?token="
   # Source: WebSocketApiStack output key `WebSocketApiEndpoint`
-  VITE_API_GATEWAY_WS_URL: "wss://wss://2pqt4iheq0.execute-api.us-east-1.amazonaws.com/prod?token="
+  VITE_API_GATEWAY_WS_URL: "${VITE_API_GATEWAY_WS_URL}"
 
 # PostgreSQL environment variables
 x-postgres-env: &postgres-env

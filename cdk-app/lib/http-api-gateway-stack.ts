@@ -16,7 +16,6 @@ export interface HttpApiGatewayStackProps extends cdk.StackProps {
   refreshFn: IFunction;
   getUserFn: IFunction;
   graphqlApiFn: IFunction;
-  updateUserFn: IFunction;
   s3AccessBrokerFn: IFunction;
 
   // stripe functions
@@ -25,13 +24,13 @@ export interface HttpApiGatewayStackProps extends cdk.StackProps {
   billingCreateSubscriptionFn: IFunction;
   stripeWebhookFn: IFunction;
 
-  // ECS service URL for langgraph, if applicable. If not provided, the /langgraph/* route will not be added to the API Gateway, and local implementations will be used instead (if useLocalImplementations is true)
+  // ECS service URL for langgraph, if applicable. If not provided, the /langgraph/* route will not be added to the API Gateway, and the local dev stack will be used instead (if useLocalDevStack is true)
   langgraphServiceUrl?: string;
 
   // config
   httpUserPoolAuthorizerConfig: HttpUserPoolAuthorizerConfig;
   frontendUrl: string;
-  useLocalImplementations: boolean;
+  useLocalDevStack: boolean;
 }
 
 export class HttpApiGatewayStack extends cdk.Stack {
@@ -69,7 +68,7 @@ export class HttpApiGatewayStack extends cdk.Stack {
       "HttpUserPoolAuthorizer",
       userPool,
       {
-        identitySource: ["$request.cookie.accessToken"],
+        identitySource: ["$request.header.Authorization"],
         userPoolClients: [userPoolClient],
       },
     );
@@ -101,6 +100,11 @@ export class HttpApiGatewayStack extends cdk.Stack {
         authorizer: userPoolAuthorizer,
       });
     };
+
+    const authenticatedReadWriteMethods = [
+      apigwv2.HttpMethod.GET,
+      apigwv2.HttpMethod.POST,
+    ];
 
     /*********************************
      *         Public Routes         *
@@ -139,28 +143,28 @@ export class HttpApiGatewayStack extends cdk.Stack {
     addAuthenticatedRoute(
       "VerifySessionIntegration",
       "/verify-session",
-      [apigwv2.HttpMethod.ANY],
+      authenticatedReadWriteMethods,
       props.verifySessionFn,
     );
 
     addAuthenticatedRoute(
       "GetUserIntegration",
       "/get-user",
-      [apigwv2.HttpMethod.ANY],
+      authenticatedReadWriteMethods,
       props.getUserFn,
     );
 
     addAuthenticatedRoute(
       "GraphQLApiIntegration",
       "/graphql",
-      [apigwv2.HttpMethod.ANY],
+      authenticatedReadWriteMethods,
       props.graphqlApiFn,
     );
 
     addAuthenticatedRoute(
       "S3AccessBrokerIntegration",
       "/s3-access-broker",
-      [apigwv2.HttpMethod.ANY],
+      authenticatedReadWriteMethods,
       props.s3AccessBrokerFn,
     );
 
@@ -168,21 +172,21 @@ export class HttpApiGatewayStack extends cdk.Stack {
     addAuthenticatedRoute(
       "BillingListProductsIntegration",
       "/billing/list-products",
-      [apigwv2.HttpMethod.ANY],
+      authenticatedReadWriteMethods,
       props.billingListProductsFn,
     );
 
     addAuthenticatedRoute(
       "BillingCreateSetupIntentIntegration",
       "/billing/create-setup-intent",
-      [apigwv2.HttpMethod.ANY],
+      authenticatedReadWriteMethods,
       props.billingCreateSetupIntentFn,
     );
 
     addAuthenticatedRoute(
       "BillingCreateSubscriptionIntegration",
       "/billing/create-subscription",
-      [apigwv2.HttpMethod.ANY],
+      authenticatedReadWriteMethods,
       props.billingCreateSubscriptionFn,
     );
 
@@ -199,7 +203,7 @@ export class HttpApiGatewayStack extends cdk.Stack {
     /*********************************
      *     ECS Service Routes        *
      *********************************/
-    if (!props.useLocalImplementations && props.langgraphServiceUrl) {
+    if (!props.useLocalDevStack && props.langgraphServiceUrl) {
       api.addRoutes({
         path: "/langgraph/{proxy+}",
         methods: [apigwv2.HttpMethod.ANY],

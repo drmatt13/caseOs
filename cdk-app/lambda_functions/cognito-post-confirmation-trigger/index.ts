@@ -10,12 +10,12 @@ export const lambdaHandler = async (
   context: Context,
 ): Promise<PostConfirmationTriggerEvent> => {
   // Capture ASYNC invocation and run it through the local dev server
-  if (process.env.USE_LOCAL_IMPLEMENTATIONS === "true") {
+  if (process.env.USE_LOCAL_DEV_STACK === "true") {
     if (
       !process.env.DEV_LAMBDA_REPLAY_BUCKET_NAME ||
       !process.env.DEV_LAMBDA_REPLAY_QUEUE_URL
     ) {
-      const message = `Missing required replay configuration. Set DEV_LAMBDA_REPLAY_BUCKET_NAME and DEV_LAMBDA_REPLAY_QUEUE_URL before invoking the Cognito post-confirmation trigger with USE_LOCAL_IMPLEMENTATIONS=true.`;
+      const message = `Missing required replay configuration. Set DEV_LAMBDA_REPLAY_BUCKET_NAME and DEV_LAMBDA_REPLAY_QUEUE_URL before invoking the Cognito post-confirmation trigger with USE_LOCAL_DEV_STACK=true.`;
       console.error(message);
       throw new Error(message);
     }

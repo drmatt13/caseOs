@@ -122,10 +122,16 @@ enum CaseRecordType {
 }
 
 enum RecordStatus {
-  PROPOSED   @map("proposed")
-  ACCEPTED   @map("accepted")
-  REJECTED   @map("rejected")
-  SUPERSEDED @map("superseded")
+  PROPOSED              @map("proposed")
+  ACCEPTED              @map("accepted")
+  REJECTED              @map("rejected")
+  SUPERSESSION_PENDING  @map("supersession_pending")
+  SUPERSEDED            @map("superseded")
+}
+
+enum RecordParty {
+  PLAINTIFF @map("plaintiff")
+  DEFENSE   @map("defense")
 }
 
 enum RecordVisibility {
@@ -365,9 +371,9 @@ model CaseRecordIndex {
   checksumSha256      String?          @map("checksum_sha256")
   eTag                String?          @map("etag")
   version             Int              @default(1)
-  confidence          Float?
   createdBy           ActorType        @default(HUMAN) @map("created_by")
   createdByUserId     String?          @map("created_by_user_id") @db.Uuid
+  party               RecordParty?
   recordStatus        RecordStatus?    @map("record_status")
   recordVisibility    RecordVisibility @default(VISIBLE) @map("record_visibility")
   typedMeta           Json?            @map("typed_meta")

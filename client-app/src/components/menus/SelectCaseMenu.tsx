@@ -18,11 +18,7 @@ const SelectCaseMenu = ({ cases }: SelectCaseMenuProps) => {
         </div>
       </Link>
       {cases.map((caseItem) => (
-        <Link
-          key={caseItem.id}
-          to="/case/$id"
-          params={{ id: caseItem.id }}
-        >
+        <Link key={caseItem.id} to="/case/$id" params={{ id: caseItem.id }}>
           <div className="text-xs p-2 rounded-lg hover:bg-black/10 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
             <p className="truncate">{caseItem.name}</p>
           </div>

@@ -4,7 +4,8 @@
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
-    "codegen": "graphql-codegen --config codegen.ts"
+    "codegen": "graphql-codegen --config codegen.ts",
+    "export:cdk-outputs": "node scripts/export-cdk-outputs.mjs  --profile=dev --region=us-east-1"
   },
   "workspaces": [
     "client-app",

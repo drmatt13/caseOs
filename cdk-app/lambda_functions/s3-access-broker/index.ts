@@ -10,9 +10,9 @@ import {
 } from "@repo/shared-lambda-utils";
 
 // Validate required environment configuration at startup.
-const { AWS_REGION, CASEOS_STORAGE_BUCKET_ARN } = process.env;
+const { AWS_REGION, APPLICATION_DATA_BUCKET_ARN } = process.env;
 
-if (!AWS_REGION || !CASEOS_STORAGE_BUCKET_ARN) {
+if (!AWS_REGION || !APPLICATION_DATA_BUCKET_ARN) {
   throw new Error("Missing S3 access broker environment variables");
 }
 
@@ -23,7 +23,7 @@ const getBucketNameFromArn = (bucketArn: string): string => {
   const bucketName = arnParts[1];
 
   if (!bucketName) {
-    throw new Error("Invalid CASEOS_STORAGE_BUCKET_ARN");
+    throw new Error("Invalid APPLICATION_DATA_BUCKET_ARN");
   }
 
   return bucketName;
@@ -43,7 +43,7 @@ export const lambdaHandler = async (
 
     // Build the user's profile-picture object key and public URL.
     const profilePictureKey = `profile-pictures/${cognitoSub}.jpg`;
-    const bucketName = getBucketNameFromArn(CASEOS_STORAGE_BUCKET_ARN);
+    const bucketName = getBucketNameFromArn(APPLICATION_DATA_BUCKET_ARN);
     const profilePictureUrl = `https://${bucketName}.s3.${AWS_REGION}.amazonaws.com/${profilePictureKey}`;
 
     // Issue short-lived credentials scoped to the user's profile picture.
@@ -57,7 +57,7 @@ export const lambdaHandler = async (
             {
               Effect: "Allow",
               Action: "s3:PutObject",
-              Resource: `${CASEOS_STORAGE_BUCKET_ARN}/${profilePictureKey}`,
+              Resource: `${APPLICATION_DATA_BUCKET_ARN}/${profilePictureKey}`,
             },
           ],
         }),
@@ -84,7 +84,7 @@ export const lambdaHandler = async (
         sessionToken: credentials.SessionToken,
         expiration: credentials.Expiration.toISOString(),
       },
-      bucketArn: CASEOS_STORAGE_BUCKET_ARN,
+      bucketArn: APPLICATION_DATA_BUCKET_ARN,
       bucketName,
       profilePictureKey,
       profilePictureUrl,

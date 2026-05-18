@@ -11,8 +11,9 @@ import { EcsServicesStack } from "../lib/ecs-services-stack";
 import { RdsStack } from "../lib/rds-stack";
 import { WebSocketApiStack } from "../lib/websocket-api-stack";
 import { WebSocketLambdaFunctionsStack } from "../lib/websocket-lambda-functions-stack";
-// import { PromoCodesStack } from "../lib/promo-codes-stack";
-import { S3Stack } from "../lib/s3-stack";
+import { ApplicationS3Stack } from "../lib/application-s3-stack";
+import { FrontendWebsiteS3Stack } from "../lib/frontend-website-s3-stack";
+import { CloudFrontStack } from "../lib/cloudfront-stack";
 
 const loadDotEnv = (envPath: string) => {
   if (!fs.existsSync(envPath)) {
@@ -55,27 +56,37 @@ loadDotEnv(path.join(__dirname, "..", ".env"));
 
 // Context Flags (with defaults)
 //
-// -c useLocalImplementations       (default: true)
-// -c enableRdsProxy                (default: false, also disabled when useLocalImplementations=true)
+// -c useLocalDevStack              (default: true)
+// -c enableRdsProxy                (default: false, also disabled when useLocalDevStack=true)
 // -c skipEmailVerification         (default: false)
 // -c enableEcsStack                (default: false)
 // -c enableWebSockets              (default: false)
 // -c useCustomWsAuthorizer         (default: false)
 // -c retainStatefulResources       (default: false) - Cognito, RDS, Secrets
 //
-// -c frontendUrl                   (default: "http://localhost:3000")
+// -c frontendUrl                   (optional prod extra Cognito callback/logout URL)
 //
 // -c googleClientId                (default: GOOGLE_CLIENT_ID from .env)
 // -c googleClientSecret            (default: GOOGLE_CLIENT_SECRET from .env)
 
 // Complete Synth:
-// cdk synth --all -c useLocalImplementations=false -c enableRdsProxy=true -c skipEmailVerification=false -c useCustomWsAuthorizer=true -c enableWebSockets=true
+// cdk synth --all -c useLocalDevStack=false -c enableRdsProxy=true -c skipEmailVerification=false -c useCustomWsAuthorizer=true -c enableWebSockets=true
 
 // Current DEV deployment:
 // cdk deploy --all -c useCustomWsAuthorizer=true -c enableWebSockets=true -c skipEmailVerification=true --require-approval never
 
 // Current PROD deployment:
-// cdk deploy --all -c useLocalImplementations=false -c useCustomWsAuthorizer=true -c enableWebSockets=true -c enableEcsStack=false  -c skipEmailVerification=true -c frontendUrl=http://localhost:3000 --require-approval never
+// cdk deploy --all -c useLocalDevStack=false -c useCustomWsAuthorizer=true -c enableWebSockets=true -c enableEcsStack=false -c skipEmailVerification=true --require-approval never
+
+// If migrate from DEV to PROD
+// cdk destroy DevLambdaReplayStack --exclusively -c enableWebSockets=true -c skipEmailVerification=true --force --profile=dev
+
+// If migrate from PROD to DEV
+// cdk destroy CloudFrontStack HttpApiGatewayStack EcsServicesStack RdsStack -c useLocalDevStack=false -c useCustomWsAuthorizer=true -c enableWebSockets=true -c enableEcsStack=false -c skipEmailVerification=true --require-approval never
+
+// Frontend website bucket deployment:
+// <build frontend assets in ../client-app/dist>
+// aws s3 cp ../client-app/dist s3://<frontend-website-s3-bucket-name> --recursive
 
 const app = new cdk.App();
 
@@ -101,15 +112,13 @@ const primaryDatabaseName = "app_db";
 const primaryDatabaseUsername = "app_user";
 
 // Single infrastructure mode flag.
-// - true: use local-oriented implementations.
-// - false: use cloud-oriented implementations.
-const useLocalImplementationsContext = app.node.tryGetContext(
-  "useLocalImplementations",
-);
-const useLocalImplementations =
-  typeof useLocalImplementationsContext === "string"
-    ? useLocalImplementationsContext.toLowerCase() === "true"
-    : (useLocalImplementationsContext ?? true);
+// - true: use the local dev stack.
+// - false: use the production cloud stack.
+const useLocalDevStackContext = app.node.tryGetContext("useLocalDevStack");
+const useLocalDevStack =
+  typeof useLocalDevStackContext === "string"
+    ? useLocalDevStackContext.toLowerCase() === "true"
+    : (useLocalDevStackContext ?? true);
 
 // Optional cloud-mode flag. Defaults to false and is force-disabled in local mode.
 const enableRdsProxyContext = app.node.tryGetContext("enableRdsProxy");
@@ -118,7 +127,7 @@ const requestedEnableRdsProxy =
   typeof enableRdsProxyContext === "string"
     ? enableRdsProxyContext.toLowerCase() === "true"
     : (enableRdsProxyContext ?? false);
-const enableRdsProxy = !useLocalImplementations && requestedEnableRdsProxy;
+const enableRdsProxy = !useLocalDevStack && requestedEnableRdsProxy;
 
 // Optional Cognito flag. Defaults to false.
 // - true: skip verification flow by attaching the pre-signup trigger.
@@ -149,11 +158,59 @@ const retainStatefulResouces =
 const enableWebSockets =
   app.node.tryGetContext("enableWebSockets") === "true" ? true : false;
 
-// Frontend URL for CORS configuration, can be set via context or environment variable. Defaults to localhost for development.
-const frontendUrl =
-  app.node.tryGetContext("frontendUrl") ?? "http://localhost:3000";
-const normalizedFrontendUrl = String(frontendUrl).replace(/\/+$/, "");
-const authCallbackUrl = `${normalizedFrontendUrl}/auth/callback`;
+const frontendWebsiteS3Stack = new FrontendWebsiteS3Stack(
+  app,
+  "FrontendWebsiteS3Stack",
+  {
+    env: stackEnv,
+  },
+);
+
+// Created only in production cloud stack mode (useLocalDevStack=false).
+const cloudFrontStack = !useLocalDevStack
+  ? new CloudFrontStack(app, "CloudFrontStack", {
+      env: stackEnv,
+      frontendWebsiteBucketArn:
+        frontendWebsiteS3Stack.frontendWebsiteBucket.bucketArn,
+      frontendWebsiteBucketName:
+        frontendWebsiteS3Stack.frontendWebsiteBucket.bucketName,
+      frontendWebsiteBucketRegionalDomainName:
+        frontendWebsiteS3Stack.frontendWebsiteBucket.bucketRegionalDomainName,
+    })
+  : undefined;
+
+const normalizeFrontendUrl = (url: string) =>
+  cdk.Token.isUnresolved(url) ? url : url.replace(/\/+$/, "");
+
+// The primary frontend URL is used by non-Cognito consumers. In prod, Cognito
+// always includes the CloudFront URL and treats frontendUrl as an extra URL.
+const frontendUrlContext = app.node.tryGetContext("frontendUrl");
+const extraFrontendUrl = frontendUrlContext
+  ? normalizeFrontendUrl(String(frontendUrlContext))
+  : undefined;
+const frontendUrl = useLocalDevStack
+  ? "http://localhost:3000"
+  : cloudFrontStack!.frontendWebsiteUrl;
+
+if (
+  !useLocalDevStack &&
+  extraFrontendUrl &&
+  !cdk.Token.isUnresolved(extraFrontendUrl) &&
+  extraFrontendUrl.startsWith("http://")
+) {
+  throw new Error(
+    `Production frontendUrl must use HTTPS for Cognito callbacks. Received: ${extraFrontendUrl}`,
+  );
+}
+
+const normalizedFrontendUrl = normalizeFrontendUrl(frontendUrl);
+const cognitoFrontendUrls =
+  !useLocalDevStack && extraFrontendUrl
+    ? [normalizedFrontendUrl, extraFrontendUrl]
+    : [normalizedFrontendUrl];
+const authCallbackUrls = cognitoFrontendUrls.map(
+  (url) => `${url}/auth/callback`,
+);
 
 const googleClientIdContext = app.node.tryGetContext("googleClientId");
 const googleClientSecretContext = app.node.tryGetContext("googleClientSecret");
@@ -168,25 +225,21 @@ const googleClientSecret = googleClientSecretContext
 const stripePublishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 
-// new PromoCodesStack(app, "PromoCodesStack", {
-//   env: stackEnv,
-// });
-
-const s3Stack = new S3Stack(app, "S3Stack", {
+const applicationS3Stack = new ApplicationS3Stack(app, "ApplicationS3Stack", {
   env: stackEnv,
   frontendUrl: normalizedFrontendUrl,
   retainStatefulResouces,
 });
 
-// Created only in local mode (useLocalImplementations=true).
-const devLambdaReplayStack = useLocalImplementations
+// Created only in local dev stack mode (useLocalDevStack=true).
+const devLambdaReplayStack = useLocalDevStack
   ? new DevLambdaReplayStack(app, "DevLambdaReplayStack", {
       env: stackEnv,
     })
   : undefined;
 
-// Created only in cloud mode (useLocalImplementations=false).
-const rdsStack = !useLocalImplementations
+// Created only in production cloud stack mode (useLocalDevStack=false).
+const rdsStack = !useLocalDevStack
   ? new RdsStack(app, "RdsStack", {
       env: stackEnv,
       enableRdsProxy,
@@ -203,7 +256,8 @@ const asynchronousLambdaFunctionsStack = new AsynchronousLambdaFunctionsStack(
   {
     env: stackEnv,
     frontendUrl,
-    useLocalImplementations,
+    useLocalDevStack,
+    skipEmailVerification,
     replayBucketName: devLambdaReplayStack?.bucket.bucketName,
     replayQueueUrl: devLambdaReplayStack?.queue.queueUrl,
     replayBucket: devLambdaReplayStack?.bucket,
@@ -218,13 +272,13 @@ if (devLambdaReplayStack) {
 // Create Cognito User Pool + Client + Identity Pool
 const cognitoStack = new CognitoStack(app, "CognitoStack", {
   env: stackEnv,
-  useLocalImplementations,
+  useLocalDevStack,
   retainStatefulResouces,
   skipEmailVerification,
   googleClientId,
   googleClientSecret,
-  callbackUrls: [authCallbackUrl],
-  logoutUrls: [normalizedFrontendUrl],
+  callbackUrls: authCallbackUrls,
+  logoutUrls: cognitoFrontendUrls,
   cognitoPreSignUpTriggerFn:
     asynchronousLambdaFunctionsStack.cognitoPreSignUpTriggerFn,
   cognitoCustomMessageFn:
@@ -244,29 +298,29 @@ const synchronousLambdaFunctionsStack = new SynchronousLambdaFunctionsStack(
     userPoolClientId: cognitoStack.userPoolClientId,
     userPoolDomainUrl: cognitoStack.userPoolDomainUrl,
     primaryDatabaseSecretArn: rdsStack?.credentialsSecretArn,
-    caseOSBucket: s3Stack.caseOSBucket,
+    applicationDataBucket: applicationS3Stack.applicationDataBucket,
     stripePublishableKey,
     stripeSecretKey,
   },
 );
 synchronousLambdaFunctionsStack.addDependency(cognitoStack);
-synchronousLambdaFunctionsStack.addDependency(s3Stack);
+synchronousLambdaFunctionsStack.addDependency(applicationS3Stack);
 
-// Created only in cloud mode (useLocalImplementations=false).
+// Created only in production cloud stack mode (useLocalDevStack=false).
 const ecsServicesStack =
-  !useLocalImplementations && enableEcsStack
+  !useLocalDevStack && enableEcsStack
     ? new EcsServicesStack(app, "EcsServicesStack", {
         env: stackEnv,
       })
     : undefined;
 
 // Create API stack ** API Gateway with Lambda and ECS integrations
-// Created only in cloud mode (useLocalImplementations=false).
-const httpApiGatewayStack = !useLocalImplementations
+// Created only in production cloud stack mode (useLocalDevStack=false).
+const httpApiGatewayStack = !useLocalDevStack
   ? new HttpApiGatewayStack(app, "HttpApiGatewayStack", {
       env: stackEnv,
       frontendUrl,
-      useLocalImplementations,
+      useLocalDevStack,
 
       // User Pool Authorizer
       httpUserPoolAuthorizerConfig:
@@ -280,7 +334,6 @@ const httpApiGatewayStack = !useLocalImplementations
       refreshFn: synchronousLambdaFunctionsStack.refreshFn,
       getUserFn: synchronousLambdaFunctionsStack.getUserFn,
       graphqlApiFn: synchronousLambdaFunctionsStack.graphqlApiFn,
-      updateUserFn: synchronousLambdaFunctionsStack.updateUserFn,
       s3AccessBrokerFn: synchronousLambdaFunctionsStack.s3AccessBrokerFn,
       billingListProductsFn:
         synchronousLambdaFunctionsStack.billingListProductsFn,
@@ -297,7 +350,7 @@ const httpApiGatewayStack = !useLocalImplementations
     })
   : undefined;
 
-// API Gateway dependencies (cloud mode only)
+// API Gateway dependencies (production cloud stack mode only)
 httpApiGatewayStack?.addDependency(synchronousLambdaFunctionsStack);
 if (ecsServicesStack) {
   httpApiGatewayStack?.addDependency(ecsServicesStack);

@@ -1,6 +1,7 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as cognito from "aws-cdk-lib/aws-cognito";
+import * as iam from "aws-cdk-lib/aws-iam";
 import { IFunction } from "aws-cdk-lib/aws-lambda";
 import { AsynchronousLambdaFunctionsStack } from "./asynchronous-lambda-functions-stack";
 
@@ -9,7 +10,7 @@ export interface CognitoStackProps extends cdk.StackProps {
   googleClientSecret?: cdk.SecretValue;
   callbackUrls?: string[];
   logoutUrls?: string[];
-  useLocalImplementations?: boolean;
+  useLocalDevStack?: boolean;
   retainStatefulResouces?: boolean;
   skipEmailVerification?: boolean;
   cognitoPreSignUpTriggerFn?: IFunction;
@@ -26,10 +27,8 @@ export class CognitoStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: CognitoStackProps) {
     super(scope, id, props);
 
-    const useLocalImplementations = props.useLocalImplementations ?? true;
+    const useLocalDevStack = props.useLocalDevStack ?? true;
     const retainStatefulResouces = props.retainStatefulResouces ?? false;
-    const skipEmailVerification = props.skipEmailVerification ?? false;
-
     const callbackUrls = props.callbackUrls ?? [
       "http://localhost:3000/auth/callback",
     ];
@@ -80,9 +79,7 @@ export class CognitoStack extends cdk.Stack {
       email: cognito.UserPoolEmail.withCognito(),
       lambdaTriggers: {
         customMessage: props.cognitoCustomMessageFn,
-        preSignUp: skipEmailVerification
-          ? props.cognitoPreSignUpTriggerFn
-          : undefined,
+        preSignUp: props.cognitoPreSignUpTriggerFn,
         postConfirmation: props.cognitoPostConfirmationTriggerFn,
       },
 
@@ -101,6 +98,22 @@ export class CognitoStack extends cdk.Stack {
       },
     });
     const userPoolDomainUrl = `https://${domain.domainName}.auth.${this.region}.amazoncognito.com`;
+
+    props.cognitoPreSignUpTriggerFn?.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: [
+          "cognito-idp:AdminLinkProviderForUser",
+          "cognito-idp:ListUsers",
+        ],
+        resources: [
+          cdk.Stack.of(this).formatArn({
+            service: "cognito-idp",
+            resource: "userpool",
+            resourceName: "*",
+          }),
+        ],
+      }),
+    );
 
     let googleProvider: cognito.UserPoolIdentityProviderGoogle | undefined;
 

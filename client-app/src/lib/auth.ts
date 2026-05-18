@@ -1,5 +1,4 @@
 import { redirect } from "@tanstack/react-router";
-import { createIsomorphicFn } from "@tanstack/react-start";
 import {
   ConfirmSignUpCommand,
   CognitoIdentityProviderClient,
@@ -48,13 +47,10 @@ let clientAuthCache: AuthState | null = null;
 let clientAuthRequest: Promise<AuthState> | null = null;
 let authSyncInitialized = false;
 let authBroadcastChannel: BroadcastChannel | null = null;
-
-const getServerCookieHeader = createIsomorphicFn()
-  .client(() => undefined)
-  .server(async () => {
-    const { getRequest } = await import("@tanstack/react-start/server");
-    return getRequest().headers.get("cookie") ?? undefined;
-  });
+const oauthSignInRequests = new Map<
+  string,
+  Promise<z.infer<typeof SignInResponseSchema>>
+>();
 
 type AuthCacheOptions = {
   broadcast?: boolean;
@@ -287,34 +283,6 @@ export function primeAuthCache(options: AuthCacheOptions = {}): void {
   }
 }
 
-async function checkSessionOnServer(): Promise<AuthState> {
-  try {
-    const cookieHeader = await getServerCookieHeader();
-
-    if (!cookieHeader) {
-      return { authenticated: false };
-    }
-
-    const response = await fetch(`${API_URL}/verify-session`, {
-      method: "GET",
-      headers: { cookie: cookieHeader },
-      credentials: "include",
-    });
-
-    if (response.ok) {
-      return { authenticated: true };
-    }
-
-    if (response.status === 401 && (await refreshSession(cookieHeader))) {
-      return { authenticated: true };
-    }
-
-    return { authenticated: false };
-  } catch {
-    return { authenticated: false };
-  }
-}
-
 async function checkSessionOnClient(): Promise<AuthState> {
   initializeAuthSync();
 
@@ -418,10 +386,11 @@ export async function fetchWithAuthRefresh(
 }
 
 export async function checkSession(): Promise<AuthState> {
-  if (isBrowserRuntime()) {
-    return checkSessionOnClient();
+  if (!isBrowserRuntime()) {
+    return { authenticated: false };
   }
-  return checkSessionOnServer();
+
+  return checkSessionOnClient();
 }
 
 export async function requireAuth(): Promise<void> {
@@ -635,44 +604,56 @@ export async function completeOAuthSignIn(
   code: string,
   state: string,
 ): Promise<z.infer<typeof SignInResponseSchema>> {
-  const oauthState = consumeOAuthState(state);
-  const oauthCallbackUrl = `${API_URL}/oauth/callback`;
-  const response = await fetch(oauthCallbackUrl, {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      code,
-      redirectUri: getOAuthRedirectUri(),
-      rememberMe: oauthState.rememberMe,
-    }),
-  });
+  const requestKey = `${state}:${code}`;
+  const existingRequest = oauthSignInRequests.get(requestKey);
 
-  const responseBody = await response.text();
-  let data: z.infer<typeof SignInResponseSchema>;
-  try {
-    data = JSON.parse(responseBody) as z.infer<typeof SignInResponseSchema>;
-  } catch {
-    const bodyPreview = responseBody.slice(0, 120);
-    return {
-      success: false,
-      error: `OAuth callback API did not return JSON from ${oauthCallbackUrl}. Restart the frontend/API dev servers and verify VITE_API_GATEWAY_URL. Response started with: ${bodyPreview}`,
-    };
+  if (existingRequest) {
+    return existingRequest;
   }
 
-  if (!response.ok) {
-    return {
-      success: false,
-      error: data.error ?? "Google sign in failed",
-    };
-  }
+  const request = (async (): Promise<z.infer<typeof SignInResponseSchema>> => {
+    const oauthState = consumeOAuthState(state);
+    const oauthCallbackUrl = `${API_URL}/oauth/callback`;
+    const response = await fetch(oauthCallbackUrl, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        code,
+        redirectUri: getOAuthRedirectUri(),
+        rememberMe: oauthState.rememberMe,
+      }),
+    });
 
-  primeAuthCache({
-    broadcast: true,
-    rememberSession: oauthState.rememberMe,
-  });
+    const responseBody = await response.text();
+    let data: z.infer<typeof SignInResponseSchema>;
+    try {
+      data = JSON.parse(responseBody) as z.infer<typeof SignInResponseSchema>;
+    } catch {
+      const bodyPreview = responseBody.slice(0, 120);
+      return {
+        success: false,
+        error: `OAuth callback API did not return JSON from ${oauthCallbackUrl}. Restart the frontend/API dev servers and verify VITE_API_GATEWAY_URL. Response started with: ${bodyPreview}`,
+      };
+    }
 
-  return { success: true };
+    if (!response.ok) {
+      return {
+        success: false,
+        error: data.error ?? "Google sign in failed",
+      };
+    }
+
+    primeAuthCache({
+      broadcast: true,
+      rememberSession: oauthState.rememberMe,
+    });
+
+    return { success: true };
+  })();
+
+  oauthSignInRequests.set(requestKey, request);
+  return request;
 }
 
 export async function forgotPasswordUser(email: string) {
