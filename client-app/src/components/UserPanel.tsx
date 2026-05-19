@@ -50,7 +50,7 @@ const UserPanel = ({
               alt={`${user.displayName}`}
               referrerPolicy="no-referrer"
               onError={() => setImageFailed(true)}
-              className="h-10 w-10 shrink-0 rounded-full object-cover"
+              className="h-10 w-10 shrink-0 rounded-full object-cover ring ring-black/20"
             />
           ) : (
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-black/15">

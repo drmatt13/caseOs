@@ -1,4 +1,5 @@
 import { type ReactNode } from "react";
+import PageBackgroundLayout from "./PageBackgroundLayout";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -6,23 +7,9 @@ interface AppLayoutProps {
 
 const AppLayout = ({ children }: AppLayoutProps) => {
   return (
-    <div className="relative isolate min-h-dvh overflow-x-clip">
-      <div className="pointer-events-none fixed inset-x-0 top-0 z-0 h-svh overflow-hidden">
-        <img
-          // src="/3bbac7c2-1835-48be-8a6d-d9788a25e9aa.png"
-          src="/65a6bf61-3b46-42c2-bcba-d596f9898e90.png"
-          alt=""
-          aria-hidden="true"
-          // className="pointer-events-none absolute inset-x-0 top-0 /h-[45svh] min-h-56 /max-h-128 w-full object-cover object-top mask-[linear-gradient(to_bottom,black_0%,rgb(0_0_0/0.25)_25%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_0%,rgb(0_0_0/0.25)_25%,transparent_100%)]"
-          className="pointer-events-none absolute top-0 left-0 /h-[45svh] min-h-56 /max-h-128 w-full h-svh object-cover object-left-top"
-        />
-      </div>
-      <div className="relative z-10 mx-auto /h-dvh flex flex-row gap-6 pt-14 pb-7 px-8 font-sans max-w-5xl w-full">
-        {/* <div className="absolute top-0 z-1000 w-7 h-28 bg-black/50" />
-        <div className="absolute top-0 z-1000 w-7 h-21 bg-red-500/60" /> */}
-        {children}
-      </div>
-    </div>
+    <PageBackgroundLayout className="flex flex-row /max-w-250 px-2 lg:gap-6 lg:pt-14 lg:pb-7 lg:px-8">
+      {children}
+    </PageBackgroundLayout>
   );
 };
 

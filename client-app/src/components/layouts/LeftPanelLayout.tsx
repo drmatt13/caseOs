@@ -5,7 +5,8 @@ import {
   useCallback,
   useRef,
 } from "react";
-import AppLogo from "../AppLogo";
+import AppLogo from "#/components/AppLogo";
+import useWindowWidthCategory from "#/hooks/useWindowWidthCategory";
 
 interface LeftPanelLayoutProps {
   children: ReactNode;
@@ -65,19 +66,45 @@ const getTransitionDurationMs = (
     curvedVelocityProgress,
   );
 };
+const getPanelOffsetRem = () => {
+  const bodyScrollDelta = Math.min(
+    maxBodyScrollDeltaRem,
+    pixelsToRem(window.scrollY),
+  );
+
+  return (
+    maxBodyScrollDeltaRem - bodyScrollDelta + stickyTopRem + bottomPaddingRem
+  );
+};
 
 const LeftPanelLayout = ({ children }: LeftPanelLayoutProps) => {
   const panelRef = useRef<HTMLDivElement>(null);
+  const windowWidthCategory = useWindowWidthCategory();
   const animationFrameRef = useRef<number | null>(null);
   const previousScrollSampleRef = useRef({
     scrollY: 0,
     time: 0,
   });
 
-  const updatePanelHeightOffset = useCallback(() => {
+  const updatePanelHeightOffset = useCallback((animate: boolean) => {
     const panel = panelRef.current;
 
     if (!panel) return;
+
+    const panelOffsetRem = getPanelOffsetRem();
+
+    if (!animate) {
+      panel.style.setProperty(
+        "--left-panel-height-offset",
+        `${panelOffsetRem}rem`,
+      );
+      panel.style.setProperty("--left-panel-transition-property", "none");
+      previousScrollSampleRef.current = {
+        scrollY: window.scrollY,
+        time: performance.now(),
+      };
+      return;
+    }
 
     const now = performance.now();
     const previousScrollSample = previousScrollSampleRef.current;
@@ -114,17 +141,11 @@ const LeftPanelLayout = ({ children }: LeftPanelLayoutProps) => {
       });
     }
 
-    const bodyScrollDelta = Math.min(
-      maxBodyScrollDeltaRem,
-      pixelsToRem(window.scrollY),
-    );
-    const panelOffsetRem =
-      maxBodyScrollDeltaRem - bodyScrollDelta + stickyTopRem + bottomPaddingRem;
-
     panel.style.setProperty(
       "--left-panel-height-offset",
       `${panelOffsetRem}rem`,
     );
+    panel.style.setProperty("--left-panel-transition-property", "max-height");
     panel.style.setProperty(
       "--left-panel-transition-duration",
       `${transitionDurationMs}ms`,
@@ -146,45 +167,59 @@ const LeftPanelLayout = ({ children }: LeftPanelLayoutProps) => {
 
     animationFrameRef.current = window.requestAnimationFrame(() => {
       animationFrameRef.current = null;
-      updatePanelHeightOffset();
+      updatePanelHeightOffset(true);
     });
   }, [updatePanelHeightOffset]);
 
   useEffect(() => {
-    updatePanelHeightOffset();
+    if (windowWidthCategory !== "large") {
+      if (animationFrameRef.current !== null) {
+        window.cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+
+      return;
+    }
+
+    const handleResize = () => {
+      updatePanelHeightOffset(false);
+    };
+
+    updatePanelHeightOffset(false);
     window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", updatePanelHeightOffset);
+    window.addEventListener("resize", handleResize);
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", updatePanelHeightOffset);
+      window.removeEventListener("resize", handleResize);
 
       if (animationFrameRef.current !== null) {
         window.cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [handleScroll, updatePanelHeightOffset]);
+  }, [handleScroll, updatePanelHeightOffset, windowWidthCategory]);
 
   const panelStyle = {
     "--left-panel-height-offset": `${initialPanelOffsetRem}rem`,
+    "--left-panel-transition-property": "none",
     "--left-panel-transition-duration": `${scrollUpSlowTransitionDurationMs}ms`,
     "--left-panel-transition-timing-function": scrollUpTransitionTimingFunction,
     maxHeight: "calc(100dvh - var(--left-panel-height-offset))",
+    transitionProperty: "var(--left-panel-transition-property)",
     transitionDuration: "var(--left-panel-transition-duration)",
     transitionTimingFunction: "var(--left-panel-transition-timing-function)",
   } as CSSProperties;
 
   return (
-    <div className="w-64 min-w-64 flex flex-col /border gap-2">
-      <AppLogo LeftPanelLayout={true} />
-      {/* border rounded-2xl bg-white/40 backdrop-blur-sm border-black/15 shadow-md */}
+    <div className="w-64 min-w-64 flex flex-col gap-2">
+      {windowWidthCategory === "large" && <AppLogo LeftPanelLayout={true} />}
       <div
         ref={panelRef}
-        style={panelStyle}
-        className="sticky top-7 h-max rounded-2xl border border-black/15 shadow-md overflow-hidden transition-[max-height]"
+        style={windowWidthCategory === "large" ? panelStyle : undefined}
+        className="sticky top-0 max-h-dvh lg:top-7 h-dvh lg:h-max lg:rounded-2xl border-r lg:border border-black/15 lg:shadow-md overflow-hidden"
       >
         <div className="overflow-y-auto max-h-[inherit]">
-          <div className="font-serif text-xs bg-white/40 backdrop-blur-sm pt-6 pb-4 px-4 flex flex-col gap-2">
+          <div className="font-serif text-xs lg:bg-white/40 lg:backdrop-blur-sm pt-5 pb-4 pl-2 pr-4 lg:px-4 flex flex-col gap-2">
             {children}
           </div>
         </div>

@@ -222,7 +222,7 @@ function RouteComponent() {
         />
       </LeftPanelLayout>
       <WorkPanelLayout>
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 h-full justify-between">
           {renderStep()}
           <div className="flex items-end justify-between gap-3 rounded-2xl">
             <p className="text-sm text-black/55">

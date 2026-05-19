@@ -116,7 +116,7 @@ const EmptyWorkspaceState = ({
 }: EmptyWorkspaceStateProps) => {
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-6 pt-6 pb-2 text-center">
-      <div className="mb-4 flex aspect-square items-center justify-center rounded-full border border-black/10 bg-black/[0.06] p-4">
+      <div className="mb-4 flex aspect-square items-center justify-center rounded-full border border-black/10 bg-black/6 p-4">
         <BriefcaseBusiness className="h-7 w-7 text-black/75" />
       </div>
 
