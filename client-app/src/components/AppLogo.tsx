@@ -15,7 +15,7 @@ const AppLogo = ({ LeftPanelLayout }: AppLogoProps) => {
         />
       )}
       <div className="flex flex-col items-center justify-center -translate-y-0.5">
-        <div className="text-[1.6rem] tracking-widest /font-bj-cree /font-serif font-cormorant-garamond font-medium">
+        <div className="text-[1.6rem] tracking-widest font-cormorant-garamond font-medium">
           LAWSTRUCT
         </div>
 
