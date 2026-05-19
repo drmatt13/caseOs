@@ -17,7 +17,9 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           className="pointer-events-none absolute inset-x-0 top-0 /h-[45svh] min-h-56 /max-h-128 w-full h-svh object-cover"
         />
       </div>
-      <div className="relative z-10 mx-auto /h-dvh flex flex-row gap-6 pb-16 px-8 font-sans max-w-4xl w-full pt-16">
+      <div className="relative z-10 mx-auto /h-dvh flex flex-row gap-6 pt-14 pb-7 px-8 font-sans max-w-5xl w-full">
+        {/* <div className="absolute top-0 z-1000 w-7 h-28 bg-black/50" />
+        <div className="absolute top-0 z-1000 w-7 h-21 bg-red-500/60" /> */}
         {children}
       </div>
     </div>

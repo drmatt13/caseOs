@@ -48,6 +48,7 @@ x-local-api-dev-server-env: &local-api-dev-server-env
 # Local Prisma environment variables for Docker-networked database access.
 x-local-prisma-env: &local-prisma-env
   DATABASE_URL: "postgresql://admin:password@postgres:5432/app_db"
+  PRISMA_LOCAL_SCHEMA_SYNC: "${PRISMA_LOCAL_SCHEMA_SYNC:-migrate}"
 
 # The local WebSocket dev servers environment variables
 x-local-ws-dev-server-env: &local-ws-dev-server-env
@@ -111,7 +112,7 @@ services:
       [
         "sh",
         "-lc",
-        "if find prisma/migrations -mindepth 1 -maxdepth 1 -type d | grep -q . 2>/dev/null; then npx prisma migrate deploy; else npx prisma db push; fi",
+        "case \"$$PRISMA_LOCAL_SCHEMA_SYNC\" in migrate|'') npx prisma migrate deploy ;; push) npx prisma db push ;; *) echo \"Invalid PRISMA_LOCAL_SCHEMA_SYNC=$$PRISMA_LOCAL_SCHEMA_SYNC. Use 'migrate' or 'push'.\" >&2; exit 64 ;; esac",
       ]
     volumes:
       - ./:/workspace

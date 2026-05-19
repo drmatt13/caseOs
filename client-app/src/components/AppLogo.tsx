@@ -5,13 +5,15 @@ interface AppLogoProps {
 const AppLogo = ({ LeftPanelLayout }: AppLogoProps) => {
   return (
     <div
-      className={`flex gap-2.5 h-14 ${!LeftPanelLayout ? "-translate-y-1.5 translate-x-1" : "translate-y-2 -translate-x-2"}`}
+      className={`flex gap-2.5 ${!LeftPanelLayout ? "h-14 -translate-y-1.5 translate-x-1" : "w-full flex justify-center"}`}
     >
-      <img
-        className="-translate-y-2 h-16 w-auto object-contain"
-        src="/logo1.png"
-        alt="logo"
-      />
+      {!LeftPanelLayout && (
+        <img
+          className="-translate-y-2 h-16 w-auto object-contain"
+          src="/logo1.png"
+          alt="logo"
+        />
+      )}
       <div className="flex flex-col items-center justify-center -translate-y-0.5">
         <div className="text-[1.6rem] tracking-widest /font-bj-cree /font-serif font-cormorant-garamond font-medium">
           LAWSTRUCT

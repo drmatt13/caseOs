@@ -29,7 +29,7 @@ import { requireAuth } from "#/lib/auth";
 import { useCurrentUserQuery } from "#/api/currentUser/hooks";
 
 // test data
-// import { testCaseIntake } from "#/lib/test_data";
+import { testCaseIntake } from "#/lib/test_data";
 
 const createBlankCaseIntake = (): CaseIntake => ({
   ...initialCaseIntake,
@@ -50,8 +50,8 @@ function RouteComponent() {
   const [caseIntakeState, setCaseIntakeState] = useState<CaseIntakeWizardState>(
     {
       step: 1,
-      // caseIntake: testCaseIntake,
-      caseIntake: blankCaseIntake,
+      caseIntake: testCaseIntake,
+      // caseIntake: blankCaseIntake,
     },
   );
 

@@ -187,7 +187,7 @@ Docker Compose handles:
 
 - root workspace dependency install
 - Prisma client generation
-- local Prisma migration or `db push`
+- local Prisma migrations against the persistent Docker Postgres volume
 - local Postgres startup
 - local API Lambda dev server startup
 - local WebSocket Lambda dev server startup
@@ -248,8 +248,33 @@ For normal local development, do not manually generate Prisma or run migrations.
 
 - `root-deps` installs workspace dependencies.
 - `prisma-generate` generates Prisma clients.
-- `prisma-migrate` applies migrations or runs `prisma db push`.
+- `prisma-migrate` applies committed Prisma migrations with `prisma migrate deploy`.
 - app services wait for those steps.
+
+Local Postgres data is stored in the Docker named volume `lawstructai_postgres_data`. If you need to discard local dev data and rebuild the database from migrations, remove only that volume:
+
+```bash
+docker compose down
+docker volume rm lawstructai_postgres_data
+docker compose up --build
+```
+
+For short-lived schema prototyping before creating a migration, opt into `db push` explicitly:
+
+```powershell
+$env:PRISMA_LOCAL_SCHEMA_SYNC='push'
+docker compose up --build
+```
+
+Return to the migration-backed flow by removing or resetting `PRISMA_LOCAL_SCHEMA_SYNC`, then rerun `docker compose up --build`. Supported values are `migrate` and `push`; typos fail fast.
+
+When schema changes are ready to commit, create one named migration from `packages/database`:
+
+```bash
+npx prisma migrate dev --name <meaningful_name>
+```
+
+The migration history starts with `20260501000000_init_schema`, so a fresh local volume can be built by `migrate deploy` from zero. Later migrations, such as `20260505120000_add_has_had_active_subscription`, apply in timestamp order.
 
 If you are not using Docker, generate Prisma manually:
 
