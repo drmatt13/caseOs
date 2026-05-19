@@ -14,7 +14,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           alt=""
           aria-hidden="true"
           // className="pointer-events-none absolute inset-x-0 top-0 /h-[45svh] min-h-56 /max-h-128 w-full object-cover object-top mask-[linear-gradient(to_bottom,black_0%,rgb(0_0_0/0.25)_25%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_0%,rgb(0_0_0/0.25)_25%,transparent_100%)]"
-          className="pointer-events-none absolute inset-x-0 top-0 /h-[45svh] min-h-56 /max-h-128 w-full h-svh object-cover"
+          className="pointer-events-none absolute top-0 left-0 /h-[45svh] min-h-56 /max-h-128 w-full h-svh object-cover object-left-top"
         />
       </div>
       <div className="relative z-10 mx-auto /h-dvh flex flex-row gap-6 pt-14 pb-7 px-8 font-sans max-w-5xl w-full">
