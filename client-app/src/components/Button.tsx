@@ -19,6 +19,7 @@ interface ButtonProps {
     | "upload";
   submit?: boolean;
   fullWidth?: boolean;
+  minWidth?: "sm" | "md" | "lg" | "xl";
   initiallyDisabled?: boolean;
 }
 
@@ -44,6 +45,13 @@ const buttonIcons = {
   upload: ImageUp,
 } as const;
 
+const minWidthClasses = {
+  sm: "min-w-24",
+  md: "min-w-28",
+  lg: "min-w-36",
+  xl: "min-w-44",
+} as const;
+
 const Button = ({
   style = "primary",
   text = "",
@@ -53,6 +61,7 @@ const Button = ({
   icon = undefined,
   submit = false,
   fullWidth = false,
+  minWidth,
   initiallyDisabled = false,
 }: ButtonProps) => {
   const [suppressHover, setSuppressHover] = useState(false);
@@ -67,7 +76,7 @@ const Button = ({
     }
   }, [initialDisabled]);
 
-  const baseClassName = `${fullWidth ? "w-full" : ""} ${icon ? "pl-3.5 pr-4" : "px-4"} relative isolate inline-flex items-center justify-center py-2 rounded border transition-colors ease-in duration-150 hover:ease-out hover:duration-100 overflow-visible`;
+  const baseClassName = `${fullWidth ? "w-full" : minWidth ? `${minWidthClasses[minWidth]} shrink-0` : "shrink-0"} ${icon ? "pl-3.5 pr-4" : "px-4"} relative isolate inline-flex items-center justify-center whitespace-nowrap py-2 rounded border transition-colors ease-in duration-150 hover:ease-out hover:duration-100 overflow-visible`;
   const variantClassName =
     style === "primary"
       ? "border-transparent bg-[#282828] text-white"
@@ -105,8 +114,8 @@ const Button = ({
       <span
         className={
           isRainbowPrimary
-            ? "relative z-20 inline-flex items-center gap-2"
-            : "relative z-0 inline-flex items-center gap-2"
+            ? "relative z-20 inline-flex items-center gap-2 whitespace-nowrap"
+            : "relative z-0 inline-flex items-center gap-2 whitespace-nowrap"
         }
       >
         {Icon && <Icon className="h-4 w-4" />}

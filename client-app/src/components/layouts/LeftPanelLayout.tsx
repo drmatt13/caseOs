@@ -211,15 +211,20 @@ const LeftPanelLayout = ({ children }: LeftPanelLayoutProps) => {
   } as CSSProperties;
 
   return (
-    <div className="w-64 min-w-64 flex flex-col gap-2">
+    <div className="w-64 min-w-64 flex flex-col gap-2 ">
       {windowWidthCategory === "large" && <AppLogo LeftPanelLayout={true} />}
       <div
         ref={panelRef}
         style={windowWidthCategory === "large" ? panelStyle : undefined}
-        className="sticky top-0 max-h-dvh lg:top-7 h-dvh lg:h-max lg:rounded-2xl border-r lg:border border-black/15 lg:shadow-md overflow-hidden"
+        className="sticky top-0 max-h-dvh lg:top-7 h-dvh lg:h-max lg:rounded-2xl pl-2 lg:pl-0 bg-black/10 lg:bg-transparent backdrop-blur-sm lg:backdrop-blur-none border-r lg:border border-black/5 lg:border-black/15 lg:shadow-md overflow-hidden"
       >
         <div className="overflow-y-auto max-h-[inherit]">
           <div className="font-serif text-xs lg:bg-white/40 lg:backdrop-blur-sm pt-5 pb-4 pl-2 pr-4 lg:px-4 flex flex-col gap-2">
+            {windowWidthCategory !== "large" && (
+              <div className="mb-2">
+                <AppLogo LeftPanelLayout={true} />
+              </div>
+            )}
             {children}
           </div>
         </div>

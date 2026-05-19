@@ -224,20 +224,23 @@ function RouteComponent() {
       <WorkPanelLayout>
         <div className="flex flex-col gap-6 h-full justify-between">
           {renderStep()}
-          <div className="flex items-end justify-between gap-3 rounded-2xl">
-            <p className="text-sm text-black/55">
-              {caseIntakeState.step !== CASE_INTAKE_TOTAL_STEPS &&
-                `Step ${caseIntakeState.step} of ${CASE_INTAKE_TOTAL_STEPS - 1}`}
-            </p>
-            <div className="flex gap-2">
+          <div className="grid grid-cols-3 items-end gap-3 rounded-2xl">
+            <div className="justify-self-start">
               {caseIntakeState.step !== 1 && (
                 <Button
                   style="secondary"
                   text="Back"
                   disabled={caseIntakeState.step === 1}
                   onClick={goToPreviousStep}
+                  minWidth="md"
                 />
               )}
+            </div>
+            <p className="justify-self-center text-sm text-black/55">
+              {caseIntakeState.step !== CASE_INTAKE_TOTAL_STEPS &&
+                `Step ${caseIntakeState.step} of ${CASE_INTAKE_TOTAL_STEPS - 1}`}
+            </p>
+            <div className="justify-self-end">
               <Button
                 style="primary"
                 text={
@@ -248,6 +251,11 @@ function RouteComponent() {
                 onClick={goToNextStep}
                 disabled={!isStepComplete(caseIntakeState.step)}
                 rainbow={caseIntakeState.step === CASE_INTAKE_TOTAL_STEPS}
+                minWidth={
+                  caseIntakeState.step === CASE_INTAKE_TOTAL_STEPS
+                    ? "xl"
+                    : "md"
+                }
                 icon={
                   caseIntakeState.step === CASE_INTAKE_TOTAL_STEPS
                     ? "sparkles"
