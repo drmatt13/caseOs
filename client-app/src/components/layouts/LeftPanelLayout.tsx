@@ -78,7 +78,7 @@ const LeftPanelLayout = ({ children }: LeftPanelLayoutProps) => {
       <div
         ref={panelRef}
         style={panelStyle}
-        className="sticky top-7 h-max rounded-2xl border border-black/15 shadow-md overflow-hidden transition-[max-height] duration-75 ease-out"
+        className="sticky top-7 h-max rounded-2xl border border-black/15 shadow-md overflow-hidden transition-[max-height] duration-50 ease-out"
       >
         <div className="overflow-y-auto max-h-[inherit]">
           <div className="font-serif text-xs bg-white/40 backdrop-blur-sm pt-6 pb-4 px-4 flex flex-col gap-2">
