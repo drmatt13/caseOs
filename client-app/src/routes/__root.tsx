@@ -1,7 +1,7 @@
 import { Outlet, createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import SettingsPopup from "#/components/popups/SettingsPopup";
 import AppModal from "#/components/AppModal";
@@ -13,6 +13,7 @@ import {
   type Modal,
   type ModalGuardState,
 } from "#/context/AppModalContext";
+import { MenuContext } from "#/context/MenuContext";
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -29,6 +30,7 @@ const queryClient = new QueryClient({
 
 function RootComponent() {
   const [modal, setModal] = useState<Modal>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [modalGuardState, setModalGuardState] =
     useState<ModalGuardState>("unlocked");
   const [popupState, setPopupState] = useState<{
@@ -38,6 +40,18 @@ function RootComponent() {
     activePopup: null,
     referenceElement: null,
   });
+
+  useEffect(() => {
+    const closeMenuOnResize = () => {
+      setMenuOpen(false);
+    };
+
+    window.addEventListener("resize", closeMenuOnResize);
+
+    return () => {
+      window.removeEventListener("resize", closeMenuOnResize);
+    };
+  }, []);
 
   const openPopup = useCallback((popupId: PopupId, element: HTMLElement) => {
     setPopupState({
@@ -100,20 +114,21 @@ function RootComponent() {
           requestCloseModal,
         }}
       >
-        <PopupContext.Provider
-          value={{
-            activePopup: popupState.activePopup,
-            referenceElement: popupState.referenceElement,
-            openPopup,
-            togglePopup,
-            closePopup,
-          }}
-        >
-          <SettingsPopup />
-          <AppModal />
-          <div className="min-h-dvh overflow-x-clip">
-            <Outlet />
-            {/* <TanStackDevtools
+        <MenuContext.Provider value={{ menuOpen, setMenuOpen }}>
+          <PopupContext.Provider
+            value={{
+              activePopup: popupState.activePopup,
+              referenceElement: popupState.referenceElement,
+              openPopup,
+              togglePopup,
+              closePopup,
+            }}
+          >
+            <SettingsPopup />
+            <AppModal />
+            <div className="min-h-dvh overflow-x-clip">
+              <Outlet />
+              {/* <TanStackDevtools
                   config={{
                     position: "bottom-right",
                   }}
@@ -124,8 +139,9 @@ function RootComponent() {
                     },
                   ]}
                 /> */}
-          </div>
-        </PopupContext.Provider>
+            </div>
+          </PopupContext.Provider>
+        </MenuContext.Provider>
       </AppModalContext.Provider>
     </QueryClientProvider>
   );

@@ -5,7 +5,7 @@ interface AppLogoProps {
 const AppLogo = ({ LeftPanelLayout }: AppLogoProps) => {
   return (
     <div
-      className={`flex gap-2.5 ${!LeftPanelLayout ? "h-14 -translate-y-1.5 translate-x-1" : "w-full flex justify-center"}`}
+      className={`flex gap-2.5 ${!LeftPanelLayout ? "h-14 -translate-y-1.5 translate-x-1" : "/w-55.75 w-full flex justify-center"}`}
     >
       {!LeftPanelLayout && (
         <img

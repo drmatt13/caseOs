@@ -4,9 +4,15 @@ import {
   useEffect,
   useCallback,
   useRef,
+  useState,
+  useContext,
 } from "react";
 import AppLogo from "#/components/AppLogo";
 import useWindowWidthCategory from "#/hooks/useWindowWidthCategory";
+
+// context
+import { MenuContext } from "#/context/MenuContext";
+import { XIcon } from "lucide-react";
 
 interface LeftPanelLayoutProps {
   children: ReactNode;
@@ -78,6 +84,7 @@ const getPanelOffsetRem = () => {
 };
 
 const LeftPanelLayout = ({ children }: LeftPanelLayoutProps) => {
+  const { menuOpen, setMenuOpen } = useContext(MenuContext);
   const panelRef = useRef<HTMLDivElement>(null);
   const windowWidthCategory = useWindowWidthCategory();
   const animationFrameRef = useRef<number | null>(null);
@@ -211,14 +218,28 @@ const LeftPanelLayout = ({ children }: LeftPanelLayoutProps) => {
   } as CSSProperties;
 
   return (
-    <div className="w-64 min-w-64 flex flex-col gap-2 ">
+    <div
+      className={`${windowWidthCategory === "small" ? `absolute top-0 left-0 transition-transform shadow ${!menuOpen ? "-translate-x-full ease-out duration-300" : "ease-in duration-150"}` : `md:relative`} z-10 w-64 min-w-64 flex flex-col gap-2`}
+    >
       {windowWidthCategory === "large" && <AppLogo LeftPanelLayout={true} />}
       <div
         ref={panelRef}
         style={windowWidthCategory === "large" ? panelStyle : undefined}
-        className="sticky top-0 max-h-dvh lg:top-7 h-dvh lg:h-max lg:rounded-2xl pl-2 lg:pl-0 bg-black/10 lg:bg-transparent backdrop-blur-sm lg:backdrop-blur-none border-r lg:border border-black/5 lg:border-black/15 lg:shadow-md overflow-hidden"
+        className="sticky top-0 max-h-dvh lg:top-7 h-dvh lg:h-max lg:rounded-2xl pl-2 lg:pl-0 bg-black/10 lg:bg-transparent backdrop-blur-lg md:backdrop-blur-sm lg:backdrop-blur-none md:border-r lg:border border-black/5 lg:border-black/15 lg:shadow-md overflow-hidden"
       >
-        <div className="overflow-y-auto max-h-[inherit]">
+        {windowWidthCategory === "small" && (
+          <button
+            type="button"
+            aria-label="Close settings"
+            onClick={() => {
+              setMenuOpen(false);
+            }}
+            className="absolute top-0 right-0 p-1 m-1 cursor-pointer"
+          >
+            <XIcon className="w-4 h-4" />
+          </button>
+        )}
+        <div className="overflow-y-auto max-h-[inherit] overflow-x-hidden">
           <div className="font-serif text-xs lg:bg-white/40 lg:backdrop-blur-sm pt-5 pb-4 pl-2 pr-4 lg:px-4 flex flex-col gap-2">
             {windowWidthCategory !== "large" && (
               <div className="mb-2">

@@ -31,6 +31,8 @@ import { useCurrentUserQuery } from "#/api/currentUser/hooks";
 // test data
 import { testCaseIntake } from "#/lib/test_data";
 
+void testCaseIntake;
+
 const createBlankCaseIntake = (): CaseIntake => ({
   ...initialCaseIntake,
   id: `case-intake-${Date.now()}`,
@@ -50,8 +52,8 @@ function RouteComponent() {
   const [caseIntakeState, setCaseIntakeState] = useState<CaseIntakeWizardState>(
     {
       step: 1,
-      caseIntake: testCaseIntake,
-      // caseIntake: blankCaseIntake,
+      // caseIntake: testCaseIntake,
+      caseIntake: blankCaseIntake,
     },
   );
 
@@ -252,9 +254,7 @@ function RouteComponent() {
                 disabled={!isStepComplete(caseIntakeState.step)}
                 rainbow={caseIntakeState.step === CASE_INTAKE_TOTAL_STEPS}
                 minWidth={
-                  caseIntakeState.step === CASE_INTAKE_TOTAL_STEPS
-                    ? "xl"
-                    : "md"
+                  caseIntakeState.step === CASE_INTAKE_TOTAL_STEPS ? "xl" : "md"
                 }
                 icon={
                   caseIntakeState.step === CASE_INTAKE_TOTAL_STEPS
