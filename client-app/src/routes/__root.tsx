@@ -41,18 +41,6 @@ function RootComponent() {
     referenceElement: null,
   });
 
-  useEffect(() => {
-    const closeMenuOnResize = () => {
-      setMenuOpen(false);
-    };
-
-    window.addEventListener("resize", closeMenuOnResize);
-
-    return () => {
-      window.removeEventListener("resize", closeMenuOnResize);
-    };
-  }, []);
-
   const openPopup = useCallback((popupId: PopupId, element: HTMLElement) => {
     setPopupState({
       activePopup: popupId,

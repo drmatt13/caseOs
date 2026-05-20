@@ -87,6 +87,7 @@ const LeftPanelLayout = ({ children }: LeftPanelLayoutProps) => {
   const { menuOpen, setMenuOpen } = useContext(MenuContext);
   const panelRef = useRef<HTMLDivElement>(null);
   const windowWidthCategory = useWindowWidthCategory();
+  const previousWindowWidthCategoryRef = useRef(windowWidthCategory);
   const animationFrameRef = useRef<number | null>(null);
   const previousScrollSampleRef = useRef({
     scrollY: 0,
@@ -217,9 +218,32 @@ const LeftPanelLayout = ({ children }: LeftPanelLayoutProps) => {
     transitionTimingFunction: "var(--left-panel-transition-timing-function)",
   } as CSSProperties;
 
+  const shouldAnimateSmallMenu =
+    windowWidthCategory === "small" &&
+    previousWindowWidthCategoryRef.current === "small";
+  const smallMenuPositionClassName =
+    windowWidthCategory === "small"
+      ? [
+          "absolute top-0 left-0 shadow",
+          shouldAnimateSmallMenu ? "transition-transform" : "",
+          !menuOpen ? "-translate-x-full" : "",
+          shouldAnimateSmallMenu
+            ? !menuOpen
+              ? "ease-out duration-300"
+              : "ease-in duration-150"
+            : "",
+        ]
+          .filter(Boolean)
+          .join(" ")
+      : "md:relative";
+
+  useEffect(() => {
+    previousWindowWidthCategoryRef.current = windowWidthCategory;
+  }, [windowWidthCategory]);
+
   return (
     <div
-      className={`${windowWidthCategory === "small" ? `absolute top-0 left-0 transition-transform shadow ${!menuOpen ? "-translate-x-full ease-out duration-300" : "ease-in duration-150"}` : `md:relative`} z-10 w-64 min-w-64 flex flex-col gap-2`}
+      className={`${smallMenuPositionClassName} z-10 w-64 min-w-64 flex flex-col gap-2`}
     >
       {windowWidthCategory === "large" && <AppLogo LeftPanelLayout={true} />}
       <div
