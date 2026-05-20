@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import AppLayout from "#/components/layouts/AppLayout";
 import LeftPanelLayout from "#/components/layouts/LeftPanelLayout";
+import WorkPanelLayout from "#/components/layouts/WorkPanelLayout";
 import SelectCaseMenu from "#/components/menus/SelectCaseMenu";
 import UserPanel from "#/components/UserPanel";
 import Workspace from "#/components/Workspace";
@@ -105,7 +106,9 @@ function App() {
           </>
         )}
       </LeftPanelLayout>
-      <Workspace workspace={activeWorkspace} />
+      <WorkPanelLayout>
+        <Workspace workspace={activeWorkspace} />
+      </WorkPanelLayout>
     </AppLayout>
   );
 }

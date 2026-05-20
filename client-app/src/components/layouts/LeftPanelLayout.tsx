@@ -4,7 +4,7 @@ import {
   useEffect,
   useCallback,
   useRef,
-  useState,
+  // useState,
   useContext,
 } from "react";
 import AppLogo from "#/components/AppLogo";
@@ -33,7 +33,7 @@ const fastScrollVelocityPxPerMs = 0.9;
 const scrollVelocityDurationCurve = 1;
 const scrollUpTransitionTimingFunction = "cubic-bezier(.65,.8,0,.9)";
 const scrollDownTransitionTimingFunction = "cubic-bezier(0.3, 0.6, 0.75, 1)";
-const shouldLogScrollVelocity = true;
+// const shouldLogScrollVelocity = true;
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
@@ -131,23 +131,23 @@ const LeftPanelLayout = ({ children }: LeftPanelLayoutProps) => {
       scrollVelocityPxPerMs,
       scrollDirection,
     );
-    const velocityProgress = getScrollVelocityProgress(scrollVelocityPxPerMs);
-    const scrollSpeedLabel =
-      scrollVelocityPxPerMs <= slowScrollVelocityPxPerMs
-        ? "slow"
-        : scrollVelocityPxPerMs >= fastScrollVelocityPxPerMs
-          ? "fast"
-          : "middle";
+    // const velocityProgress = getScrollVelocityProgress(scrollVelocityPxPerMs);
+    // const scrollSpeedLabel =
+    //   scrollVelocityPxPerMs <= slowScrollVelocityPxPerMs
+    //     ? "slow"
+    //     : scrollVelocityPxPerMs >= fastScrollVelocityPxPerMs
+    //       ? "fast"
+    //       : "middle";
 
-    if (shouldLogScrollVelocity && scrollDistancePx > 0) {
-      console.log("[left-panel-scroll]", {
-        speed: scrollSpeedLabel,
-        direction: scrollDirection,
-        velocityPxPerMs: Number(scrollVelocityPxPerMs.toFixed(2)),
-        progress: Number(velocityProgress.toFixed(2)),
-        transitionDurationMs: Number(transitionDurationMs.toFixed(2)),
-      });
-    }
+    // if (shouldLogScrollVelocity && scrollDistancePx > 0) {
+    //   console.log("[left-panel-scroll]", {
+    //     speed: scrollSpeedLabel,
+    //     direction: scrollDirection,
+    //     velocityPxPerMs: Number(scrollVelocityPxPerMs.toFixed(2)),
+    //     progress: Number(velocityProgress.toFixed(2)),
+    //     transitionDurationMs: Number(transitionDurationMs.toFixed(2)),
+    //   });
+    // }
 
     panel.style.setProperty(
       "--left-panel-height-offset",

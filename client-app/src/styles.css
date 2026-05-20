@@ -1,6 +1,11 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+@theme {
+  --breakpoint-lg: 928px;
+  --breakpoint-xl: 1075px;
+}
+
 @font-face {
   font-family: "Cormorant Garamond";
   font-style: normal;

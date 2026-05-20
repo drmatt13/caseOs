@@ -98,7 +98,7 @@ const ActiveWorkspaceState = ({ workspace }: ActiveWorkspaceStateProps) => {
               }}
             />
             {member.role && (
-              <div className="h-full bg-black/10 px-2.5 py-1 rounded-lg text-xs group-hover:bg-black/15 transition-colors ease-in duration-150 group-hover:ease-out group-hover:duration-100">
+              <div className="inline-flex w-fit shrink-0 items-center bg-black/10 px-2.5 py-1 rounded-lg text-xs group-hover:bg-black/15 transition-colors ease-in duration-150 group-hover:ease-out group-hover:duration-100">
                 {member.role}
               </div>
             )}
@@ -195,11 +195,9 @@ const Workspace = ({ workspace }: WorkspaceProps) => {
 
   if (userPending) {
     return (
-      <>
-        <div className="w-full h-dvh flex justify-center items-center">
-          <div className="w-8 h-8 border-4 border-gray-300 border-t-gray-500 rounded-full animate-spin"></div>
-        </div>
-      </>
+      <div className="flex min-h-64 w-full items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-gray-500"></div>
+      </div>
     );
   }
 
@@ -207,8 +205,8 @@ const Workspace = ({ workspace }: WorkspaceProps) => {
 
   if (userError || !user) {
     return (
-      <div className="flex-1 min-w-0 max-w-full flex flex-col gap-4 py-3 h-max border rounded-2xl bg-white/40 backdrop-blur-sm border-black/15 shadow-md">
-        <div className="px-4 py-8 text-sm text-black/70">
+      <div className="flex min-w-0 flex-col gap-4">
+        <div className="py-8 text-sm text-black/70">
           Could not load your workspace access.
         </div>
       </div>
@@ -229,7 +227,7 @@ const Workspace = ({ workspace }: WorkspaceProps) => {
   };
 
   return (
-    <div className="flex-1 min-w-0 max-w-full flex flex-col gap-4 py-3 /px-4 /border /h-[80vh] h-max border rounded-2xl bg-white/40 backdrop-blur-sm border-black/15 shadow-md">
+    <div className="flex h-full min-w-0 flex-col gap-4">
       <div className="flex flex-row justify-between text-xs px-4 border-b border-black/15 pb-3">
         <div className="flex gap-1.5">
           {canCreateWorkspace && (
