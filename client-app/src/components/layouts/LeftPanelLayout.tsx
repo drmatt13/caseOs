@@ -207,6 +207,28 @@ const LeftPanelLayout = ({ children }: LeftPanelLayoutProps) => {
     };
   }, [handleScroll, updatePanelHeightOffset, windowWidthCategory]);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const handleDocumentPointerDown = (event: PointerEvent) => {
+      const panel = panelRef.current;
+
+      if (!panel || panel.contains(event.target as Node)) return;
+
+      setMenuOpen(false);
+    };
+
+    document.addEventListener("pointerdown", handleDocumentPointerDown, {
+      capture: true,
+    });
+
+    return () => {
+      document.removeEventListener("pointerdown", handleDocumentPointerDown, {
+        capture: true,
+      });
+    };
+  }, [menuOpen, setMenuOpen]);
+
   const panelStyle = {
     "--left-panel-height-offset": `${initialPanelOffsetRem}rem`,
     "--left-panel-transition-property": "none",
@@ -224,7 +246,7 @@ const LeftPanelLayout = ({ children }: LeftPanelLayoutProps) => {
   const smallMenuPositionClassName =
     windowWidthCategory === "small"
       ? [
-          "absolute top-0 left-0 shadow",
+          "fixed top-0 left-0 shadow",
           shouldAnimateSmallMenu ? "transition-transform" : "",
           !menuOpen ? "-translate-x-full" : "",
           shouldAnimateSmallMenu
@@ -238,32 +260,44 @@ const LeftPanelLayout = ({ children }: LeftPanelLayoutProps) => {
       : "md:relative";
 
   useEffect(() => {
+    if (
+      previousWindowWidthCategoryRef.current === "small" &&
+      windowWidthCategory === "medium"
+    ) {
+      setMenuOpen(false);
+    }
+
     previousWindowWidthCategoryRef.current = windowWidthCategory;
-  }, [windowWidthCategory]);
+  }, [setMenuOpen, windowWidthCategory]);
 
   return (
     <div
-      className={`${smallMenuPositionClassName} z-10 w-64 min-w-64 flex flex-col gap-2`}
+      className={`${smallMenuPositionClassName} z-10 w-64 min-w-64 lg:flex flex-col gap-2`}
     >
       {windowWidthCategory === "large" && <AppLogo LeftPanelLayout={true} />}
       <div
         ref={panelRef}
         style={windowWidthCategory === "large" ? panelStyle : undefined}
-        className="sticky top-0 max-h-dvh lg:top-7 h-dvh lg:h-max lg:rounded-2xl pl-2 lg:pl-0 bg-black/10 lg:bg-transparent backdrop-blur-lg md:backdrop-blur-sm lg:backdrop-blur-none md:border-r lg:border border-black/5 lg:border-black/15 lg:shadow-md overflow-hidden"
+        className="sticky top-0 max-h-dvh lg:top-7 h-dvh lg:h-max lg:rounded-2xl pl-2 lg:pl-0 bg-neutral-400/40 lg:bg-transparent backdrop-blur-lg lg:backdrop-blur-none border-r lg:border border-black/5 lg:border-black/15 lg:shadow-md lg:overflow-hidden"
       >
-        {windowWidthCategory === "small" && (
-          <button
-            type="button"
-            aria-label="Close settings"
-            onClick={() => {
-              setMenuOpen(false);
-            }}
-            className="absolute top-0 right-0 p-1 m-1 cursor-pointer"
-          >
-            <XIcon className="w-4 h-4" />
-          </button>
+        {menuOpen && (
+          <div className="pointer-events-none absolute right-0 translate-x-full w-[200vw] h-full" />
         )}
         <div className="overflow-y-auto max-h-[inherit] overflow-x-hidden">
+          {windowWidthCategory === "small" && (
+            <div className="h-0 flex justify-end pointer-events-none">
+              <button
+                type="button"
+                aria-label="Close settings"
+                onClick={() => {
+                  setMenuOpen(false);
+                }}
+                className="p-1 m-1 cursor-pointer pointer-events-auto"
+              >
+                <XIcon className="w-4 h-4" />
+              </button>
+            </div>
+          )}
           <div className="font-serif text-xs lg:bg-white/40 lg:backdrop-blur-sm pt-5 pb-4 pl-2 pr-4 lg:px-4 flex flex-col gap-2">
             {windowWidthCategory !== "large" && (
               <div className="mb-2">

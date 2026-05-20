@@ -23,7 +23,7 @@ const WorkPanelLayout = ({ children }: WorkPanelLayoutProps) => {
           <PanelLeftOpen className="w-5 h-5 text-black" />
         </button>
       </div>
-      <div className="w-full md:max-w-160 lg:max-w-full! pt-14 pb-6 md:pt-5 md:pb-5 lg:pb-4 lg:pt-4 px-4 sm:px-12 md:px-4 min-h-dvh lg:min-h-auto">
+      <div className="w-full md:max-w-160 lg:max-w-full! pt-16 sm:pt-14 pb-6 md:pt-5 md:pb-5 lg:pb-4 lg:pt-4 px-4 sm:px-12 md:px-4 min-h-dvh lg:min-h-auto">
         {children}
       </div>
     </div>
