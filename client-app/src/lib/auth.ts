@@ -295,6 +295,11 @@ async function checkSessionOnClient(): Promise<AuthState> {
   }
 
   const hasSessionHint = getSessionHint();
+  if (!hasSessionHint) {
+    clientAuthCache = { authenticated: false };
+    clientAuthRequest = Promise.resolve(clientAuthCache);
+    return clientAuthCache;
+  }
 
   clientAuthRequest = (async (): Promise<AuthState> => {
     try {
@@ -338,6 +343,10 @@ async function checkSessionOnClient(): Promise<AuthState> {
 }
 
 export async function refreshSession(cookieHeader?: string): Promise<boolean> {
+  if (!cookieHeader && isBrowserRuntime() && !getSessionHint()) {
+    return false;
+  }
+
   try {
     const headers: HeadersInit = cookieHeader ? { cookie: cookieHeader } : {};
     const response = await fetch(`${API_URL}/refresh`, {

@@ -363,9 +363,9 @@ function RouteComponent() {
           <p className="truncate">{demoCase.title}</p>
         </div>
         <label className="relative block">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-black/45" />
+          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-black/50" />
           <input
-            className="w-full rounded-lg border border-black/10 bg-black/5 py-2.5 pl-8 pr-2 text-xs text-black/70 outline-none transition focus:border-black/30 focus:bg-white/70"
+            className="w-full rounded-lg border border-black/15 lg:border-black/10 bg-white/25 lg:bg-black/3 py-2.5 pl-8 pr-2 text-xs placeholder:text-black/55 text-black/75 outline-none transition focus:border-black/30 focus:bg-white/50 lg:focus:bg-white/70"
             placeholder="Search workspace"
             value={globalSearch}
             onChange={(event) => {

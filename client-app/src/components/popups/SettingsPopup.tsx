@@ -30,7 +30,7 @@ const SettingsPopup = () => {
     data: userResult,
     isPending: userPending,
     error: userError,
-  } = useCurrentUserQuery();
+  } = useCurrentUserQuery({ enabled: isOpen });
   const user = userResult?.currentUser.user;
   const manageWorkspacesDisabled =
     userPending || !!userError || user?.accountTier === "FREE";

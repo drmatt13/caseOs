@@ -8,7 +8,7 @@ interface LoginLayoutProps {
 
 const LoginLayout = ({ children }: LoginLayoutProps) => {
   return (
-    <PageBackgroundLayout className="min-h-dvh flex flex-col gap-6 pb-10 /px-8 pt-22">
+    <PageBackgroundLayout className="min-h-dvh gap-6 pb-10 pt-22 px-8 xl:px-0 max-w-max xl:max-w-5xl">
       <div className="flex gap-6">
         <LoginLeftMenu />
         {children}

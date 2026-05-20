@@ -121,7 +121,8 @@ const LoginLeftMenu = () => {
   return (
     <div className="flex-1 flex flex-col gap-1 justify-start">
       <AppLogo />
-      <div className="w-full /bg-black/10 grid grid-cols-2 gap-4">
+      <div className="w-full flex flex-col xl:grid xl:grid-cols-2 gap-4">
+        {/* TOP LEFT: FILE-BASED KNOWLEDGE GRAPH */}
         <div className="w-full h-52 p-4 border rounded-2xl bg-white/40 backdrop-blur-sm border-black/15 shadow-md">
           <div className="flex flex-row-reverse gap-4 items-start h-full">
             {/* content */}
@@ -163,6 +164,7 @@ const LoginLeftMenu = () => {
             {/* content */}
           </div>
         </div>
+        {/* TOP RIGHT: TIMELINE */}
         <div className="w-full h-52 p-4 border rounded-2xl bg-white/40 backdrop-blur-sm border-black/15 shadow-md">
           <div className="flex flex-row-reverse gap-4 items-start h-full">
             {/* content */}
@@ -247,6 +249,7 @@ const LoginLeftMenu = () => {
             {/* content */}
           </div>
         </div>
+        {/* BOTTOM: CASE AWARE INTELLIGENCE */}
         <div className="w-full h-52 p-4 border rounded-2xl bg-white/40 backdrop-blur-sm border-black/15 shadow-md col-span-2">
           <div className="flex flex-row-reverse gap-4 items-start h-full text-[.6rem]">
             {/* content */}

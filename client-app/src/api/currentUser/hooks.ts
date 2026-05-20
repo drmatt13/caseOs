@@ -9,10 +9,11 @@ import type { GetCurrentUserResult } from "./model";
 
 export const currentUserQueryKey = ["user"] as const;
 
-export function useCurrentUserQuery() {
+export function useCurrentUserQuery(options: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: currentUserQueryKey,
     queryFn: getCurrentUser,
+    enabled: options.enabled ?? true,
   });
 }
 

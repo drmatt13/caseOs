@@ -19,9 +19,7 @@ const PageBackgroundLayout = ({
           className="pointer-events-none absolute top-0 left-0 min-h-64 min-w-340 w-full h-svh object-cover object-top-left"
         />
       </div>
-      <div
-        className={`relative z-10 mx-auto font-sans max-w-5xl w-full ${className}`}
-      >
+      <div className={`relative z-10 mx-auto font-sans w-full ${className}`}>
         {children}
       </div>
     </div>
