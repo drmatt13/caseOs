@@ -21,7 +21,7 @@ RUN npm ci
 
 # Run setup/build commands for shared workspace packages that need them.
 # Keep @repo/database because it needs code generation.
-RUN npm run generate --workspace @repo/database
+RUN PRISMA_BINARY_TARGETS='["debian-openssl-3.0.x"]' npm run generate --workspace @repo/database
 
 # If you later add another shared package that needs its own build step,
 # add another line like one of these:

@@ -94,7 +94,12 @@ export const lambdaHandler = async (
 
     return jsonResponse(
       200,
-      { success: true, user },
+      {
+        success: true,
+        user,
+        idToken: auth.IdToken,
+        accessToken: auth.AccessToken,
+      },
       {
         multiValueHeaders: {
           "Set-Cookie": [

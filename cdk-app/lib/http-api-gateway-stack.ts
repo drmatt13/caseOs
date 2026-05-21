@@ -29,7 +29,7 @@ export interface HttpApiGatewayStackProps extends cdk.StackProps {
 
   // config
   httpUserPoolAuthorizerConfig: HttpUserPoolAuthorizerConfig;
-  frontendUrl: string;
+  frontendUrls: string[];
   useLocalDevStack: boolean;
 }
 
@@ -41,7 +41,7 @@ export class HttpApiGatewayStack extends cdk.Stack {
       apiName: "LocalDevKitHttpApi",
       createDefaultStage: true,
       corsPreflight: {
-        allowOrigins: [props.frontendUrl],
+        allowOrigins: props.frontendUrls,
         allowMethods: [
           apigwv2.CorsHttpMethod.GET,
           apigwv2.CorsHttpMethod.POST,

@@ -48,6 +48,7 @@ x-local-api-dev-server-env: &local-api-dev-server-env
 # Local Prisma environment variables for Docker-networked database access.
 x-local-prisma-env: &local-prisma-env
   DATABASE_URL: "postgresql://admin:password@postgres:5432/app_db"
+  PRISMA_BINARY_TARGETS: '["linux-musl-openssl-3.0.x"]'
   PRISMA_LOCAL_SCHEMA_SYNC: "${PRISMA_LOCAL_SCHEMA_SYNC:-migrate}"
 
 # The local WebSocket dev servers environment variables
@@ -90,11 +91,13 @@ services:
   prisma-generate:
     image: node:alpine
     working_dir: /workspace/packages/database
+    environment:
+      <<: *local-prisma-env
     command:
       [
         "sh",
         "-lc",
-        "npx prisma generate",
+        "npm run generate",
       ]
     volumes:
       - ./:/workspace

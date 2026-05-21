@@ -42,6 +42,8 @@ const AUTH_SYNC_STORAGE_KEY = "auth-sync";
 const AUTH_SYNC_CHANNEL_NAME = "caseos-auth-sync";
 const OAUTH_STATE_STORAGE_KEY = "oauth-state";
 const SESSION_HINT_KEY = "has-session";
+const ID_TOKEN_STORAGE_KEY = "auth-id-token";
+const ACCESS_TOKEN_STORAGE_KEY = "auth-access-token";
 
 let clientAuthCache: AuthState | null = null;
 let clientAuthRequest: Promise<AuthState> | null = null;
@@ -73,11 +75,88 @@ function clearSessionHints(): void {
 
   try {
     window.localStorage.removeItem(SESSION_HINT_KEY);
+    window.localStorage.removeItem(ID_TOKEN_STORAGE_KEY);
+    window.localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+  } catch {}
+
+  try {
+    window.sessionStorage.removeItem(SESSION_HINT_KEY);
+    window.sessionStorage.removeItem(ID_TOKEN_STORAGE_KEY);
+    window.sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+  } catch {}
+}
+
+function clearOnlySessionHints(): void {
+  if (!isBrowserRuntime()) {
+    return;
+  }
+
+  try {
+    window.localStorage.removeItem(SESSION_HINT_KEY);
   } catch {}
 
   try {
     window.sessionStorage.removeItem(SESSION_HINT_KEY);
   } catch {}
+}
+
+function getStoredIdToken(): string | null {
+  if (!isBrowserRuntime()) {
+    return null;
+  }
+
+  try {
+    const persistentToken = window.localStorage.getItem(ID_TOKEN_STORAGE_KEY);
+    if (persistentToken) {
+      return persistentToken;
+    }
+  } catch {}
+
+  try {
+    return window.sessionStorage.getItem(ID_TOKEN_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function storeAuthTokens(
+  data: { idToken?: string; accessToken?: string },
+  rememberSession: boolean,
+): void {
+  if (!isBrowserRuntime() || !data.idToken) {
+    return;
+  }
+
+  clearSessionHints();
+
+  const storage = rememberSession ? window.localStorage : window.sessionStorage;
+  setSessionHint(storage);
+  storage.setItem(ID_TOKEN_STORAGE_KEY, data.idToken);
+
+  if (data.accessToken) {
+    storage.setItem(ACCESS_TOKEN_STORAGE_KEY, data.accessToken);
+  }
+}
+
+function withAuthorizationHeader(
+  init: RequestInit = {},
+  options: { replace?: boolean } = {},
+): RequestInit {
+  const headers = new Headers(init.headers);
+  const idToken = getStoredIdToken();
+
+  if (options.replace) {
+    headers.delete("Authorization");
+  }
+
+  if (idToken && !headers.has("Authorization")) {
+    headers.set("Authorization", `Bearer ${idToken}`);
+  }
+
+  return {
+    ...init,
+    headers,
+  };
 }
 
 function getSessionHint(): boolean {
@@ -272,7 +351,7 @@ export function primeAuthCache(options: AuthCacheOptions = {}): void {
     const rememberSession =
       options.rememberSession ?? hasPersistentSessionHint();
 
-    clearSessionHints();
+    clearOnlySessionHints();
     setSessionHint(
       rememberSession ? window.localStorage : window.sessionStorage,
     );
@@ -305,6 +384,7 @@ async function checkSessionOnClient(): Promise<AuthState> {
     try {
       const response = await fetch(`${API_URL}/verify-session`, {
         method: "GET",
+        ...withAuthorizationHeader(),
         credentials: "include",
       });
 
@@ -356,6 +436,15 @@ export async function refreshSession(cookieHeader?: string): Promise<boolean> {
     });
 
     if (response.ok) {
+      try {
+        const data = (await response.clone().json()) as z.infer<
+          typeof SignInResponseSchema
+        >;
+        if (data.idToken) {
+          storeAuthTokens(data, hasPersistentSessionHint());
+        }
+      } catch {}
+
       if (isBrowserRuntime()) {
         primeAuthCache();
       }
@@ -377,10 +466,10 @@ export async function fetchWithAuthRefresh(
   init: RequestInit = {},
 ): Promise<Response> {
   const requestInput = getApiRequestInput(input);
-  const requestInit: RequestInit = {
+  let requestInit: RequestInit = withAuthorizationHeader({
     ...init,
     credentials: init.credentials ?? "include",
-  };
+  });
 
   const response = await fetch(requestInput, requestInit);
   if (response.status !== 401) {
@@ -391,6 +480,7 @@ export async function fetchWithAuthRefresh(
     return response;
   }
 
+  requestInit = withAuthorizationHeader(requestInit, { replace: true });
   return fetch(requestInput, requestInit);
 }
 
@@ -584,6 +674,10 @@ export async function signInUser(
     return { success: false, error: data.error ?? "Sign in failed" };
   }
 
+  if (data.idToken) {
+    storeAuthTokens(data, rememberMe);
+  }
+
   primeAuthCache({ broadcast: true, rememberSession: rememberMe });
 
   return { success: true };
@@ -651,6 +745,10 @@ export async function completeOAuthSignIn(
         success: false,
         error: data.error ?? "Google sign in failed",
       };
+    }
+
+    if (data.idToken) {
+      storeAuthTokens(data, oauthState.rememberMe);
     }
 
     primeAuthCache({

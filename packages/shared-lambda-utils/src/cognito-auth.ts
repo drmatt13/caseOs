@@ -21,6 +21,12 @@ export type AuthenticatedCognitoSession = {
   payload: AuthenticatedCognitoPayload;
 };
 
+type ApiGatewayJwtAuthorizerContext = {
+  jwt?: {
+    claims?: Record<string, unknown>;
+  };
+};
+
 let cognitoAuthConfig: CognitoAuthConfig | null = null;
 
 const getCognitoAuthConfig = (): CognitoAuthConfig => {
@@ -49,10 +55,45 @@ const getCookieHeader = (
   event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
 ): string => event.headers.cookie ?? event.headers.Cookie ?? "";
 
+const getAuthorizationHeader = (
+  event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
+): string => event.headers.authorization ?? event.headers.Authorization ?? "";
+
+const getBearerToken = (
+  event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
+): string | null => {
+  const authorization = getAuthorizationHeader(event).trim();
+  const match = /^Bearer\s+(.+)$/i.exec(authorization);
+  return match?.[1]?.trim() || null;
+};
+
+const getVerifiedAuthorizerPayload = (
+  event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
+): AuthenticatedCognitoPayload | null => {
+  const authorizer = event.requestContext
+    .authorizer as ApiGatewayJwtAuthorizerContext | undefined;
+  const claims = authorizer?.jwt?.claims;
+
+  if (!claims || claims.token_use !== "id" || typeof claims.sub !== "string") {
+    return null;
+  }
+
+  return claims as AuthenticatedCognitoPayload;
+};
+
 export async function requireAuthenticatedSession(
   event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
 ): Promise<AuthenticatedCognitoSession | null> {
-  const idToken = cookie.parse(getCookieHeader(event)).idToken;
+  const idToken =
+    getBearerToken(event) ?? cookie.parse(getCookieHeader(event)).idToken;
+  const verifiedAuthorizerPayload = getVerifiedAuthorizerPayload(event);
+
+  if (verifiedAuthorizerPayload) {
+    return {
+      idToken: idToken ?? "",
+      payload: verifiedAuthorizerPayload,
+    };
+  }
 
   if (!idToken) {
     return null;

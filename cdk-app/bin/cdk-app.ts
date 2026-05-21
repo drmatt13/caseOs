@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import * as cdk from "aws-cdk-lib";
+import { execSync } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 import { HttpApiGatewayStack } from "../lib/http-api-gateway-stack";
@@ -13,7 +14,6 @@ import { WebSocketApiStack } from "../lib/websocket-api-stack";
 import { WebSocketLambdaFunctionsStack } from "../lib/websocket-lambda-functions-stack";
 import { ApplicationS3Stack } from "../lib/application-s3-stack";
 import { FrontendWebsiteS3Stack } from "../lib/frontend-website-s3-stack";
-import { CloudFrontStack } from "../lib/cloudfront-stack";
 
 const loadDotEnv = (envPath: string) => {
   if (!fs.existsSync(envPath)) {
@@ -54,6 +54,21 @@ const loadDotEnv = (envPath: string) => {
 
 loadDotEnv(path.join(__dirname, "..", ".env"));
 
+const runDatabaseGenerate = () => {
+  execSync("npm run generate --workspace @repo/database", {
+    cwd: path.join(__dirname, "..", ".."),
+    env: {
+      ...process.env,
+      PRISMA_BINARY_TARGETS: '["rhel-openssl-3.0.x"]',
+    },
+    stdio: "inherit",
+  });
+};
+
+// Lambda bundles import generated Prisma/Pothos output. Generate once before
+// CDK constructs create any NodejsFunction assets.
+runDatabaseGenerate();
+
 // Context Flags (with defaults)
 //
 // -c useLocalDevStack              (default: true)
@@ -64,8 +79,7 @@ loadDotEnv(path.join(__dirname, "..", ".env"));
 // -c useCustomWsAuthorizer         (default: false)
 // -c retainStatefulResources       (default: false) - Cognito, RDS, Secrets
 //
-// -c frontendUrl                   (optional prod extra Cognito callback/logout URL)
-//
+// -c frontendUrl                   (default: FRONTEND_URL from .env)
 // -c googleClientId                (default: GOOGLE_CLIENT_ID from .env)
 // -c googleClientSecret            (default: GOOGLE_CLIENT_SECRET from .env)
 
@@ -76,17 +90,11 @@ loadDotEnv(path.join(__dirname, "..", ".env"));
 // cdk deploy --all -c useCustomWsAuthorizer=true -c enableWebSockets=true -c skipEmailVerification=true --require-approval never
 
 // Current PROD deployment:
-// cdk deploy --all -c useLocalDevStack=false -c useCustomWsAuthorizer=true -c enableWebSockets=true -c enableEcsStack=false -c skipEmailVerification=true --require-approval never
-
-// If migrate from DEV to PROD
-// cdk destroy DevLambdaReplayStack --exclusively -c enableWebSockets=true -c skipEmailVerification=true --force --profile=dev
-
-// If migrate from PROD to DEV
-// cdk destroy CloudFrontStack HttpApiGatewayStack EcsServicesStack RdsStack -c useLocalDevStack=false -c useCustomWsAuthorizer=true -c enableWebSockets=true -c enableEcsStack=false -c skipEmailVerification=true --require-approval never
+// cdk deploy --all -c useLocalDevStack=false -c frontendUrl=http://localhost:3000 -c useCustomWsAuthorizer=true -c enableWebSockets=true -c enableEcsStack=false -c skipEmailVerification=true --require-approval never --profile=dev
 
 // Frontend website bucket deployment:
 // <build frontend assets in ../client-app/dist>
-// aws s3 cp ../client-app/dist s3://<frontend-website-s3-bucket-name> --recursive
+// aws s3 sync ../client-app/dist s3://<frontend-website-s3-bucket-name> --delete
 
 const app = new cdk.App();
 
@@ -163,52 +171,92 @@ const frontendWebsiteS3Stack = new FrontendWebsiteS3Stack(
   "FrontendWebsiteS3Stack",
   {
     env: stackEnv,
+    enableCloudFront: !useLocalDevStack,
   },
 );
 
-// Created only in production cloud stack mode (useLocalDevStack=false).
-const cloudFrontStack = !useLocalDevStack
-  ? new CloudFrontStack(app, "CloudFrontStack", {
-      env: stackEnv,
-      frontendWebsiteBucketArn:
-        frontendWebsiteS3Stack.frontendWebsiteBucket.bucketArn,
-      frontendWebsiteBucketName:
-        frontendWebsiteS3Stack.frontendWebsiteBucket.bucketName,
-      frontendWebsiteBucketRegionalDomainName:
-        frontendWebsiteS3Stack.frontendWebsiteBucket.bucketRegionalDomainName,
-    })
-  : undefined;
-
 const normalizeFrontendUrl = (url: string) =>
-  cdk.Token.isUnresolved(url) ? url : url.replace(/\/+$/, "");
+  cdk.Token.isUnresolved(url) ? url : url.trim().replace(/\/+$/, "");
 
-// The primary frontend URL is used by non-Cognito consumers. In prod, Cognito
-// always includes the CloudFront URL and treats frontendUrl as an extra URL.
+const isLoopbackHttpUrl = (url: string) => {
+  if (cdk.Token.isUnresolved(url) || !url.startsWith("http://")) {
+    return false;
+  }
+
+  try {
+    const parsedUrl = new URL(url);
+    return (
+      parsedUrl.hostname === "localhost" ||
+      parsedUrl.hostname === "127.0.0.1" ||
+      parsedUrl.hostname === "[::1]" ||
+      parsedUrl.hostname === "::1"
+    );
+  } catch {
+    return false;
+  }
+};
+
+const assertValidTrustedFrontendUrl = (url: string) => {
+  if (
+    useLocalDevStack ||
+    cdk.Token.isUnresolved(url) ||
+    url.startsWith("https://") ||
+    isLoopbackHttpUrl(url)
+  ) {
+    return;
+  }
+
+  throw new Error(
+    `Production trusted frontend URLs must use HTTPS except for localhost testing URLs. Received: ${url}`,
+  );
+};
+
+const dedupeFrontendUrls = (urls: string[]) => {
+  const seenUrls = new Set<string>();
+  const uniqueUrls: string[] = [];
+
+  for (const url of urls) {
+    const normalizedUrl = normalizeFrontendUrl(url);
+
+    if (!normalizedUrl) {
+      continue;
+    }
+
+    if (!cdk.Token.isUnresolved(normalizedUrl)) {
+      if (seenUrls.has(normalizedUrl)) {
+        continue;
+      }
+
+      seenUrls.add(normalizedUrl);
+    }
+
+    uniqueUrls.push(normalizedUrl);
+  }
+
+  return uniqueUrls;
+};
+
+// The primary frontend URL is used by email links and other single-URL
+// consumers. In prod it remains CloudFront; frontendUrl/FRONTEND_URL is an
+// additional trusted origin for browser callbacks/CORS.
 const frontendUrlContext = app.node.tryGetContext("frontendUrl");
-const extraFrontendUrl = frontendUrlContext
-  ? normalizeFrontendUrl(String(frontendUrlContext))
-  : undefined;
+const configuredFrontendUrl = frontendUrlContext
+  ? String(frontendUrlContext)
+  : process.env.FRONTEND_URL;
+const configuredFrontendUrls = [configuredFrontendUrl].filter(
+  (url): url is string => Boolean(url),
+);
 const frontendUrl = useLocalDevStack
   ? "http://localhost:3000"
-  : cloudFrontStack!.frontendWebsiteUrl;
-
-if (
-  !useLocalDevStack &&
-  extraFrontendUrl &&
-  !cdk.Token.isUnresolved(extraFrontendUrl) &&
-  extraFrontendUrl.startsWith("http://")
-) {
-  throw new Error(
-    `Production frontendUrl must use HTTPS for Cognito callbacks. Received: ${extraFrontendUrl}`,
-  );
-}
-
+  : frontendWebsiteS3Stack.frontendWebsiteUrl!;
 const normalizedFrontendUrl = normalizeFrontendUrl(frontendUrl);
-const cognitoFrontendUrls =
-  !useLocalDevStack && extraFrontendUrl
-    ? [normalizedFrontendUrl, extraFrontendUrl]
-    : [normalizedFrontendUrl];
-const authCallbackUrls = cognitoFrontendUrls.map(
+const trustedFrontendUrls = dedupeFrontendUrls([
+  normalizedFrontendUrl,
+  ...configuredFrontendUrls,
+]);
+trustedFrontendUrls.forEach(assertValidTrustedFrontendUrl);
+
+const authCallbackUrls = trustedFrontendUrls.map(
   (url) => `${url}/auth/callback`,
 );
 
@@ -227,7 +275,7 @@ const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 
 const applicationS3Stack = new ApplicationS3Stack(app, "ApplicationS3Stack", {
   env: stackEnv,
-  frontendUrl: normalizedFrontendUrl,
+  frontendUrls: trustedFrontendUrls,
   retainStatefulResouces,
 });
 
@@ -278,7 +326,7 @@ const cognitoStack = new CognitoStack(app, "CognitoStack", {
   googleClientId,
   googleClientSecret,
   callbackUrls: authCallbackUrls,
-  logoutUrls: cognitoFrontendUrls,
+  logoutUrls: trustedFrontendUrls,
   cognitoPreSignUpTriggerFn:
     asynchronousLambdaFunctionsStack.cognitoPreSignUpTriggerFn,
   cognitoCustomMessageFn:
@@ -319,7 +367,7 @@ const ecsServicesStack =
 const httpApiGatewayStack = !useLocalDevStack
   ? new HttpApiGatewayStack(app, "HttpApiGatewayStack", {
       env: stackEnv,
-      frontendUrl,
+      frontendUrls: trustedFrontendUrls,
       useLocalDevStack,
 
       // User Pool Authorizer

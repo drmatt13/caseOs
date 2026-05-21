@@ -8,11 +8,6 @@ const STACK_OUTPUT_MAPPINGS = {
     ApplicationDataBucketArn: "APPLICATION_DATA_BUCKET_ARN",
     ApplicationDataBucketName: "APPLICATION_DATA_BUCKET_NAME",
   },
-  CloudFrontStack: {
-    FrontendWebsiteUrl: "FRONTEND_WEBSITE_URL",
-    FrontendDistributionDomainName: "FRONTEND_DISTRIBUTION_DOMAIN_NAME",
-    FrontendDistributionId: "FRONTEND_DISTRIBUTION_ID",
-  },
   CognitoStack: {
     UserPoolId: "USER_POOL_ID",
     UserPoolClientId: "USER_POOL_CLIENT_ID",
@@ -27,6 +22,9 @@ const STACK_OUTPUT_MAPPINGS = {
   FrontendWebsiteS3Stack: {
     FrontendWebsiteBucketName: "FRONTEND_WEBSITE_BUCKET_NAME",
     FrontendWebsiteBucketArn: "FRONTEND_WEBSITE_BUCKET_ARN",
+    FrontendWebsiteUrl: "FRONTEND_WEBSITE_URL",
+    FrontendDistributionDomainName: "FRONTEND_DISTRIBUTION_DOMAIN_NAME",
+    FrontendDistributionId: "FRONTEND_DISTRIBUTION_ID",
   },
   HttpApiGatewayStack: {
     HttpApiUrl: "HTTP_API_URL",
@@ -99,6 +97,10 @@ const describeStackOutputs = (stackName) => {
     return response.Stacks?.[0]?.Outputs ?? [];
   } catch (error) {
     const message = error.stderr?.toString().trim() || error.message;
+    if (message.includes("does not exist")) {
+      return [];
+    }
+
     console.warn(`Skipping ${stackName}: ${message}`);
     return [];
   }

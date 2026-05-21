@@ -4,7 +4,7 @@ import * as s3 from "aws-cdk-lib/aws-s3";
 import { Construct } from "constructs";
 
 export interface ApplicationS3StackProps extends cdk.StackProps {
-  frontendUrl?: string;
+  frontendUrls?: string[];
   retainStatefulResouces?: boolean;
 }
 
@@ -15,9 +15,8 @@ export class ApplicationS3Stack extends cdk.Stack {
     super(scope, id, props);
 
     const retainStatefulResouces = props?.retainStatefulResouces ?? false;
-    const frontendUrl = (props?.frontendUrl ?? "http://localhost:3000").replace(
-      /\/+$/,
-      "",
+    const frontendUrls = (props?.frontendUrls ?? ["http://localhost:3000"]).map(
+      (url) => (cdk.Token.isUnresolved(url) ? url : url.replace(/\/+$/, "")),
     );
 
     this.applicationDataBucket = new s3.Bucket(this, "ApplicationDataBucket", {
@@ -36,7 +35,7 @@ export class ApplicationS3Stack extends cdk.Stack {
             s3.HttpMethods.HEAD,
             s3.HttpMethods.PUT,
           ],
-          allowedOrigins: [frontendUrl],
+          allowedOrigins: frontendUrls,
           exposedHeaders: ["ETag"],
           maxAge: 3000,
         },

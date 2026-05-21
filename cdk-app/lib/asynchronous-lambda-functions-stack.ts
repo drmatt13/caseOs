@@ -6,6 +6,10 @@ import * as nodejs from "aws-cdk-lib/aws-lambda-nodejs";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import * as path from "path";
+import {
+  prismaClientCommandHooks,
+  prismaLambdaEnvironment,
+} from "./prisma-lambda-bundling";
 
 export interface AsynchronousLambdaFunctionsStackProps extends cdk.StackProps {
   frontendUrl?: string;
@@ -107,20 +111,10 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
           minify: true,
           sourceMap: false,
           target: "es2020",
-          // Custom build steps required because this function depends on generated code from the @repo/database package, which must be built before bundling.
-          commandHooks: {
-            beforeInstall() {
-              return [];
-            },
-            beforeBundling() {
-              return ["npm run generate --workspace @repo/database"];
-            },
-            afterBundling() {
-              return [];
-            },
-          },
+          commandHooks: prismaClientCommandHooks,
         },
         environment: {
+          ...prismaLambdaEnvironment,
           USE_LOCAL_DEV_STACK: useLocalDevStack ? "true" : "false",
           DEV_LAMBDA_REPLAY_BUCKET_NAME: replayBucketName,
           DEV_LAMBDA_REPLAY_QUEUE_URL: replayQueueUrl,

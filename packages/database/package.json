@@ -12,7 +12,7 @@
     "./src/*": "./src/*"
   },
   "scripts": {
-    "generate": "prisma generate",
+    "generate": "node scripts/generate-prisma.cjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

@@ -6,6 +6,10 @@ import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as path from "path";
+import {
+  prismaClientCommandHooks,
+  prismaLambdaEnvironment,
+} from "./prisma-lambda-bundling";
 
 export interface HttpUserPoolAuthorizerConfig {
   userPoolId: string;
@@ -107,21 +111,12 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
         minify: true,
         sourceMap: true,
         target: "es2020",
-        commandHooks: {
-          beforeInstall() {
-            return [];
-          },
-          beforeBundling() {
-            return ["npm run generate --workspace @repo/database"];
-          },
-          afterBundling() {
-            return [];
-          },
-        },
+        commandHooks: prismaClientCommandHooks,
       },
       memorySize: 512,
       timeout: cdk.Duration.seconds(30),
       environment: {
+        ...prismaLambdaEnvironment,
         USER_POOL_ID: props.userPoolId,
         USER_POOL_CLIENT_ID: props.userPoolClientId,
         COGNITO_DOMAIN_URL: props.userPoolDomainUrl,
@@ -195,21 +190,12 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
         minify: true,
         sourceMap: false,
         target: "es2020",
-        commandHooks: {
-          beforeInstall() {
-            return [];
-          },
-          beforeBundling() {
-            return ["npm run generate --workspace @repo/database"];
-          },
-          afterBundling() {
-            return [];
-          },
-        },
+        commandHooks: prismaClientCommandHooks,
       },
       memorySize: 512,
       timeout: cdk.Duration.seconds(30),
       environment: {
+        ...prismaLambdaEnvironment,
         USER_POOL_ID: props.userPoolId,
         USER_POOL_CLIENT_ID: props.userPoolClientId,
         ...(props.primaryDatabaseSecretArn
@@ -234,21 +220,12 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
         minify: true,
         sourceMap: false,
         target: "es2020",
-        commandHooks: {
-          beforeInstall() {
-            return [];
-          },
-          beforeBundling() {
-            return ["npm run generate --workspace @repo/database"];
-          },
-          afterBundling() {
-            return [];
-          },
-        },
+        commandHooks: prismaClientCommandHooks,
       },
       memorySize: 512,
       timeout: cdk.Duration.seconds(30),
       environment: {
+        ...prismaLambdaEnvironment,
         USER_POOL_ID: props.userPoolId,
         USER_POOL_CLIENT_ID: props.userPoolClientId,
         ...(props.primaryDatabaseSecretArn
@@ -273,21 +250,12 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
         minify: true,
         sourceMap: false,
         target: "es2020",
-        commandHooks: {
-          beforeInstall() {
-            return [];
-          },
-          beforeBundling() {
-            return ["npm run generate --workspace @repo/database"];
-          },
-          afterBundling() {
-            return [];
-          },
-        },
+        commandHooks: prismaClientCommandHooks,
       },
       memorySize: 512,
       timeout: cdk.Duration.seconds(30),
       environment: {
+        ...prismaLambdaEnvironment,
         USER_POOL_ID: props.userPoolId,
         USER_POOL_CLIENT_ID: props.userPoolClientId,
         APPLICATION_DATA_BUCKET_ARN: props.applicationDataBucket.bucketArn,
@@ -381,21 +349,12 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
           minify: true,
           sourceMap: true,
           target: "es2020",
-          commandHooks: {
-            beforeInstall() {
-              return [];
-            },
-            beforeBundling() {
-              return ["npm run generate --workspace @repo/database"];
-            },
-            afterBundling() {
-              return [];
-            },
-          },
+          commandHooks: prismaClientCommandHooks,
         },
         memorySize: 512,
         timeout: cdk.Duration.seconds(30),
         environment: {
+          ...prismaLambdaEnvironment,
           USER_POOL_ID: props.userPoolId,
           USER_POOL_CLIENT_ID: props.userPoolClientId,
           STRIPE_SECRET_KEY: props.stripeSecretKey ?? "",
@@ -425,21 +384,12 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
           minify: true,
           sourceMap: true,
           target: "es2020",
-          commandHooks: {
-            beforeInstall() {
-              return [];
-            },
-            beforeBundling() {
-              return ["npm run generate --workspace @repo/database"];
-            },
-            afterBundling() {
-              return [];
-            },
-          },
+          commandHooks: prismaClientCommandHooks,
         },
         memorySize: 512,
         timeout: cdk.Duration.seconds(30),
         environment: {
+          ...prismaLambdaEnvironment,
           USER_POOL_ID: props.userPoolId,
           USER_POOL_CLIENT_ID: props.userPoolClientId,
           STRIPE_SECRET_KEY: props.stripeSecretKey ?? "",
@@ -466,21 +416,12 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
         minify: true,
         sourceMap: true,
         target: "es2020",
-        commandHooks: {
-          beforeInstall() {
-            return [];
-          },
-          beforeBundling() {
-            return ["npm run generate --workspace @repo/database"];
-          },
-          afterBundling() {
-            return [];
-          },
-        },
+        commandHooks: prismaClientCommandHooks,
       },
       memorySize: 512,
       timeout: cdk.Duration.seconds(30),
       environment: {
+        ...prismaLambdaEnvironment,
         USER_POOL_ID: props.userPoolId,
         USER_POOL_CLIENT_ID: props.userPoolClientId,
         STRIPE_SECRET_KEY: props.stripeSecretKey ?? "",
