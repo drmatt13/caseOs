@@ -228,7 +228,7 @@ const Workspace = ({ workspace }: WorkspaceProps) => {
 
   return (
     <div className="flex h-full min-w-0 flex-col gap-4">
-      <div className="flex flex-row justify-between text-xs px-4 border-b border-black/15 pb-3">
+      <div className="flex flex-row justify-between text-xs px-4 sm:px-0 border-b border-black/15 pb-3">
         <div className="flex gap-1.5">
           {canCreateWorkspace && (
             <button
