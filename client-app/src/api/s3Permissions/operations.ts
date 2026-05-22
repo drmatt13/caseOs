@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { API_ROUTE } from "@repo/api-contract";
 import { AwsSessionCredentialsSchema } from "#/schemas/awsSessionCredentials";
 import { fetchWithAuthRefresh } from "#/lib/auth";
 
@@ -13,7 +14,7 @@ const GetS3PermissionsResponseSchema = z.object({
 
 // API operations consumed by hooks and other feature callers.
 export async function getS3Permissions() {
-  const res = await fetchWithAuthRefresh("/s3-access-broker", {
+  const res = await fetchWithAuthRefresh(API_ROUTE.s3AccessBroker, {
     method: "GET",
   });
 

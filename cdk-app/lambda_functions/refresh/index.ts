@@ -9,6 +9,7 @@ import {
 } from "@aws-sdk/client-cognito-identity-provider";
 import {
   getHttpMethod,
+  getCookieHeader,
   getUserPoolClientId,
   jsonResponse,
   makeAuthCookie,
@@ -34,8 +35,7 @@ export const lambdaHandler = async (
     });
   }
 
-  const cookieHeader = event.headers?.cookie || event.headers?.Cookie;
-  const cookies = parseCookies(cookieHeader);
+  const cookies = parseCookies(getCookieHeader(event));
   const refreshToken = cookies["refreshToken"];
 
   if (!refreshToken) {
@@ -71,12 +71,10 @@ export const lambdaHandler = async (
         accessToken: auth.AccessToken,
       },
       {
-        multiValueHeaders: {
-          "Set-Cookie": [
-            makeAuthCookie("idToken", auth.IdToken, accessMaxAge),
-            makeAuthCookie("accessToken", auth.AccessToken, accessMaxAge),
-          ],
-        },
+        cookies: [
+          makeAuthCookie("idToken", auth.IdToken, accessMaxAge),
+          makeAuthCookie("accessToken", auth.AccessToken, accessMaxAge),
+        ],
       },
     );
   } catch (error: unknown) {

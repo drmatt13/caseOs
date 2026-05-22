@@ -147,6 +147,14 @@ export const lambdaHandler = async (
     const profilePicture =
       typeof payload.picture === "string" ? payload.picture : null;
     const displayName = getDisplayName(firstName, lastName, email);
+    const getOAuthProfileData = (existingProfilePicture?: string | null) => ({
+      email,
+      firstName,
+      lastName,
+      displayName,
+      updatedAt: new Date(),
+      ...(profilePicture && !existingProfilePicture ? { profilePicture } : {}),
+    });
 
     const databaseUrl = await getDatabaseUrl({
       primaryDatabaseSecretArn: process.env.PRIMARY_DATABASE_SECRET_ARN,
@@ -159,43 +167,41 @@ export const lambdaHandler = async (
       where: { email },
     });
 
-    if (
-      existingUserWithEmail &&
-      existingUserWithEmail.cognitoSub !== payload.sub
-    ) {
+    if (existingUserWithEmail) {
       await prisma.user.update({
         where: { id: existingUserWithEmail.id },
         data: {
           cognitoSub: payload.sub,
-          firstName,
-          lastName,
-          profilePicture,
-          displayName,
-          updatedAt: new Date(),
+          ...getOAuthProfileData(existingUserWithEmail.profilePicture),
         },
       });
-    }
-
-    const existingUserWithSub = await prisma.user.findUnique({
-      where: { cognitoSub: payload.sub },
-    });
-
-    if (!existingUserWithSub) {
-      await prisma.user.create({
-        data: {
-          cognitoSub: payload.sub,
-          email,
-          billingEmail: email,
-          firstName,
-          lastName,
-          profilePicture,
-          displayName,
-          accountTier: "FREE",
-          accountStatus: "ACTIVE",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
+    } else {
+      const existingUserWithSub = await prisma.user.findUnique({
+        where: { cognitoSub: payload.sub },
       });
+
+      if (existingUserWithSub) {
+        await prisma.user.update({
+          where: { id: existingUserWithSub.id },
+          data: getOAuthProfileData(existingUserWithSub.profilePicture),
+        });
+      } else {
+        await prisma.user.create({
+          data: {
+            cognitoSub: payload.sub,
+            email,
+            billingEmail: email,
+            firstName,
+            lastName,
+            profilePicture,
+            displayName,
+            accountTier: "FREE",
+            accountStatus: "ACTIVE",
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        });
+      }
     }
 
     const accessMaxAge = tokens.expires_in ?? 3600;
@@ -209,13 +215,11 @@ export const lambdaHandler = async (
         accessToken: tokens.access_token,
       },
       {
-        multiValueHeaders: {
-          "Set-Cookie": [
-            makeAuthCookie("idToken", tokens.id_token, accessMaxAge),
-            makeAuthCookie("accessToken", tokens.access_token, accessMaxAge),
-            makeAuthCookie("refreshToken", tokens.refresh_token, refreshMaxAge),
-          ],
-        },
+        cookies: [
+          makeAuthCookie("idToken", tokens.id_token, accessMaxAge),
+          makeAuthCookie("accessToken", tokens.access_token, accessMaxAge),
+          makeAuthCookie("refreshToken", tokens.refresh_token, refreshMaxAge),
+        ],
       },
     );
   } catch (error) {

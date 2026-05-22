@@ -1,7 +1,12 @@
+import { API_ROUTE } from "@repo/api-contract";
 import { invalidateAuthCache } from "#/lib/auth";
 
 const AUTH_COOKIE_NAMES = ["idToken", "accessToken", "refreshToken"];
 const API_URL = import.meta.env.VITE_API_GATEWAY_URL;
+
+function getApiUrl(): string {
+  return String(API_URL ?? "").replace(/\/+$/, "");
+}
 
 function clearLocalCookies(): void {
   if (typeof document === "undefined") {
@@ -21,7 +26,7 @@ export default async function logout(): Promise<void> {
   invalidateAuthCache({ broadcast: true });
 
   try {
-    await fetch(`${API_URL}/sign-out`, {
+    await fetch(`${getApiUrl()}${API_ROUTE.signOut}`, {
       method: "POST",
       credentials: "include",
     });

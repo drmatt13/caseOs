@@ -23,9 +23,7 @@ export const lambdaHandler = async (
     200,
     { success: true },
     {
-      multiValueHeaders: {
-        "Set-Cookie": AUTH_COOKIE_NAMES.map(clearAuthCookie),
-      },
+      cookies: AUTH_COOKIE_NAMES.map(clearAuthCookie),
     },
   );
 };

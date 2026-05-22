@@ -2,8 +2,8 @@ import type {
   APIGatewayProxyEvent,
   APIGatewayProxyEventV2,
 } from "aws-lambda";
-import cookie from "cookie";
 import { createRemoteJWKSet, jwtVerify, type JWTPayload } from "jose";
+import { getCookieHeader, parseCookies } from "./http";
 
 type CognitoAuthConfig = {
   audience: string;
@@ -51,10 +51,6 @@ const getCognitoAuthConfig = (): CognitoAuthConfig => {
   return cognitoAuthConfig;
 };
 
-const getCookieHeader = (
-  event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
-): string => event.headers.cookie ?? event.headers.Cookie ?? "";
-
 const getAuthorizationHeader = (
   event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
 ): string => event.headers.authorization ?? event.headers.Authorization ?? "";
@@ -70,8 +66,10 @@ const getBearerToken = (
 const getVerifiedAuthorizerPayload = (
   event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
 ): AuthenticatedCognitoPayload | null => {
-  const authorizer = event.requestContext
-    .authorizer as ApiGatewayJwtAuthorizerContext | undefined;
+  const requestContext = event.requestContext as {
+    authorizer?: ApiGatewayJwtAuthorizerContext;
+  };
+  const authorizer = requestContext.authorizer;
   const claims = authorizer?.jwt?.claims;
 
   if (!claims || claims.token_use !== "id" || typeof claims.sub !== "string") {
@@ -85,23 +83,22 @@ export async function requireAuthenticatedSession(
   event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
 ): Promise<AuthenticatedCognitoSession | null> {
   const idToken =
-    getBearerToken(event) ?? cookie.parse(getCookieHeader(event)).idToken;
-  const verifiedAuthorizerPayload = getVerifiedAuthorizerPayload(event);
-
-  if (verifiedAuthorizerPayload) {
-    return {
-      idToken: idToken ?? "",
-      payload: verifiedAuthorizerPayload,
-    };
-  }
+    getBearerToken(event) ?? parseCookies(getCookieHeader(event)).idToken;
 
   if (!idToken) {
     return null;
   }
 
   const payload = await verifyCognitoIdToken(idToken);
-
   if (!payload) {
+    return null;
+  }
+
+  const verifiedAuthorizerPayload = getVerifiedAuthorizerPayload(event);
+  if (
+    verifiedAuthorizerPayload &&
+    verifiedAuthorizerPayload.sub !== payload.sub
+  ) {
     return null;
   }
 
@@ -115,10 +112,16 @@ export async function verifyCognitoIdToken(
   idToken: string,
 ): Promise<AuthenticatedCognitoPayload | null> {
   const { audience, issuer, jwks } = getCognitoAuthConfig();
-  const { payload } = await jwtVerify(idToken, jwks, {
-    issuer,
-    audience,
-  });
+  let payload: JWTPayload;
+
+  try {
+    ({ payload } = await jwtVerify(idToken, jwks, {
+      issuer,
+      audience,
+    }));
+  } catch {
+    return null;
+  }
 
   if (payload.token_use !== "id" || !payload.sub) {
     return null;

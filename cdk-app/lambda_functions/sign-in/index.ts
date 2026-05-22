@@ -101,13 +101,11 @@ export const lambdaHandler = async (
         accessToken: auth.AccessToken,
       },
       {
-        multiValueHeaders: {
-          "Set-Cookie": [
-            makeAuthCookie("idToken", auth.IdToken, accessMaxAge),
-            makeAuthCookie("accessToken", auth.AccessToken, accessMaxAge),
-            makeAuthCookie("refreshToken", auth.RefreshToken, refreshMaxAge),
-          ],
-        },
+        cookies: [
+          makeAuthCookie("idToken", auth.IdToken, accessMaxAge),
+          makeAuthCookie("accessToken", auth.AccessToken, accessMaxAge),
+          makeAuthCookie("refreshToken", auth.RefreshToken, refreshMaxAge),
+        ],
       },
     );
   } catch (error: unknown) {

@@ -6,22 +6,36 @@ import type {
 import cookie from "cookie";
 
 type JsonResponseOptions = {
+  cookies?: string[];
   headers?: Record<string, string>;
   multiValueHeaders?: Record<string, string[]>;
+};
+
+type ApiGatewayJsonResponse = APIGatewayProxyResult & {
+  cookies?: string[];
 };
 
 export function jsonResponse(
   statusCode: number,
   body: unknown,
   options: JsonResponseOptions = {},
-): APIGatewayProxyResult {
+): ApiGatewayJsonResponse {
+  const multiValueHeaders = {
+    ...options.multiValueHeaders,
+  };
+
+  if (options.cookies?.length && !multiValueHeaders["Set-Cookie"]) {
+    multiValueHeaders["Set-Cookie"] = options.cookies;
+  }
+
   return {
     statusCode,
     headers: {
       "content-type": "application/json",
       ...options.headers,
     },
-    multiValueHeaders: options.multiValueHeaders,
+    ...(Object.keys(multiValueHeaders).length ? { multiValueHeaders } : {}),
+    ...(options.cookies?.length ? { cookies: options.cookies } : {}),
     body: JSON.stringify(body),
   };
 }
@@ -53,6 +67,16 @@ export function parseCookies(
   cookieHeader: string | undefined,
 ): Record<string, string> {
   return cookieHeader ? cookie.parse(cookieHeader) : {};
+}
+
+export function getCookieHeader(
+  event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
+): string {
+  if ("cookies" in event && Array.isArray(event.cookies)) {
+    return event.cookies.join("; ");
+  }
+
+  return event.headers?.cookie ?? event.headers?.Cookie ?? "";
 }
 
 export function makeAuthCookie(

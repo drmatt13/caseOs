@@ -43,7 +43,8 @@ export const lambdaHandler = async (
   const prisma = getPrismaClient(databaseUrl);
 
   // Create a new user in the database based on the Cognito user attributes
-  const { sub, email, given_name, family_name } = event.request.userAttributes;
+  const { sub, email, given_name, family_name, picture } =
+    event.request.userAttributes;
   const displayName = [given_name, family_name].filter(Boolean).join(" ");
 
   const existingUser = await prisma.user.findFirst({
@@ -63,6 +64,14 @@ export const lambdaHandler = async (
       "User already exists in database for Cognito sub; skipping post-confirmation creation:",
       sub,
     );
+
+    if (picture && !existingUser.profilePicture) {
+      await prisma.user.update({
+        where: { id: existingUser.id },
+        data: { profilePicture: picture, updatedAt: new Date() },
+      });
+    }
+
     return event;
   }
 
@@ -74,6 +83,7 @@ export const lambdaHandler = async (
       billingEmail: email,
       firstName: given_name,
       lastName: family_name,
+      profilePicture: picture,
       accountTier: "FREE",
       accountStatus: "ACTIVE",
       createdAt: new Date(),

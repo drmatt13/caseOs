@@ -1,4 +1,5 @@
 import type { TypedDocumentNode } from "@graphql-typed-document-node/core";
+import { API_ROUTE } from "@repo/api-contract";
 import { print } from "graphql";
 import { fetchWithAuthRefresh } from "#/lib/auth";
 
@@ -11,7 +12,7 @@ export async function executeGraphQL<TData, TVariables>(
   document: TypedDocumentNode<TData, TVariables>,
   variables?: TVariables,
 ): Promise<TData> {
-  const res = await fetchWithAuthRefresh("/graphql", {
+  const res = await fetchWithAuthRefresh(API_ROUTE.graphql, {
     method: "POST",
     headers: {
       "content-type": "application/json",

@@ -1,10 +1,13 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
+import * as apigw from "aws-cdk-lib/aws-apigateway";
 import * as apigwv2 from "aws-cdk-lib/aws-apigatewayv2";
 import * as authorizers from "aws-cdk-lib/aws-apigatewayv2-authorizers";
 import * as cognito from "aws-cdk-lib/aws-cognito";
 import * as integrations from "aws-cdk-lib/aws-apigatewayv2-integrations";
 import { IFunction } from "aws-cdk-lib/aws-lambda";
+import * as logs from "aws-cdk-lib/aws-logs";
+import { API_ROUTE } from "@repo/api-contract";
 import { HttpUserPoolAuthorizerConfig } from "./synchronous-lambda-functions-stack";
 
 export interface HttpApiGatewayStackProps extends cdk.StackProps {
@@ -37,9 +40,14 @@ export class HttpApiGatewayStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: HttpApiGatewayStackProps) {
     super(scope, id, props);
 
+    const accessLogGroup = new logs.LogGroup(this, "HttpApiAccessLogs", {
+      retention: logs.RetentionDays.ONE_WEEK,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
     const api = new apigwv2.HttpApi(this, "HttpApi", {
       apiName: "LocalDevKitHttpApi",
-      createDefaultStage: true,
+      createDefaultStage: false,
       corsPreflight: {
         allowOrigins: props.frontendUrls,
         allowMethods: [
@@ -49,6 +57,25 @@ export class HttpApiGatewayStack extends cdk.Stack {
         ],
         allowHeaders: ["Content-Type", "Authorization"],
         allowCredentials: true,
+      },
+    });
+
+    api.addStage("DefaultStage", {
+      stageName: "$default",
+      autoDeploy: true,
+      accessLogSettings: {
+        destination: new apigwv2.LogGroupLogDestination(accessLogGroup),
+        format: apigw.AccessLogFormat.custom(
+          JSON.stringify({
+            requestId: "$context.requestId",
+            routeKey: "$context.routeKey",
+            status: "$context.status",
+            responseLatency: "$context.responseLatency",
+            integrationError: "$context.integrationErrorMessage",
+            authorizerError: "$context.authorizer.error",
+            sourceIp: "$context.identity.sourceIp",
+          }),
+        ),
       },
     });
 
@@ -83,7 +110,9 @@ export class HttpApiGatewayStack extends cdk.Stack {
       api.addRoutes({
         path,
         methods,
-        integration: new integrations.HttpLambdaIntegration(id, handler),
+        integration: new integrations.HttpLambdaIntegration(id, handler, {
+          payloadFormatVersion: apigwv2.PayloadFormatVersion.VERSION_2_0,
+        }),
       });
     };
 
@@ -96,7 +125,9 @@ export class HttpApiGatewayStack extends cdk.Stack {
       api.addRoutes({
         path,
         methods,
-        integration: new integrations.HttpLambdaIntegration(id, handler),
+        integration: new integrations.HttpLambdaIntegration(id, handler, {
+          payloadFormatVersion: apigwv2.PayloadFormatVersion.VERSION_2_0,
+        }),
         authorizer: userPoolAuthorizer,
       });
     };
@@ -111,28 +142,28 @@ export class HttpApiGatewayStack extends cdk.Stack {
      *********************************/
     addPublicRoute(
       "SignInIntegration",
-      "/sign-in",
+      API_ROUTE.signIn,
       [apigwv2.HttpMethod.ANY],
       props.signInFn,
     );
 
     addPublicRoute(
       "SignOutIntegration",
-      "/sign-out",
+      API_ROUTE.signOut,
       [apigwv2.HttpMethod.ANY],
       props.signOutFn,
     );
 
     addPublicRoute(
       "OAuthCallbackIntegration",
-      "/oauth/callback",
+      API_ROUTE.oauthCallback,
       [apigwv2.HttpMethod.ANY],
       props.oauthCallbackFn,
     );
 
     addPublicRoute(
       "RefreshIntegration",
-      "/refresh",
+      API_ROUTE.refresh,
       [apigwv2.HttpMethod.ANY],
       props.refreshFn,
     );
@@ -142,28 +173,28 @@ export class HttpApiGatewayStack extends cdk.Stack {
      *********************************/
     addAuthenticatedRoute(
       "VerifySessionIntegration",
-      "/verify-session",
+      API_ROUTE.verifySession,
       authenticatedReadWriteMethods,
       props.verifySessionFn,
     );
 
     addAuthenticatedRoute(
       "GetUserIntegration",
-      "/get-user",
+      API_ROUTE.getUser,
       authenticatedReadWriteMethods,
       props.getUserFn,
     );
 
     addAuthenticatedRoute(
       "GraphQLApiIntegration",
-      "/graphql",
+      API_ROUTE.graphql,
       authenticatedReadWriteMethods,
       props.graphqlApiFn,
     );
 
     addAuthenticatedRoute(
       "S3AccessBrokerIntegration",
-      "/s3-access-broker",
+      API_ROUTE.s3AccessBroker,
       authenticatedReadWriteMethods,
       props.s3AccessBrokerFn,
     );
@@ -171,21 +202,21 @@ export class HttpApiGatewayStack extends cdk.Stack {
     // -- Stripe Routes --
     addAuthenticatedRoute(
       "BillingListProductsIntegration",
-      "/billing/list-products",
+      API_ROUTE.billingListProducts,
       authenticatedReadWriteMethods,
       props.billingListProductsFn,
     );
 
     addAuthenticatedRoute(
       "BillingCreateSetupIntentIntegration",
-      "/billing/create-setup-intent",
+      API_ROUTE.billingCreateSetupIntent,
       authenticatedReadWriteMethods,
       props.billingCreateSetupIntentFn,
     );
 
     addAuthenticatedRoute(
       "BillingCreateSubscriptionIntegration",
-      "/billing/create-subscription",
+      API_ROUTE.billingCreateSubscription,
       authenticatedReadWriteMethods,
       props.billingCreateSubscriptionFn,
     );
@@ -195,7 +226,7 @@ export class HttpApiGatewayStack extends cdk.Stack {
      *********************************/
     addPublicRoute(
       "StripeWebhookIntegration",
-      "/stripe/webhook",
+      API_ROUTE.stripeWebhook,
       [apigwv2.HttpMethod.ANY],
       props.stripeWebhookFn,
     );

@@ -267,26 +267,34 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
       },
     });
 
-    this.s3AccessBrokerFn.addToRolePolicy(
+    const profilePictureUploadRole = new iam.Role(
+      this,
+      "ProfilePictureUploadRole",
+      {
+        assumedBy: new iam.ArnPrincipal(this.s3AccessBrokerFn.role!.roleArn),
+        description:
+          "Assumed by the S3 access broker Lambda to issue scoped profile-picture upload credentials.",
+      },
+    );
+
+    profilePictureUploadRole.addToPolicy(
       new iam.PolicyStatement({
-        actions: [
-          "s3:GetObject",
-          "s3:PutObject",
-          "s3:DeleteObject",
-          "s3:ListBucket",
-        ],
+        actions: ["s3:PutObject"],
         resources: [
-          props.applicationDataBucket.bucketArn,
-          `${props.applicationDataBucket.bucketArn}/*`,
+          `${props.applicationDataBucket.bucketArn}/profile-pictures/*`,
         ],
       }),
     );
 
     this.s3AccessBrokerFn.addToRolePolicy(
       new iam.PolicyStatement({
-        actions: ["sts:GetFederationToken"],
-        resources: ["*"],
+        actions: ["sts:AssumeRole"],
+        resources: [profilePictureUploadRole.roleArn],
       }),
+    );
+    this.s3AccessBrokerFn.addEnvironment(
+      "PROFILE_PICTURE_UPLOAD_ROLE_ARN",
+      profilePictureUploadRole.roleArn,
     );
 
     if (props.primaryDatabaseSecretArn) {

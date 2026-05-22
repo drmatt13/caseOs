@@ -3,14 +3,19 @@ import type {
   APIGatewayProxyEventV2,
   APIGatewayProxyResult,
 } from "aws-lambda";
-import { GetFederationTokenCommand, STSClient } from "@aws-sdk/client-sts";
+import {
+  AssumeRoleCommand,
+  GetFederationTokenCommand,
+  STSClient,
+} from "@aws-sdk/client-sts";
 import {
   jsonResponse,
   requireAuthenticatedSub,
 } from "@repo/shared-lambda-utils";
 
 // Validate required environment configuration at startup.
-const { AWS_REGION, APPLICATION_DATA_BUCKET_ARN } = process.env;
+const { AWS_REGION, APPLICATION_DATA_BUCKET_ARN, PROFILE_PICTURE_UPLOAD_ROLE_ARN } =
+  process.env;
 
 if (!AWS_REGION || !APPLICATION_DATA_BUCKET_ARN) {
   throw new Error("Missing S3 access broker environment variables");
@@ -29,42 +34,74 @@ const getBucketNameFromArn = (bucketArn: string): string => {
   return bucketName;
 };
 
+const getProfilePicturePolicy = (profilePictureKey: string): string =>
+  JSON.stringify({
+    Version: "2012-10-17",
+    Statement: [
+      {
+        Effect: "Allow",
+        Action: "s3:PutObject",
+        Resource: `${APPLICATION_DATA_BUCKET_ARN}/${profilePictureKey}`,
+      },
+    ],
+  });
+
+const getSessionName = (cognitoSub: string): string =>
+  `caseos-${cognitoSub.slice(0, 24)}`;
+
+async function getScopedUploadCredentials(
+  cognitoSub: string,
+  profilePictureKey: string,
+) {
+  const sessionName = getSessionName(cognitoSub);
+  const policy = getProfilePicturePolicy(profilePictureKey);
+
+  if (PROFILE_PICTURE_UPLOAD_ROLE_ARN) {
+    return (
+      await stsClient.send(
+        new AssumeRoleCommand({
+          RoleArn: PROFILE_PICTURE_UPLOAD_ROLE_ARN,
+          RoleSessionName: sessionName,
+          DurationSeconds: 900,
+          Policy: policy,
+        }),
+      )
+    ).Credentials;
+  }
+
+  return (
+    await stsClient.send(
+      new GetFederationTokenCommand({
+        Name: sessionName,
+        DurationSeconds: 900,
+        Policy: policy,
+      }),
+    )
+  ).Credentials;
+}
+
 export const lambdaHandler = async (
   event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResult> => {
+  // Validate the Cognito session and expose the Cognito subject.
+  const cognitoSub = await requireAuthenticatedSub(event);
+
+  // Return 401 when the request has no valid session.
+  if (!cognitoSub) {
+    return jsonResponse(401, { message: "Unauthorized" });
+  }
+
   try {
-    // Validate the Cognito session and expose the Cognito subject.
-    const cognitoSub = await requireAuthenticatedSub(event);
-
-    // Return 401 when the request has no valid session.
-    if (!cognitoSub) {
-      return jsonResponse(401, { message: "Unauthorized" });
-    }
-
     // Build the user's profile-picture object key and public URL.
     const profilePictureKey = `profile-pictures/${cognitoSub}.jpg`;
     const bucketName = getBucketNameFromArn(APPLICATION_DATA_BUCKET_ARN);
     const profilePictureUrl = `https://${bucketName}.s3.${AWS_REGION}.amazonaws.com/${profilePictureKey}`;
 
     // Issue short-lived credentials scoped to the user's profile picture.
-    const federationToken = await stsClient.send(
-      new GetFederationTokenCommand({
-        Name: `caseos-${cognitoSub.slice(0, 24)}`,
-        DurationSeconds: 900,
-        Policy: JSON.stringify({
-          Version: "2012-10-17",
-          Statement: [
-            {
-              Effect: "Allow",
-              Action: "s3:PutObject",
-              Resource: `${APPLICATION_DATA_BUCKET_ARN}/${profilePictureKey}`,
-            },
-          ],
-        }),
-      }),
+    const credentials = await getScopedUploadCredentials(
+      cognitoSub,
+      profilePictureKey,
     );
-
-    const credentials = federationToken.Credentials;
 
     // Validate the STS response contains the expected credentials.
     if (
@@ -92,6 +129,6 @@ export const lambdaHandler = async (
   } catch (error) {
     console.error("Error brokering S3 access:", error);
 
-    return jsonResponse(401, { message: "Unauthorized" });
+    return jsonResponse(500, { message: "Could not broker S3 access" });
   }
 };

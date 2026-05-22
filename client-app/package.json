@@ -18,6 +18,7 @@
     "@aws-sdk/client-s3": "^3.1040.0",
     "@floating-ui/react": "^0.27.19",
     "@graphql-typed-document-node/core": "^3.2.0",
+    "@repo/api-contract": "*",
     "@stripe/react-stripe-js": "^6.3.0",
     "@stripe/stripe-js": "^9.4.0",
     "@tailwindcss/vite": "^4.1.18",

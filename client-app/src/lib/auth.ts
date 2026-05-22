@@ -9,28 +9,20 @@ import {
   ConfirmForgotPasswordCommand,
 } from "@aws-sdk/client-cognito-identity-provider";
 
+import { API_ROUTE, API_ROUTES, type ApiRoute } from "@repo/api-contract";
 import { SignInResponseSchema } from "@repo/database/api.schemas";
 import z from "zod";
 
+export { API_ROUTE, API_ROUTES };
+export type { ApiRoute };
+
 const API_URL = import.meta.env.VITE_API_GATEWAY_URL;
+const AWS_REGION = import.meta.env.VITE_AWS_REGION;
+const USER_POOL_ID = import.meta.env.VITE_USER_POOL_ID;
 const COGNITO_DOMAIN_URL = import.meta.env.VITE_COGNITO_DOMAIN;
 const USER_POOL_CLIENT_ID = import.meta.env.VITE_USER_POOL_CLIENT_ID;
+const ID_TOKEN_EXPIRY_SKEW_SECONDS = 30;
 
-export const API_ROUTES = [
-  "/graphql",
-  "/get-subscription",
-  "/billing/create-setup-intent",
-  "/billing/create-subscription",
-  "/billing/list-products",
-  "/oauth/callback",
-  "/refresh",
-  "/s3-access-broker",
-  "/sign-in",
-  "/sign-out",
-  "/verify-session",
-] as const;
-
-export type ApiRoute = (typeof API_ROUTES)[number];
 type ApiRouteInput = ApiRoute | `${ApiRoute}?${string}`;
 type AbsoluteUrl = `${"http" | "https"}://${string}`;
 type FetchWithAuthRefreshInput = ApiRouteInput | AbsoluteUrl | URL | Request;
@@ -62,6 +54,14 @@ type AuthCacheOptions = {
 type OAuthState = {
   rememberMe: boolean;
   state: string;
+};
+
+type CognitoIdTokenClaims = {
+  aud?: unknown;
+  exp?: unknown;
+  iss?: unknown;
+  sub?: unknown;
+  token_use?: unknown;
 };
 
 function isBrowserRuntime(): boolean {
@@ -119,6 +119,82 @@ function getStoredIdToken(): string | null {
   }
 }
 
+function decodeJwtPayload(idToken: string): CognitoIdTokenClaims | null {
+  if (!isBrowserRuntime()) {
+    return null;
+  }
+
+  const [, payloadSegment] = idToken.split(".");
+  if (!payloadSegment) {
+    return null;
+  }
+
+  try {
+    const base64 = payloadSegment.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = base64.padEnd(
+      base64.length + ((4 - (base64.length % 4)) % 4),
+      "=",
+    );
+    const binary = window.atob(padded);
+    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+    return JSON.parse(new TextDecoder().decode(bytes)) as CognitoIdTokenClaims;
+  } catch {
+    return null;
+  }
+}
+
+function getExpectedIssuer(): string | null {
+  if (!AWS_REGION || !USER_POOL_ID) {
+    return null;
+  }
+
+  return `https://cognito-idp.${AWS_REGION}.amazonaws.com/${USER_POOL_ID}`;
+}
+
+function hasExpectedAudience(audience: unknown): boolean {
+  if (!USER_POOL_CLIENT_ID) {
+    return false;
+  }
+
+  if (typeof audience === "string") {
+    return audience === USER_POOL_CLIENT_ID;
+  }
+
+  return (
+    Array.isArray(audience) &&
+    audience.some((value) => value === USER_POOL_CLIENT_ID)
+  );
+}
+
+function validateStoredIdToken(idToken: string | null): boolean {
+  if (!idToken) {
+    return false;
+  }
+
+  const payload = decodeJwtPayload(idToken);
+  if (!payload) {
+    return false;
+  }
+
+  const expectedIssuer = getExpectedIssuer();
+  const nowSeconds = Math.floor(Date.now() / 1000);
+
+  return (
+    payload.token_use === "id" &&
+    typeof payload.sub === "string" &&
+    payload.sub.length > 0 &&
+    typeof payload.exp === "number" &&
+    payload.exp > nowSeconds + ID_TOKEN_EXPIRY_SKEW_SECONDS &&
+    hasExpectedAudience(payload.aud) &&
+    (!expectedIssuer || payload.iss === expectedIssuer)
+  );
+}
+
+function getValidStoredIdToken(): string | null {
+  const idToken = getStoredIdToken();
+  return validateStoredIdToken(idToken) ? idToken : null;
+}
+
 function storeAuthTokens(
   data: { idToken?: string; accessToken?: string },
   rememberSession: boolean,
@@ -140,16 +216,17 @@ function storeAuthTokens(
 
 function withAuthorizationHeader(
   init: RequestInit = {},
-  options: { replace?: boolean } = {},
+  options: { idToken?: string | null; replace?: boolean } = {},
 ): RequestInit {
   const headers = new Headers(init.headers);
-  const idToken = getStoredIdToken();
+  const idToken =
+    options.idToken === undefined ? getValidStoredIdToken() : options.idToken;
 
   if (options.replace) {
     headers.delete("Authorization");
   }
 
-  if (idToken && !headers.has("Authorization")) {
+  if (idToken) {
     headers.set("Authorization", `Bearer ${idToken}`);
   }
 
@@ -382,23 +459,11 @@ async function checkSessionOnClient(): Promise<AuthState> {
 
   clientAuthRequest = (async (): Promise<AuthState> => {
     try {
-      const response = await fetch(`${API_URL}/verify-session`, {
+      const response = await fetchWithAuthRefresh(API_ROUTE.verifySession, {
         method: "GET",
-        ...withAuthorizationHeader(),
-        credentials: "include",
       });
 
       if (response.ok) {
-        if (!hasSessionHint) {
-          try {
-            setSessionHint(window.sessionStorage);
-          } catch {}
-        }
-
-        return { authenticated: true };
-      }
-
-      if (response.status === 401 && (await refreshSession())) {
         if (!hasSessionHint) {
           try {
             setSessionHint(window.sessionStorage);
@@ -429,7 +494,7 @@ export async function refreshSession(cookieHeader?: string): Promise<boolean> {
 
   try {
     const headers: HeadersInit = cookieHeader ? { cookie: cookieHeader } : {};
-    const response = await fetch(`${API_URL}/refresh`, {
+    const response = await fetch(`${getApiUrl()}${API_ROUTE.refresh}`, {
       method: "POST",
       headers,
       credentials: "include",
@@ -452,11 +517,15 @@ export async function refreshSession(cookieHeader?: string): Promise<boolean> {
     }
 
     if (isBrowserRuntime()) {
-      clearSessionHints();
+      invalidateAuthCache({ broadcast: true });
     }
 
     return false;
   } catch {
+    if (isBrowserRuntime()) {
+      invalidateAuthCache({ broadcast: true });
+    }
+
     return false;
   }
 }
@@ -466,9 +535,20 @@ export async function fetchWithAuthRefresh(
   init: RequestInit = {},
 ): Promise<Response> {
   const requestInput = getApiRequestInput(input);
+  let idToken = getValidStoredIdToken();
+  let refreshedBeforeRequest = false;
+
+  if (!idToken) {
+    refreshedBeforeRequest = await refreshSession();
+    idToken = getValidStoredIdToken();
+  }
+
   let requestInit: RequestInit = withAuthorizationHeader({
     ...init,
     credentials: init.credentials ?? "include",
+  }, {
+    idToken,
+    replace: true,
   });
 
   const response = await fetch(requestInput, requestInit);
@@ -476,11 +556,14 @@ export async function fetchWithAuthRefresh(
     return response;
   }
 
-  if (!(await refreshSession())) {
+  if (refreshedBeforeRequest || !(await refreshSession())) {
     return response;
   }
 
-  requestInit = withAuthorizationHeader(requestInit, { replace: true });
+  requestInit = withAuthorizationHeader(requestInit, {
+    idToken: getValidStoredIdToken(),
+    replace: true,
+  });
   return fetch(requestInput, requestInit);
 }
 
@@ -511,7 +594,7 @@ export async function redirectIfAuthenticated(): Promise<void> {
 }
 
 const cognitoClient = new CognitoIdentityProviderClient({
-  region: import.meta.env.VITE_AWS_REGION,
+  region: AWS_REGION,
 });
 
 function mapSignUpError(error: unknown): string {
@@ -546,10 +629,8 @@ export async function signUpUser(
   const normalizedFirstName = firstName.trim();
   const normalizedLastName = lastName.trim();
 
-  console.log(import.meta.env.VITE_USER_POOL_CLIENT_ID);
-
   const command = new SignUpCommand({
-    ClientId: import.meta.env.VITE_USER_POOL_CLIENT_ID,
+    ClientId: USER_POOL_CLIENT_ID,
     Username: normalizedEmail,
     Password: password,
     UserAttributes: [
@@ -619,7 +700,7 @@ function mapResendCodeError(error: unknown): string {
 
 export async function confirmSignUpUser(usernameOrEmail: string, code: string) {
   const command = new ConfirmSignUpCommand({
-    ClientId: import.meta.env.VITE_USER_POOL_CLIENT_ID,
+    ClientId: USER_POOL_CLIENT_ID,
     Username: usernameOrEmail.trim().toLowerCase(),
     ConfirmationCode: code.trim(),
   });
@@ -634,7 +715,7 @@ export async function confirmSignUpUser(usernameOrEmail: string, code: string) {
 
 export async function resendConfirmationCodeUser(usernameOrEmail: string) {
   const command = new ResendConfirmationCodeCommand({
-    ClientId: import.meta.env.VITE_USER_POOL_CLIENT_ID,
+    ClientId: USER_POOL_CLIENT_ID,
     Username: usernameOrEmail.trim().toLowerCase(),
   });
 
@@ -651,7 +732,7 @@ export async function signInUser(
   password: string,
   rememberMe = false,
 ): Promise<z.infer<typeof SignInResponseSchema>> {
-  const response = await fetch(`${API_URL}/sign-in`, {
+  const response = await fetch(`${getApiUrl()}${API_ROUTE.signIn}`, {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
@@ -716,7 +797,7 @@ export async function completeOAuthSignIn(
 
   const request = (async (): Promise<z.infer<typeof SignInResponseSchema>> => {
     const oauthState = consumeOAuthState(state);
-    const oauthCallbackUrl = `${API_URL}/oauth/callback`;
+    const oauthCallbackUrl = `${getApiUrl()}${API_ROUTE.oauthCallback}`;
     const response = await fetch(oauthCallbackUrl, {
       method: "POST",
       credentials: "include",
@@ -765,7 +846,7 @@ export async function completeOAuthSignIn(
 
 export async function forgotPasswordUser(email: string) {
   const command = new ForgotPasswordCommand({
-    ClientId: import.meta.env.VITE_USER_POOL_CLIENT_ID,
+    ClientId: USER_POOL_CLIENT_ID,
     Username: email.trim().toLowerCase(),
   });
 
@@ -799,7 +880,7 @@ export async function confirmForgotPasswordUser(
   newPassword: string,
 ) {
   const command = new ConfirmForgotPasswordCommand({
-    ClientId: import.meta.env.VITE_USER_POOL_CLIENT_ID,
+    ClientId: USER_POOL_CLIENT_ID,
     Username: email.trim().toLowerCase(),
     ConfirmationCode: code.trim(),
     Password: newPassword,

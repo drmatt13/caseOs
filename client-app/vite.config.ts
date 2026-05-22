@@ -7,7 +7,7 @@ import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
 const config = defineConfig({
-  base: "./",
+  base: "/",
   plugins: [
     devtools(),
     tsconfigPaths({ projects: ["./tsconfig.json"] }),

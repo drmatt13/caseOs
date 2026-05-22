@@ -1,9 +1,5 @@
 import { z } from "zod";
-import type {
-  AccountStatus,
-  AccountTier,
-  SubscriptionStatus,
-} from "#/api/generated/graphql";
+import { API_ROUTE } from "@repo/api-contract";
 import { fetchWithAuthRefresh } from "#/lib/auth";
 
 export const billingTierSchema = z.enum(["PRO", "ENTERPRISE"]);
@@ -41,27 +37,11 @@ const createSubscriptionResponseSchema = z.object({
   startTrial: z.boolean(),
 });
 
-type Subscription = {
-  accountTier?: AccountTier | null;
-  accountStatus?: AccountStatus | null;
-  subscriptionStatus?: SubscriptionStatus | null;
-  billingInterval?: string | null;
-  cancelAtPeriodEnd?: boolean | null;
-  currentPeriodStart?: string | null;
-  currentPeriodEnd?: string | null;
-  trialStartsAt?: string | null;
-  trialEndsAt?: string | null;
-};
-
-interface GetSubscriptionResponse {
-  subscription: Subscription;
-}
-
 export type BillingProduct = z.infer<typeof billingProductSchema>;
 
 // API operations consumed by hooks and other feature callers.
 export async function listBillingProducts() {
-  const res = await fetchWithAuthRefresh("/billing/list-products", {
+  const res = await fetchWithAuthRefresh(API_ROUTE.billingListProducts, {
     method: "GET",
   });
 
@@ -73,7 +53,7 @@ export async function listBillingProducts() {
 }
 
 export async function createSetupIntent() {
-  const res = await fetchWithAuthRefresh("/billing/create-setup-intent", {
+  const res = await fetchWithAuthRefresh(API_ROUTE.billingCreateSetupIntent, {
     method: "POST",
   });
 
@@ -92,7 +72,7 @@ export type CreateSubscriptionInput = {
 };
 
 export async function createSubscription(input: CreateSubscriptionInput) {
-  const res = await fetchWithAuthRefresh("/billing/create-subscription", {
+  const res = await fetchWithAuthRefresh(API_ROUTE.billingCreateSubscription, {
     method: "POST",
     headers: {
       "content-type": "application/json",
@@ -106,16 +86,4 @@ export async function createSubscription(input: CreateSubscriptionInput) {
   }
 
   return createSubscriptionResponseSchema.parse(await res.json());
-}
-
-export async function getSubscription(): Promise<GetSubscriptionResponse> {
-  const res = await fetchWithAuthRefresh("/get-subscription", {
-    method: "GET",
-  });
-
-  if (!res.ok) {
-    throw new Error(`Request failed: ${res.status}`);
-  }
-
-  return (await res.json()) as GetSubscriptionResponse;
 }

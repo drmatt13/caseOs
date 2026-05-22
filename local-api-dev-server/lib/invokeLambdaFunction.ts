@@ -1,109 +1,183 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import {
+  APIGatewayProxyEventV2,
+  APIGatewayProxyResult,
+} from "aws-lambda";
 import { Request, Response } from "express";
 
+type LambdaResult = APIGatewayProxyResult & {
+  cookies?: string[];
+};
+
 type LambdaHandler = (
-  event: APIGatewayProxyEvent,
-  context: any,
-) => Promise<APIGatewayProxyResult>;
+  event: APIGatewayProxyEventV2,
+  context: unknown,
+) => Promise<LambdaResult>;
+
+type InvokeLambdaOptions = {
+  authorizerJwtClaims?: Record<string, unknown>;
+  context?: unknown;
+  routeKey?: string;
+};
+
+type RequestWithRawBody = Request & {
+  rawBody?: string;
+};
+
+function getSingleHeaderValue(value: string | string[] | undefined): string {
+  if (Array.isArray(value)) {
+    return value.join(",");
+  }
+
+  return value ?? "";
+}
+
+function getRequestBody(req: Request): string | null {
+  const rawBody = (req as RequestWithRawBody).rawBody;
+  if (typeof rawBody === "string" && rawBody.length > 0) {
+    return rawBody;
+  }
+
+  if (typeof req.body === "string") {
+    return req.body;
+  }
+
+  if (Buffer.isBuffer(req.body)) {
+    return req.body.toString("utf8");
+  }
+
+  if (req.body && Object.keys(req.body).length) {
+    return JSON.stringify(req.body);
+  }
+
+  return null;
+}
+
+function toQueryStringParameters(
+  query: Request["query"],
+): Record<string, string> | undefined {
+  if (Object.keys(query).length === 0) {
+    return undefined;
+  }
+
+  return Object.fromEntries(
+    Object.entries(query).map(([key, value]) => [
+      key,
+      Array.isArray(value) ? value.map(String).join(",") : String(value),
+    ]),
+  );
+}
+
+function toDevCookie(cookieValue: string): string {
+  // Lambdas set Secure;SameSite=None for production HTTPS. On the local HTTP
+  // dev server those attributes prevent browsers from storing cookies across
+  // ports, so downgrade them for localhost development.
+  return cookieValue
+    .replace(/;\s*Secure/gi, "")
+    .replace(/SameSite=None/gi, "SameSite=Lax");
+}
 
 export default async function invokeLambdaFunction(
   req: Request,
   res: Response,
   handler: LambdaHandler,
-  context?: any,
+  options: InvokeLambdaOptions = {},
 ): Promise<void> {
-  const headers: { [name: string]: string } = {};
-  const multiValueHeaders: { [name: string]: string[] } = {};
+  const headers: Record<string, string> = {};
 
   for (const [key, value] of Object.entries(req.headers)) {
-    if (value === undefined) continue;
-    if (Array.isArray(value)) {
-      headers[key] = value[value.length - 1];
-      multiValueHeaders[key] = value;
-    } else {
-      headers[key] = value;
-      multiValueHeaders[key] = [value];
+    const headerValue = getSingleHeaderValue(value);
+    if (headerValue) {
+      headers[key.toLowerCase()] = headerValue;
     }
   }
 
-  const toStringArray = (v: unknown): string[] =>
-    Array.isArray(v) ? v.map(String) : [String(v)];
+  const routeKey = options.routeKey ?? `${req.method} ${req.path}`;
+  const requestId = `local-${Date.now()}`;
+  const rawQueryString = req.originalUrl.includes("?")
+    ? req.originalUrl.slice(req.originalUrl.indexOf("?") + 1)
+    : "";
+  const cookieHeader = headers.cookie;
 
-  const hasQuery = Object.keys(req.query).length > 0;
-  const queryStringParameters: { [key: string]: string } | null = hasQuery
-    ? Object.fromEntries(
-        Object.entries(req.query).map(([k, v]) => [
-          k,
-          Array.isArray(v) ? String(v[v.length - 1]) : String(v),
-        ]),
-      )
-    : null;
-  const multiValueQueryStringParameters: { [key: string]: string[] } | null =
-    hasQuery
-      ? Object.fromEntries(
-          Object.entries(req.query).map(([k, v]) => [k, toStringArray(v)]),
-        )
-      : null;
-
-  const event: APIGatewayProxyEvent = {
-    httpMethod: req.method,
-    path: req.path,
+  const event: APIGatewayProxyEventV2 = {
+    version: "2.0",
+    routeKey,
+    rawPath: req.path,
+    rawQueryString,
+    cookies: cookieHeader ? [cookieHeader] : undefined,
     headers,
-    multiValueHeaders,
-    queryStringParameters,
-    multiValueQueryStringParameters,
+    queryStringParameters: toQueryStringParameters(req.query),
     pathParameters: Object.keys(req.params).length
       ? Object.fromEntries(
-          Object.entries(req.params).map(([k, v]) => [k, String(v)]),
+          Object.entries(req.params).map(([key, value]) => [
+            key,
+            String(value),
+          ]),
         )
-      : null,
-    stageVariables: null,
-    resource: req.path,
-    body:
-      req.body && Object.keys(req.body).length
-        ? JSON.stringify(req.body)
-        : null,
+      : undefined,
+    body: getRequestBody(req) ?? undefined,
     isBase64Encoded: false,
     requestContext: {
       accountId: "local",
       apiId: "local",
-      httpMethod: req.method,
-      identity: { sourceIp: req.ip ?? "127.0.0.1" } as any,
-      path: req.path,
-      protocol: "HTTP/1.1",
-      requestId: `local-${Date.now()}`,
-      requestTimeEpoch: Date.now(),
-      resourceId: "local",
-      resourcePath: req.path,
+      domainName: headers.host ?? "localhost",
+      domainPrefix: "local",
+      http: {
+        method: req.method,
+        path: req.path,
+        protocol: "HTTP/1.1",
+        sourceIp: req.ip ?? "127.0.0.1",
+        userAgent: headers["user-agent"] ?? "",
+      },
+      requestId,
+      routeKey,
       stage: "local",
-    } as APIGatewayProxyEvent["requestContext"],
+      time: new Date().toISOString(),
+      timeEpoch: Date.now(),
+      ...(options.authorizerJwtClaims
+        ? {
+            authorizer: {
+              jwt: {
+                claims: options.authorizerJwtClaims,
+                scopes: [],
+              },
+            },
+          }
+        : {}),
+    },
   };
 
-  const result = await handler(event, context ?? {});
+  const result = await handler(event, options.context ?? {});
+  const setCookieValues = new Set<string>();
+
+  if (result.cookies) {
+    result.cookies.forEach((cookie) => setCookieValues.add(cookie));
+  }
 
   if (result.headers) {
     for (const [key, value] of Object.entries(result.headers)) {
-      res.setHeader(key, String(value));
+      if (key.toLowerCase() === "set-cookie") {
+        setCookieValues.add(String(value));
+      } else {
+        res.setHeader(key, String(value));
+      }
     }
   }
+
   if (result.multiValueHeaders) {
     for (const [key, values] of Object.entries(result.multiValueHeaders)) {
       if (key.toLowerCase() === "set-cookie") {
-        // Lambdas set Secure;SameSite=None for production HTTPS. On the local
-        // HTTP dev server those attributes prevent browsers from storing cookies
-        // across ports (localhost:3000 → localhost:8080). Strip Secure and
-        // downgrade to SameSite=Lax — both ports share the same localhost site
-        // so Lax is sufficient and cookies will be stored correctly over HTTP.
-        const devCookies = values.map((v) =>
-          String(v)
-            .replace(/;\s*Secure/gi, "")
-            .replace(/SameSite=None/gi, "SameSite=Lax"),
-        );
-        res.setHeader(key, devCookies);
+        values.forEach((value) => setCookieValues.add(String(value)));
       } else {
         res.setHeader(key, values.map(String));
       }
     }
+  }
+
+  if (setCookieValues.size > 0) {
+    res.setHeader(
+      "Set-Cookie",
+      [...setCookieValues].map((value) => toDevCookie(value)),
+    );
   }
 
   res.status(result.statusCode).send(result.body);
