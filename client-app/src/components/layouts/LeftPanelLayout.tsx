@@ -18,7 +18,7 @@ interface LeftPanelLayoutProps {
   children: ReactNode;
 }
 
-const pixelsToRem = (px: number) => px / 16;
+const pixelsToRem = (px: number) => px / 20;
 const maxBodyScrollDeltaRem = 5.25;
 const stickyTopRem = 1.75;
 const bottomPaddingRem = 1.8;

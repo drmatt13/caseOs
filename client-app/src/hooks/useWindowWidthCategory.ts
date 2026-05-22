@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 export type WindowWidthCategory = "small" | "medium" | "large";
 
 const getWindowWidthCategory = (): WindowWidthCategory => {
-  if (window.matchMedia("(width >= 58rem)").matches) {
+  if (window.matchMedia("(width >= 72.5rem)").matches) {
     return "large";
   }
 
-  if (window.matchMedia("(width >= 48rem)").matches) {
+  if (window.matchMedia("(width >= 60rem)").matches) {
     return "medium";
   }
 

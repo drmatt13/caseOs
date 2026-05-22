@@ -1630,11 +1630,11 @@ function AgentConfigView() {
 
 function RecordRow({ record }: { record: DemoRecord }) {
   return (
-    <div className="rounded-lg border border-black/10 bg-white/70 p-3">
-      <div className="flex items-center justify-between gap-3">
+    <div className="min-w-0 rounded-lg border border-black/10 bg-white/70 p-3">
+      <div className="flex min-w-0 items-center justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate text-sm font-medium">{record.title}</p>
-          <p className="mt-1 text-xs text-black/55">
+          <p className="mt-1 break-words text-xs text-black/55">
             {record.typeStatus} · {record.miniDescription}
           </p>
         </div>

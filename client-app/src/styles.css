@@ -2,8 +2,10 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
-  --breakpoint-lg: 58rem;
-  --breakpoint-xl: 67.1875rem;
+  --breakpoint-sm: 50rem;
+  --breakpoint-md: 60rem;
+  --breakpoint-lg: 72.5rem;
+  --breakpoint-xl: 84rem;
 }
 
 @font-face {

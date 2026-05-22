@@ -68,7 +68,7 @@ const demoWorkspaceMembers: DemoWorkspaceMember[] = [
 
 const ActiveWorkspaceState = ({ workspace }: ActiveWorkspaceStateProps) => {
   return (
-    <div className="flex flex-col px-4 /py-1 gap-1.5">
+    <div className="flex flex-col px-4 gap-1.5">
       <p className="text-xl font-bold">{workspace}</p>
       <p className="mb-1.5">
         This workspace is dedicated to managing residential tenancy disputes and
@@ -115,7 +115,7 @@ const EmptyWorkspaceState = ({
   onCheckInvites,
 }: EmptyWorkspaceStateProps) => {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center px-6 pt-6 pb-2 text-center">
+    <div className="flex flex-1 flex-col items-center justify-center lg:px-6 pt-6 pb-2 text-center">
       <div className="mb-4 flex aspect-square items-center justify-center rounded-full border border-black/10 bg-black/6 p-4">
         <BriefcaseBusiness className="h-7 w-7 text-black/75" />
       </div>
@@ -132,7 +132,7 @@ const EmptyWorkspaceState = ({
       </p>
 
       <div className="mt-7 grid w-full max-w-xl gap-2 text-left sm:grid-cols-3">
-        <div className="flex items-start gap-2 rounded-lg bg-black/[0.03] p-3">
+        <div className="flex items-start gap-2 rounded-lg bg-black/5 p-3">
           <Users className="mt-0.5 h-4 w-4 shrink-0 text-black/65" />
           <div>
             <p className="text-xs font-medium">No members yet</p>
@@ -141,7 +141,7 @@ const EmptyWorkspaceState = ({
             </p>
           </div>
         </div>
-        <div className="flex items-start gap-2 rounded-lg bg-black/[0.03] p-3">
+        <div className="flex items-start gap-2 rounded-lg bg-black/5 p-3">
           <FileText className="mt-0.5 h-4 w-4 shrink-0 text-black/65" />
           <div>
             <p className="text-xs font-medium">No shared cases yet</p>
@@ -150,7 +150,7 @@ const EmptyWorkspaceState = ({
             </p>
           </div>
         </div>
-        <div className="flex items-start gap-2 rounded-lg bg-black/[0.03] p-3">
+        <div className="flex items-start gap-2 rounded-lg bg-black/5 p-3">
           <Scale className="mt-0.5 h-4 w-4 shrink-0 text-black/65" />
           <div>
             <p className="text-xs font-medium">No workspace context</p>
