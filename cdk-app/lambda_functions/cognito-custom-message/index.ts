@@ -4,7 +4,13 @@ export const lambdaHandler = async (event: CustomMessageTriggerEvent) => {
   const email = event.request.userAttributes?.email ?? "";
   const username = event.userName;
   const code = event.request.codeParameter;
-  const frontendUrl = process.env.FRONTEND_URL ?? "http://localhost:3000";
+  const frontendUrl = (process.env.FRONTEND_URL ?? "")
+    .trim()
+    .replace(/\/+$/, "");
+
+  if (!frontendUrl) {
+    return event;
+  }
 
   if (
     event.triggerSource === "CustomMessage_SignUp" ||
@@ -16,7 +22,7 @@ export const lambdaHandler = async (event: CustomMessageTriggerEvent) => {
       `&email=${encodeURIComponent(email)}` +
       `&code=${code}`;
 
-    event.response.emailSubject = "CaseOS - Verify your email";
+    event.response.emailSubject = "Lawstruct.ai - Verify your email";
     event.response.emailMessage = `
       <p>Click this link to verify your email address:</p>
       <p><a href="${verifyUrl}">Verify Email</a></p>
@@ -31,7 +37,7 @@ export const lambdaHandler = async (event: CustomMessageTriggerEvent) => {
       `?email=${encodeURIComponent(email)}` +
       `&code=${code}`;
 
-    event.response.emailSubject = "CaseOS - Reset your password";
+    event.response.emailSubject = "Lawstruct.ai - Reset your password";
     event.response.emailMessage = `
       <p>We received a request to reset your password.</p>
       <p><a href="${resetUrl}">Reset Password</a></p>

@@ -80,7 +80,7 @@ const SelectTierStep = ({
             >
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <p className="font-serif text-sm">{option.name}</p>
+                  <p className="font-serif text-md">{option.name}</p>
                   <p className="mt-1 text-[11px] leading-4 text-gray-600">
                     {option.description}
                   </p>
@@ -94,7 +94,7 @@ const SelectTierStep = ({
               </div>
 
               <div className="mt-4">
-                <span className="font-serif text-xl">
+                <span className="font-serif text-2xl">
                   {productsPending ? "..." : formatPrice(option.price)}
                 </span>
                 {option.price && (

@@ -22,9 +22,12 @@ const STACK_OUTPUT_MAPPINGS = {
   FrontendWebsiteS3Stack: {
     FrontendWebsiteBucketName: "FRONTEND_WEBSITE_BUCKET_NAME",
     FrontendWebsiteBucketArn: "FRONTEND_WEBSITE_BUCKET_ARN",
-    FrontendWebsiteUrl: "FRONTEND_WEBSITE_URL",
-    FrontendDistributionDomainName: "FRONTEND_DISTRIBUTION_DOMAIN_NAME",
-    FrontendDistributionId: "FRONTEND_DISTRIBUTION_ID",
+    CloudFrontUrl: "CLOUDFRONT_URL",
+    FrontendWebsiteUrl: "CLOUDFRONT_URL",
+    CloudFrontDomainName: "CLOUDFRONT_DOMAIN_NAME",
+    FrontendDistributionDomainName: "CLOUDFRONT_DOMAIN_NAME",
+    CloudFrontId: "CLOUDFRONT_ID",
+    FrontendDistributionId: "CLOUDFRONT_ID",
   },
   HttpApiGatewayStack: {
     HttpApiUrl: "HTTP_API_URL",

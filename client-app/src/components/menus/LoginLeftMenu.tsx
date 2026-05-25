@@ -123,7 +123,7 @@ const LoginLeftMenu = () => {
       <AppLogo />
       <div className="w-full flex flex-col xl:grid xl:grid-cols-2 gap-4">
         {/* TOP LEFT: FILE-BASED KNOWLEDGE GRAPH */}
-        <div className="w-full h-54 p-4 border rounded-2xl bg-white/40 backdrop-blur-sm border-black/15 shadow-md">
+        <div className="w-full h-52 p-4 border rounded-2xl bg-white/40 backdrop-blur-sm border-black/15 shadow-md">
           <div className="flex flex-row-reverse gap-4 items-start h-full">
             {/* content */}
             {/* LEFT */}
@@ -139,12 +139,12 @@ const LoginLeftMenu = () => {
             </div>
             {/* LEFT */}
             {/* RIGHT */}
-            <div className="flex flex-col w-36 h-full items-start">
+            <div className="flex flex-col w-37 h-full items-start">
               <div className="flex flex-col flex-1">
-                <p className="text-sm font-medium">
+                <p className="text-md font-medium">
                   Connect Your Facts, Issues & Claims
                 </p>
-                <div className="flex-1 flex flex-col gap-1 justify-start text-xs text-gray-600 mt-1.5">
+                <div className="flex-1 flex flex-col gap-1 justify-start text-sm text-gray-600 mt-1.5">
                   <p>
                     Automatically organize structured records from facts,
                     issues, and claims as litigation develops to link related
@@ -165,7 +165,7 @@ const LoginLeftMenu = () => {
           </div>
         </div>
         {/* TOP RIGHT: TIMELINE */}
-        <div className="w-full h-54 p-4 border rounded-2xl bg-white/40 backdrop-blur-sm border-black/15 shadow-md">
+        <div className="w-full h-52 p-4 border rounded-2xl bg-white/40 backdrop-blur-sm border-black/15 shadow-md">
           <div className="flex flex-row-reverse gap-4 items-start h-full">
             {/* content */}
             {/* LEFT */}
@@ -221,12 +221,12 @@ const LoginLeftMenu = () => {
             </div>
             {/* LEFT */}
             {/* RIGHT */}
-            <div className="flex flex-col w-36 h-full items-start">
+            <div className="flex flex-col w-37 h-full items-start">
               <div className="flex flex-col flex-1">
-                <p className="text-sm font-medium">
+                <p className="text-md font-medium">
                   Timelines Built From Your Case Records
                 </p>
-                <div className="flex-1 flex flex-col gap-1 justify-start text-xs text-gray-600 mt-1.5">
+                <div className="flex-1 flex flex-col gap-1 justify-start text-sm text-gray-600 mt-1.5">
                   <p>
                     Documents, events, and filings are automatically organized
                     in context.
@@ -250,7 +250,7 @@ const LoginLeftMenu = () => {
           </div>
         </div>
         {/* BOTTOM: CASE AWARE INTELLIGENCE */}
-        <div className="w-full h-54 p-4 border rounded-2xl bg-white/40 backdrop-blur-sm border-black/15 shadow-md col-span-2">
+        <div className="w-full h-52 p-4 border rounded-2xl bg-white/40 backdrop-blur-sm border-black/15 shadow-md col-span-2">
           <div className="flex flex-row-reverse gap-4 items-start h-full text-[.6rem]">
             {/* content */}
             {/* LEFT */}
@@ -305,12 +305,12 @@ const LoginLeftMenu = () => {
             </div>
             {/* LEFT */}
             {/* RIGHT */}
-            <div className="flex flex-col w-36 h-full items-start">
+            <div className="flex flex-col w-37 h-full items-start">
               <div className="flex flex-col flex-1">
-                <p className="text-sm font-medium">
+                <p className="text-md font-medium">
                   Case-Aware Legal Intelligence
                 </p>
-                <div className="flex-1 flex flex-col gap-1 justify-start text-xs text-gray-600 mt-1.5">
+                <div className="flex-1 flex flex-col gap-1 justify-start text-sm text-gray-600 mt-1.5">
                   <p>
                     Surface strategic insights from your case’s evolving
                     context, supported by key facts, evidence, relevant
@@ -333,61 +333,61 @@ const LoginLeftMenu = () => {
           </div>
         </div>
       </div>
-      <div className="mt-3.5 w-full flex flex-row justify-between gap-6">
-        <div className="flex min-w-0 flex-1 items-start gap-3">
+      <div className="mt-3.5 w-full flex flex-row justify-between gap-4">
+        <div className="flex min-w-0 flex-1 items-start gap-3.5">
           <BriefcaseBusinessIcon
-            className="mt-0.5 h-6 w-6 shrink-0 text-blue-500"
+            className="mt-0.5 h-5 w-5 shrink-0 text-blue-500"
             strokeWidth={1.5}
           />
-          <div className="min-w-0">
-            <p className="text-xs font-semibold text-gray-900">
+          <div className="min-w-0 translate-y-1 -translate-x-1">
+            <p className="text-sm font-semibold text-gray-900">
               Built for Legal Work
             </p>
-            <p className="mt-0.75 text-[.68rem] leading-snug text-gray-600">
+            <p className="mt-0.75 text-xs leading-snug text-gray-600">
               Matches how you build cases, linking facts, issues, evidence, and
               arguments together.
             </p>
           </div>
         </div>
-        <div className="flex min-w-0 flex-1 items-start gap-3">
+        <div className="flex min-w-0 flex-1 items-start gap-3.5">
           <ShieldCheckIcon
-            className="mt-0.5 h-6 w-6 shrink-0 text-blue-500"
+            className="mt-0.5 h-5 w-5 shrink-0 text-blue-500"
             strokeWidth={1.5}
           />
-          <div className="min-w-0">
-            <p className="text-xs font-semibold text-gray-900">
+          <div className="min-w-0 translate-y-1 -translate-x-1">
+            <p className="text-sm font-semibold text-gray-900">
               Fully Traceable
             </p>
-            <p className="mt-0.75 text-[.68rem] leading-snug text-gray-600">
+            <p className="mt-0.75 text-xs leading-snug text-gray-600">
               Every record links to its source and connects through your case,
               so nothing is assumed.
             </p>
           </div>
         </div>
-        <div className="flex min-w-0 flex-1 items-start gap-3">
+        <div className="flex min-w-0 flex-1 items-start gap-3.5">
           <UsersRoundIcon
-            className="mt-0.5 h-6 w-6 shrink-0 text-blue-500"
+            className="mt-0.5 h-5 w-5 shrink-0 text-blue-500"
             strokeWidth={1.5}
           />
-          <div className="min-w-0">
-            <p className="text-xs font-semibold text-gray-900">Work Together</p>
-            <p className="mt-0.75 text-[.68rem] leading-snug text-gray-600">
+          <div className="min-w-0 translate-y-1 -translate-x-1">
+            <p className="text-sm font-semibold text-gray-900">Work Together</p>
+            <p className="mt-0.75 text-xs leading-snug text-gray-600">
               Invite your team into shared workspaces to build and reason across
               cases together.
             </p>
           </div>
         </div>
-        <div className="flex min-w-0 flex-1 items-start gap-3">
+        <div className="flex min-w-0 flex-1 items-start gap-3.5">
           <LockKeyholeIcon
-            className="mt-0.5 h-6 w-6 shrink-0 text-blue-500"
+            className="mt-0.5 h-5 w-5 shrink-0 text-blue-500"
             strokeWidth={1.5}
           />
-          <div className="min-w-0">
-            <p className="text-xs font-semibold text-gray-900">
+          <div className="min-w-0 translate-y-1 -translate-x-1">
+            <p className="text-sm font-semibold text-gray-900">
               Private & Secure
             </p>
-            <p className="mt-0.75 text-[.68rem] leading-snug text-gray-600">
-              Your data remains encrypted, isolated, and fully under your
+            <p className="mt-0.75 text-xs leading-snug text-gray-600">
+              Your data remains fully encrypted, isolated, and under your
               control at every step.
             </p>
           </div>

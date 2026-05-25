@@ -294,7 +294,7 @@ const EditUserModal = () => {
 
   if (userPending || s3PermissionsPending) {
     return (
-      <div className="w-lg max-w-[calc(100vw-3rem)] p-2 text-xs">
+      <div className="w-lg max-w-[calc(100vw-3rem)] p-2 text-sm">
         <div className="h-4 w-24 rounded bg-black/10" />
         <div className="mt-4 flex gap-4">
           <div className="h-20 w-20 rounded-full bg-black/10" />
@@ -309,18 +309,18 @@ const EditUserModal = () => {
 
   if (userError || s3PermissionsError || !user) {
     return (
-      <div className="w-lg max-w-[calc(100vw-3rem)] p-2 text-xs">
-        <p className="font-serif text-base">Edit User</p>
+      <div className="w-lg max-w-[calc(100vw-3rem)] p-2 text-sm">
+        <p className="font-serif text-lg">Edit User</p>
         <p className="mt-2 text-gray-600">Could not load your user profile.</p>
       </div>
     );
   }
 
   return (
-    <div className="w-lg max-w-[calc(100vw-3rem)] p-1 text-xs">
+    <div className="w-lg max-w-[calc(100vw-3rem)] p-1 text-sm">
       <div className="mb-4 flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="font-serif text-base">Edit User</p>
+          <p className="font-serif text-lg">Edit User</p>
           <p className="mt-0.5 truncate text-gray-600">{user.email}</p>
         </div>
 
@@ -347,7 +347,7 @@ const EditUserModal = () => {
                 className="h-full w-full object-cover"
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center font-serif text-2xl">
+              <div className="flex h-full w-full items-center justify-center font-serif text-3xl">
                 {initials}
               </div>
             )}

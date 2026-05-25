@@ -3,11 +3,13 @@ import type { ReactNode } from "react";
 interface PageBackgroundLayoutProps {
   children: ReactNode;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 const PageBackgroundLayout = ({
   children,
   className = "",
+  style,
 }: PageBackgroundLayoutProps) => {
   return (
     <div className="relative isolate min-h-dvh overflow-x-clip">
@@ -19,7 +21,10 @@ const PageBackgroundLayout = ({
           className="pointer-events-none absolute top-0 left-0 min-h-64 min-w-340 w-full h-svh object-cover object-top-left"
         />
       </div>
-      <div className={`relative z-10 mx-auto font-sans w-full ${className}`}>
+      <div
+        className={`relative z-10 mx-auto font-sans w-full ${className}`}
+        style={style}
+      >
         {children}
       </div>
     </div>

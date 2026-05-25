@@ -2,10 +2,37 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
+  --breakpoint-xs: 45rem;
   --breakpoint-sm: 50rem;
   --breakpoint-md: 60rem;
   --breakpoint-lg: 72.5rem;
   --breakpoint-xl: 84rem;
+  --text-xs: 0.675rem;
+  --text-xs--line-height: calc(0.875 / 0.675);
+  --text-sm: 0.75rem;
+  --text-sm--line-height: calc(1 / 0.75);
+  --text-md: 0.875rem;
+  --text-md--line-height: calc(1.25 / 0.875);
+  --text-lg: 1rem;
+  --text-lg--line-height: calc(1.5 / 1);
+  --text-xl: 1.125rem;
+  --text-xl--line-height: calc(1.75 / 1.125);
+  --text-2xl: 1.25rem;
+  --text-2xl--line-height: calc(1.75 / 1.25);
+  --text-3xl: 1.5rem;
+  --text-3xl--line-height: calc(2 / 1.5);
+  --text-4xl: 1.875rem;
+  --text-4xl--line-height: calc(2.25 / 1.875);
+  --text-5xl: 2.25rem;
+  --text-5xl--line-height: calc(2.5 / 2.25);
+  --text-6xl: 3rem;
+  --text-6xl--line-height: 1;
+  --text-7xl: 3.75rem;
+  --text-7xl--line-height: 1;
+  --text-8xl: 4.5rem;
+  --text-8xl--line-height: 1;
+  --text-9xl: 6rem;
+  --text-9xl--line-height: 1;
 }
 
 @font-face {
@@ -129,5 +156,9 @@
 html,
 body {
   min-height: 100%;
-  font-size: 20px;
+  font-size: 21px;
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }

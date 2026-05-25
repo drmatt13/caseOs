@@ -83,23 +83,23 @@ function RouteComponent() {
           <form
             onSubmit={handleSubmit}
             id="login-form"
-            className="flex flex-col px-5 pt-8 pb-5 rounded-2xl bg-white/40 backdrop-blur-sm border border-black/15 shadow-md min-h-127"
+            className="flex flex-col px-5 pt-8 pb-5 rounded-2xl bg-white/40 backdrop-blur-sm border border-black/15 shadow-md"
           >
             <p className="text-[1.7rem] font-bold">Welcome back</p>
-            <p className="mt-0.5 text-sm text-gray-600">
+            <p className="mt-0.5 text-md text-gray-600">
               Sign in to your workspace
             </p>
             {accountVerified && (
-              <p className="mt-3 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
+              <p className="mt-3 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-md text-green-800">
                 Account verified successfully. You can sign in now.
               </p>
             )}
             {error && (
-              <p className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+              <p className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-md text-red-800">
                 {error}
               </p>
             )}
-            <label htmlFor="email" className="text-sm font-medium mt-5 mb-1.5">
+            <label htmlFor="email" className="text-md font-medium mt-5 mb-1.5">
               Email
             </label>
             <input
@@ -107,12 +107,12 @@ function RouteComponent() {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="rounded-md px-2 py-2.5 text-xs bg-gray-100 border border-black/15"
+              className="rounded-md px-2 py-2.5 text-sm bg-gray-100 border border-black/15"
               placeholder="name@firm.com"
             />
             <label
               htmlFor="password"
-              className="text-sm font-medium mt-3 mb-1.5"
+              className="text-md font-medium mt-3 mb-1.5"
             >
               Password
             </label>
@@ -121,11 +121,11 @@ function RouteComponent() {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="rounded-md px-2 py-2.5 mb-3 text-xs bg-gray-100 border border-black/15"
+              className="rounded-md px-2 py-2.5 mb-3 text-sm bg-gray-100 border border-black/15"
               placeholder="••••••••"
             />
             <div className="flex items-center justify-between mt-2 mb-4">
-              <label className="flex items-center text-sm">
+              <label className="flex items-center text-md">
                 <input
                   type="checkbox"
                   checked={rememberMe}
@@ -140,7 +140,7 @@ function RouteComponent() {
               <Link
                 to="/forgot-password"
                 search={{ email: "", code: "" }}
-                className="text-sm text-blue-600 hover:underline"
+                className="text-md text-blue-600 hover:underline"
               >
                 Forgot password?
               </Link>
@@ -152,7 +152,7 @@ function RouteComponent() {
               disabled={isSubmitting}
             />
             {/* dont have an account? register now */}
-            <div className="mt-4 text-gray-500 flex w-full justify-center">
+            <div className="mt-4 text-md text-gray-500 flex w-full justify-center">
               <p>
                 Don't have an account?{" "}
                 <Link to="/register" className="text-blue-600 hover:underline">
@@ -162,7 +162,7 @@ function RouteComponent() {
             </div>
             <div className="flex items-center my-4">
               <div className="flex-1 h-px bg-black/15" />
-              <span className="px-3 text-xs text-gray-500">
+              <span className="px-3 text-sm text-gray-500">
                 or continue with
               </span>
               <div className="flex-1 h-px bg-black/15" />
@@ -171,7 +171,7 @@ function RouteComponent() {
             <button
               type="button"
               onClick={handleGoogleSignIn}
-              className="flex w-full items-center justify-center gap-2 rounded-md border border-black/15 bg-white/90 py-2.5 text-sm font-medium hover:bg-gray-50 cursor-pointer"
+              className="flex w-full items-center justify-center gap-2 rounded-md border border-black/15 bg-white/90 py-2.5 text-md font-medium hover:bg-gray-50 cursor-pointer"
             >
               <svg
                 aria-hidden="true"

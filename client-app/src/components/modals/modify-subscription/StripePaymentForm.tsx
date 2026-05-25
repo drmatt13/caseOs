@@ -95,7 +95,7 @@ function StripePaymentForm({
         <div className="rounded-lg border border-black/10 bg-white/60 p-3 md:col-span-2">
           <div className="flex items-center gap-2">
             <CreditCard className="h-4 w-4 text-gray-600" />
-            <p className="font-serif text-sm">Payment Details</p>
+            <p className="font-serif text-md">Payment Details</p>
           </div>
 
           <div className="mt-3 rounded-lg border border-black/10 bg-white/80 p-3">
@@ -117,7 +117,7 @@ function StripePaymentForm({
         <div className="rounded-lg border border-black/10 bg-black/[0.03] p-3">
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-4 w-4 text-gray-600" />
-            <p className="font-serif text-sm">Billing Summary</p>
+            <p className="font-serif text-md">Billing Summary</p>
           </div>
 
           <div className="mt-3 space-y-2 text-gray-600">

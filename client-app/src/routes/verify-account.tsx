@@ -141,7 +141,7 @@ function RouteComponent() {
       <div className="flex flex-col w-84">
         <div className="flex flex-col px-5 pt-8 pb-5 rounded-2xl bg-white/40 backdrop-blur-sm border border-black/15 shadow-md">
           <p className="text-[1.7rem] font-bold">Verify your account</p>
-          <p className="mt-0.5 text-sm text-gray-600">
+          <p className="mt-0.5 text-md text-gray-600">
             {status === "loading"
               ? "Verifying your account..."
               : email
@@ -150,13 +150,13 @@ function RouteComponent() {
           </p>
 
           {status === "success" && (
-            <p className="mt-3 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
+            <p className="mt-3 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-md text-green-800">
               {message}
             </p>
           )}
 
           {status === "error" && (
-            <p className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+            <p className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-md text-red-800">
               {message}
             </p>
           )}
@@ -165,7 +165,7 @@ function RouteComponent() {
             <form onSubmit={handleManualSubmit} className="mt-4">
               <label
                 htmlFor="verification-code"
-                className="text-sm font-medium mb-1.5 block"
+                className="text-md font-medium mb-1.5 block"
               >
                 Verification code
               </label>
@@ -176,7 +176,7 @@ function RouteComponent() {
                 autoComplete="one-time-code"
                 value={manualCode}
                 onChange={(e) => setManualCode(e.target.value)}
-                className="w-full rounded-md px-2 py-2.5 mb-3 text-xs bg-gray-100 border border-black/15"
+                className="w-full rounded-md px-2 py-2.5 mb-3 text-sm bg-gray-100 border border-black/15"
                 placeholder="Enter 6-digit code"
               />
               <div className="mt-1" />
@@ -190,7 +190,7 @@ function RouteComponent() {
           )}
 
           {status !== "success" && status !== "loading" && (
-            <div className="mt-4 text-sm text-gray-600 text-center">
+            <div className="mt-4 text-md text-gray-600 text-center">
               <button
                 type="button"
                 onClick={handleResendCode}
@@ -204,7 +204,7 @@ function RouteComponent() {
             </div>
           )}
 
-          <div className="mt-4 text-gray-500 flex w-full justify-center">
+          <div className="mt-4 text-md text-gray-500 flex w-full justify-center">
             <p>
               Already verified?{" "}
               <Link

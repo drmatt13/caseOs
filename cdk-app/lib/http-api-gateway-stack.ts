@@ -46,7 +46,7 @@ export class HttpApiGatewayStack extends cdk.Stack {
     });
 
     const api = new apigwv2.HttpApi(this, "HttpApi", {
-      apiName: "LocalDevKitHttpApi",
+      apiName: "LawstructAiHttpApi",
       createDefaultStage: false,
       corsPreflight: {
         allowOrigins: props.frontendUrls,

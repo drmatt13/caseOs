@@ -77,7 +77,7 @@ export class RdsStack extends cdk.Stack {
       this,
       "PostgresCredentialsSecret",
       {
-        secretName: "caseos/postgres/credentials",
+        secretName: "lawstruct-ai/postgres/credentials",
         username: primaryDatabaseUsername,
         dbname: primaryDatabaseName,
         excludeCharacters: " %+~`#$&*()|[]{}:;<>?!'/@\"\\",

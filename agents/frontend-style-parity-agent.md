@@ -1,6 +1,6 @@
 # Frontend Style Parity Agent
 
-Use this agent when adding or reviewing UI in `client-app`. Its job is to keep new screens visually aligned with the existing CaseOS frontend. Treat `Workspace.tsx` as a secondary reference unless the task specifically asks for workspace-internal UI.
+Use this agent when adding or reviewing UI in `client-app`. Its job is to keep new screens visually aligned with the existing lawstruct-ai frontend. Treat `Workspace.tsx` as a secondary reference unless the task specifically asks for workspace-internal UI.
 
 ## Source Of Truth
 
@@ -23,7 +23,7 @@ For app workflow surfaces, prefer `/case/$id` over `Workspace.tsx` as the strong
 
 ## Overall Visual Language
 
-CaseOS uses a quiet, legal-work dashboard style:
+lawstruct-ai uses a quiet, legal-work dashboard style:
 
 - App/auth pages share `PageBackgroundLayout`: a relative isolated `min-h-dvh` page, a fixed full-viewport background image layer, and a foreground `relative z-10 mx-auto font-sans w-full` content wrapper.
 - Main surfaces are translucent glass panels: `bg-white/40`, `backdrop-blur-sm`, `border border-black/15`, `shadow-md`, usually `rounded-2xl`.

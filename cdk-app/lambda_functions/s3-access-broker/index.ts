@@ -47,7 +47,7 @@ const getProfilePicturePolicy = (profilePictureKey: string): string =>
   });
 
 const getSessionName = (cognitoSub: string): string =>
-  `caseos-${cognitoSub.slice(0, 24)}`;
+  `lawstruct-ai-${cognitoSub.slice(0, 24)}`;
 
 async function getScopedUploadCredentials(
   cognitoSub: string,

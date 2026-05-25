@@ -42,7 +42,7 @@ const CreateCaseMenu = ({
 
   return (
     <>
-      <div className="text-xs flex gap-1.5 items-center">
+      <div className="text-sm flex gap-1.5 items-center">
         <button
           type="button"
           className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer"
@@ -74,7 +74,7 @@ const CreateCaseMenu = ({
         </div>
         <div className="flex flex-col">
           <p className="translate-y-[.075rem]">Case Basics</p>
-          <p className="text-gray-700 text-xs">Name, area, role</p>
+          <p className="text-gray-700 text-sm">Name, area, role</p>
         </div>
       </div>
       <div
@@ -96,7 +96,7 @@ const CreateCaseMenu = ({
         </div>
         <div className="flex flex-col">
           <p className="translate-y-[.075rem]">Dispute</p>
-          <p className="text-gray-700 text-xs">Claim & status</p>
+          <p className="text-gray-700 text-sm">Claim & status</p>
         </div>
       </div>
       <div
@@ -118,7 +118,7 @@ const CreateCaseMenu = ({
         </div>
         <div className="flex flex-col">
           <p className="translate-y-[.075rem]">Timeline</p>
-          <p className="text-gray-700 text-xs">Key events</p>
+          <p className="text-gray-700 text-sm">Key events</p>
         </div>
       </div>
       <div
@@ -140,7 +140,7 @@ const CreateCaseMenu = ({
         </div>
         <div className="flex flex-col">
           <p className="translate-y-[.075rem]">Goals</p>
-          <p className="text-gray-700 text-xs">Objectives & risks</p>
+          <p className="text-gray-700 text-sm">Objectives & risks</p>
         </div>
       </div>
       <div
@@ -162,7 +162,7 @@ const CreateCaseMenu = ({
         </div>
         <div className="flex flex-col">
           <p className="translate-y-[.075rem]">Parties & witnesses</p>
-          <p className="text-gray-700 text-xs">Involved parties</p>
+          <p className="text-gray-700 text-sm">Involved parties</p>
         </div>
       </div>
       <div
@@ -184,7 +184,7 @@ const CreateCaseMenu = ({
         </div>
         <div className="flex flex-col">
           <p className="translate-y-[.075rem]">Documents</p>
-          <p className="text-gray-700 text-xs">Upload files</p>
+          <p className="text-gray-700 text-sm">Upload files</p>
         </div>
       </div>
     </>

@@ -80,7 +80,7 @@ const DocumentsForm = ({
       />
 
       <div
-        className="rounded-2xl border-2 border-dashed p-5 text-xs flex flex-col items-center justify-center gap-0.5 text-center py-12 cursor-pointer group border-black/15 hover:border-black/40 hover:bg-gray-300/20 transition-colors"
+        className="rounded-2xl border-2 border-dashed p-5 text-sm flex flex-col items-center justify-center gap-0.5 text-center py-12 cursor-pointer group border-black/15 hover:border-black/40 hover:bg-gray-300/20 transition-colors"
         onClick={openFilePicker}
       >
         <div className="rounded-full aspect-square p-4 flex justify-center items-center mb-2.5 bg-black/10 group-hover:bg-gray-300 transition-colors">
@@ -93,7 +93,7 @@ const DocumentsForm = ({
         </p>
       </div>
 
-      <div className="text-xs flex flex-col gap-2.5">
+      <div className="text-sm flex flex-col gap-2.5">
         {uploadedFiles.length > 0 && (
           <p>Uploaded files ({uploadedFiles.length})</p>
         )}
@@ -112,7 +112,7 @@ const DocumentsForm = ({
               </div>
             </div>
             <div className="flex gap-3">
-              <div className="text-xs flex gap-1.5 items-center">
+              <div className="text-sm flex gap-1.5 items-center">
                 <div>
                   <CheckCircle className="w-4 h-4 text-green-600" />
                 </div>

@@ -354,7 +354,7 @@ function RouteComponent() {
     <AppLayout>
       <LeftPanelLayout>
         <UserPanel user={user} settings={true} showTier={true} />
-        <div className="text-xs flex gap-1.5 items-center">
+        <div className="text-sm flex gap-1.5 items-center">
           <Link to="/">
             <div className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
               <ArrowLeft className="w-3 h-3" />
@@ -365,7 +365,7 @@ function RouteComponent() {
         <label className="relative block">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-black/50" />
           <input
-            className="w-full rounded-lg border border-black/15 lg:border-black/10 bg-white/25 lg:bg-black/3 py-2.5 pl-8 pr-2 text-xs placeholder:text-black/55 text-black/75 outline-none transition focus:border-black/30 focus:bg-white/50 lg:focus:bg-white/70"
+            className="w-full rounded-lg border border-black/15 lg:border-black/10 bg-white/25 lg:bg-black/3 py-2.5 pl-8 pr-2 text-sm placeholder:text-black/55 text-black/75 outline-none transition focus:border-black/30 focus:bg-white/50 lg:focus:bg-white/70"
             placeholder="Search workspace"
             value={globalSearch}
             onChange={(event) => {
@@ -401,10 +401,10 @@ function RouteComponent() {
                   {proposedCount} proposals need review
                 </button>
               </div>
-              <h1 className="truncate text-xl font-semibold">
+              <h1 className="truncate text-2xl font-semibold">
                 {demoCase.title}
               </h1>
-              <p className="mt-1 text-xs text-black/60">
+              <p className="mt-1 text-sm text-black/60">
                 {demoCase.court} · Workspace id: {id}
               </p>
             </div>
@@ -486,12 +486,12 @@ function CaseSummaryView({ records }: { records: DemoRecord[] }) {
         <div className="rounded-xl border border-black/10 bg-white/55 p-4">
           <div className="mb-3 flex items-start justify-between gap-3">
             <div>
-              <h2 className="font-serif text-base">Strategic Snapshot</h2>
-              <p className="mt-1 text-xs text-black/60">{demoCase.posture}</p>
+              <h2 className="font-serif text-lg">Strategic Snapshot</h2>
+              <p className="mt-1 text-sm text-black/60">{demoCase.posture}</p>
             </div>
             <ShieldCheck className="h-5 w-5 text-green-700" />
           </div>
-          <p className="text-sm leading-6 text-black/75">
+          <p className="text-md leading-6 text-black/75">
             {demoCase.objective}
           </p>
           <div className="mt-4 grid gap-2 sm:grid-cols-3">
@@ -505,7 +505,7 @@ function CaseSummaryView({ records }: { records: DemoRecord[] }) {
         </div>
 
         <div className="rounded-xl border border-black/10 bg-white/55 p-4">
-          <h2 className="font-serif text-base">High-Value Work Queue</h2>
+          <h2 className="font-serif text-lg">High-Value Work Queue</h2>
           <div className="mt-3 grid gap-2">
             {records
               .filter((record) => record.priority === "High")
@@ -520,14 +520,14 @@ function CaseSummaryView({ records }: { records: DemoRecord[] }) {
         <div className="rounded-xl border border-black/10 bg-black/[0.03] p-4">
           <div className="flex items-center gap-2">
             <CircleAlert className="h-4 w-4 text-amber-700" />
-            <h2 className="font-serif text-base">Main Risk</h2>
+            <h2 className="font-serif text-lg">Main Risk</h2>
           </div>
-          <p className="mt-2 text-sm leading-6 text-black/75">
+          <p className="mt-2 text-md leading-6 text-black/75">
             {demoCase.risk}
           </p>
         </div>
         <div className="rounded-xl border border-black/10 bg-white/55 p-4">
-          <h2 className="font-serif text-base">Workspace Activity</h2>
+          <h2 className="font-serif text-lg">Workspace Activity</h2>
           <div className="mt-3 flex flex-col gap-2">
             {demoActivity.map((item) => (
               <div
@@ -538,7 +538,7 @@ function CaseSummaryView({ records }: { records: DemoRecord[] }) {
                   <span>{item.actor}</span>
                   <span>{item.time}</span>
                 </div>
-                <p className="mt-1 text-xs leading-5 text-black/75">
+                <p className="mt-1 text-sm leading-5 text-black/75">
                   {item.action}
                 </p>
               </div>
@@ -563,7 +563,7 @@ function WorkPanelSearch({
     <label className="relative block">
       <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-black/40" />
       <input
-        className="w-full rounded-lg border border-black/10 bg-white/65 py-2.5 pl-9 pr-3 text-sm text-black/75 outline-none transition focus:border-black/30 focus:bg-white"
+        className="w-full rounded-lg border border-black/10 bg-white/65 py-2.5 pl-9 pr-3 text-md text-black/75 outline-none transition focus:border-black/30 focus:bg-white"
         placeholder={placeholder}
         value={value}
         onChange={(event) => onChange(event.target.value)}
@@ -593,14 +593,14 @@ function GlobalSearchView({
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="font-serif text-base">Workspace Search</h2>
-          <p className="mt-1 text-xs text-black/60">
+          <h2 className="font-serif text-lg">Workspace Search</h2>
+          <p className="mt-1 text-sm text-black/60">
             Searching all case records for "{query.trim()}".
           </p>
         </div>
         <button
           type="button"
-          className="rounded-lg border border-black/10 bg-white/70 px-3 py-1.5 text-xs text-black/65 transition-colors hover:bg-black/10"
+          className="rounded-lg border border-black/10 bg-white/70 px-3 py-1.5 text-sm text-black/65 transition-colors hover:bg-black/10"
           onClick={onClearSearch}
         >
           Clear search
@@ -609,7 +609,7 @@ function GlobalSearchView({
 
       <div className="grid gap-3">
         {records.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-black/15 bg-white/40 p-8 text-center text-sm text-black/55">
+          <div className="rounded-xl border border-dashed border-black/15 bg-white/40 p-8 text-center text-md text-black/55">
             No case records match this workspace search.
           </div>
         ) : (
@@ -657,14 +657,14 @@ function ProposalReviewView({
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="font-serif text-base">Proposal Review</h2>
-          <p className="mt-1 text-xs text-black/60">
+          <h2 className="font-serif text-lg">Proposal Review</h2>
+          <p className="mt-1 text-sm text-black/60">
             All pending proposed records across the case workspace.
           </p>
         </div>
         <button
           type="button"
-          className="rounded-lg border border-black/10 bg-white/70 px-3 py-1.5 text-xs text-black/65 transition-colors hover:bg-black/10"
+          className="rounded-lg border border-black/10 bg-white/70 px-3 py-1.5 text-sm text-black/65 transition-colors hover:bg-black/10"
           onClick={onClearReview}
         >
           Close review
@@ -673,7 +673,7 @@ function ProposalReviewView({
 
       <div className="grid gap-3">
         {records.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-black/15 bg-white/40 p-8 text-center text-sm text-black/55">
+          <div className="rounded-xl border border-dashed border-black/15 bg-white/40 p-8 text-center text-md text-black/55">
             No pending proposals need review.
           </div>
         ) : (
@@ -733,8 +733,8 @@ function RecordsView({
     <div className="flex flex-col gap-3">
       <div>
         <div>
-          <h2 className="font-serif text-base">{viewLabels[activeView]}</h2>
-          <p className="mt-1 text-xs text-black/60">
+          <h2 className="font-serif text-lg">{viewLabels[activeView]}</h2>
+          <p className="mt-1 text-sm text-black/60">
             {viewDescriptions[activeView]}
           </p>
         </div>
@@ -763,7 +763,7 @@ function RecordsView({
 
       <div className="grid gap-3">
         {filteredRecords.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-black/15 bg-white/40 p-8 text-center text-sm text-black/55">
+          <div className="rounded-xl border border-dashed border-black/15 bg-white/40 p-8 text-center text-md text-black/55">
             No {viewLabels[activeView].toLowerCase()} match the current filters.
           </div>
         ) : (
@@ -806,7 +806,7 @@ function StatusFilter({
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2 text-xs">
+    <div className="flex flex-wrap items-center gap-2 text-sm">
       <Filter className="h-4 w-4 text-black/50" />
       {(
         [
@@ -879,8 +879,8 @@ function TimelineView({
     <div className="flex flex-col gap-3">
       <div>
         <div>
-          <h2 className="font-serif text-base">Timeline</h2>
-          <p className="mt-1 text-xs text-black/60">
+          <h2 className="font-serif text-lg">Timeline</h2>
+          <p className="mt-1 text-sm text-black/60">
             Chronological case events. Select an event to inspect sources and
             links.
           </p>
@@ -905,7 +905,7 @@ function TimelineView({
       <div className="relative flex flex-col gap-2 pl-5">
         <div className="absolute left-[.55rem] top-2 bottom-2 w-px bg-black/10" />
         {sortedRecords.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-black/15 bg-white/40 p-8 text-center text-sm text-black/55">
+          <div className="rounded-xl border border-dashed border-black/15 bg-white/40 p-8 text-center text-md text-black/55">
             No timeline events match the current filters.
           </div>
         ) : (
@@ -964,10 +964,10 @@ function TimelineView({
                         </span>
                       )}
                     </div>
-                    <h3 className="truncate text-sm font-medium">
+                    <h3 className="truncate text-md font-medium">
                       {record.title}
                     </h3>
-                    <p className="mt-1 line-clamp-2 text-xs leading-5 text-black/60">
+                    <p className="mt-1 line-clamp-2 text-sm leading-5 text-black/60">
                       {record.miniDescription}
                     </p>
                   </div>
@@ -982,7 +982,7 @@ function TimelineView({
 
                 {expanded && (
                   <div className="mt-2 rounded-lg border border-black/10 bg-white/55 p-3">
-                    <p className="text-sm leading-6 text-black/75">
+                    <p className="text-md leading-6 text-black/75">
                       {record.content}
                     </p>
                     {record.status === "proposed" && record.supersedes && (
@@ -1033,12 +1033,12 @@ function CaseNoteComposer({
 
   return (
     <div className="rounded-xl border border-black/10 bg-white/60 p-3">
-      <div className="mb-2 flex items-center gap-2 text-xs text-black/60">
+      <div className="mb-2 flex items-center gap-2 text-sm text-black/60">
         <PencilLine className="h-4 w-4" />
         <span>New case note</span>
       </div>
       <textarea
-        className="min-h-24 w-full resize-y rounded-lg border border-black/10 bg-white/80 px-3 py-2 text-sm outline-none transition focus:border-black/30 focus:ring-2 focus:ring-black/5"
+        className="min-h-24 w-full resize-y rounded-lg border border-black/10 bg-white/80 px-3 py-2 text-md outline-none transition focus:border-black/30 focus:ring-2 focus:ring-black/5"
         placeholder="Capture a strategy thought, question, witness point, or hearing note..."
         value={draft}
         onChange={(event) => setDraft(event.target.value)}
@@ -1065,7 +1065,7 @@ function SupersessionNotice({ record }: { record: DemoRecord }) {
   }
 
   return (
-    <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+    <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
       <div className="flex items-center gap-1.5 font-medium">
         <GitBranch className="h-3.5 w-3.5" />
         <span>This proposal would supersede another case item</span>
@@ -1097,7 +1097,7 @@ function PartyBadge({ party }: { party?: DemoRecordParty }) {
 
 function SupersessionPendingNotice({ proposal }: { proposal: DemoRecord }) {
   return (
-    <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+    <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
       <div className="flex items-center gap-1.5 font-medium">
         <GitBranch className="h-3.5 w-3.5" />
         <span>Locked while a replacement proposal is pending</span>
@@ -1130,7 +1130,7 @@ function ProposalActions({
 
   return (
     <div className="mt-4 rounded-lg border border-black/10 bg-white/70 p-3">
-      <div className="flex flex-wrap items-center gap-2 text-xs">
+      <div className="flex flex-wrap items-center gap-2 text-sm">
         <button
           className="inline-flex items-center gap-1.5 rounded-lg border border-green-200 bg-green-50 px-2.5 py-1.5 text-green-800 transition-colors hover:bg-black/15"
           onClick={() => onDecision(record.id, { status: "accepted" })}
@@ -1168,18 +1168,18 @@ function ProposalActions({
 
       {rejecting && (
         <div className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3">
-          <label className="text-xs font-medium text-red-900">
+          <label className="text-sm font-medium text-red-900">
             Reason for rejecting this proposal
           </label>
           <textarea
-            className="mt-2 min-h-20 w-full resize-y rounded-lg border border-red-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-red-300 focus:ring-2 focus:ring-red-100"
+            className="mt-2 min-h-20 w-full resize-y rounded-lg border border-red-200 bg-white px-3 py-2 text-md outline-none transition focus:border-red-300 focus:ring-2 focus:ring-red-100"
             placeholder="Example: unsupported by produced discovery, duplicates an accepted fact, or uses language that overstates the evidence."
             value={rejectionReason}
             onChange={(event) => setRejectionReason(event.target.value)}
           />
           <div className="mt-2 flex justify-end">
             <button
-              className="rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs text-red-800 transition-colors hover:bg-black/10 disabled:cursor-not-allowed disabled:text-red-300"
+              className="rounded-lg border border-red-200 bg-white px-3 py-1.5 text-sm text-red-800 transition-colors hover:bg-black/10 disabled:cursor-not-allowed disabled:text-red-300"
               disabled={!rejectionReason.trim()}
               onClick={() =>
                 onDecision(record.id, {
@@ -1197,12 +1197,12 @@ function ProposalActions({
 
       {suggestingEdits && (
         <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3">
-          <label className="flex items-center gap-1.5 text-xs font-medium text-blue-900">
+          <label className="flex items-center gap-1.5 text-sm font-medium text-blue-900">
             <Sparkles className="h-3.5 w-3.5" />
             Suggested edit for the agent
           </label>
           <textarea
-            className="mt-2 min-h-20 w-full resize-y rounded-lg border border-blue-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
+            className="mt-2 min-h-20 w-full resize-y rounded-lg border border-blue-200 bg-white px-3 py-2 text-md outline-none transition focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
             placeholder="Tell the agent what to preserve, soften, cite, split, or rewrite before you accept it."
             value={editSuggestion}
             onChange={(event) => {
@@ -1212,16 +1212,16 @@ function ProposalActions({
           />
           <div className="mt-2 flex items-center justify-between gap-3">
             {editSubmitted ? (
-              <span className="text-xs text-blue-800">
+              <span className="text-sm text-blue-800">
                 Edit suggestion queued for the agent.
               </span>
             ) : (
-              <span className="text-xs text-blue-900/60">
+              <span className="text-sm text-blue-900/60">
                 This keeps the proposal open for review.
               </span>
             )}
             <button
-              className="rounded-lg border border-blue-200 bg-white px-3 py-1.5 text-xs text-blue-800 transition-colors hover:bg-black/10 disabled:cursor-not-allowed disabled:text-blue-300"
+              className="rounded-lg border border-blue-200 bg-white px-3 py-1.5 text-sm text-blue-800 transition-colors hover:bg-black/10 disabled:cursor-not-allowed disabled:text-blue-300"
               disabled={!editSuggestion.trim()}
               onClick={() => setEditSubmitted(true)}
               type="button"
@@ -1238,7 +1238,7 @@ function ProposalActions({
 function ProposalDecisionNote({ decision }: { decision: ProposalDecision }) {
   return (
     <div
-      className={`mt-4 rounded-lg border px-3 py-2 text-xs ${
+      className={`mt-4 rounded-lg border px-3 py-2 text-sm ${
         decision.status === "accepted"
           ? "border-green-200 bg-green-50 text-green-800"
           : "border-red-200 bg-red-50 text-red-800"
@@ -1306,7 +1306,7 @@ function RecordSettingsMenu({
       </button>
       {open && (
         <div
-          className="absolute right-0 top-8 z-20 min-w-52 rounded-xl border border-black/15 bg-white/90 p-1.5 text-xs shadow-md backdrop-blur-sm"
+          className="absolute right-0 top-8 z-20 min-w-52 rounded-xl border border-black/15 bg-white/90 p-1.5 text-sm shadow-md backdrop-blur-sm"
           onClick={(event) => event.stopPropagation()}
         >
           {isSuperseded ? (
@@ -1438,8 +1438,8 @@ function RecordCard({
               </span>
             )}
           </div>
-          <h3 className="text-sm font-semibold">{record.title}</h3>
-          <p className="mt-1 line-clamp-2 text-xs leading-5 text-black/60">
+          <h3 className="text-md font-semibold">{record.title}</h3>
+          <p className="mt-1 line-clamp-2 text-sm leading-5 text-black/60">
             {record.miniDescription}
           </p>
         </div>
@@ -1460,7 +1460,7 @@ function RecordCard({
           {pendingSupersessionProposal && (
             <SupersessionPendingNotice proposal={pendingSupersessionProposal} />
           )}
-          <p className="text-sm leading-6 text-black/75">{record.content}</p>
+          <p className="text-md leading-6 text-black/75">{record.content}</p>
           <div className="mt-4 flex flex-col gap-2">
             <MiniPanel
               icon={FileCheck2}
@@ -1492,8 +1492,8 @@ function DocumentsView() {
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="font-serif text-base">Documents</h2>
-          <p className="mt-1 text-xs text-black/60">
+          <h2 className="font-serif text-lg">Documents</h2>
+          <p className="mt-1 text-sm text-black/60">
             Indexed files become sources for facts, issues, arguments, and
             timeline events.
           </p>
@@ -1512,12 +1512,12 @@ function DocumentsView() {
                 {document.status}
               </span>
             </div>
-            <h3 className="mt-3 text-sm font-semibold">{document.fileName}</h3>
-            <p className="mt-1 text-xs text-black/55">
+            <h3 className="mt-3 text-md font-semibold">{document.fileName}</h3>
+            <p className="mt-1 text-sm text-black/55">
               {document.category} · {document.date} · {document.linkedRecords}{" "}
               links
             </p>
-            <p className="mt-3 text-sm leading-6 text-black/75">
+            <p className="mt-3 text-md leading-6 text-black/75">
               {document.summary}
             </p>
             <div className="mt-3 flex flex-wrap gap-1.5">
@@ -1555,20 +1555,20 @@ function AgentConfigView() {
       <section className="rounded-xl border border-black/10 bg-white/60 p-4">
         <div className="flex items-center gap-2">
           <Bot className="h-5 w-5" />
-          <h2 className="font-serif text-base">{demoCase.title} Agent</h2>
+          <h2 className="font-serif text-lg">{demoCase.title} Agent</h2>
         </div>
-        <p className="mt-3 text-sm leading-6 text-black/75">
+        <p className="mt-3 text-md leading-6 text-black/75">
           Ask for case work in plain language. Agent outputs stay reviewable:
           proposed links, proposed changes, draft summaries, and suggested case
           objects.
         </p>
         <div className="mt-4 rounded-lg border border-black/10 bg-white/75 p-3">
-          <div className="mb-2 flex items-center gap-2 text-xs text-black/60">
+          <div className="mb-2 flex items-center gap-2 text-sm text-black/60">
             <MessageSquare className="h-4 w-4" />
             <span>Ask Agent</span>
           </div>
           <textarea
-            className="min-h-24 w-full resize-y rounded-lg border border-black/10 bg-white px-3 py-2 text-sm outline-none transition focus:border-black/30 focus:ring-2 focus:ring-black/5"
+            className="min-h-24 w-full resize-y rounded-lg border border-black/10 bg-white px-3 py-2 text-md outline-none transition focus:border-black/30 focus:ring-2 focus:ring-black/5"
             placeholder="Ask the agent to summarize discovery gaps, compare arguments, or draft a focused review queue..."
             value={agentPrompt}
             onChange={(event) => setAgentPrompt(event.target.value)}
@@ -1585,12 +1585,12 @@ function AgentConfigView() {
       </section>
 
       <section className="rounded-xl border border-black/10 bg-black/[0.03] p-4">
-        <h2 className="font-serif text-base">Instructions</h2>
+        <h2 className="font-serif text-lg">Instructions</h2>
         <div className="mt-3 flex flex-col gap-2">
           {[...instructions, ...proposedInstructions].map((instruction) => (
             <div
               key={instruction}
-              className="flex gap-2 rounded-lg border border-black/10 bg-white/70 p-3 text-sm text-black/75"
+              className="flex gap-2 rounded-lg border border-black/10 bg-white/70 p-3 text-md text-black/75"
             >
               <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-black/45" />
               <span>{instruction}</span>
@@ -1598,11 +1598,11 @@ function AgentConfigView() {
           ))}
         </div>
         <div className="mt-3 rounded-lg border border-black/10 bg-white/70 p-3">
-          <label className="text-xs text-black/60">
+          <label className="text-sm text-black/60">
             Propose an instruction change
           </label>
           <textarea
-            className="mt-2 min-h-20 w-full resize-y rounded-lg border border-black/10 bg-white px-3 py-2 text-sm outline-none transition focus:border-black/30 focus:ring-2 focus:ring-black/5"
+            className="mt-2 min-h-20 w-full resize-y rounded-lg border border-black/10 bg-white px-3 py-2 text-md outline-none transition focus:border-black/30 focus:ring-2 focus:ring-black/5"
             placeholder="Example: When reviewing discovery, prioritize missing records controlled by property management."
             value={instructionDraft}
             onChange={(event) => setInstructionDraft(event.target.value)}
@@ -1633,8 +1633,8 @@ function RecordRow({ record }: { record: DemoRecord }) {
     <div className="min-w-0 rounded-lg border border-black/10 bg-white/70 p-3">
       <div className="flex min-w-0 items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="truncate text-sm font-medium">{record.title}</p>
-          <p className="mt-1 break-words text-xs text-black/55">
+          <p className="truncate text-md font-medium">{record.title}</p>
+          <p className="mt-1 break-words text-sm text-black/55">
             {record.typeStatus} · {record.miniDescription}
           </p>
         </div>
@@ -1647,7 +1647,7 @@ function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border border-black/10 bg-white/70 p-3">
       <p className="text-[11px] text-black/55">{label}</p>
-      <p className="mt-1 text-lg font-semibold">{value}</p>
+      <p className="mt-1 text-xl font-semibold">{value}</p>
     </div>
   );
 }
@@ -1670,12 +1670,12 @@ function MiniPanel({
       <div className="flex flex-col gap-1">
         {values.length > 0 ? (
           values.slice(0, 3).map((value) => (
-            <span key={value} className="truncate text-xs text-black/75">
+            <span key={value} className="truncate text-sm text-black/75">
               {value}
             </span>
           ))
         ) : (
-          <span className="text-xs text-black/40">None yet</span>
+          <span className="text-sm text-black/40">None yet</span>
         )}
       </div>
     </div>

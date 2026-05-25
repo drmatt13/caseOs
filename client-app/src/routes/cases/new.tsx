@@ -238,7 +238,7 @@ function RouteComponent() {
                 />
               )}
             </div>
-            <p className="justify-self-center text-sm text-black/55">
+            <p className="justify-self-center text-md text-black/55">
               {caseIntakeState.step !== CASE_INTAKE_TOTAL_STEPS &&
                 `Step ${caseIntakeState.step} of ${CASE_INTAKE_TOTAL_STEPS - 1}`}
             </p>

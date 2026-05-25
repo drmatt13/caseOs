@@ -80,11 +80,11 @@ function App() {
         {workspaces.length > 0 && (
           <>
             <div className="h-6 flex items-center">
-              <p className="truncate text-xs">Select Workspace</p>
+              <p className="truncate text-sm">Select Workspace</p>
             </div>
-            <div className="text-xs flex gap-1.5 mb-0.5 items-center">
+            <div className="text-sm flex gap-1.5 mb-0.5 items-center">
               <select
-                className="rounded-lg px-2 py-2.5 /mx-2 text-xs bg-white/50 /focus:bg-white/75 lg:bg-gray-100 border border-black/15 outline-none focus:outline-none focus:ring-0"
+                className="rounded-lg px-2 py-2.5 /mx-2 text-sm bg-white/50 /focus:bg-white/75 lg:bg-gray-100 border border-black/15 outline-none focus:outline-none focus:ring-0"
                 name="Workspace"
                 id="Workspace"
                 value={activeWorkspace ?? ""}

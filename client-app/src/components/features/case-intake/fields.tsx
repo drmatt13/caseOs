@@ -52,11 +52,11 @@ type SelectFieldProps<T extends string> = FieldBaseProps & {
 };
 
 const fieldClassName =
-  "w-full rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm text-black shadow-sm outline-none transition focus:border-black/30 focus:ring-2 focus:ring-black/5";
+  "w-full rounded-xl border border-black/10 bg-white px-3 py-2.5 text-md text-black shadow-sm outline-none transition focus:border-black/30 focus:ring-2 focus:ring-black/5";
 const textareaShellClassName =
   "block w-full overflow-hidden rounded-xl border border-black/10 bg-white shadow-sm transition focus-within:border-black/30 focus-within:ring-2 focus-within:ring-black/5";
 const textareaClassName =
-  "block w-full resize-y overflow-y-auto bg-transparent px-3 py-2.5 text-sm leading-6 text-black outline-none";
+  "block w-full resize-y overflow-y-auto bg-transparent px-3 py-2.5 text-md leading-6 text-black outline-none";
 const textareaLineHeightRem = 1.5;
 const textareaVerticalPaddingRem = 1.25;
 
@@ -74,9 +74,9 @@ const FieldShell = ({
 }: FieldBaseProps & { children: ReactNode }) => (
   <label className={`grid self-start items-start gap-2 ${className}`.trim()}>
     <span className="flex flex-col gap-0.5 justify-end">
-      <span className="text-sm font-medium text-black">{label}</span>
+      <span className="text-md font-medium text-black">{label}</span>
       {description ? (
-        <span className="text-xs text-black/60">{description}</span>
+        <span className="text-sm text-black/60">{description}</span>
       ) : null}
     </span>
     {children}
@@ -105,7 +105,7 @@ export const FormSection = ({
       </div>
       <div className="flex flex-col min-w-0">
         <h2 className="text-[1.1rem] font-semibold text-black">{title}</h2>
-        <p className="-translate-y-0.5 text-xs text-black/65 truncate">
+        <p className="-translate-y-0.5 text-sm text-black/65 truncate">
           {description}
         </p>
       </div>

@@ -73,13 +73,15 @@ runDatabaseGenerate();
 //
 // -c useLocalDevStack              (default: true)
 // -c enableRdsProxy                (default: false, also disabled when useLocalDevStack=true)
-// -c skipEmailVerification         (default: false)
+// -c skipEmailVerification         (default: false, forced true when no prodUrl/PROD_URL is configured)
 // -c enableEcsStack                (default: false)
 // -c enableWebSockets              (default: false)
 // -c useCustomWsAuthorizer         (default: false)
 // -c retainStatefulResources       (default: false) - Cognito, RDS, Secrets
 //
-// -c frontendUrl                   (default: FRONTEND_URL from .env)
+// -c prodUrl                       (default: PROD_URL from .env)
+// -c prodCertificateArn            (default: PROD_CERTIFICATE_ARN from .env, required when prodUrl is configured)
+// -c localDevUrl                   (default: LOCAL_DEV_URL from .env, fallback: http://localhost:3000 in local mode)
 // -c googleClientId                (default: GOOGLE_CLIENT_ID from .env)
 // -c googleClientSecret            (default: GOOGLE_CLIENT_SECRET from .env)
 
@@ -90,7 +92,7 @@ runDatabaseGenerate();
 // cdk deploy --all -c useCustomWsAuthorizer=true -c enableWebSockets=true -c skipEmailVerification=true --require-approval never
 
 // Current PROD deployment:
-// cdk deploy --all -c useLocalDevStack=false -c frontendUrl=http://localhost:3000 -c useCustomWsAuthorizer=true -c enableWebSockets=true -c enableEcsStack=false -c skipEmailVerification=true --require-approval never --profile=dev
+// cdk deploy --all -c useLocalDevStack=false -c prodUrl=https://lawstruct.ai -c prodCertificateArn=arn:aws:acm:us-east-1:<account-id>:certificate/<certificate-id> -c localDevUrl=http://localhost:3000 -c useCustomWsAuthorizer=true -c enableWebSockets=true -c enableEcsStack=false -c skipEmailVerification=true --require-approval never --profile=dev
 
 // Frontend website bucket deployment:
 // <build frontend assets in ../client-app/dist>
@@ -143,7 +145,7 @@ const enableRdsProxy = !useLocalDevStack && requestedEnableRdsProxy;
 const skipEmailVerificationContext = app.node.tryGetContext(
   "skipEmailVerification",
 );
-const skipEmailVerification =
+const requestedSkipEmailVerification =
   typeof skipEmailVerificationContext === "string"
     ? skipEmailVerificationContext.toLowerCase() === "true"
     : (skipEmailVerificationContext ?? false);
@@ -166,17 +168,31 @@ const retainStatefulResouces =
 const enableWebSockets =
   app.node.tryGetContext("enableWebSockets") === "true" ? true : false;
 
-const frontendWebsiteS3Stack = new FrontendWebsiteS3Stack(
-  app,
-  "FrontendWebsiteS3Stack",
-  {
-    env: stackEnv,
-    enableCloudFront: !useLocalDevStack,
-  },
-);
-
 const normalizeFrontendUrl = (url: string) =>
   cdk.Token.isUnresolved(url) ? url : url.trim().replace(/\/+$/, "");
+
+const optionalString = (value: unknown) => {
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+
+  const stringValue = String(value);
+  return stringValue.trim() ? stringValue : undefined;
+};
+
+const getDomainNameFromUrl = (url: string, label: string) => {
+  const normalizedUrl = normalizeFrontendUrl(url);
+
+  if (cdk.Token.isUnresolved(normalizedUrl)) {
+    return undefined;
+  }
+
+  try {
+    return new URL(normalizedUrl).hostname;
+  } catch {
+    throw new Error(`${label} must be an absolute URL. Received: ${url}`);
+  }
+};
 
 const isLoopbackHttpUrl = (url: string) => {
   if (cdk.Token.isUnresolved(url) || !url.startsWith("http://")) {
@@ -237,22 +253,54 @@ const dedupeFrontendUrls = (urls: string[]) => {
 };
 
 // The primary frontend URL is used by email links and other single-URL
-// consumers. In prod it remains CloudFront; frontendUrl/FRONTEND_URL is an
-// additional trusted origin for browser callbacks/CORS.
-const frontendUrlContext = app.node.tryGetContext("frontendUrl");
-const configuredFrontendUrl = frontendUrlContext
-  ? String(frontendUrlContext)
-  : process.env.FRONTEND_URL;
-const configuredFrontendUrls = [configuredFrontendUrl].filter(
-  (url): url is string => Boolean(url),
+// consumers. It comes from prodUrl/PROD_URL in production, then falls back to
+// the generated CloudFront URL in cloud mode. Localhost is represented by
+// localDevUrl only.
+const prodUrlContext = app.node.tryGetContext("prodUrl");
+const configuredProdUrl =
+  optionalString(prodUrlContext) ?? optionalString(process.env.PROD_URL);
+const prodCertificateArnContext = app.node.tryGetContext("prodCertificateArn");
+const configuredProdCertificateArn =
+  optionalString(prodCertificateArnContext) ??
+  optionalString(process.env.PROD_CERTIFICATE_ARN);
+const localDevUrlContext = app.node.tryGetContext("localDevUrl");
+const configuredLocalDevUrl =
+  optionalString(localDevUrlContext) ?? optionalString(process.env.LOCAL_DEV_URL);
+const localDevUrl = configuredLocalDevUrl ?? "http://localhost:3000";
+
+const prodDomainName = configuredProdUrl
+  ? getDomainNameFromUrl(configuredProdUrl, "prodUrl/PROD_URL")
+  : undefined;
+
+if (!useLocalDevStack && prodDomainName && !configuredProdCertificateArn) {
+  throw new Error(
+    "prodCertificateArn/PROD_CERTIFICATE_ARN is required when prodUrl/PROD_URL is configured so CloudFront can attach the alternate domain name.",
+  );
+}
+
+const frontendWebsiteS3Stack = new FrontendWebsiteS3Stack(
+  app,
+  "FrontendWebsiteS3Stack",
+  {
+    env: stackEnv,
+    enableCloudFront: !useLocalDevStack,
+    prodDomainName: !useLocalDevStack ? prodDomainName : undefined,
+    prodCertificateArn: !useLocalDevStack
+      ? configuredProdCertificateArn
+      : undefined,
+  },
 );
-const frontendUrl = useLocalDevStack
-  ? "http://localhost:3000"
-  : frontendWebsiteS3Stack.frontendWebsiteUrl!;
-const normalizedFrontendUrl = normalizeFrontendUrl(frontendUrl);
+const cloudFrontUrl = !useLocalDevStack
+  ? frontendWebsiteS3Stack.cloudFrontUrl!
+  : undefined;
+const frontendUrl = configuredProdUrl ?? cloudFrontUrl;
+const skipEmailVerification =
+  requestedSkipEmailVerification || !configuredProdUrl;
 const trustedFrontendUrls = dedupeFrontendUrls([
-  normalizedFrontendUrl,
-  ...configuredFrontendUrls,
+  ...(cloudFrontUrl ? [cloudFrontUrl] : []),
+  ...(frontendUrl ? [frontendUrl] : []),
+  ...(useLocalDevStack ? [localDevUrl] : []),
+  ...(configuredLocalDevUrl ? [configuredLocalDevUrl] : []),
 ]);
 trustedFrontendUrls.forEach(assertValidTrustedFrontendUrl);
 

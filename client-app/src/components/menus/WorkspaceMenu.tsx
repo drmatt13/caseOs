@@ -54,7 +54,7 @@ const WorkspaceMenu = ({
       {viewMenuItems.map(({ value, label, icon: Icon }) => (
         <div
           key={value}
-          className={`p-2 rounded-lg flex items-center justify-between gap-2 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100 ${
+          className={`p-2 h-8 rounded-lg flex items-center justify-between gap-2 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100 ${
             activeView === value ? "bg-black/10" : "hover:bg-black/10"
           }`}
           onClick={() => onSelectView(value)}
@@ -64,7 +64,7 @@ const WorkspaceMenu = ({
             <div className="truncate">{label}</div>
           </div>
           {counts[value] != null && (
-            <span className="rounded-full bg-black/10 px-1.5 py-0.5 text-[10px] text-black/60">
+            <span className="rounded-full bg-black/10 px-1.5 py-0.5 text-xs text-black/60">
               {counts[value]}
             </span>
           )}

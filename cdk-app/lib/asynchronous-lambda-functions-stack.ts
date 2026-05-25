@@ -33,7 +33,7 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
   ) {
     super(scope, id, props);
 
-    const frontendUrl = props?.frontendUrl ?? "http://localhost:3000";
+    const frontendUrl = props?.frontendUrl;
     const useLocalDevStack = props?.useLocalDevStack ?? true;
     const skipEmailVerification = props?.skipEmailVerification ?? false;
     const replayBucketName = props?.replayBucketName ?? "default-bucket-name";
@@ -86,7 +86,7 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
           target: "es2020",
         },
         environment: {
-          FRONTEND_URL: frontendUrl,
+          FRONTEND_URL: frontendUrl ?? "",
         },
         memorySize: 128,
         timeout: cdk.Duration.seconds(10),

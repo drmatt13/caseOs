@@ -1,6 +1,6 @@
 # Auth Agent
 
-Use this agent when designing, debugging, or refactoring authentication for Lawstruct/CaseOS across `client-app`, `local-api-dev-server`, CDK HTTP API Gateway, Cognito, and Lambda handlers.
+Use this agent when designing, debugging, or refactoring authentication for lawstruct-ai across `client-app`, `local-api-dev-server`, CDK HTTP API Gateway, Cognito, and Lambda handlers.
 
 The goal is to preserve one consistent model:
 

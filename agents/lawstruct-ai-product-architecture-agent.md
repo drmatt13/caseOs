@@ -1,12 +1,12 @@
-# CaseOS Product And Architecture Agent
+# lawstruct-ai Product And Architecture Agent
 
-Use this agent when planning, implementing, or reviewing work that affects CaseOS as a product: case workspaces, case records, documents, intake, graph relationships, AI-assisted reasoning, human review flows, or the persistence/API/UI contracts that make those features real.
+Use this agent when planning, implementing, or reviewing work that affects lawstruct-ai as a product: case workspaces, case records, documents, intake, graph relationships, AI-assisted reasoning, human review flows, or the persistence/API/UI contracts that make those features real.
 
 This agent is intentionally broader than a single implementation task. Its job is to keep the application pointed at the product vision while respecting the codebase as it exists today.
 
 ## Product North Star
 
-CaseOS is an AI-assisted case intelligence platform for turning scattered legal and case material into structured, connected, searchable knowledge.
+lawstruct-ai is an AI-assisted case intelligence platform for turning scattered legal and case material into structured, connected, searchable knowledge.
 
 The product should not feel like a generic document upload tool with a chat box attached. It should feel like a structured case command center where users can see, create, verify, connect, and reason across:
 
@@ -31,11 +31,11 @@ The deeper bet is that legal reasoning gets stronger when humans and agents reas
 documents -> extracted records -> facts/issues/arguments -> timeline/context -> AI-assisted strategy
 ```
 
-In plain terms: CaseOS helps users turn messy legal material into an organized, traceable case model that both humans and AI agents can query and reason across.
+In plain terms: lawstruct-ai helps users turn messy legal material into an organized, traceable case model that both humans and AI agents can query and reason across.
 
 ## Current Repository Reality
 
-The repo is a TypeScript monorepo that started as a local-first AWS/CDK development kit and is being shaped into CaseOS.
+The repo is a TypeScript monorepo that started as a local-first AWS/CDK development kit and is being shaped into lawstruct-ai.
 
 Current major areas:
 
@@ -49,11 +49,11 @@ Current major areas:
 
 Important current constraints:
 
-- The Prisma schema already contains CaseOS domain models for workspaces, managed cases, document indexes, record indexes, view indexes, state manifests, and LLM usage events.
+- The Prisma schema already contains lawstruct-ai domain models for workspaces, managed cases, document indexes, record indexes, view indexes, state manifests, and LLM usage events.
 - The active GraphQL schema currently exposes only current-user and user-profile operations. Case, workspace, document, record, manifest, and view APIs are not yet exposed through GraphQL.
 - The frontend has a case intake wizard at `/cases/new` and a case route shell at `/case/$id`, but the route currently uses placeholder/demo data and does not yet load a real case workspace from the backend.
 - `client-app/src/types/caseWorkspace.ts` is a useful product-domain sketch, but it is not yet fully reconciled with Prisma enums, persisted storage, or GraphQL contracts.
-- The LangGraph service exists as a Bedrock-backed demo service with simple routing/tools. It is not yet a CaseOS record-generation or enrichment workflow.
+- The LangGraph service exists as a Bedrock-backed demo service with simple routing/tools. It is not yet a lawstruct-ai record-generation or enrichment workflow.
 - S3/STS support exists today for profile picture upload. Case document storage and scoped document upload/download flows still need product-specific expansion.
 
 ## Existing Product Model
@@ -113,7 +113,7 @@ The Prisma model is already closer to the intended backend architecture than the
    Important claims, facts, and strategy suggestions should point back to evidence, documents, notes, testimony, or prior records when possible.
 
 4. The graph matters.
-   CaseOS should preserve relationships between records. Updating or superseding one record should make affected links and derived views visible for review instead of silently hiding the consequences.
+   lawstruct-ai should preserve relationships between records. Updating or superseding one record should make affected links and derived views visible for review instead of silently hiding the consequences.
 
 5. Master views are derived, not the source of truth.
    Master markdown views such as an arguments digest, document index, or full case summary should summarize indexed records and documents. They should be regenerated or updated from structured state, with source hashes/manifests where useful.
@@ -282,7 +282,7 @@ Every agent workflow should answer:
 - What existing accepted records may be affected?
 - What should the user review next?
 
-The current `cdk-app/ecs_containers/langgraph-service` is a demo. When making it CaseOS-specific, keep the service boundary explicit:
+The current `cdk-app/ecs_containers/langgraph-service` is a demo. When making it lawstruct-ai-specific, keep the service boundary explicit:
 
 - Inputs should include workspace id, case id, actor user id, operation name, relevant records/documents, and prompt/context.
 - Outputs should be structured proposals ready to persist through backend mutations.
@@ -400,7 +400,7 @@ Before changing code:
 4. If the change adds app UI, follow `agents/frontend-style-parity-agent.md`.
 5. Keep user-created changes in the worktree intact.
 
-For new CaseOS domain work:
+For new lawstruct-ai domain work:
 
 1. Start with the persistence and access model.
 2. Add GraphQL fields/mutations with membership checks.
@@ -411,7 +411,7 @@ For new CaseOS domain work:
 
 ## Review Checklist
 
-When reviewing CaseOS work, ask:
+When reviewing lawstruct-ai work, ask:
 
 - Does this advance the structured case model, or does it collapse back into unstructured chat/files?
 - Are proposed, accepted, rejected, and superseded states represented clearly?

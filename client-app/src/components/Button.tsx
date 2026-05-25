@@ -76,7 +76,7 @@ const Button = ({
     }
   }, [initialDisabled]);
 
-  const baseClassName = `${fullWidth ? "w-full" : minWidth ? `${minWidthClasses[minWidth]} shrink-0` : "shrink-0"} ${icon ? "pl-3.5 pr-4" : "px-4"} relative isolate text-xs inline-flex items-center justify-center whitespace-nowrap py-2 rounded border transition-colors ease-in duration-150 hover:ease-out hover:duration-100 overflow-visible`;
+  const baseClassName = `${fullWidth ? "w-full" : minWidth ? `${minWidthClasses[minWidth]} shrink-0` : "shrink-0"} ${icon ? "pl-3.5 pr-4" : "px-4"} relative isolate text-sm inline-flex items-center justify-center whitespace-nowrap py-2 rounded border transition-colors ease-in duration-150 hover:ease-out hover:duration-100 overflow-visible`;
   const variantClassName =
     style === "primary"
       ? "border-transparent bg-[#282828] text-white"

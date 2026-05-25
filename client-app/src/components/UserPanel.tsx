@@ -59,13 +59,13 @@ const UserPanel = ({
             </div>
           )}
           <div className="flex min-w-0 flex-1 flex-col">
-            <p className="text-sm truncate">
+            <p className="text-md truncate">
               {user.displayName
                 ? user.displayName
                 : `${user.firstName} ${user.lastName}`.trim()}
             </p>
             {showTier && (
-              <p className="text-xs text-gray-500 truncate">
+              <p className="text-sm text-gray-500 truncate">
                 Tier:{" "}
                 {user.accountTier
                   ? accountTierLabels[user.accountTier]

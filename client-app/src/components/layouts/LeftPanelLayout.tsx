@@ -18,7 +18,7 @@ interface LeftPanelLayoutProps {
   children: ReactNode;
 }
 
-const pixelsToRem = (px: number) => px / 20;
+const pixelsToRem = (px: number) => px / 21;
 const maxBodyScrollDeltaRem = 5.25;
 const stickyTopRem = 1.75;
 const bottomPaddingRem = 1.8;
@@ -278,8 +278,13 @@ const LeftPanelLayout = ({ children }: LeftPanelLayoutProps) => {
       <div
         ref={panelRef}
         style={windowWidthCategory === "large" ? panelStyle : undefined}
-        className="sticky top-0 max-h-dvh lg:top-7 h-dvh lg:h-max lg:rounded-2xl pl-2 lg:pl-0 bg-neutral-400/40 lg:bg-transparent backdrop-blur-lg lg:backdrop-blur-none border-r lg:border border-black/5 lg:border-black/15 lg:shadow-md lg:overflow-hidden"
+        className="sticky top-0 translate-y-20 max-h-dvh lg:top-7 h-dvh lg:h-max lg:rounded-2xl pl-2 lg:pl-0 bg-neutral-400/40 lg:bg-transparent backdrop-blur-lg lg:backdrop-blur-none border-r lg:border border-black/5 lg:border-black/15 lg:shadow-md lg:overflow-hidden"
       >
+        {windowWidthCategory !== "large" && (
+          <>
+            <div className="absolute left-0 top-0 -translate-y-full w-full h-16 bg-neutral-400/40 backdrop-blur-lg z-1000" />
+          </>
+        )}
         {menuOpen && (
           <div className="pointer-events-none absolute right-0 translate-x-full w-[200vw] h-full" />
         )}
@@ -298,7 +303,7 @@ const LeftPanelLayout = ({ children }: LeftPanelLayoutProps) => {
               </button>
             </div>
           )}
-          <div className="font-serif text-xs lg:bg-white/40 lg:backdrop-blur-sm pt-5 pb-4 pl-2 pr-4 lg:px-4 flex flex-col gap-2">
+          <div className="font-serif text-sm lg:bg-white/40 lg:backdrop-blur-sm pt-5 pb-4 pl-2 pr-4 lg:px-4 flex flex-col gap-2">
             {windowWidthCategory !== "large" && (
               <div className="mb-2">
                 <AppLogo LeftPanelLayout={true} />

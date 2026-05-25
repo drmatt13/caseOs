@@ -35,12 +35,12 @@ export class CognitoStack extends cdk.Stack {
 
     const logoutUrls = props.logoutUrls ?? ["http://localhost:3000/"];
 
-    const domainPrefix = `localdevkit-${cdk.Stack.of(this)
+    const domainPrefix = `lawstruct-ai-${cdk.Stack.of(this)
       .account.slice(-8)
       .toLowerCase()}`;
 
     const userPool = new cognito.UserPool(this, "UserPool", {
-      userPoolName: "LocalDevKitUserPool",
+      userPoolName: "LawstructAiUserPool",
 
       selfSignUpEnabled: true,
       signInCaseSensitive: false,

@@ -1,6 +1,6 @@
 # Prod Deployment Agent
 
-Use this agent when deploying or troubleshooting the production cloud stack for Lawstruct/CaseOS. The goal is to make the path from the working dev deployment to a usable CloudFront-hosted production frontend repeatable.
+Use this agent when deploying or troubleshooting the production cloud stack for lawstruct-ai. The goal is to make the path from the working dev deployment to a usable CloudFront-hosted production frontend repeatable.
 
 ## Current Working Dev Flow
 

@@ -20,7 +20,7 @@ export class ApplicationS3Stack extends cdk.Stack {
     );
 
     this.applicationDataBucket = new s3.Bucket(this, "ApplicationDataBucket", {
-      bucketName: `caseos-application-data-${this.account}-${this.region}`,
+      bucketName: `lawstruct-ai-application-data-${this.account}-${this.region}`,
       blockPublicAccess: new s3.BlockPublicAccess({
         blockPublicAcls: true,
         ignorePublicAcls: true,

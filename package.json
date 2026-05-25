@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "codegen": "graphql-codegen --config codegen.ts",
-    "export:cdk-outputs:profile-dev": "node scripts/export-cdk-outputs.mjs  --profile=dev --region=us-east-1"
+    "export:cdk-outputs:aws-profile-dev": "node scripts/export-cdk-outputs.mjs  --profile=dev --region=us-east-1"
   },
   "workspaces": [
     "client-app",

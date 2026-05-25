@@ -6,12 +6,14 @@ import { Construct } from "constructs";
 
 export interface FrontendWebsiteS3StackProps extends cdk.StackProps {
   enableCloudFront?: boolean;
+  prodDomainName?: string;
+  prodCertificateArn?: string;
 }
 
 export class FrontendWebsiteS3Stack extends cdk.Stack {
   public readonly frontendWebsiteBucket: s3.Bucket;
   public readonly frontendDistribution?: cloudfront.CfnDistribution;
-  public readonly frontendWebsiteUrl?: string;
+  public readonly cloudFrontUrl?: string;
 
   constructor(scope: Construct, id: string, props?: FrontendWebsiteS3StackProps) {
     super(scope, id, props);
@@ -20,7 +22,7 @@ export class FrontendWebsiteS3Stack extends cdk.Stack {
       this,
       "FrontendWebsiteBucket",
       {
-        bucketName: `caseos-frontend-website-${this.account}-${this.region}`,
+        bucketName: `lawstruct-ai-frontend-website-${this.account}-${this.region}`,
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         encryption: s3.BucketEncryption.S3_MANAGED,
         enforceSSL: true,
@@ -30,13 +32,19 @@ export class FrontendWebsiteS3Stack extends cdk.Stack {
     );
 
     if (props?.enableCloudFront) {
+      if (props.prodDomainName && !props.prodCertificateArn) {
+        throw new Error(
+          "prodCertificateArn is required when prodDomainName is configured.",
+        );
+      }
+
       const originAccessControl = new cloudfront.CfnOriginAccessControl(
         this,
         "FrontendOriginAccessControl",
         {
           originAccessControlConfig: {
-            name: "caseos-frontend-website-oac",
-            description: "OAC for the CaseOS frontend website bucket.",
+            name: "lawstruct-ai-frontend-website-oac",
+            description: "OAC for the Lawstruct.ai frontend website bucket.",
             originAccessControlOriginType: "s3",
             signingBehavior: "always",
             signingProtocol: "sigv4",
@@ -51,6 +59,16 @@ export class FrontendWebsiteS3Stack extends cdk.Stack {
           distributionConfig: {
             enabled: true,
             defaultRootObject: "index.html",
+            ...(props.prodDomainName
+              ? {
+                  aliases: [props.prodDomainName],
+                  viewerCertificate: {
+                    acmCertificateArn: props.prodCertificateArn,
+                    minimumProtocolVersion: "TLSv1.2_2021",
+                    sslSupportMethod: "sni-only",
+                  },
+                }
+              : {}),
             origins: [
               {
                 id: "FrontendWebsiteS3Origin",
@@ -106,21 +124,21 @@ export class FrontendWebsiteS3Stack extends cdk.Stack {
         }),
       );
 
-      this.frontendWebsiteUrl = `https://${this.frontendDistribution.attrDomainName}`;
+      this.cloudFrontUrl = `https://${this.frontendDistribution.attrDomainName}`;
 
-      new cdk.CfnOutput(this, "FrontendWebsiteUrl", {
-        value: this.frontendWebsiteUrl,
-        exportName: "FrontendWebsiteS3Stack:FrontendWebsiteUrl",
+      new cdk.CfnOutput(this, "CloudFrontUrl", {
+        value: this.cloudFrontUrl,
+        exportName: "FrontendWebsiteS3Stack:CloudFrontUrl",
       });
 
-      new cdk.CfnOutput(this, "FrontendDistributionDomainName", {
+      new cdk.CfnOutput(this, "CloudFrontDomainName", {
         value: this.frontendDistribution.attrDomainName,
-        exportName: "FrontendWebsiteS3Stack:FrontendDistributionDomainName",
+        exportName: "FrontendWebsiteS3Stack:CloudFrontDomainName",
       });
 
-      new cdk.CfnOutput(this, "FrontendDistributionId", {
+      new cdk.CfnOutput(this, "CloudFrontId", {
         value: this.frontendDistribution.ref,
-        exportName: "FrontendWebsiteS3Stack:FrontendDistributionId",
+        exportName: "FrontendWebsiteS3Stack:CloudFrontId",
       });
     }
 

@@ -151,7 +151,7 @@ const ModifySubscriptionModal = () => {
 
   if (userPending) {
     return (
-      <div className="w-3xl max-w-[calc(100vw-3rem)] p-2 text-xs">
+      <div className="w-3xl max-w-[calc(100vw-3rem)] p-2 text-sm">
         <div className="h-4 w-36 rounded bg-black/10" />
         <div className="mt-4 h-16 rounded-lg bg-black/10" />
         <div className="mt-3 grid gap-2 md:grid-cols-2">
@@ -164,8 +164,8 @@ const ModifySubscriptionModal = () => {
 
   if (userError || !user) {
     return (
-      <div className="w-lg max-w-[calc(100vw-3rem)] p-2 text-xs">
-        <p className="font-serif text-base">Manage Subscription</p>
+      <div className="w-lg max-w-[calc(100vw-3rem)] p-2 text-sm">
+        <p className="font-serif text-lg">Manage Subscription</p>
         <p className="mt-2 text-gray-600">
           Could not load your current subscription.
         </p>
@@ -174,10 +174,10 @@ const ModifySubscriptionModal = () => {
   }
 
   return (
-    <div className="w-3xl max-w-[calc(100vw-3rem)] p-1 text-xs">
+    <div className="w-3xl max-w-[calc(100vw-3rem)] p-1 text-sm">
       <div className="mb-4 flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="font-serif text-base">Manage Subscription</p>
+          <p className="font-serif text-lg">Manage Subscription</p>
           <p className="mt-0.5 text-gray-600">
             {modalStep === "select-tier"
               ? "Review your current subscription and choose a new account tier."

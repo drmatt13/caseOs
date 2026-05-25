@@ -97,12 +97,12 @@ function RouteComponent() {
             className="flex flex-col px-5 pt-8 pb-5 rounded-2xl bg-white/40 backdrop-blur-sm border border-black/15 shadow-md"
           >
             <p className="text-[1.7rem] font-bold">Create your account</p>
-            <p className="mt-0.5 text-sm text-gray-600">
+            <p className="mt-0.5 text-md text-gray-600">
               Get started with your workspace
             </p>
             <label
               htmlFor="register-first-name"
-              className="text-sm font-medium mt-5 mb-1.5"
+              className="text-md font-medium mt-5 mb-1.5"
             >
               First name
             </label>
@@ -115,12 +115,12 @@ function RouteComponent() {
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               disabled={isSubmitting}
-              className="rounded-md px-2 py-2.5 text-xs bg-gray-100 border border-black/15"
+              className="rounded-md px-2 py-2.5 text-sm bg-gray-100 border border-black/15"
               placeholder="Jane"
             />
             <label
               htmlFor="register-last-name"
-              className="text-sm font-medium mt-3 mb-1.5"
+              className="text-md font-medium mt-3 mb-1.5"
             >
               Last name
             </label>
@@ -133,12 +133,12 @@ function RouteComponent() {
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
               disabled={isSubmitting}
-              className="rounded-md px-2 py-2.5 text-xs bg-gray-100 border border-black/15"
+              className="rounded-md px-2 py-2.5 text-sm bg-gray-100 border border-black/15"
               placeholder="Doe"
             />
             <label
               htmlFor="register-email"
-              className="text-sm font-medium mt-3 mb-1.5"
+              className="text-md font-medium mt-3 mb-1.5"
             >
               Email
             </label>
@@ -150,12 +150,12 @@ function RouteComponent() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={isSubmitting}
-              className="rounded-md px-2 py-2.5 text-xs bg-gray-100 border border-black/15"
+              className="rounded-md px-2 py-2.5 text-sm bg-gray-100 border border-black/15"
               placeholder="name@firm.com"
             />
             <label
               htmlFor="register-password"
-              className="text-sm font-medium mt-3 mb-1.5"
+              className="text-md font-medium mt-3 mb-1.5"
             >
               Password
             </label>
@@ -169,12 +169,12 @@ function RouteComponent() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={isSubmitting}
-              className="rounded-md px-2 py-2.5 text-xs bg-gray-100 border border-black/15"
+              className="rounded-md px-2 py-2.5 text-sm bg-gray-100 border border-black/15"
               placeholder="••••••••"
             />
             <label
               htmlFor="register-confirm-password"
-              className="text-sm font-medium mt-3 mb-1.5"
+              className="text-md font-medium mt-3 mb-1.5"
             >
               Confirm password
             </label>
@@ -188,11 +188,11 @@ function RouteComponent() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               disabled={isSubmitting}
-              className="rounded-md px-2 py-2.5 mb-3 text-xs bg-gray-100 border border-black/15"
+              className="rounded-md px-2 py-2.5 mb-3 text-sm bg-gray-100 border border-black/15"
               placeholder="••••••••"
             />
             {status && (
-              <p className="text-sm text-red-600 mt-1 mb-2">{status}</p>
+              <p className="text-md text-red-600 mt-1 mb-2">{status}</p>
             )}
             {/* <div className="mt-2 w-full"> */}
             <div className="mt-2 w-full" />
@@ -203,7 +203,7 @@ function RouteComponent() {
               disabled={isSubmitting}
             />
             {/* </div> */}
-            <div className="mt-4 text-gray-500 flex w-full justify-center">
+            <div className="mt-4 text-md text-gray-500 flex w-full justify-center">
               <p>
                 Already have an account?{" "}
                 <Link

@@ -36,7 +36,7 @@ const SubscriptionSnapshot = ({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-gray-600">{label}</p>
-          <p className="mt-1 font-serif text-lg">{tierName}</p>
+          <p className="mt-1 font-serif text-xl">{tierName}</p>
         </div>
 
         <span className="rounded-full border border-black/10 bg-white/80 px-3 py-1 text-[11px] text-gray-700">

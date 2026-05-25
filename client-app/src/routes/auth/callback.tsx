@@ -79,7 +79,7 @@ function RouteComponent() {
       <div className="flex flex-col w-84">
         <div className="flex flex-col px-5 pt-8 pb-5 rounded-2xl bg-white/40 backdrop-blur-sm border border-black/15 shadow-md">
           <p className="text-[1.7rem] font-bold">Google sign in</p>
-          <p className="mt-3 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-800">
+          <p className="mt-3 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-md text-blue-800">
             {message}
           </p>
         </div>
