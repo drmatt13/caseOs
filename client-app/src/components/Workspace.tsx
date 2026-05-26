@@ -69,14 +69,14 @@ const demoWorkspaceMembers: DemoWorkspaceMember[] = [
 const ActiveWorkspaceState = ({ workspace }: ActiveWorkspaceStateProps) => {
   return (
     <div className="flex flex-col px-4 gap-1.5">
-      <p className="text-2xl font-bold">{workspace}</p>
-      <p className="mb-1.5">
+      <p className="text-xl font-bold">{workspace}</p>
+      <p className="mb-1.5 text-md">
         This workspace is dedicated to managing residential tenancy disputes and
         housing-related legal matters. Members can collaborate on case files,
         share documents, and communicate about ongoing proceedings.
       </p>
       <div className="mt-2 pb-1 flex justify-between">
-        <p className="text-lg font-medium text-black/75">
+        <p className="text-md font-medium">
           Members ({demoWorkspaceMembers.length})
         </p>
         <div className="text-sm p-2 rounded-lg hover:bg-black/10 cursor-pointer flex items-center gap-1.5 text-black border border-black/15 transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
@@ -120,7 +120,7 @@ const EmptyWorkspaceState = ({
         <BriefcaseBusiness className="h-7 w-7 text-black/75" />
       </div>
 
-      <p className="text-2xl font-bold">
+      <p className="text-xl font-bold">
         {canCreateWorkspace
           ? "Create your first workspace"
           : "No workspace access yet"}
@@ -241,12 +241,12 @@ const Workspace = ({ workspace }: WorkspaceProps) => {
             </button>
           )}
           <div className="text-sm p-2 rounded-lg hover:bg-black/10 cursor-pointer flex items-center gap-1.5 text-black transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
-            <MessageSquare className="w-3.5 h-3.5" />
-            <div>Messages</div>
-          </div>
-          <div className="text-sm p-2 rounded-lg hover:bg-black/10 cursor-pointer flex items-center gap-1.5 text-black transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
             <Mail className="w-3.5 h-3.5" />
             <div>Invites</div>
+          </div>
+          <div className="text-sm p-2 rounded-lg hover:bg-black/10 cursor-pointer flex items-center gap-1.5 text-black transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
+            <MessageSquare className="w-3.5 h-3.5" />
+            <div>Messages</div>
           </div>
         </div>
         {/* ONLY IF YOU ARE THE WORKSPACE OWNER SHOULD YOU SEE THIS */}
