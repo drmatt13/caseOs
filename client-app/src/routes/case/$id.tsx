@@ -534,11 +534,11 @@ function CaseSummaryView({ records }: { records: DemoRecord[] }) {
                 key={item.id}
                 className="rounded-lg border border-black/10 bg-white/70 p-3"
               >
-                <div className="flex items-center justify-between gap-2 text-[11px] text-black/55">
+                <div className="flex items-center justify-between gap-2 text-xs text-black/55">
                   <span>{item.actor}</span>
                   <span>{item.time}</span>
                 </div>
-                <p className="mt-1 text-sm leading-5 text-black/75">
+                <p className="mt-1.5 text-sm leading-5 text-black/75">
                   {item.action}
                 </p>
               </div>
