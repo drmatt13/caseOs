@@ -1,11 +1,11 @@
 {
-  "name": "matts-cdk-dev-kit",
+  "name": "matts-aws-cdk-dev-kit",
   "author": "Matthew Sweeney",
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
     "codegen": "graphql-codegen --config codegen.ts",
-    "export:cdk-outputs:aws-profile-dev": "node scripts/export-cdk-outputs.mjs  --profile=dev --region=us-east-1"
+    "export:cdk-outputs": "node scripts/export-cdk-outputs.mjs"
   },
   "workspaces": [
     "client-app",
@@ -18,8 +18,14 @@
     "local-ws-dev-server"
   ],
   "devDependencies": {
+    "@prisma/client": "6.19.3",
     "@graphql-codegen/cli": "^7.0.0",
-    "@graphql-codegen/schema-ast": "^6.0.0"
+    "@graphql-codegen/schema-ast": "^6.0.0",
+    "prisma": "6.19.3"
   },
-  "packageManager": "pnpm@10.33.0+sha512.10568bb4a6afb58c9eb3630da90cc9516417abebd3fabbe6739f0ae795728da1491e9db5a544c76ad8eb7570f5c4bb3d6c637b2cb41bfdcdb47fa823c8649319"
+  "packageManager": "npm@10.9.8",
+  "overrides": {
+    "@prisma/client": "6.19.3",
+    "prisma": "6.19.3"
+  }
 }

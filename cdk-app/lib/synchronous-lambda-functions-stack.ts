@@ -7,8 +7,8 @@ import * as iam from "aws-cdk-lib/aws-iam";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as path from "path";
 import {
-  prismaClientCommandHooks,
-  prismaLambdaEnvironment,
+  makePrismaClientCommandHooks,
+  makePrismaLambdaEnvironment,
 } from "./prisma-lambda-bundling";
 
 export interface HttpUserPoolAuthorizerConfig {
@@ -21,6 +21,8 @@ export interface SynchronousLambdaFunctionsStackProps extends cdk.StackProps {
   userPoolClientId: string;
   userPoolDomainUrl: string;
   primaryDatabaseSecretArn?: string;
+  lambdaArchitecture: lambda.Architecture;
+  prismaBinaryTarget: string;
   applicationDataBucket: s3.IBucket;
   stripePublishableKey?: string;
   stripeSecretKey?: string;
@@ -54,9 +56,16 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
       userPoolId: props.userPoolId,
       userPoolClientId: props.userPoolClientId,
     };
+    const prismaClientCommandHooks = makePrismaClientCommandHooks(
+      props.prismaBinaryTarget,
+    );
+    const prismaLambdaEnvironment = makePrismaLambdaEnvironment(
+      props.prismaBinaryTarget,
+    );
 
     this.signInFn = new nodejs.NodejsFunction(this, "SignIn", {
       runtime: lambda.Runtime.NODEJS_20_X,
+      architecture: props.lambdaArchitecture,
       entry: path.join(
         __dirname,
         "..",
@@ -80,6 +89,7 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
 
     this.signOutFn = new nodejs.NodejsFunction(this, "SignOut", {
       runtime: lambda.Runtime.NODEJS_20_X,
+      architecture: props.lambdaArchitecture,
       entry: path.join(
         __dirname,
         "..",
@@ -99,6 +109,7 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
 
     this.oauthCallbackFn = new nodejs.NodejsFunction(this, "OAuthCallback", {
       runtime: lambda.Runtime.NODEJS_20_X,
+      architecture: props.lambdaArchitecture,
       entry: path.join(
         __dirname,
         "..",
@@ -132,6 +143,7 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
 
     this.verifySessionFn = new nodejs.NodejsFunction(this, "VerifySession", {
       runtime: lambda.Runtime.NODEJS_20_X,
+      architecture: props.lambdaArchitecture,
       entry: path.join(
         __dirname,
         "..",
@@ -155,6 +167,7 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
 
     this.refreshFn = new nodejs.NodejsFunction(this, "Refresh", {
       runtime: lambda.Runtime.NODEJS_20_X,
+      architecture: props.lambdaArchitecture,
       entry: path.join(
         __dirname,
         "..",
@@ -178,6 +191,7 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
 
     this.getUserFn = new nodejs.NodejsFunction(this, "GetUser", {
       runtime: lambda.Runtime.NODEJS_20_X,
+      architecture: props.lambdaArchitecture,
       entry: path.join(
         __dirname,
         "..",
@@ -208,6 +222,7 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
 
     this.graphqlApiFn = new nodejs.NodejsFunction(this, "GraphQLApi", {
       runtime: lambda.Runtime.NODEJS_20_X,
+      architecture: props.lambdaArchitecture,
       entry: path.join(
         __dirname,
         "..",
@@ -238,6 +253,7 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
 
     this.s3AccessBrokerFn = new nodejs.NodejsFunction(this, "S3AccessBroker", {
       runtime: lambda.Runtime.NODEJS_20_X,
+      architecture: props.lambdaArchitecture,
       entry: path.join(
         __dirname,
         "..",
@@ -317,6 +333,7 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
       "BillingListProducts",
       {
         runtime: lambda.Runtime.NODEJS_20_X,
+        architecture: props.lambdaArchitecture,
         entry: path.join(
           __dirname,
           "..",
@@ -345,6 +362,7 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
       "BillingCreateSetupIntent",
       {
         runtime: lambda.Runtime.NODEJS_20_X,
+        architecture: props.lambdaArchitecture,
         entry: path.join(
           __dirname,
           "..",
@@ -380,6 +398,7 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
       "BillingCreateSubscription",
       {
         runtime: lambda.Runtime.NODEJS_20_X,
+        architecture: props.lambdaArchitecture,
         entry: path.join(
           __dirname,
           "..",
@@ -412,6 +431,7 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
 
     this.stripeWebhookFn = new nodejs.NodejsFunction(this, "StripeWebhook", {
       runtime: lambda.Runtime.NODEJS_20_X,
+      architecture: props.lambdaArchitecture,
       entry: path.join(
         __dirname,
         "..",

@@ -4,6 +4,7 @@ import * as s3 from "aws-cdk-lib/aws-s3";
 import { Construct } from "constructs";
 
 export interface ApplicationS3StackProps extends cdk.StackProps {
+  deploymentName?: string;
   frontendUrls?: string[];
   retainStatefulResouces?: boolean;
 }
@@ -15,12 +16,13 @@ export class ApplicationS3Stack extends cdk.Stack {
     super(scope, id, props);
 
     const retainStatefulResouces = props?.retainStatefulResouces ?? false;
+    const deploymentName = props?.deploymentName ?? "matts-aws-cdk-dev-kit";
     const frontendUrls = (props?.frontendUrls ?? ["http://localhost:3000"]).map(
       (url) => (cdk.Token.isUnresolved(url) ? url : url.replace(/\/+$/, "")),
     );
 
     this.applicationDataBucket = new s3.Bucket(this, "ApplicationDataBucket", {
-      bucketName: `lawstruct-ai-application-data-${this.account}-${this.region}`,
+      bucketName: `${deploymentName}-application-data-${this.account}-${this.region}`,
       blockPublicAccess: new s3.BlockPublicAccess({
         blockPublicAcls: true,
         ignorePublicAcls: true,
@@ -63,12 +65,12 @@ export class ApplicationS3Stack extends cdk.Stack {
 
     new cdk.CfnOutput(this, "ApplicationDataBucketName", {
       value: this.applicationDataBucket.bucketName,
-      exportName: "ApplicationS3Stack:ApplicationDataBucketName",
+      exportName: `${this.stackName}:ApplicationDataBucketName`,
     });
 
     new cdk.CfnOutput(this, "ApplicationDataBucketArn", {
       value: this.applicationDataBucket.bucketArn,
-      exportName: "ApplicationS3Stack:ApplicationDataBucketArn",
+      exportName: `${this.stackName}:ApplicationDataBucketArn`,
     });
   }
 }

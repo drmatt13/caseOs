@@ -4,6 +4,7 @@
 # AWS_SDK_LOAD_CONFIG enables profile-based config loading from ~/.aws/config,
 # which is needed when containers rely on mounted local AWS credentials.
 x-aws-env: &aws-env
+  # The AWS Profile that the AWS CLI and SDKs should use when running in the Docker containers. This should match a profile configured in your local AWS credentials file (~/.aws/credentials) 
   AWS_PROFILE: dev
   AWS_REGION: us-east-1
   AWS_SDK_LOAD_CONFIG: "1"
@@ -36,19 +37,19 @@ x-local-api-dev-server-env: &local-api-dev-server-env
   LANGGRAPH_SERVICE_URL: "http://langgraph-service"
   PRIMARY_DATABASE_URL: "postgresql://admin:password@postgres:5432/app_db" # In development you should always use local Postgres for database access
   GRAPHQL_GRAPHIQL_ENABLED: "true"
-  # Source: ApplicationS3Stack output key `ApplicationDataBucketArn`
-  APPLICATION_DATA_BUCKET_ARN: "${APPLICATION_DATA_BUCKET_ARN}"
   # Never capture event-driven functions in local dev
   USE_LOCAL_DEV_STACK: "false"
   # Source: DevLambdaReplayStack output key `ReplayBucketName`
   DEV_LAMBDA_REPLAY_BUCKET_NAME: "${DEV_LAMBDA_REPLAY_BUCKET_NAME}"
   # Source: DevLambdaReplayStack output key `ReplayQueueUrl`
   DEV_LAMBDA_REPLAY_QUEUE_URL: "${DEV_LAMBDA_REPLAY_QUEUE_URL}"
+  # Source: ApplicationS3Stack output key `ApplicationDataBucketArn`
+  APPLICATION_DATA_BUCKET_ARN: "${APPLICATION_DATA_BUCKET_ARN}"
 
 # Local Prisma environment variables for Docker-networked database access.
 x-local-prisma-env: &local-prisma-env
   DATABASE_URL: "postgresql://admin:password@postgres:5432/app_db"
-  PRISMA_BINARY_TARGETS: '["linux-musl-openssl-3.0.x"]'
+  PRISMA_BINARY_TARGETS: '["linux-musl-openssl-3.0.x","linux-musl-arm64-openssl-3.0.x"]'
   PRISMA_LOCAL_SCHEMA_SYNC: "${PRISMA_LOCAL_SCHEMA_SYNC:-migrate}"
 
 # The local WebSocket dev servers environment variables
@@ -81,15 +82,23 @@ x-nodemon-env: &nodemon-env
 
 services:
   root-deps:
-    image: node:alpine
+    image: node:22-alpine
     working_dir: /workspace
-    command: ["npm", "install", "--prefer-offline"]
+    # Use `npm ci` when a lockfile exists (fast, no registry resolution).
+    # On first run there is no lockfile, so fall through to `npm install` which writes one.
+    # Subsequent runs will hit the `npm ci` path and be significantly faster.
+    command:
+      [
+        "sh",
+        "-c",
+        "[ -f package-lock.json ] && npm ci --prefer-offline || npm install --prefer-offline",
+      ]
     volumes:
       - ./:/workspace
       - workspace_node_modules:/workspace/node_modules
 
   prisma-generate:
-    image: node:alpine
+    image: node:22-alpine
     working_dir: /workspace/packages/database
     environment:
       <<: *local-prisma-env
@@ -97,17 +106,22 @@ services:
       [
         "sh",
         "-lc",
-        "npm run generate",
+        # Keep Prisma CLI and @prisma/client installed in the Linux-native package volume.
+        # If @prisma/client is missing, `prisma generate` tries to install it internally and that
+        # install is brittle on Docker named volumes across Windows/macOS hosts.
+        "[ -x node_modules/.bin/prisma ] && [ -d node_modules/@prisma/client ] || npm install --prefix /workspace/packages/database --no-save --package-lock=false --prefer-offline; npm run generate",
       ]
     volumes:
       - ./:/workspace
       - workspace_node_modules:/workspace/node_modules
+      - database_node_modules:/workspace/packages/database/node_modules
+      - npm_cache:/root/.npm
     depends_on:
       root-deps:
         condition: service_completed_successfully
 
   prisma-migrate:
-    image: node:alpine
+    image: node:22-alpine
     working_dir: /workspace/packages/database
     environment:
       <<: *local-prisma-env
@@ -120,6 +134,7 @@ services:
     volumes:
       - ./:/workspace
       - workspace_node_modules:/workspace/node_modules
+      - database_node_modules:/workspace/packages/database/node_modules
     depends_on:
       prisma-generate:
         condition: service_completed_successfully
@@ -139,6 +154,7 @@ services:
     volumes:
       - ./:/workspace # Bind mount, map entire monorepo to /workspace in the container
       - workspace_node_modules:/workspace/node_modules # Linux-native deps, isolated from host
+      - database_node_modules:/workspace/packages/database/node_modules
       - *aws-config-volume
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8080/ || exit 1"]
@@ -162,10 +178,11 @@ services:
       dockerfile: ./cdk-app/ecs_containers/langgraph-service/dockerfile
       target: dev
     environment:
-      <<: [*aws-env, *nodemon-env, *langgraph-service-env]
+      <<: [*aws-env, *nodemon-env, *cognito-env, *langgraph-service-env]
     volumes:
       - ./:/workspace
       - workspace_node_modules:/workspace/node_modules
+      - database_node_modules:/workspace/packages/database/node_modules
       - *aws-config-volume
     depends_on:
       root-deps:
@@ -188,6 +205,7 @@ services:
     volumes:
       - ./:/workspace
       - workspace_node_modules:/workspace/node_modules
+      - database_node_modules:/workspace/packages/database/node_modules
       - *aws-config-volume
     depends_on:
       local-api-dev-server:
@@ -206,6 +224,7 @@ services:
     volumes:
       - ./:/workspace
       - workspace_node_modules:/workspace/node_modules
+      - database_node_modules:/workspace/packages/database/node_modules
     depends_on:
       local-api-dev-server:
         condition: service_healthy
@@ -243,3 +262,5 @@ services:
 volumes:
   postgres_data:
   workspace_node_modules:
+  database_node_modules:
+  npm_cache:

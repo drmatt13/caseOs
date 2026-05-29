@@ -29,15 +29,6 @@ interface CognitoTokenResponse {
   error_description?: string;
 }
 
-function getDisplayName(
-  firstName: string,
-  lastName: string,
-  email: string,
-): string {
-  const name = `${firstName} ${lastName}`.trim();
-  return name || email;
-}
-
 function getRequiredCognitoConfig() {
   const {
     AWS_REGION,
@@ -146,12 +137,10 @@ export const lambdaHandler = async (
         : "";
     const profilePicture =
       typeof payload.picture === "string" ? payload.picture : null;
-    const displayName = getDisplayName(firstName, lastName, email);
     const getOAuthProfileData = (existingProfilePicture?: string | null) => ({
       email,
       firstName,
       lastName,
-      displayName,
       updatedAt: new Date(),
       ...(profilePicture && !existingProfilePicture ? { profilePicture } : {}),
     });
@@ -190,13 +179,9 @@ export const lambdaHandler = async (
           data: {
             cognitoSub: payload.sub,
             email,
-            billingEmail: email,
             firstName,
             lastName,
             profilePicture,
-            displayName,
-            accountTier: "FREE",
-            accountStatus: "ACTIVE",
             createdAt: new Date(),
             updatedAt: new Date(),
           },

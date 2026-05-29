@@ -45,7 +45,6 @@ export const lambdaHandler = async (
   // Create a new user in the database based on the Cognito user attributes
   const { sub, email, given_name, family_name, picture } =
     event.request.userAttributes;
-  const displayName = [given_name, family_name].filter(Boolean).join(" ");
 
   const existingUser = await prisma.user.findFirst({
     where: {
@@ -80,15 +79,11 @@ export const lambdaHandler = async (
     data: {
       cognitoSub: sub,
       email,
-      billingEmail: email,
       firstName: given_name,
       lastName: family_name,
       profilePicture: picture,
-      accountTier: "FREE",
-      accountStatus: "ACTIVE",
       createdAt: new Date(),
       updatedAt: new Date(),
-      displayName,
     },
   });
 

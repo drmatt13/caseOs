@@ -5,11 +5,17 @@ import * as ecs from "aws-cdk-lib/aws-ecs";
 import * as ecsPatterns from "aws-cdk-lib/aws-ecs-patterns";
 import * as path from "path";
 
+export interface EcsServicesStackProps extends cdk.StackProps {
+  userPoolId: string;
+  userPoolClientId: string;
+  userPoolDomainUrl?: string;
+}
+
 export class EcsServicesStack extends cdk.Stack {
   public readonly langgraphServiceUrl: string;
   // public readonly <ecsServiceURL>: string;
 
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props: EcsServicesStackProps) {
     super(scope, id, props);
 
     const vpc = ec2.Vpc.fromLookup(this, "DefaultVpc", { isDefault: true });
@@ -17,6 +23,17 @@ export class EcsServicesStack extends cdk.Stack {
     const cluster = new ecs.Cluster(this, "EcsCluster", {
       vpc,
     });
+
+    const langgraphEnvironment: Record<string, string> = {
+      AWS_REGION: cdk.Stack.of(this).region,
+      PORT: "5000",
+      USER_POOL_ID: props.userPoolId,
+      USER_POOL_CLIENT_ID: props.userPoolClientId,
+    };
+
+    if (props.userPoolDomainUrl) {
+      langgraphEnvironment.COGNITO_DOMAIN_URL = props.userPoolDomainUrl;
+    }
 
     const langgraphService =
       new ecsPatterns.ApplicationLoadBalancedFargateService(
@@ -37,37 +54,10 @@ export class EcsServicesStack extends cdk.Stack {
               },
             ),
             containerPort: 5000,
-            environment: {
-              PORT: "5000",
-            },
+            environment: langgraphEnvironment,
           },
         },
       );
-
-    // const <ecsService> =
-    //   new ecsPatterns.ApplicationLoadBalancedFargateService(
-    //     this,
-    //     "<EcsService>",
-    //     {
-    //       cluster,
-    //       cpu: 256,
-    //       memoryLimitMiB: 512,
-    //       desiredCount: 1,
-    //       taskImageOptions: {
-    //         image: ecs.ContainerImage.fromAsset(
-    //           path.join(__dirname, "..", "ecs_containers", "<ecs-service>"),
-    //           {
-    //             file: "dockerfile",
-    //           },
-    //         ),
-    //         containerPort: 5001,
-    //         environment: {
-    //           PORT: "5001",
-    //         },
-    //       },
-    //       publicLoadBalancer: true,
-    //     },
-    //   );
 
     this.langgraphServiceUrl = `http://${langgraphService.loadBalancer.loadBalancerDnsName}`;
     // this.<ecsServiceUrl> = `http://${<ecsService>.loadBalancer.loadBalancerDnsName}`;
@@ -75,9 +65,5 @@ export class EcsServicesStack extends cdk.Stack {
     new cdk.CfnOutput(this, "LanggraphServiceUrl", {
       value: this.langgraphServiceUrl,
     });
-
-    // new cdk.CfnOutput(this, "<EcsService>Url", {
-    //   value: this.<ecsServiceUrl>,
-    // });
   }
 }

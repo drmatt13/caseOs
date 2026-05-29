@@ -7,9 +7,30 @@ import * as s3 from "aws-cdk-lib/aws-s3";
 import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import * as path from "path";
 import {
-  prismaClientCommandHooks,
-  prismaLambdaEnvironment,
+  makePrismaClientCommandHooks,
+  makePrismaLambdaEnvironment,
 } from "./prisma-lambda-bundling";
+
+// Resolve repo root so Docker bundling can use the root lockfile and correctly
+// install workspace packages (e.g. @repo/shared-lambda-utils) when running
+// inside the linux/docker bundling image.
+const repoRoot = path.join(__dirname, "..", "..");
+
+// Build bundling options as `any` to avoid TS errors for runtime-only fields
+// (depsLockFilePath) while preserving type-checked defaults.
+function makeBundlingOptions(
+  override: Partial<nodejs.BundlingOptions> = {},
+): any {
+  return Object.assign(
+    {
+      minify: true,
+      sourceMap: true,
+      target: "es2020",
+      depsLockFilePath: path.join(repoRoot, "package-lock.json"),
+    },
+    override,
+  );
+}
 
 export interface AsynchronousLambdaFunctionsStackProps extends cdk.StackProps {
   frontendUrl?: string;
@@ -18,6 +39,8 @@ export interface AsynchronousLambdaFunctionsStackProps extends cdk.StackProps {
   replayBucketName?: string;
   replayQueueUrl?: string;
   replayBucket?: s3.IBucket;
+  lambdaArchitecture: lambda.Architecture;
+  prismaBinaryTarget: string;
   primaryDatabaseSecretArn?: string;
 }
 
@@ -38,6 +61,14 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
     const skipEmailVerification = props?.skipEmailVerification ?? false;
     const replayBucketName = props?.replayBucketName ?? "default-bucket-name";
     const replayQueueUrl = props?.replayQueueUrl ?? "default-queue-url";
+    const lambdaArchitecture =
+      props?.lambdaArchitecture ?? lambda.Architecture.X86_64;
+    const prismaBinaryTarget =
+      props?.prismaBinaryTarget ?? "rhel-openssl-3.0.x";
+    const prismaClientCommandHooks =
+      makePrismaClientCommandHooks(prismaBinaryTarget);
+    const prismaLambdaEnvironment =
+      makePrismaLambdaEnvironment(prismaBinaryTarget);
 
     // Lambda function for pre-signup actions in Cognito
     this.cognitoPreSignUpTriggerFn = new nodejs.NodejsFunction(
@@ -45,6 +76,7 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
       "CognitoPreSignUpTrigger",
       {
         runtime: lambda.Runtime.NODEJS_20_X,
+        architecture: lambdaArchitecture,
         entry: path.join(
           __dirname,
           "..",
@@ -53,11 +85,7 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
           "index.ts",
         ),
         handler: "lambdaHandler",
-        bundling: {
-          minify: true,
-          sourceMap: true,
-          target: "es2020",
-        },
+        bundling: makeBundlingOptions(),
         environment: {
           SKIP_EMAIL_VERIFICATION: skipEmailVerification ? "true" : "false",
         },
@@ -72,6 +100,7 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
       "CognitoCustomMessage",
       {
         runtime: lambda.Runtime.NODEJS_20_X,
+        architecture: lambdaArchitecture,
         entry: path.join(
           __dirname,
           "..",
@@ -80,11 +109,7 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
           "index.ts",
         ),
         handler: "lambdaHandler",
-        bundling: {
-          minify: true,
-          sourceMap: true,
-          target: "es2020",
-        },
+        bundling: makeBundlingOptions(),
         environment: {
           FRONTEND_URL: frontendUrl ?? "",
         },
@@ -99,6 +124,7 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
       "CognitoPostConfirmationTrigger",
       {
         runtime: lambda.Runtime.NODEJS_20_X,
+        architecture: lambdaArchitecture,
         entry: path.join(
           __dirname,
           "..",
@@ -107,12 +133,10 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
           "index.ts",
         ),
         handler: "lambdaHandler",
-        bundling: {
-          minify: true,
+        bundling: makeBundlingOptions({
           sourceMap: false,
-          target: "es2020",
           commandHooks: prismaClientCommandHooks,
-        },
+        }),
         environment: {
           ...prismaLambdaEnvironment,
           USE_LOCAL_DEV_STACK: useLocalDevStack ? "true" : "false",
@@ -144,18 +168,15 @@ export class AsynchronousLambdaFunctionsStack extends cdk.Stack {
     // Outputs
     new cdk.CfnOutput(this, "CognitoPreSignUpTriggerLambdaArn", {
       value: this.cognitoPreSignUpTriggerFn.functionArn,
-      exportName:
-        "AsynchronousLambdaFunctionsStack:CognitoPreSignUpTriggerLambdaArn",
+      exportName: `${this.stackName}:CognitoPreSignUpTriggerLambdaArn`,
     });
     new cdk.CfnOutput(this, "CognitoCustomMessageLambdaArn", {
       value: this.cognitoCustomMessageFn.functionArn,
-      exportName:
-        "AsynchronousLambdaFunctionsStack:CognitoCustomMessageLambdaArn",
+      exportName: `${this.stackName}:CognitoCustomMessageLambdaArn`,
     });
     new cdk.CfnOutput(this, "CognitoPostConfirmationTriggerLambdaArn", {
       value: this.cognitoPostConfirmationTriggerFn.functionArn,
-      exportName:
-        "AsynchronousLambdaFunctionsStack:CognitoPostConfirmationTriggerLambdaArn",
+      exportName: `${this.stackName}:CognitoPostConfirmationTriggerLambdaArn`,
     });
   }
 }

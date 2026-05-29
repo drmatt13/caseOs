@@ -1,4 +1,5 @@
 export const API_ROUTE = {
+  // Lambda Functions
   signIn: "/sign-in",
   signOut: "/sign-out",
   oauthCallback: "/oauth/callback",
@@ -11,6 +12,8 @@ export const API_ROUTE = {
   billingListProducts: "/billing/list-products",
   billingCreateSetupIntent: "/billing/create-setup-intent",
   billingCreateSubscription: "/billing/create-subscription",
+  // Containerized Services
+  langGraphService: "/langgraph-service",
 } as const;
 
 export const PUBLIC_API_ROUTES = [

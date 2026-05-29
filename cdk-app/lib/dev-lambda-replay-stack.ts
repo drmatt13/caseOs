@@ -27,17 +27,17 @@ export class DevLambdaReplayStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, "ReplayBucketName", {
       value: this.bucket.bucketName,
-      exportName: "DevLambdaReplayStack:ReplayBucketName",
+      exportName: `${this.stackName}:ReplayBucketName`,
     });
 
     new cdk.CfnOutput(this, "ReplayQueueUrl", {
       value: this.queue.queueUrl,
-      exportName: "DevLambdaReplayStack:ReplayQueueUrl",
+      exportName: `${this.stackName}:ReplayQueueUrl`,
     });
 
     new cdk.CfnOutput(this, "ReplayQueueArn", {
       value: this.queue.queueArn,
-      exportName: "DevLambdaReplayStack:ReplayQueueArn",
+      exportName: `${this.stackName}:ReplayQueueArn`,
     });
   }
 }

@@ -22,7 +22,6 @@ export class FrontendWebsiteS3Stack extends cdk.Stack {
       this,
       "FrontendWebsiteBucket",
       {
-        bucketName: `lawstruct-ai-frontend-website-${this.account}-${this.region}`,
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         encryption: s3.BucketEncryption.S3_MANAGED,
         enforceSSL: true,
@@ -43,8 +42,8 @@ export class FrontendWebsiteS3Stack extends cdk.Stack {
         "FrontendOriginAccessControl",
         {
           originAccessControlConfig: {
-            name: "lawstruct-ai-frontend-website-oac",
-            description: "OAC for the Lawstruct.ai frontend website bucket.",
+            name: `${this.stackName}-frontend-website-oac`,
+            description: `OAC for the ${this.stackName} frontend website bucket.`,
             originAccessControlOriginType: "s3",
             signingBehavior: "always",
             signingProtocol: "sigv4",
@@ -128,28 +127,28 @@ export class FrontendWebsiteS3Stack extends cdk.Stack {
 
       new cdk.CfnOutput(this, "CloudFrontUrl", {
         value: this.cloudFrontUrl,
-        exportName: "FrontendWebsiteS3Stack:CloudFrontUrl",
+        exportName: `${this.stackName}:CloudFrontUrl`,
       });
 
       new cdk.CfnOutput(this, "CloudFrontDomainName", {
         value: this.frontendDistribution.attrDomainName,
-        exportName: "FrontendWebsiteS3Stack:CloudFrontDomainName",
+        exportName: `${this.stackName}:CloudFrontDomainName`,
       });
 
       new cdk.CfnOutput(this, "CloudFrontId", {
         value: this.frontendDistribution.ref,
-        exportName: "FrontendWebsiteS3Stack:CloudFrontId",
+        exportName: `${this.stackName}:CloudFrontId`,
       });
     }
 
     new cdk.CfnOutput(this, "FrontendWebsiteBucketName", {
       value: this.frontendWebsiteBucket.bucketName,
-      exportName: "FrontendWebsiteS3Stack:FrontendWebsiteBucketName",
+      exportName: `${this.stackName}:FrontendWebsiteBucketName`,
     });
 
     new cdk.CfnOutput(this, "FrontendWebsiteBucketArn", {
       value: this.frontendWebsiteBucket.bucketArn,
-      exportName: "FrontendWebsiteS3Stack:FrontendWebsiteBucketArn",
+      exportName: `${this.stackName}:FrontendWebsiteBucketArn`,
     });
   }
 }

@@ -10,6 +10,7 @@ export interface WebSocketLambdaFunctionsStackProps extends cdk.StackProps {
   stageName?: string;
   userPoolId: string;
   userPoolClientId: string;
+  lambdaArchitecture: lambda.Architecture;
 }
 
 export class WebSocketLambdaFunctionsStack extends cdk.Stack {
@@ -29,6 +30,7 @@ export class WebSocketLambdaFunctionsStack extends cdk.Stack {
     // Connect Route Handler
     this.connectFn = new nodejs.NodejsFunction(this, "ConnectRouteFunction", {
       runtime: lambda.Runtime.NODEJS_20_X,
+      architecture: props.lambdaArchitecture,
       entry: path.join(
         __dirname,
         "..",
@@ -55,6 +57,7 @@ export class WebSocketLambdaFunctionsStack extends cdk.Stack {
       "CustomActionRouteFunction",
       {
         runtime: lambda.Runtime.NODEJS_20_X,
+        architecture: props.lambdaArchitecture,
         entry: path.join(
           __dirname,
           "..",
@@ -97,6 +100,7 @@ export class WebSocketLambdaFunctionsStack extends cdk.Stack {
       "DisconnectRouteFunction",
       {
         runtime: lambda.Runtime.NODEJS_20_X,
+        architecture: props.lambdaArchitecture,
         entry: path.join(
           __dirname,
           "..",
@@ -121,6 +125,7 @@ export class WebSocketLambdaFunctionsStack extends cdk.Stack {
     // Default Route Handler (needs API management permissions)
     this.defaultFn = new nodejs.NodejsFunction(this, "DefaultRouteFunction", {
       runtime: lambda.Runtime.NODEJS_20_X,
+      architecture: props.lambdaArchitecture,
       entry: path.join(
         __dirname,
         "..",
@@ -159,6 +164,7 @@ export class WebSocketLambdaFunctionsStack extends cdk.Stack {
     // Authorizer Function
     this.authorizerFn = new nodejs.NodejsFunction(this, "AuthorizerFunction", {
       runtime: lambda.Runtime.NODEJS_20_X,
+      architecture: props.lambdaArchitecture,
       entry: path.join(
         __dirname,
         "..",

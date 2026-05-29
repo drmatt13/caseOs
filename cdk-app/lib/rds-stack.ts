@@ -77,7 +77,7 @@ export class RdsStack extends cdk.Stack {
       this,
       "PostgresCredentialsSecret",
       {
-        secretName: "lawstruct-ai/postgres/credentials",
+        secretName: `${this.stackName}/postgres/credentials`,
         username: primaryDatabaseUsername,
         dbname: primaryDatabaseName,
         excludeCharacters: " %+~`#$&*()|[]{}:;<>?!'/@\"\\",
@@ -149,42 +149,42 @@ export class RdsStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, "RdsProxyEndpoint", {
       value: this.proxyEndpoint,
-      exportName: "RdsStack:RdsProxyEndpoint",
+      exportName: `${this.stackName}:RdsProxyEndpoint`,
     });
 
     new cdk.CfnOutput(this, "RdsProxyEnabled", {
       value: String(enableRdsProxy),
-      exportName: "RdsStack:RdsProxyEnabled",
+      exportName: `${this.stackName}:RdsProxyEnabled`,
     });
 
     new cdk.CfnOutput(this, "RdsProxyPort", {
       value: "5432",
-      exportName: "RdsStack:RdsProxyPort",
+      exportName: `${this.stackName}:RdsProxyPort`,
     });
 
     new cdk.CfnOutput(this, "RdsDatabaseEndpoint", {
       value: this.databaseEndpoint,
-      exportName: "RdsStack:RdsDatabaseEndpoint",
+      exportName: `${this.stackName}:RdsDatabaseEndpoint`,
     });
 
     new cdk.CfnOutput(this, "RdsPrimaryEndpoint", {
       value: this.primaryEndpoint,
-      exportName: "RdsStack:RdsPrimaryEndpoint",
+      exportName: `${this.stackName}:RdsPrimaryEndpoint`,
     });
 
     new cdk.CfnOutput(this, "PrimaryDatabaseUrlTemplate", {
       value: `postgresql://${primaryDatabaseUsername}:<password>@${this.primaryEndpoint}:5432/${primaryDatabaseName}`,
-      exportName: "RdsStack:PrimaryDatabaseUrlTemplate",
+      exportName: `${this.stackName}:PrimaryDatabaseUrlTemplate`,
     });
 
     new cdk.CfnOutput(this, "DirectDatabaseUrlTemplate", {
       value: `postgresql://${primaryDatabaseUsername}:<password>@${this.databaseEndpoint}:5432/${primaryDatabaseName}`,
-      exportName: "RdsStack:DirectDatabaseUrlTemplate",
+      exportName: `${this.stackName}:DirectDatabaseUrlTemplate`,
     });
 
     new cdk.CfnOutput(this, "RdsCredentialsSecretArn", {
       value: this.credentialsSecretArn,
-      exportName: "RdsStack:RdsCredentialsSecretArn",
+      exportName: `${this.stackName}:RdsCredentialsSecretArn`,
     });
   }
 }

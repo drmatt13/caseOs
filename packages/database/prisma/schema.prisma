@@ -122,11 +122,11 @@ enum CaseRecordType {
 }
 
 enum RecordStatus {
-  PROPOSED              @map("proposed")
-  ACCEPTED              @map("accepted")
-  REJECTED              @map("rejected")
-  SUPERSESSION_PENDING  @map("supersession_pending")
-  SUPERSEDED            @map("superseded")
+  PROPOSED             @map("proposed")
+  ACCEPTED             @map("accepted")
+  REJECTED             @map("rejected")
+  SUPERSESSION_PENDING @map("supersession_pending")
+  SUPERSEDED           @map("superseded")
 }
 
 enum RecordParty {

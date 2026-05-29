@@ -7,6 +7,7 @@ import SelectCaseMenu from "#/components/menus/SelectCaseMenu";
 import UserPanel from "#/components/UserPanel";
 import Workspace from "#/components/Workspace";
 import LoadingSpinner from "#/components/LoadingSpinner";
+import GetUserError from "#/components/errors/GetUserError";
 
 // route guards
 import { requireAuth } from "#/lib/auth";
@@ -65,7 +66,7 @@ function App() {
   }
 
   if (getUserError || !user) {
-    return <>placeholder for error</>;
+    return <GetUserError />;
   }
 
   return (

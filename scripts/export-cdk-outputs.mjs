@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-const STACK_OUTPUT_MAPPINGS = {
+const BASE_STACK_OUTPUT_MAPPINGS = {
   ApplicationS3Stack: {
     ApplicationDataBucketArn: "APPLICATION_DATA_BUCKET_ARN",
     ApplicationDataBucketName: "APPLICATION_DATA_BUCKET_NAME",
@@ -65,9 +65,50 @@ const args = new Map(
   }),
 );
 
-const envPath = resolve(process.cwd(), args.get("env-file") ?? ".env");
-const profile = args.get("profile") ?? process.env.AWS_PROFILE;
-const region = args.get("region") ?? process.env.AWS_REGION;
+const getOption = (...names) => {
+  for (const name of names) {
+    const argValue = args.get(name);
+    if (argValue !== undefined) {
+      return argValue;
+    }
+
+    const npmConfigNames = [
+      name,
+      name.toLowerCase(),
+      name.replace(/-/g, "_").toLowerCase(),
+      name.replace(/[A-Z]/g, (letter) => letter.toLowerCase()),
+      name
+        .replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`)
+        .replace(/-/g, "_")
+        .replace(/^_/, ""),
+    ];
+
+    for (const npmConfigName of npmConfigNames) {
+      const envValue = process.env[`npm_config_${npmConfigName}`];
+      if (envValue !== undefined) {
+        return envValue;
+      }
+    }
+  }
+
+  return undefined;
+};
+
+const envPath = resolve(process.cwd(), getOption("env-file") ?? ".env");
+const profile = getOption("profile") ?? process.env.AWS_PROFILE;
+const region = getOption("region") ?? process.env.AWS_REGION;
+const deploymentName =
+  getOption("cdkAppName", "cdk-app-name") ??
+  process.env.CDK_APP_NAME ??
+  "matts-aws-cdk-dev-kit";
+
+if (!/^[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(deploymentName)) {
+  throw new Error(
+    `--cdkAppName/--cdk-app-name/CDK_APP_NAME must be 1-63 lowercase letters, numbers, or hyphens, start with a letter, and not end with a hyphen. Received: ${deploymentName}`,
+  );
+}
+
+const stackName = (baseName) => `${deploymentName}-${baseName}`;
 
 const awsArgsBase = [];
 if (profile) {
@@ -124,8 +165,10 @@ const quoteEnvValue = (value) => {
 
 const collectedEnv = new Map();
 
-for (const [stackName, outputMappings] of Object.entries(STACK_OUTPUT_MAPPINGS)) {
-  const outputs = describeStackOutputs(stackName);
+for (const [baseStackName, outputMappings] of Object.entries(
+  BASE_STACK_OUTPUT_MAPPINGS,
+)) {
+  const outputs = describeStackOutputs(stackName(baseStackName));
 
   for (const output of outputs) {
     const envName = outputMappings[output.OutputKey];
@@ -140,6 +183,14 @@ for (const [stackName, outputMappings] of Object.entries(STACK_OUTPUT_MAPPINGS))
 
     collectedEnv.set(envName, value);
   }
+}
+
+const cognitoDomainUrl = collectedEnv.get("COGNITO_DOMAIN_URL");
+if (cognitoDomainUrl) {
+  collectedEnv.set(
+    "AUTHORIZED_REDIRECT_URIS",
+    `${cognitoDomainUrl.replace(/\/+$/, "")}/oauth2/idpresponse`,
+  );
 }
 
 if (collectedEnv.size === 0) {

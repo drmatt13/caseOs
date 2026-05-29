@@ -4,31 +4,31 @@ const path = require("node:path");
 
 const packageRoot = path.join(__dirname, "..");
 const repoRoot = path.join(packageRoot, "..", "..");
-const defaultBinaryTargets = ["native", "rhel-openssl-3.0.x"];
-const binaryTargetsJson =
-  process.env.PRISMA_BINARY_TARGETS ?? JSON.stringify(defaultBinaryTargets);
+const binaryTargetsJson = process.env.PRISMA_BINARY_TARGETS;
 
 let binaryTargets;
 
-try {
-  binaryTargets = JSON.parse(binaryTargetsJson);
-} catch (error) {
-  throw new Error(
-    `PRISMA_BINARY_TARGETS must be a JSON array string. Received: ${binaryTargetsJson}`,
-  );
-}
+if (binaryTargetsJson !== undefined) {
+  try {
+    binaryTargets = JSON.parse(binaryTargetsJson);
+  } catch (error) {
+    throw new Error(
+      `PRISMA_BINARY_TARGETS must be a JSON array string. Received: ${binaryTargetsJson}`,
+    );
+  }
 
-if (
-  !Array.isArray(binaryTargets) ||
-  binaryTargets.length === 0 ||
-  binaryTargets.some((target) => typeof target !== "string" || !target)
-) {
-  throw new Error(
-    `PRISMA_BINARY_TARGETS must be a non-empty JSON array of strings. Received: ${binaryTargetsJson}`,
-  );
-}
+  if (
+    !Array.isArray(binaryTargets) ||
+    binaryTargets.length === 0 ||
+    binaryTargets.some((target) => typeof target !== "string" || !target)
+  ) {
+    throw new Error(
+      `PRISMA_BINARY_TARGETS must be a non-empty JSON array of strings. Received: ${binaryTargetsJson}`,
+    );
+  }
 
-process.env.PRISMA_BINARY_TARGETS = JSON.stringify(binaryTargets);
+  process.env.PRISMA_BINARY_TARGETS = JSON.stringify(binaryTargets);
+}
 
 const generatedClientDirs = [
   path.join(repoRoot, "node_modules", ".prisma", "client"),

@@ -22,7 +22,7 @@ export const lambdaHandler = async (event: CustomMessageTriggerEvent) => {
       `&email=${encodeURIComponent(email)}` +
       `&code=${code}`;
 
-    event.response.emailSubject = "Lawstruct.ai - Verify your email";
+    event.response.emailSubject = "Matt's AWS CDK Dev Kit - Verify your email";
     event.response.emailMessage = `
       <p>Click this link to verify your email address:</p>
       <p><a href="${verifyUrl}">Verify Email</a></p>
@@ -37,7 +37,8 @@ export const lambdaHandler = async (event: CustomMessageTriggerEvent) => {
       `?email=${encodeURIComponent(email)}` +
       `&code=${code}`;
 
-    event.response.emailSubject = "Lawstruct.ai - Reset your password";
+    event.response.emailSubject =
+      "Matt's AWS CDK Dev Kit - Reset your password";
     event.response.emailMessage = `
       <p>We received a request to reset your password.</p>
       <p><a href="${resetUrl}">Reset Password</a></p>

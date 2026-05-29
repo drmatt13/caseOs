@@ -2,19 +2,17 @@ import * as nodejs from "aws-cdk-lib/aws-lambda-nodejs";
 import * as path from "path";
 
 const repoRoot = path.join(__dirname, "..", "..");
-const prismaClientSourcePath = path.join(
-  repoRoot,
-  "node_modules",
-  ".prisma",
-  "client",
-);
-const prismaQueryEngineFileName = "libquery_engine-rhel-openssl-3.0.x.so.node";
 
-export const prismaLambdaEnvironment = {
-  PRISMA_QUERY_ENGINE_LIBRARY: `/var/task/${prismaQueryEngineFileName}`,
-};
+const getPrismaQueryEngineFileName = (binaryTarget: string) =>
+  `libquery_engine-${binaryTarget}.so.node`;
 
-export const prismaClientCommandHooks: nodejs.ICommandHooks = {
+export const makePrismaLambdaEnvironment = (binaryTarget: string) => ({
+  PRISMA_QUERY_ENGINE_LIBRARY: `/var/task/${getPrismaQueryEngineFileName(binaryTarget)}`,
+});
+
+export const makePrismaClientCommandHooks = (
+  binaryTarget: string,
+): nodejs.ICommandHooks => ({
   beforeInstall() {
     return [];
   },
@@ -24,14 +22,35 @@ export const prismaClientCommandHooks: nodejs.ICommandHooks = {
   },
 
   afterBundling(_inputDir: string, outputDir: string) {
+    const prismaQueryEngineFileName =
+      getPrismaQueryEngineFileName(binaryTarget);
     const copyScript = [
+      "(function(){",
       "const fs = require('fs');",
       "const path = require('path');",
-      `const source = ${JSON.stringify(prismaClientSourcePath)};`,
+      `const repoRoot = ${JSON.stringify(path.join(repoRoot))};`,
       `const output = ${JSON.stringify(outputDir)};`,
-      "const target = path.join(output, 'node_modules', '.prisma', 'client');",
       `const engineFileName = ${JSON.stringify(prismaQueryEngineFileName)};`,
       "const shouldCopyClientFile = (name) => !name.endsWith('.node') || name === engineFileName;",
+      "const candidates = [];",
+      // default common location
+      `candidates.push(path.join(repoRoot, 'node_modules', '.prisma', 'client'));`,
+      // @prisma/client package location
+      `candidates.push(path.join(repoRoot, 'node_modules', '@prisma', 'client', '.prisma', 'client'));`,
+      // pnpm nested node_modules/.pnpm entries
+      "const pnpmDir = path.join(repoRoot, 'node_modules', '.pnpm');",
+      "if (fs.existsSync(pnpmDir)) {",
+      "  for (const entry of fs.readdirSync(pnpmDir)) {",
+      "    candidates.push(path.join(pnpmDir, entry, 'node_modules', '.prisma', 'client'));",
+      "  }",
+      "}",
+      "const findExisting = () => candidates.find(p => fs.existsSync(p));",
+      "const source = findExisting();",
+      "if (!source) {",
+      "  console.warn('prisma client folder not found among candidates:', candidates);",
+      "  return;",
+      "}",
+      "const target = path.join(output, 'node_modules', '.prisma', 'client');",
       "const copyClient = (sourceDir, targetDir) => {",
       "  fs.mkdirSync(targetDir, { recursive: true });",
       "  for (const entry of fs.readdirSync(sourceDir, { withFileTypes: true })) {",
@@ -44,11 +63,21 @@ export const prismaClientCommandHooks: nodejs.ICommandHooks = {
       "    }",
       "  }",
       "};",
-      "fs.rmSync(target, { recursive: true, force: true });",
-      "copyClient(source, target);",
-      "fs.copyFileSync(path.join(source, engineFileName), path.join(output, engineFileName));",
+      "try {",
+      "  fs.rmSync(target, { recursive: true, force: true });",
+      "  copyClient(source, target);",
+      "  const enginePath = path.join(source, engineFileName);",
+      "  if (fs.existsSync(enginePath)) {",
+      "    fs.copyFileSync(enginePath, path.join(output, engineFileName));",
+      "  } else {",
+      "    console.warn('prisma engine file not found at', enginePath);",
+      "  }",
+      "} catch (err) {",
+      "  console.error('Error copying prisma client files:', err);",
+      "}",
+      "})();",
     ].join(" ");
 
     return [`node -e ${JSON.stringify(copyScript)}`];
   },
-};
+});

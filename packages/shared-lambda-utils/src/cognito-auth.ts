@@ -21,6 +21,11 @@ export type AuthenticatedCognitoSession = {
   payload: AuthenticatedCognitoPayload;
 };
 
+export type HttpAuthSessionInput = {
+  authorizationHeader?: string | null;
+  cookieHeader?: string | null;
+};
+
 type ApiGatewayJwtAuthorizerContext = {
   jwt?: {
     claims?: Record<string, unknown>;
@@ -55,10 +60,10 @@ const getAuthorizationHeader = (
   event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
 ): string => event.headers.authorization ?? event.headers.Authorization ?? "";
 
-const getBearerToken = (
-  event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
+const getBearerTokenFromAuthorizationHeader = (
+  authorizationHeader: string | null | undefined,
 ): string | null => {
-  const authorization = getAuthorizationHeader(event).trim();
+  const authorization = authorizationHeader?.trim() ?? "";
   const match = /^Bearer\s+(.+)$/i.exec(authorization);
   return match?.[1]?.trim() || null;
 };
@@ -82,8 +87,33 @@ const getVerifiedAuthorizerPayload = (
 export async function requireAuthenticatedSession(
   event: APIGatewayProxyEvent | APIGatewayProxyEventV2,
 ): Promise<AuthenticatedCognitoSession | null> {
+  const session = await requireAuthenticatedHttpSession({
+    authorizationHeader: getAuthorizationHeader(event),
+    cookieHeader: getCookieHeader(event),
+  });
+
+  if (!session) {
+    return null;
+  }
+
+  const verifiedAuthorizerPayload = getVerifiedAuthorizerPayload(event);
+  if (
+    verifiedAuthorizerPayload &&
+    verifiedAuthorizerPayload.sub !== session.payload.sub
+  ) {
+    return null;
+  }
+
+  return session;
+}
+
+export async function requireAuthenticatedHttpSession({
+  authorizationHeader,
+  cookieHeader,
+}: HttpAuthSessionInput): Promise<AuthenticatedCognitoSession | null> {
   const idToken =
-    getBearerToken(event) ?? parseCookies(getCookieHeader(event)).idToken;
+    getBearerTokenFromAuthorizationHeader(authorizationHeader) ??
+    parseCookies(cookieHeader ?? "").idToken;
 
   if (!idToken) {
     return null;
@@ -91,14 +121,6 @@ export async function requireAuthenticatedSession(
 
   const payload = await verifyCognitoIdToken(idToken);
   if (!payload) {
-    return null;
-  }
-
-  const verifiedAuthorizerPayload = getVerifiedAuthorizerPayload(event);
-  if (
-    verifiedAuthorizerPayload &&
-    verifiedAuthorizerPayload.sub !== payload.sub
-  ) {
     return null;
   }
 

@@ -4,20 +4,24 @@ import {
   MessagesValue,
   START,
   END,
+  MemorySaver,
+  Command,
+  interrupt,
 } from "@langchain/langgraph";
-import { ToolNode } from "@langchain/langgraph/prebuilt";
 import {
+  AIMessage,
   HumanMessage,
   SystemMessage,
-  AIMessage,
 } from "@langchain/core/messages";
+import { ToolNode } from "@langchain/langgraph/prebuilt";
 import { tool } from "@langchain/core/tools";
-import z from "zod";
+
+// model
 import { model } from "./bedrock";
 
 export type InvokeGraphResult = {
   messages: unknown[];
-  route?: string;
+  __interrupt__?: { value: unknown }[];
 };
 
 // -------------------------
@@ -26,226 +30,137 @@ export type InvokeGraphResult = {
 
 const ChatState = new StateSchema({
   messages: MessagesValue,
-
-  // // track which branch we chose
-  // route: {
-  //   reducer: (_prev: string | undefined, next: string | undefined) => next,
-  // },
-
-  // // optional scratch log to show non-message state updates
-  // log: {
-  //   reducer: (prev: string[] = [], next: string[] | string) => {
-  //     const nextArr = Array.isArray(next) ? next : [next];
-  //     return [...prev, ...nextArr];
-  //   },
-  // },
 });
 
 // -------------------------
 // Tools
 // -------------------------
 
-const awsDocTool = tool(
-  async ({ service }: { service: string }) => {
-    return `AWS doc summary: ${service} is commonly used in cloud architectures.`;
-  },
-  {
-    name: "aws_doc_lookup",
-    description: "Look up basic AWS service guidance.",
-    schema: z.object({
-      service: z.string().describe("AWS service name"),
-    }),
-  },
-);
-
+// A simple tool that adds two numbers together
 const addTool = tool(
+  // The function that will be called when the tool is invoked in the graph
   async ({ a, b }: { a: number; b: number }) => {
-    return String(a + b);
+    const sum = a + b;
+    return sum.toString();
   },
+  // Metadata about the tool, including a name, description, and input schema
   {
     name: "add_numbers",
     description: "Add two numbers together.",
-    schema: z.object({
-      a: z.number(),
-      b: z.number(),
-    }),
+    schema: {
+      type: "object",
+      properties: {
+        a: { type: "number", description: "First number to add" },
+        b: { type: "number", description: "Second number to add" },
+      },
+      required: ["a", "b"],
+      additionalProperties: false,
+    },
   },
 );
 
-const multiplyTool = tool(
-  async ({ a, b }: { a: number; b: number }) => {
-    return String(a * b);
+// A basic tool that pauses execution and waits for human input.
+const requestHumanConfirmationTool = tool(
+  async ({ prompt }: { prompt: string }) => {
+    const resumeValue = interrupt({
+      type: "human_confirmation",
+      prompt,
+      instructions:
+        "Resume this thread with resume=true and message set to the human response.",
+    });
+
+    return `Human response received: ${String(resumeValue)}`;
   },
   {
-    name: "multiply_numbers",
-    description: "Multiply two numbers together.",
-    schema: z.object({
-      a: z.number(),
-      b: z.number(),
-    }),
+    name: "request_human_confirmation",
+    description:
+      "Pause the graph and request human input when confirmation is needed before continuing.",
+    schema: {
+      type: "object",
+      properties: {
+        prompt: {
+          type: "string",
+          description: "Question or prompt to ask the human before continuing",
+        },
+      },
+      required: ["prompt"],
+      additionalProperties: false,
+    },
   },
 );
 
-// Different tool sets for different branches
-const awsTools = [awsDocTool];
-const mathTools = [addTool, multiplyTool];
-
-// Bind different tools to different model nodes
-const awsModel = model.bindTools(awsTools);
-const mathModel = model.bindTools(mathTools);
-
-// Tool executors
-const awsToolNode = new ToolNode(awsTools);
-const mathToolNode = new ToolNode(mathTools);
+const tools = [addTool, requestHumanConfirmationTool];
+const modelWithTools = model.bindTools(tools);
+const toolNode = new ToolNode(tools);
 
 // -------------------------
 // Nodes
 // -------------------------
 
-// Simple classifier node.
-// For demo purposes, this uses plain code rather than an LLM.
-const classifyIntent = async (state: typeof ChatState.State) => {
-  const last = state.messages && state.messages[state.messages.length - 1];
-  const content =
-    last && "content" in last && typeof last.content === "string"
-      ? last.content
-      : "";
-
-  const lower = content.toLowerCase();
-
-  const route = /\b(add|sum|plus|multiply|times|\d)\b/.test(lower)
-    ? "math"
-    : "aws";
-
-  return {
-    route,
-    log: [`classified:${route}`],
-  };
-};
-
-// AWS-focused agent node
-const awsAgent = async (state: typeof ChatState.State) => {
+const assistant = async (state: typeof ChatState.State) => {
   const system = new SystemMessage(
-    "You are an AWS assistant. Use aws_doc_lookup when it helps. Be concise.",
+    "You are a concise assistant for a starter LangGraph app. Keep responses short and clear. Use tools when helpful. If you need explicit user approval or missing information before continuing, call request_human_confirmation.",
   );
 
-  const response = await awsModel.invoke([system, ...state.messages]);
+  const response = await modelWithTools.invoke([system, ...state.messages]);
 
   return {
     messages: [response],
-    log: ["awsAgent"],
   };
 };
 
-// Math-focused agent node
-const mathAgent = async (state: typeof ChatState.State) => {
-  const system = new SystemMessage(
-    "You are a math assistant. Use tools for arithmetic. Be concise.",
-  );
-
-  const response = await mathModel.invoke([system, ...state.messages]);
-
-  return {
-    messages: [response],
-    log: ["mathAgent"],
-  };
-};
-
-// Optional finalizer node just to show another ordinary node
-const finalize = async (state: typeof ChatState.State) => {
-  return {
-    log: ["finalize"],
-  };
-};
-
-// -------------------------
-// Routers
-// -------------------------
-
-function routeFromClassifier(state: typeof ChatState.State) {
-  return state.route === "math" ? "mathAgent" : "awsAgent";
-}
-
-function routeAfterAwsAgent(state: typeof ChatState.State) {
-  const last = state.messages && state.messages[state.messages.length - 1];
+function routeAfterAssistant(state: typeof ChatState.State) {
+  const last = state.messages?.[state.messages.length - 1];
 
   if (
     last &&
     "tool_calls" in last &&
     Array.isArray((last as AIMessage).tool_calls) &&
-    (last as AIMessage).tool_calls.length > 0
+    (last as AIMessage).tool_calls!.length > 0
   ) {
-    return "awsTools";
+    return "tools";
   }
 
-  return "finalize";
-}
-
-function routeAfterMathAgent(state: typeof ChatState.State) {
-  const last = state.messages && state.messages[state.messages.length - 1];
-
-  if (
-    last &&
-    "tool_calls" in last &&
-    Array.isArray((last as AIMessage).tool_calls) &&
-    (last as AIMessage).tool_calls.length > 0
-  ) {
-    return "mathTools";
-  }
-
-  return "finalize";
+  return END;
 }
 
 // -------------------------
 // Graph
 // -------------------------
 
+const checkpointer = new MemorySaver();
+
 export const graph = new StateGraph(ChatState)
-  .addNode("classifyIntent", classifyIntent)
-  .addNode("awsAgent", awsAgent)
-  .addNode("mathAgent", mathAgent)
-  .addNode("awsTools", awsToolNode)
-  .addNode("mathTools", mathToolNode)
-  .addNode("finalize", finalize)
-
-  .addEdge(START, "classifyIntent")
-
-  // branch to one of two agent nodes
-  .addConditionalEdges("classifyIntent", routeFromClassifier, {
-    awsAgent: "awsAgent",
-    mathAgent: "mathAgent",
+  .addNode("assistant", assistant)
+  .addNode("tools", toolNode)
+  .addEdge(START, "assistant")
+  .addConditionalEdges("assistant", routeAfterAssistant, {
+    tools: "tools",
+    [END]: END,
   })
-
-  // each agent may or may not call its own tool node
-  .addConditionalEdges("awsAgent", routeAfterAwsAgent, {
-    awsTools: "awsTools",
-    finalize: "finalize",
-  })
-  .addConditionalEdges("mathAgent", routeAfterMathAgent, {
-    mathTools: "mathTools",
-    finalize: "finalize",
-  })
-
-  // loop back into the earlier agent after tools run
-  .addEdge("awsTools", "awsAgent")
-  .addEdge("mathTools", "mathAgent")
-
-  .addEdge("finalize", END)
-  .compile();
+  .addEdge("tools", "assistant")
+  .compile({ checkpointer });
 
 // -------------------------
 // Invoke helpers
 // -------------------------
 
-export async function invokeGraph(input: string): Promise<InvokeGraphResult> {
-  const result = await graph.invoke({
-    messages: [new HumanMessage(input)],
-  });
+export async function invokeGraph(
+  input: string,
+  threadId: string,
+  resume?: boolean,
+): Promise<InvokeGraphResult> {
+  const config = { configurable: { thread_id: threadId } };
+
+  // Resume from the last interrupt() checkpoint, or append a new user message to the thread
+  const result = resume
+    ? await graph.invoke(new Command({ resume: input }), config)
+    : await graph.invoke({ messages: [new HumanMessage(input)] }, config);
 
   return result as InvokeGraphResult;
 }
 
-// Optional streaming demo
+// Streaming helper for WebSocket/SSE realtime graph updates
 export async function invokeGraphStream(input: string) {
   const stream = await graph.stream({
     messages: [new HumanMessage(input)],

@@ -19,9 +19,10 @@
   "author": "Matthew Sweeney",
   "license": "UNLICENSED",
   "type": "commonjs",
+  "packageManager": "npm@10.9.8",
   "dependencies": {
-    "@prisma/adapter-pg": "^6.19.3",
-    "@prisma/client": "^6.19.3",
+    "@prisma/adapter-pg": "6.19.3",
+    "@prisma/client": "6.19.3",
     "dotenv": "^17.4.2",
     "graphql": "^16.14.0",
     "pg": "^8.20.0",
@@ -30,6 +31,6 @@
   "devDependencies": {
     "@pothos/plugin-prisma": "^4.14.3",
     "@types/node": "^25.6.0",
-    "prisma": "^6.19.3"
+    "prisma": "6.19.3"
   }
 }

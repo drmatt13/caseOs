@@ -1,6 +1,3 @@
--- CreateSchema
-CREATE SCHEMA IF NOT EXISTS "public";
-
 -- CreateEnum
 CREATE TYPE "AccountTier" AS ENUM ('free', 'trial', 'pro', 'enterprise');
 
@@ -84,6 +81,7 @@ CREATE TABLE "users" (
     "stripe_product_id" TEXT,
     "stripe_subscription_id" TEXT,
     "subscription_status" "SubscriptionStatus" NOT NULL DEFAULT 'inactive',
+    "has_had_active_subscription" BOOLEAN NOT NULL DEFAULT false,
     "user_name" TEXT,
     "is_platform_admin" BOOLEAN NOT NULL DEFAULT false,
     "account_status" "AccountStatus" NOT NULL DEFAULT 'active',
@@ -503,4 +501,3 @@ ALTER TABLE "llm_usage_events" ADD CONSTRAINT "llm_usage_events_actor_user_id_fk
 
 -- AddForeignKey
 ALTER TABLE "llm_usage_events" ADD CONSTRAINT "llm_usage_events_billed_to_user_id_fkey" FOREIGN KEY ("billed_to_user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-

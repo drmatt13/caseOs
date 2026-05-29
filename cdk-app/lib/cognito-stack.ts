@@ -3,9 +3,9 @@ import { Construct } from "constructs";
 import * as cognito from "aws-cdk-lib/aws-cognito";
 import * as iam from "aws-cdk-lib/aws-iam";
 import { IFunction } from "aws-cdk-lib/aws-lambda";
-import { AsynchronousLambdaFunctionsStack } from "./asynchronous-lambda-functions-stack";
 
 export interface CognitoStackProps extends cdk.StackProps {
+  cognitoDomainPrefix?: string;
   googleClientId?: string;
   googleClientSecret?: cdk.SecretValue;
   callbackUrls?: string[];
@@ -35,12 +35,16 @@ export class CognitoStack extends cdk.Stack {
 
     const logoutUrls = props.logoutUrls ?? ["http://localhost:3000/"];
 
-    const domainPrefix = `lawstruct-ai-${cdk.Stack.of(this)
-      .account.slice(-8)
-      .toLowerCase()}`;
+    const domainPrefix = props.cognitoDomainPrefix ?? "matts-aws-cdk-dev-kit";
+
+    if (!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(domainPrefix)) {
+      throw new Error(
+        `cognitoDomainPrefix must be 1-63 lowercase letters, numbers, or hyphens, and cannot start or end with a hyphen. Received: ${domainPrefix}`,
+      );
+    }
 
     const userPool = new cognito.UserPool(this, "UserPool", {
-      userPoolName: "LawstructAiUserPool",
+      userPoolName: `${this.stackName}-UserPool`,
 
       selfSignUpEnabled: true,
       signInCaseSensitive: false,
@@ -194,12 +198,12 @@ export class CognitoStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, "UserPoolDomainUrl", {
       value: userPoolDomainUrl,
-      exportName: "CognitoStack:UserPoolDomainUrl",
+      exportName: `${this.stackName}:UserPoolDomainUrl`,
     });
 
     new cdk.CfnOutput(this, "OAuthProviderRedirectUri", {
       value: this.oauthProviderRedirectUri,
-      exportName: "CognitoStack:OAuthProviderRedirectUri",
+      exportName: `${this.stackName}:OAuthProviderRedirectUri`,
       description:
         "Redirect URI to register with external OAuth providers such as Google.",
     });
