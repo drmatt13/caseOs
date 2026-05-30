@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import type { CaseIntake } from "#/types/caseWorkspace";
 import { FormSection } from "#/components/features/case-intake/fields";
 import { Upload, FileText, XIcon, CheckCircle } from "lucide-react";
@@ -21,6 +21,8 @@ const DocumentsForm = ({
   setUploadedFiles,
 }: DocumentsFormProps) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const dragDepthRef = useRef(0);
+  const [isDraggingFiles, setIsDraggingFiles] = useState(false);
 
   const resetFileInput = () => {
     if (fileInputRef.current) {
@@ -28,12 +30,7 @@ const DocumentsForm = ({
     }
   };
 
-  const handleAddFiles = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = event.target.files;
-    if (!selectedFiles || selectedFiles.length === 0) return;
-
-    const newFiles = Array.from(selectedFiles);
-
+  const addFiles = (newFiles: File[]) => {
     setUploadedFiles((currentFiles) => {
       const existingFileKeys = new Set(
         currentFiles.map(
@@ -48,7 +45,13 @@ const DocumentsForm = ({
 
       return [...currentFiles, ...uniqueNewFiles];
     });
+  };
 
+  const handleAddFiles = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = event.target.files;
+    if (!selectedFiles || selectedFiles.length === 0) return;
+
+    addFiles(Array.from(selectedFiles));
     resetFileInput();
   };
 
@@ -62,6 +65,49 @@ const DocumentsForm = ({
   const openFilePicker = () => {
     resetFileInput();
     fileInputRef.current?.click();
+  };
+
+  const handleDragEnter = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    dragDepthRef.current += 1;
+
+    if (event.dataTransfer.types.includes("Files")) {
+      setIsDraggingFiles(true);
+    }
+  };
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (event.dataTransfer.types.includes("Files")) {
+      event.dataTransfer.dropEffect = "copy";
+      setIsDraggingFiles(true);
+    }
+  };
+
+  const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
+
+    if (dragDepthRef.current === 0) {
+      setIsDraggingFiles(false);
+    }
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    dragDepthRef.current = 0;
+    setIsDraggingFiles(false);
+
+    const droppedFiles = Array.from(event.dataTransfer.files);
+    if (droppedFiles.length === 0) return;
+
+    addFiles(droppedFiles);
+    resetFileInput();
   };
 
   return (
@@ -80,16 +126,34 @@ const DocumentsForm = ({
       />
 
       <div
-        className="rounded-2xl border-2 border-dashed p-5 text-sm flex flex-col items-center justify-center gap-0.5 text-center py-12 cursor-pointer group border-black/30 md:border-black/20 hover:border-black/40 bg-white/50 md:bg-transparent hover:bg-gray-300/20 transition-colors"
+        className={`rounded-2xl border-2 border-dashed p-5 text-sm flex flex-col items-center justify-center gap-0.5 text-center py-12 cursor-pointer group border-black/30 md:border-black/20 hover:border-black/40 bg-white/50 md:bg-transparent hover:bg-gray-300/20 transition-colors ${
+          isDraggingFiles ? "border-black/50 bg-gray-300/30" : ""
+        }`}
         onClick={openFilePicker}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
       >
-        <div className="rounded-full aspect-square p-4 flex justify-center items-center mb-2.5 bg-black/10 group-hover:bg-gray-300 transition-colors">
-          <Upload className="w-5 h-5 text-gray-500" />
+        <div
+          className={`rounded-full aspect-square p-4 flex justify-center items-center mb-2.5 bg-black/10 group-hover:bg-gray-300 transition-colors ${
+            isDraggingFiles ? "bg-gray-300" : ""
+          }`}
+        >
+          <Upload
+            className={`w-5 h-5 ${
+              isDraggingFiles ? "text-gray-800" : "text-gray-500"
+            }`}
+          />
         </div>
 
-        <p className="font-bold">Drop files here or click to upload</p>
+        <p className="font-bold">
+          {isDraggingFiles ? "Release to upload" : "Drop files here or click to upload"}
+        </p>
         <p className="text-gray-500">
-          Supported formats: PDF, DOCX, JSON, MD, TXT, JPEG, PNG, etc.
+          {isDraggingFiles
+            ? "Files will be added to this case"
+            : "Supported formats: PDF, DOCX, JSON, MD, TXT, JPEG, PNG, etc."}
         </p>
       </div>
 

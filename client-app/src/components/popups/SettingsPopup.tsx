@@ -53,6 +53,18 @@ const SettingsPopup = () => {
     refs.setReference(referenceElement);
   }, [refs, referenceElement]);
 
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    window.addEventListener("resize", closePopup);
+
+    return () => {
+      window.removeEventListener("resize", closePopup);
+    };
+  }, [isOpen, closePopup]);
+
   const handleLogout = useCallback(async () => {
     await logout();
     closePopup();
@@ -80,21 +92,21 @@ const SettingsPopup = () => {
       <div
         ref={refs.setFloating}
         style={floatingStyles}
-        className="relative text-sm pl-3 pr-4 /pl-3 /pr-8 pt-4 pb-3 z-50 flex flex-col gap-1.5 rounded-2xl border border-black/15 bg-white/80 shadow-md backdrop-blur-sm"
+        className="relative text-sm pr-3 pl-3 pt-8 pb-3 z-50 flex flex-col gap-1.5 rounded-2xl border border-black/15 bg-white/80 shadow-md backdrop-blur-sm"
         {...getFloatingProps()}
       >
         <button
           type="button"
           aria-label="Close settings"
           onClick={closePopup}
-          className="absolute top-0 right-0 p-1 m-1 cursor-pointer"
+          className="absolute top-0 left-0 p-1 my-1 ml-0.5 cursor-pointer"
         >
           <XIcon className="w-4 h-4" />
         </button>
 
         <div
           onClick={() => toggleModal("edit user")}
-          className="pr-4 mr-3 flex text-sm p-2 rounded-lg hover:bg-black/10 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100"
+          className="pr-4 /mr-3 flex text-sm p-2 rounded-lg hover:bg-black/10 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100"
         >
           <UserPen className="w-4 h-4 mr-2" />
           <p className="truncate">Edit User</p>
@@ -102,7 +114,7 @@ const SettingsPopup = () => {
 
         <div
           onClick={() => toggleModal("manage subscription")}
-          className="pr-4 mr-3 flex text-sm p-2 rounded-lg hover:bg-black/10 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100"
+          className="pr-4 /mr-3 flex text-sm p-2 rounded-lg hover:bg-black/10 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100"
         >
           <CreditCard className="w-4 h-4 mr-2" />
           <p className="truncate">Modify Subscription</p>
@@ -114,7 +126,7 @@ const SettingsPopup = () => {
 
             toggleModal("manage workspaces");
           }}
-          className={`pr-4 mr-3 flex text-sm p-2 rounded-lg transition-colors ease-in duration-150 hover:ease-out hover:duration-100 ${
+          className={`pr-4 /mr-3 flex text-sm p-2 rounded-lg transition-colors ease-in duration-150 hover:ease-out hover:duration-100 ${
             manageWorkspacesDisabled
               ? "cursor-not-allowed text-gray-400"
               : "hover:bg-black/10 cursor-pointer"
