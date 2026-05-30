@@ -53,7 +53,7 @@ CREATE TYPE "RecordParty" AS ENUM ('plaintiff', 'defense');
 CREATE TYPE "RecordVisibility" AS ENUM ('hidden', 'visible');
 
 -- CreateEnum
-CREATE TYPE "CaseViewType" AS ENUM ('arguments', 'case_notes', 'facts', 'issues', 'legal_precedent', 'objectives', 'posture', 'tasks', 'testimony', 'timeline', 'agent_config', 'case_summary', 'documents_index');
+CREATE TYPE "CaseViewType" AS ENUM ('arguments', 'case_notes', 'facts', 'issues', 'legal_precedent', 'objectives', 'posture', 'tasks', 'testimony', 'timeline', 'case_agent', 'case_summary', 'documents_index');
 
 -- CreateEnum
 CREATE TYPE "ManifestKind" AS ENUM ('workspace_state', 'case_state', 'snapshot');

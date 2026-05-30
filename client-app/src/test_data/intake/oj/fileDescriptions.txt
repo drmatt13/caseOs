@@ -1,0 +1,86 @@
+DOCUMENTS:
+
+allan_park_witness_statement.md
+- Statement from limousine driver Allan Park regarding pickup timing, observations at Simpson residence, and travel to the airport.
+
+bronco_evidence_inventory.md
+- Evidence inventory related to the Ford Bronco, including blood traces, fibers, interior observations, and collection notes.
+
+chain_of_custody_blood_samples.md
+- Chain-of-custody records for blood samples collected from the crime scene, Simpson residence, Bronco, and reference samples.
+
+defense_forensic_expert_notes.txt
+- Notes from defense forensic consultants identifying concerns about contamination, sample handling, testing interpretation, and collection procedures.
+
+defense_timeline_reconstruction.md
+- Defense-prepared timeline comparing prosecution allegations, witness statements, phone records, travel timing, limousine pickup, and estimated time of death.
+
+dna_lab_analysis_report.md
+- DNA laboratory analysis report summarizing test results, sample comparisons, lab methods, and prosecution forensic conclusions.
+
+draft_motion_to_suppress_evidence.docx
+- Draft defense motion seeking suppression or limitation of selected physical evidence based on collection, warrant, or chain-of-custody concerns.
+
+glove_evidence_report.md
+- Report concerning glove evidence allegedly recovered from the crime scene and Simpson residence.
+
+initial_police_response_report.md:
+- Initial police response report describing the discovery of the victims, officer observations, scene security, and early investigative actions.
+
+kato_kaelin_statement.md
+- Statement from Kato Kaelin regarding his observations at Simpson residence, sounds heard, and timeline-related details.
+
+mark_fuhrman_impeachment_research.md
+- Research file concerning potential impeachment issues involving Detective Mark Fuhrman, including bias, prior statements, credibility concerns, and investigative role.
+
+medical_examiner_report.md
+- Medical examiner report addressing cause of death, estimated time of death, injury patterns, and forensic observations.
+
+oj_simpson_client_statement.txt
+- Client-provided statement regarding his whereabouts, relationship history, travel plans, and denial of involvement.
+
+prior_domestic_incident_records.md
+- "Records and reports concerning prior incidents involving Simpson and Nicole Brown Simpson that the prosecution may use to argue motive or history.
+
+
+
+IMAGES:
+
+875BUNDY.jpg
+- Illustrative diagram depicting the location of the victims, blood evidence, footprints, gate area, and key pathways within the courtyard outside 875 Bundy Drive. The map is intended to provide a spatial overview of the scene and assist in understanding the relative positions of physical evidence recovered during the investigation.
+
+Affaire_OJ_Simpson_-_Scène_de_crime.png
+- Three-dimensional reconstruction illustrating the relative positions of Nicole Brown Simpson, Ronald Goldman, blood evidence, footprints, a glove, and other key items recovered at the Bundy Drive crime scene. The model is intended to provide a visual representation of the scene layout and the spatial relationship between victims and physical evidence documented during the investigation.
+
+BRENTWOO.jpg
+- Map of the Brentwood neighborhood in Los Angeles showing the relative locations of Nicole Brown Simpson's condominium, O.J. Simpson's estate on Rockingham Avenue, and the Mezzaluna restaurant where Ronald Goldman worked. The map provides geographic context for locations frequently referenced during the investigation and subsequent trial.
+
+Nicole_Brown_Simpson_murder_scene_1.jpg
+- Photograph depicting Nicole Brown Simpson at the Bundy Drive crime scene following the June 12, 1994 homicide. The image is associated with investigative and autopsy findings documenting multiple sharp-force injuries, including a fatal incised wound to the neck, additional stab wounds, and defensive injuries to the hands, as recorded by the Los Angeles County Medical Examiner and reviewed during the criminal investigation.
+
+Nicole_Brown_Simpson_murder_scene_4.jpg
+- Photograph depicting Nicole Brown Simpson at the Bundy Drive crime scene as documented by investigators following the June 12, 1994 homicide. The image corresponds to forensic findings detailed in the autopsy report, including extensive sharp-force injuries to the neck, multiple stab wounds, and defensive wounds to the hands, and was collected as part of the Los Angeles Police Department homicide investigation.
+
+O.J.-Simpson-Crime-Scene-Photos-3i.jpg
+- Photograph of the walkway leading to the entrance of Nicole Brown Simpson's condominium, depicting bloodstains and apparent footwear impressions documented by investigators at the crime scene. The image was collected as part of the forensic examination and used to analyze the movement of individuals and the distribution of physical evidence within the crime scene area.
+
+ojhouse.jpg
+- Diagram of O.J. Simpson's Rockingham Avenue estate illustrating key locations examined during the investigation, including the driveway, walkway, guest house occupied by Kato Kaelin, and the area where a blood-stained glove was recovered. The map provides spatial context for witness observations, evidence collection, and investigative activity conducted at the property following the homicides.
+
+ROCKI.jpg
+- Simplified diagram of the Rockingham Avenue property showing the residence, driveway, gates, intercom area, and locations where blood evidence was documented by investigators. The map provides an overview of the distribution of physical evidence recovered on the property and its relationship to key access points and structures.
+
+Ron_Goldman_murder_scene_1.jpg
+- Photograph depicting Ronald Goldman at the Bundy Drive crime scene following the June 12, 1994 homicide. The image is associated with forensic findings documenting a fatal sharp-force injury to the neck, multiple stab and incised wounds to the chest, abdomen, scalp, face, and extremities, as well as defensive wounds to the hands and arms, as recorded by the Los Angeles County Medical Examiner and reviewed during the investigation.
+
+Ron_Goldman_murder_scene_2.jpg
+- Close-up forensic photograph documenting one of the sharp-force injuries sustained by Ronald Goldman during the June 12, 1994 homicide. The image was collected as part of the crime scene and forensic examination to document wound characteristics, injury patterns, and physical evidence relevant to the medical examiner's findings and the subsequent criminal investigation.
+
+Ron_Goldman_murder_scene_3.jpg
+- Close-up forensic photograph documenting severe injuries to Ronald Goldman's hand consistent with defensive wounds sustained during the assault. The image was collected to record wound characteristics, evidence of a struggle, and injury patterns considered during the forensic examination and criminal investigation.
+
+Ron_Goldman_murder_scene_4.jpg
+- Close-up forensic photograph documenting a sharp-force injury to Ronald Goldman's neck observed during the crime scene and postmortem examination. The image was collected to record wound characteristics, injury severity, and forensic findings relevant to the medical examiner's determination of cause and manner of death and to the subsequent criminal investigation.
+
+Ron_Goldman_murder_scene_5.jpg
+- Close-up forensic photograph showing damage to Ronald Goldman's clothing and an associated sharp-force injury documented during the crime scene investigation and postmortem examination. The image was collected to record the location, size, and characteristics of injuries relative to clothing damage and to assist forensic analysis of the assault.

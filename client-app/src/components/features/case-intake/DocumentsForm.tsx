@@ -80,7 +80,7 @@ const DocumentsForm = ({
       />
 
       <div
-        className="rounded-2xl border-2 border-dashed p-5 text-sm flex flex-col items-center justify-center gap-0.5 text-center py-12 cursor-pointer group border-black/15 hover:border-black/40 hover:bg-gray-300/20 transition-colors"
+        className="rounded-2xl border-2 border-dashed p-5 text-sm flex flex-col items-center justify-center gap-0.5 text-center py-12 cursor-pointer group border-black/30 md:border-black/20 hover:border-black/40 bg-white/50 md:bg-transparent hover:bg-gray-300/20 transition-colors"
         onClick={openFilePicker}
       >
         <div className="rounded-full aspect-square p-4 flex justify-center items-center mb-2.5 bg-black/10 group-hover:bg-gray-300 transition-colors">

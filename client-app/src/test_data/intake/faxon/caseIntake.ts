@@ -1,6 +1,6 @@
 import type { CaseIntake } from "#/types/caseWorkspace";
 
-export const testCaseIntake: CaseIntake = {
+const caseIntake: CaseIntake = {
   id: "case-intake-faxon-commons-001",
 
   caseName: "Faxon Commons v. Sweeney",
@@ -54,3 +54,5 @@ export const testCaseIntake: CaseIntake = {
 
   documents: {},
 };
+
+export default caseIntake;

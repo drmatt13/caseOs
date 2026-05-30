@@ -85,7 +85,7 @@ const partyLabels: Record<DemoRecordParty, string> = {
 };
 
 const viewLabels: Record<ViewTypes, string> = {
-  agent_config: "Case Agent",
+  case_agent: "Case Agent",
   case_summary: "Case Summary",
   arguments: "Arguments",
   case_notes: "Case Notes",
@@ -195,7 +195,7 @@ function recordMatchesSearch(record: DemoRecord, searchValue: string) {
 
 function RouteComponent() {
   const { id } = Route.useParams();
-  const [activeView, setActiveView] = useState<ViewTypes>("case_summary");
+  const [activeView, setActiveView] = useState<ViewTypes>("case_agent");
   const [selectedStatuses, setSelectedStatuses] =
     useState<SelectedRecordStatuses>([]);
   const [globalSearch, setGlobalSearch] = useState("");
@@ -290,7 +290,7 @@ function RouteComponent() {
 
     counts.documents_index = demoDocuments.length;
     counts.case_summary = 1;
-    counts.agent_config = 1;
+    counts.case_agent = 1;
 
     return counts;
   }, [workspaceRecords]);
@@ -386,12 +386,12 @@ function RouteComponent() {
           <header className="flex flex-wrap items-start justify-between gap-3 border-b border-black/10 pb-4">
             <div className="min-w-0">
               <div className="mb-2 flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-black/10 bg-white/70 px-2.5 py-1 text-[11px] text-black/65">
+                <span className="rounded-full border border-black/10 bg-white/70 px-2.5 py-1 text-xs text-black/65">
                   {demoCase.caseNumber}
                 </span>
                 <button
                   type="button"
-                  className="rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-[11px] text-red-800 transition-colors hover:border-red-300 hover:bg-red-100 hover:text-red-900"
+                  className="rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-xs text-red-800 transition-colors hover:border-red-300 hover:bg-red-100 hover:text-red-900"
                   onClick={() => {
                     setGlobalSearch("");
                     setPanelSearch("");
@@ -434,7 +434,7 @@ function RouteComponent() {
           ) : null}
           {!showProposalReview &&
             globalSearch.trim().length === 0 &&
-            activeView === "agent_config" && <AgentConfigView />}
+            activeView === "case_agent" && <AgentConfigView />}
           {!showProposalReview &&
             globalSearch.trim().length === 0 &&
             activeView === "documents_index" && <DocumentsView />}
@@ -455,7 +455,7 @@ function RouteComponent() {
             )}
           {!showProposalReview &&
             globalSearch.trim().length === 0 &&
-            !["case_summary", "agent_config", "documents_index"].includes(
+            !["case_summary", "case_agent", "documents_index"].includes(
               activeView,
             ) &&
             activeView !== "timeline" && (
@@ -615,7 +615,7 @@ function GlobalSearchView({
         ) : (
           records.map((record) => (
             <div key={record.id} className="flex flex-col gap-2">
-              <div className="flex items-center gap-2 text-[11px] text-black/50">
+              <div className="flex items-center gap-2 text-xs text-black/50">
                 <span className="rounded-full border border-black/10 bg-white/70 px-2 py-0.5">
                   {viewLabels[record.type]}
                 </span>
@@ -679,7 +679,7 @@ function ProposalReviewView({
         ) : (
           records.map((record) => (
             <div key={record.id} className="flex flex-col gap-2">
-              <div className="flex items-center gap-2 text-[11px] text-black/50">
+              <div className="flex items-center gap-2 text-xs text-black/50">
                 <span className="rounded-full border border-black/10 bg-white/70 px-2 py-0.5">
                   {viewLabels[record.type]}
                 </span>
@@ -943,7 +943,7 @@ function TimelineView({
                     </div>
                   )}
                   <div className="min-w-0">
-                    <div className="mb-1 flex flex-wrap items-center gap-2 text-[11px] text-black/55">
+                    <div className="mb-1 flex flex-wrap items-center gap-2 text-xs text-black/55">
                       <span className="inline-flex items-center gap-1">
                         <CalendarDays className="h-3.5 w-3.5" />
                         {record.date ?? "Date unknown"}
@@ -1088,7 +1088,7 @@ function PartyBadge({ party }: { party?: DemoRecordParty }) {
 
   return (
     <span
-      className={`rounded-full border px-2 py-0.5 text-[11px] ${partyClassName[party]}`}
+      className={`rounded-full border px-2 py-0.5 text-xs ${partyClassName[party]}`}
     >
       {partyLabels[party]}
     </span>
@@ -1367,7 +1367,7 @@ function RecordSettingsMenu({
             </>
           )}
           {menuNote && !isSuperseded && (
-            <p className="mt-1 border-t border-black/10 px-2.5 py-2 text-[11px] leading-4 text-black/50">
+            <p className="mt-1 border-t border-black/10 px-2.5 py-2 text-xs leading-4 text-black/50">
               {menuNote}
             </p>
           )}
@@ -1420,19 +1420,19 @@ function RecordCard({
         <div className="min-w-0">
           <div className="mb-2 flex flex-wrap items-center gap-2">
             <span
-              className={`rounded-full border px-2 py-0.5 text-[11px] capitalize ${statusClassName[displayStatus]}`}
+              className={`rounded-full border px-2 py-0.5 text-xs capitalize ${statusClassName[displayStatus]}`}
             >
               {statusLabels[displayStatus]}
             </span>
-            <span className="rounded-full border border-black/10 bg-black/[0.03] px-2 py-0.5 text-[11px] text-black/60">
+            <span className="rounded-full border border-black/10 bg-black/[0.03] px-2 py-0.5 text-xs text-black/60">
               {record.typeStatus}
             </span>
-            <span className="rounded-full border border-black/10 bg-white/80 px-2 py-0.5 text-[11px] text-black/55">
+            <span className="rounded-full border border-black/10 bg-white/80 px-2 py-0.5 text-xs text-black/55">
               {record.category}
             </span>
             <PartyBadge party={record.party} />
             {record.status === "proposed" && record.supersedes && (
-              <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] text-amber-800">
+              <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs text-amber-800">
                 <GitBranch className="h-3 w-3" />
                 Supersedes existing
               </span>
@@ -1508,7 +1508,7 @@ function DocumentsView() {
           >
             <div className="flex items-start justify-between gap-3">
               <FileText className="h-5 w-5 text-black/55" />
-              <span className="rounded-full border border-black/10 bg-white/80 px-2 py-0.5 text-[11px] text-black/60">
+              <span className="rounded-full border border-black/10 bg-white/80 px-2 py-0.5 text-xs text-black/60">
                 {document.status}
               </span>
             </div>
@@ -1524,7 +1524,7 @@ function DocumentsView() {
               {document.gaps.map((gap) => (
                 <span
                   key={gap}
-                  className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] text-amber-800"
+                  className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs text-amber-800"
                 >
                   {gap}
                 </span>
@@ -1646,7 +1646,7 @@ function RecordRow({ record }: { record: DemoRecord }) {
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border border-black/10 bg-white/70 p-3">
-      <p className="text-[11px] text-black/55">{label}</p>
+      <p className="text-xs text-black/55">{label}</p>
       <p className="mt-1 text-xl font-semibold">{value}</p>
     </div>
   );
@@ -1663,7 +1663,7 @@ function MiniPanel({
 }) {
   return (
     <div className="min-w-0 rounded-lg border border-black/10 bg-black/[0.025] p-3">
-      <div className="mb-2 flex items-center gap-1.5 text-[11px] text-black/55">
+      <div className="mb-2 flex items-center gap-1.5 text-xs text-black/55">
         <Icon className="h-3.5 w-3.5" />
         <span>{label}</span>
       </div>

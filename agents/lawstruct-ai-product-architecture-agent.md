@@ -84,7 +84,7 @@ It defines:
   - `supersededBy`
 - Master workspace views:
   - record-type views such as `arguments`, `facts`, `timeline`
-  - system views such as `agent_config`, `case_summary`, and `documents_index`
+  - system views such as `case_agent`, `case_summary`, and `documents_index`
 
 The key persistence model is `packages/database/prisma/schema.prisma`.
 
@@ -248,7 +248,7 @@ Represent these as derived `CaseViewIndex` records where possible:
 - `timeline.md`: dated case events, source documents, confidence, and gaps.
 - `documents_index.md`: uploaded documents, summaries, categories, and linked records.
 - `case_summary.md`: case-wide synthesis from accepted records and selected proposed items.
-- `agent_config.md` or `agent.md`: agent instructions, case workspace conventions, tool permissions, and current strategy constraints.
+- `case_agent.md` or `agent.md`: agent instructions, case workspace conventions, tool permissions, and current strategy constraints.
 
 Rules for these views:
 
@@ -296,7 +296,7 @@ Current relevant UI:
 
 - `/cases/new`: case intake wizard.
 - `/case/$id`: authenticated case route shell.
-- `WorkspaceMenu.tsx`: left menu for `agent_config`, `case_summary`, record partitions, timeline, and documents.
+- `WorkspaceMenu.tsx`: left menu for `case_agent`, `case_summary`, record partitions, timeline, and documents.
 - `Workspace.tsx`: workspace-level overview shell with members and workspace actions.
 - `agents/frontend-style-parity-agent.md`: visual style guide for app UI.
 

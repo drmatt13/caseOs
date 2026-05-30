@@ -29,9 +29,9 @@ import { requireAuth } from "#/lib/auth";
 import { useCurrentUserQuery } from "#/api/currentUser/hooks";
 
 // test data
-import { testCaseIntake } from "#/lib/test_data";
+import testIntakeData from "#/test_data/intake/oj/caseIntake";
 
-void testCaseIntake;
+void testIntakeData; // to prevent "declared but never used" error while developing with test data
 
 const createBlankCaseIntake = (): CaseIntake => ({
   ...initialCaseIntake,
@@ -51,9 +51,9 @@ function RouteComponent() {
 
   const [caseIntakeState, setCaseIntakeState] = useState<CaseIntakeWizardState>(
     {
-      step: 1,
-      // caseIntake: testCaseIntake,
-      caseIntake: blankCaseIntake,
+      step: 6,
+      caseIntake: testIntakeData,
+      // caseIntake: blankCaseIntake,
     },
   );
 

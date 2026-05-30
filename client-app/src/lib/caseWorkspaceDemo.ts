@@ -9,7 +9,7 @@ export type DemoRecordParty = RecordParty;
 
 export type DemoRecord = {
   id: string;
-  type: Exclude<ViewTypes, "agent_config" | "case_summary" | "documents_index">;
+  type: Exclude<ViewTypes, "case_agent" | "case_summary" | "documents_index">;
   title: string;
   miniDescription: string;
   content: string;
@@ -512,7 +512,8 @@ export const demoRecords: DemoRecord[] = [
   {
     id: "issue-005",
     type: "issues",
-    title: "Whether completed work orders prove remediation or only response activity",
+    title:
+      "Whether completed work orders prove remediation or only response activity",
     miniDescription:
       "Fact/legal bridge for interpreting landlord maintenance records.",
     content:
@@ -528,7 +529,8 @@ export const demoRecords: DemoRecord[] = [
   {
     id: "arg-003",
     type: "arguments",
-    title: "Filing delay supports a mitigation theory only if causation is shown",
+    title:
+      "Filing delay supports a mitigation theory only if causation is shown",
     miniDescription:
       "Accepted mitigation framing now being compared against equitable prejudice.",
     content:
@@ -545,7 +547,8 @@ export const demoRecords: DemoRecord[] = [
   {
     id: "arg-004",
     type: "arguments",
-    title: "Filing delay may show equitable prejudice more cleanly than strict mitigation",
+    title:
+      "Filing delay may show equitable prejudice more cleanly than strict mitigation",
     miniDescription:
       "Alternative theory that may fit the record better than narrow causation.",
     content:
@@ -564,7 +567,8 @@ export const demoRecords: DemoRecord[] = [
     linkedRecords: ["fact-002", "issue-003", "timeline-006", "objective-002"],
     supersedes: {
       id: "arg-003",
-      title: "Filing delay supports a mitigation theory only if causation is shown",
+      title:
+        "Filing delay supports a mitigation theory only if causation is shown",
       summary:
         "Replaces a narrow mitigation-only framing with a broader equitable-prejudice theory that may better fit the mixed record.",
     },
@@ -572,7 +576,8 @@ export const demoRecords: DemoRecord[] = [
   {
     id: "arg-005",
     type: "arguments",
-    title: "Completed maintenance entries show response activity, not condition proof",
+    title:
+      "Completed maintenance entries show response activity, not condition proof",
     miniDescription:
       "Counter-interpretation of landlord records that avoids denying they exist.",
     content:
@@ -611,7 +616,8 @@ export const demoRecords: DemoRecord[] = [
   {
     id: "timeline-004",
     type: "timeline",
-    title: "Gap between certified request and summary process filing remains material",
+    title:
+      "Gap between certified request and summary process filing remains material",
     miniDescription:
       "Timeline-integrity concern showing the period that needs explanation.",
     content:
@@ -649,7 +655,8 @@ export const demoRecords: DemoRecord[] = [
   {
     id: "timeline-006",
     type: "timeline",
-    title: "No-fault discussions and nonpayment filing create classification tension",
+    title:
+      "No-fault discussions and nonpayment filing create classification tension",
     miniDescription:
       "Timeline event showing why the filing theory is not just a date dispute.",
     content:
@@ -682,18 +689,13 @@ export const demoRecords: DemoRecord[] = [
     updatedAt: "May 16, 2026",
     priority: "High",
     sources: ["Case strategy", "Answer and counterclaims"],
-    linkedRecords: [
-      "arg-001",
-      "arg-004",
-      "arg-005",
-      "task-001",
-      "fact-005",
-    ],
+    linkedRecords: ["arg-001", "arg-004", "arg-005", "task-001", "fact-005"],
   },
   {
     id: "task-004",
     type: "tasks",
-    title: "Verify evidence integrity before adding condition photos to exhibit list",
+    title:
+      "Verify evidence integrity before adding condition photos to exhibit list",
     miniDescription:
       "Proof-quality task for metadata, extraction, and authentication concerns.",
     content:
@@ -771,7 +773,8 @@ export const demoRecords: DemoRecord[] = [
   {
     id: "note-002",
     type: "case_notes",
-    title: "Do not treat maintenance completion codes as admissions of remediation",
+    title:
+      "Do not treat maintenance completion codes as admissions of remediation",
     miniDescription:
       "Interpretation note preserving a careful distinction for trial use.",
     content:
@@ -787,7 +790,8 @@ export const demoRecords: DemoRecord[] = [
   {
     id: "note-003",
     type: "case_notes",
-    title: "Agent summary overstated missing communications as intentional withholding",
+    title:
+      "Agent summary overstated missing communications as intentional withholding",
     miniDescription:
       "Human correction note preventing an unsupported inference from becoming strategy.",
     content:
@@ -803,7 +807,8 @@ export const demoRecords: DemoRecord[] = [
   {
     id: "note-004",
     type: "case_notes",
-    title: "Potential exhibit problem: condition photos need witness sequencing",
+    title:
+      "Potential exhibit problem: condition photos need witness sequencing",
     miniDescription:
       "Practical trial note connecting evidence integrity to witness preparation.",
     content:
@@ -819,7 +824,8 @@ export const demoRecords: DemoRecord[] = [
   {
     id: "precedent-002",
     type: "legal_precedent",
-    title: "Massachusetts habitability authorities require careful damages framing",
+    title:
+      "Massachusetts habitability authorities require careful damages framing",
     miniDescription:
       "Research record for abatement and counterclaim framing that needs cite verification.",
     content:
@@ -872,7 +878,8 @@ export const demoRecords: DemoRecord[] = [
   {
     id: "testimony-003",
     type: "testimony",
-    title: "Tenant testimony should avoid certainty where dates are reconstructed",
+    title:
+      "Tenant testimony should avoid certainty where dates are reconstructed",
     miniDescription:
       "Witness-prep guardrail for timeline gaps and photo metadata issues.",
     content:
@@ -889,7 +896,8 @@ export const demoRecords: DemoRecord[] = [
   {
     id: "posture-002",
     type: "posture",
-    title: "Trial-facing posture is constrained by unresolved discovery and proof quality",
+    title:
+      "Trial-facing posture is constrained by unresolved discovery and proof quality",
     miniDescription:
       "Current posture update linking urgency to missing records and exhibit foundation.",
     content:
@@ -936,7 +944,11 @@ export const demoRecords: DemoRecord[] = [
     typeStatus: "Undisputed fact",
     createdBy: "Human",
     updatedAt: "May 16, 2026",
-    sources: ["Affidavit of Matthew Sweeney", "Rent ledger", "RAFT approval record"],
+    sources: [
+      "Affidavit of Matthew Sweeney",
+      "Rent ledger",
+      "RAFT approval record",
+    ],
     linkedRecords: ["arg-001", "objective-001", "task-003"],
   },
   {
@@ -959,7 +971,8 @@ export const demoRecords: DemoRecord[] = [
   {
     id: "fact-009",
     type: "facts",
-    title: "QCAP housing coordinator allegedly tied shelter pathway to no-fault process",
+    title:
+      "QCAP housing coordinator allegedly tied shelter pathway to no-fault process",
     miniDescription:
       "Assistance-pathway fact that needs corroboration before being treated as decisive.",
     content:
@@ -976,7 +989,8 @@ export const demoRecords: DemoRecord[] = [
   {
     id: "fact-010",
     type: "facts",
-    title: "Initial arrears were allegedly cured by RAFT before any court filing",
+    title:
+      "Initial arrears were allegedly cured by RAFT before any court filing",
     miniDescription:
       "Timing fact that affects the meaning of later notices and filing classification.",
     content:
@@ -988,7 +1002,11 @@ export const demoRecords: DemoRecord[] = [
     createdBy: "CaseOS Agent",
     updatedAt: "May 16, 2026",
     date: "2025-07-28",
-    sources: ["RAFT approval record", "Rent ledger", "Affidavit of Matthew Sweeney"],
+    sources: [
+      "RAFT approval record",
+      "Rent ledger",
+      "Affidavit of Matthew Sweeney",
+    ],
     linkedRecords: ["timeline-007", "issue-006", "arg-006", "fact-002"],
   },
   {
@@ -1006,7 +1024,11 @@ export const demoRecords: DemoRecord[] = [
     createdBy: "CaseOS Agent",
     updatedAt: "May 16, 2026",
     date: "2025-07-24",
-    sources: ["Affidavit of Matthew Sweeney", "Balcony inspection notice", "Entry/access records"],
+    sources: [
+      "Affidavit of Matthew Sweeney",
+      "Balcony inspection notice",
+      "Entry/access records",
+    ],
     linkedRecords: ["issue-007", "arg-007", "timeline-008", "testimony-004"],
   },
   {
@@ -1024,13 +1046,18 @@ export const demoRecords: DemoRecord[] = [
     createdBy: "CaseOS Agent",
     updatedAt: "May 16, 2026",
     date: "2025-09-12",
-    sources: ["Agreement to Vacate", "September 10 email", "Summary process docket"],
+    sources: [
+      "Agreement to Vacate",
+      "September 10 email",
+      "Summary process docket",
+    ],
     linkedRecords: ["timeline-010", "timeline-011", "issue-003", "arg-004"],
   },
   {
     id: "issue-006",
     type: "issues",
-    title: "Whether RAFT curing June and July arrears changed the filing posture",
+    title:
+      "Whether RAFT curing June and July arrears changed the filing posture",
     miniDescription:
       "Procedural issue for interpreting the second notice and later nonpayment complaint.",
     content:
@@ -1041,13 +1068,19 @@ export const demoRecords: DemoRecord[] = [
     typeStatus: "Open issue",
     createdBy: "CaseOS Agent",
     updatedAt: "May 16, 2026",
-    sources: ["RAFT approval record", "Rent ledger", "First Notice to Quit", "Second Notice to Quit"],
+    sources: [
+      "RAFT approval record",
+      "Rent ledger",
+      "First Notice to Quit",
+      "Second Notice to Quit",
+    ],
     linkedRecords: ["fact-010", "timeline-007", "timeline-009", "arg-006"],
   },
   {
     id: "issue-007",
     type: "issues",
-    title: "Whether the July 24 entry supports quiet enjoyment or notice theories",
+    title:
+      "Whether the July 24 entry supports quiet enjoyment or notice theories",
     miniDescription:
       "Legal/factual issue connecting entry notice, household safety, and later management communications.",
     content:
@@ -1058,13 +1091,18 @@ export const demoRecords: DemoRecord[] = [
     typeStatus: "Reserved issue",
     createdBy: "CaseOS Agent",
     updatedAt: "May 16, 2026",
-    sources: ["Balcony inspection notice", "Affidavit of Matthew Sweeney", "Entry/access records"],
+    sources: [
+      "Balcony inspection notice",
+      "Affidavit of Matthew Sweeney",
+      "Entry/access records",
+    ],
     linkedRecords: ["fact-011", "arg-007", "timeline-008", "testimony-004"],
   },
   {
     id: "issue-008",
     type: "issues",
-    title: "Whether lack of response to certified letter supports reliance or prejudice",
+    title:
+      "Whether lack of response to certified letter supports reliance or prejudice",
     miniDescription:
       "Strategic issue about silence after a written request for prompt filing or clarification.",
     content:
@@ -1075,8 +1113,17 @@ export const demoRecords: DemoRecord[] = [
     typeStatus: "Open issue",
     createdBy: "CaseOS Agent",
     updatedAt: "May 16, 2026",
-    sources: ["Certified filing request", "USPS receipt", "Affidavit of Matthew Sweeney"],
-    linkedRecords: ["timeline-002", "arg-004", "objective-002", "testimony-004"],
+    sources: [
+      "Certified filing request",
+      "USPS receipt",
+      "Affidavit of Matthew Sweeney",
+    ],
+    linkedRecords: [
+      "timeline-002",
+      "arg-004",
+      "objective-002",
+      "testimony-004",
+    ],
   },
   {
     id: "arg-006",
@@ -1098,7 +1145,8 @@ export const demoRecords: DemoRecord[] = [
   {
     id: "arg-007",
     type: "arguments",
-    title: "Unauthorized-entry evidence should support context, not distract from filing prejudice",
+    title:
+      "Unauthorized-entry evidence should support context, not distract from filing prejudice",
     miniDescription:
       "Strategy argument limiting how the July 24 entry should be used.",
     content:
@@ -1127,7 +1175,11 @@ export const demoRecords: DemoRecord[] = [
     createdBy: "CaseOS Agent",
     updatedAt: "May 16, 2026",
     date: "2025-07-28",
-    sources: ["RAFT approval record", "Case timeline", "Affidavit of Matthew Sweeney"],
+    sources: [
+      "RAFT approval record",
+      "Case timeline",
+      "Affidavit of Matthew Sweeney",
+    ],
     linkedRecords: ["fact-010", "issue-006", "arg-006"],
   },
   {
@@ -1163,7 +1215,11 @@ export const demoRecords: DemoRecord[] = [
     createdBy: "Human",
     updatedAt: "May 16, 2026",
     date: "2025-08-19",
-    sources: ["Second Notice to Quit", "RAFT approval record", "Affidavit of Matthew Sweeney"],
+    sources: [
+      "Second Notice to Quit",
+      "RAFT approval record",
+      "Affidavit of Matthew Sweeney",
+    ],
     linkedRecords: ["fact-010", "issue-006", "arg-006", "timeline-004"],
   },
   {
@@ -1180,13 +1236,18 @@ export const demoRecords: DemoRecord[] = [
     createdBy: "CaseOS Agent",
     updatedAt: "May 16, 2026",
     date: "2025-09-12",
-    sources: ["Agreement to Vacate", "September 10 email", "Affidavit of Matthew Sweeney"],
+    sources: [
+      "Agreement to Vacate",
+      "September 10 email",
+      "Affidavit of Matthew Sweeney",
+    ],
     linkedRecords: ["fact-012", "issue-003", "arg-004", "timeline-011"],
   },
   {
     id: "timeline-011",
     type: "timeline",
-    title: "Fault-based nonpayment complaint filed thirty-two days after agreement deadline",
+    title:
+      "Fault-based nonpayment complaint filed thirty-two days after agreement deadline",
     miniDescription:
       "Core filing event tying delay, classification, and accumulated arrears together.",
     content:
@@ -1198,13 +1259,18 @@ export const demoRecords: DemoRecord[] = [
     createdBy: "Human",
     updatedAt: "May 16, 2026",
     date: "2025-10-14",
-    sources: ["Summary process complaint", "Agreement to Vacate", "Summary process docket"],
+    sources: [
+      "Summary process complaint",
+      "Agreement to Vacate",
+      "Summary process docket",
+    ],
     linkedRecords: ["fact-012", "timeline-010", "arg-004", "posture-002"],
   },
   {
     id: "timeline-012",
     type: "timeline",
-    title: "April 9 follow-up requested search certification after supplementation",
+    title:
+      "April 9 follow-up requested search certification after supplementation",
     miniDescription:
       "Discovery event showing why April 3 production did not end the dispute.",
     content:
@@ -1240,7 +1306,8 @@ export const demoRecords: DemoRecord[] = [
   {
     id: "task-006",
     type: "tasks",
-    title: "Reconcile affidavit timeline against exhibit dates before trial use",
+    title:
+      "Reconcile affidavit timeline against exhibit dates before trial use",
     miniDescription:
       "Quality-control task for RAFT date, notices, agreement deadline, and docket filing.",
     content:
@@ -1252,7 +1319,12 @@ export const demoRecords: DemoRecord[] = [
     updatedAt: "May 16, 2026",
     priority: "High",
     sources: ["Affidavit of Matthew Sweeney", "Case timeline", "Exhibits A-H"],
-    linkedRecords: ["timeline-007", "timeline-010", "timeline-011", "testimony-003"],
+    linkedRecords: [
+      "timeline-007",
+      "timeline-010",
+      "timeline-011",
+      "testimony-003",
+    ],
   },
   {
     id: "objective-004",
@@ -1275,7 +1347,8 @@ export const demoRecords: DemoRecord[] = [
   {
     id: "testimony-004",
     type: "testimony",
-    title: "Matthew Sweeney testimony should separate asserted reliance from legal conclusion",
+    title:
+      "Matthew Sweeney testimony should separate asserted reliance from legal conclusion",
     miniDescription:
       "Witness-prep module for no-fault reliance, shelter pathway, and family stability.",
     content:
@@ -1344,7 +1417,11 @@ export const demoDocuments: DemoDocument[] = [
     summary:
       "Working chronology for move-in conditions, complaints, hardship communications, and trial themes.",
     linkedRecords: 17,
-    gaps: ["Normalize dates", "Attach photos", "Separate exact from reconstructed dates"],
+    gaps: [
+      "Normalize dates",
+      "Attach photos",
+      "Separate exact from reconstructed dates",
+    ],
   },
   {
     id: "doc-005",
@@ -1399,7 +1476,11 @@ export const demoDocuments: DemoDocument[] = [
     summary:
       "Draft affidavit covering payment history, pest conditions, family hardship, RAFT, no-fault discussions, notices, entry, and filing-delay chronology.",
     linkedRecords: 18,
-    gaps: ["Exhibit cross-check", "Date reconciliation", "Avoid legal conclusions"],
+    gaps: [
+      "Exhibit cross-check",
+      "Date reconciliation",
+      "Avoid legal conclusions",
+    ],
   },
   {
     id: "doc-010",
@@ -1410,7 +1491,11 @@ export const demoDocuments: DemoDocument[] = [
     summary:
       "Agreement and email chain used to evaluate no-fault filing expectations, the September 12 deadline, and later classification tension.",
     linkedRecords: 11,
-    gaps: ["Execution history", "Attorney review email", "Filing-deadline communications"],
+    gaps: [
+      "Execution history",
+      "Attorney review email",
+      "Filing-deadline communications",
+    ],
   },
   {
     id: "doc-011",
@@ -1421,7 +1506,11 @@ export const demoDocuments: DemoDocument[] = [
     summary:
       "RAFT and ledger materials for verifying payment amounts, cure timing, and the relationship between initial arrears and later notices.",
     linkedRecords: 9,
-    gaps: ["Approval date conflict", "Ledger credit date", "June-July arrears allocation"],
+    gaps: [
+      "Approval date conflict",
+      "Ledger credit date",
+      "June-July arrears allocation",
+    ],
   },
   {
     id: "doc-012",
@@ -1432,7 +1521,11 @@ export const demoDocuments: DemoDocument[] = [
     summary:
       "Entry-related materials for analyzing unit-specific notice, balcony netting removal, and subsequent management communications.",
     linkedRecords: 6,
-    gaps: ["Access log", "Maintenance personnel identity", "Unit-specific notice"],
+    gaps: [
+      "Access log",
+      "Maintenance personnel identity",
+      "Unit-specific notice",
+    ],
   },
 ];
 
@@ -1440,56 +1533,64 @@ export const demoActivity: DemoActivity[] = [
   {
     id: "act-001",
     actor: "CaseOS Agent",
-    action: "Proposed equitable-prejudice theory to supersede the narrower mitigation argument.",
+    action:
+      "Proposed equitable-prejudice theory to supersede the narrower mitigation argument.",
     time: "8 minutes ago",
     tone: "info",
   },
   {
     id: "act-002",
     actor: "Matthew Sweeney",
-    action: "Accepted discovery-gap fact after comparing requests against supplemental responses.",
+    action:
+      "Accepted discovery-gap fact after comparing requests against supplemental responses.",
     time: "42 minutes ago",
     tone: "success",
   },
   {
     id: "act-003",
     actor: "CaseOS Agent",
-    action: "Flagged photo metadata and OCR extraction issues before exhibit mapping.",
+    action:
+      "Flagged photo metadata and OCR extraction issues before exhibit mapping.",
     time: "1 hour ago",
     tone: "warning",
   },
   {
     id: "act-004",
     actor: "CaseOS Agent",
-    action: "Linked maintenance completion codes to disputed remediation and cross-exam modules.",
+    action:
+      "Linked maintenance completion codes to disputed remediation and cross-exam modules.",
     time: "2 hours ago",
     tone: "info",
   },
   {
     id: "act-005",
     actor: "Matthew Sweeney",
-    action: "Pinned correction note limiting unsupported claims about intentional withholding.",
+    action:
+      "Pinned correction note limiting unsupported claims about intentional withholding.",
     time: "3 hours ago",
     tone: "success",
   },
   {
     id: "act-006",
     actor: "CaseOS Agent",
-    action: "Proposed RAFT cure and second-notice issue after comparing affidavit against the timeline file.",
+    action:
+      "Proposed RAFT cure and second-notice issue after comparing affidavit against the timeline file.",
     time: "4 hours ago",
     tone: "warning",
   },
   {
     id: "act-007",
     actor: "Matthew Sweeney",
-    action: "Accepted task to reconcile affidavit dates against exhibits before trial use.",
+    action:
+      "Accepted task to reconcile affidavit dates against exhibits before trial use.",
     time: "5 hours ago",
     tone: "success",
   },
   {
     id: "act-008",
     actor: "CaseOS Agent",
-    action: "Linked Agreement to Vacate deadline to the October nonpayment filing and equitable-prejudice theory.",
+    action:
+      "Linked Agreement to Vacate deadline to the October nonpayment filing and equitable-prejudice theory.",
     time: "6 hours ago",
     tone: "info",
   },
@@ -1504,4 +1605,4 @@ export const demoViewCounts = demoRecords.reduce<
 
 demoViewCounts.documents_index = demoDocuments.length;
 demoViewCounts.case_summary = 1;
-demoViewCounts.agent_config = 1;
+demoViewCounts.case_agent = 1;

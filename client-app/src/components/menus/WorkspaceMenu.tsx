@@ -29,7 +29,7 @@ const viewMenuItems: Array<{
   label: string;
   icon: LucideIcon;
 }> = [
-  { value: "agent_config", label: "Case Agent", icon: Bot },
+  { value: "case_agent", label: "Case Agent", icon: Bot },
   { value: "case_summary", label: "Case Summary", icon: FileText },
   { value: "arguments", label: "Arguments", icon: Gavel },
   { value: "case_notes", label: "Case Notes", icon: NotebookPen },

@@ -150,7 +150,7 @@ enum CaseViewType {
   TASKS           @map("tasks")
   TESTIMONY       @map("testimony")
   TIMELINE        @map("timeline")
-  AGENT_CONFIG    @map("agent_config")
+  case_agent    @map("case_agent")
   CASE_SUMMARY    @map("case_summary")
   DOCUMENTS_INDEX @map("documents_index")
 }

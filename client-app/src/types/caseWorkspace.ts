@@ -50,6 +50,7 @@ export type CaseStatus =
   | "discovery"
   | "motion_stage"
   | "settlement_negotiations"
+  | "trial_preparation"
   | "trial"
   | "post_trial"
   | "appeal";
@@ -86,45 +87,6 @@ export type RecordStatus =
   | "rejected"
   | "supersession_pending"
   | "superseded";
-export type ArgumentStatus =
-  | RecordStatus
-  | "draft"
-  | "trial_ready"
-  | "needs_support";
-export type CaseNoteStatus = RecordStatus | "pinned" | "open_question";
-export type FactStatus =
-  | RecordStatus
-  | "undisputed"
-  | "disputed"
-  | "needs_source";
-export type IssueStatus = RecordStatus | "open" | "resolved" | "reserved";
-export type LegalPrecedentStatus =
-  | RecordStatus
-  | "needs_cite_check"
-  | "good_law"
-  | "distinguished";
-export type ObjectiveStatus =
-  | RecordStatus
-  | "active"
-  | "at_risk"
-  | "achieved";
-export type PostureStatus = RecordStatus | "current" | "stale" | "needs_update";
-export type TaskRecordStatus =
-  | RecordStatus
-  | "open"
-  | "in_progress"
-  | "blocked"
-  | "done";
-export type TestimonyStatus =
-  | RecordStatus
-  | "anticipated"
-  | "prepared"
-  | "impeachment";
-export type TimelineStatus =
-  | RecordStatus
-  | "confirmed"
-  | "approximate"
-  | "disputed";
 
 export type WorkspaceReferenceMap = {
   [StateObjectType in ReferenceTargets]?: {
@@ -152,8 +114,8 @@ export interface Document {
 
   version?: number; // for tracking updates to the document
 
-  relevantDate?: string; // ISO string recommended
-  dateConfidence?: "exact" | "approximate" | "unknown";
+  // relevantDate?: string; // ISO string recommended
+  // dateConfidence?: "exact" | "approximate" | "unknown";
   referencedBy?: WorkspaceReferencedByMap;
 }
 
@@ -227,24 +189,62 @@ export type WorkspaceRecordBase = {
   supersededBy?: WorkspaceReferencedByMap; // references to records that supersede this record
 };
 
+// export type ArgumentStatus =
+//   | RecordStatus
+//   | "draft"
+//   | "trial_ready"
+//   | "needs_support";
+// export type CaseNoteStatus = RecordStatus | "pinned" | "open_question";
+// export type FactStatus =
+//   | RecordStatus
+//   | "undisputed"
+//   | "disputed"
+//   | "needs_source";
+// export type IssueStatus = RecordStatus | "open" | "resolved" | "reserved";
+// export type LegalPrecedentStatus =
+//   | RecordStatus
+//   | "unverified"
+//   | "good_law"
+//   | "distinguished"
+//   | "overruled"
+//   | "questioned";
+// export type ObjectiveStatus = RecordStatus | "active" | "at_risk" | "achieved";
+// export type PostureStatus = RecordStatus | "current" | "stale" | "needs_update";
+// export type TaskRecordStatus =
+//   | RecordStatus
+//   | "open"
+//   | "in_progress"
+//   | "blocked"
+//   | "done";
+// export type TestimonyStatus =
+//   | RecordStatus
+//   | "anticipated"
+//   | "prepared"
+//   | "impeachment";
+// export type TimelineStatus =
+//   | RecordStatus
+//   | "confirmed"
+//   | "approximate"
+//   | "disputed";
+
 export type ArgumentRecord = WorkspaceRecordBase & {
-  argumentType?: "claim" | "defense" | "counterargument" | "theory" | "other";
-  argumentStatus?: ArgumentStatus;
+  argumentType: "claim" | "defense" | "counterargument" | "theory" | "other";
+  recordStatus: RecordStatus;
 };
 
 export type CaseNoteRecord = WorkspaceRecordBase & {
-  noteType?: "general" | "strategy" | "research" | "question" | "other";
-  noteStatus?: CaseNoteStatus;
+  noteType: "general" | "strategy" | "research" | "question" | "other";
+  recordStatus: RecordStatus;
 };
 
 export type FactRecord = WorkspaceRecordBase & {
-  factType?: "background" | "disputed" | "undisputed" | "procedural" | "other";
-  factStatus?: FactStatus;
+  factType: "background" | "disputed" | "undisputed" | "procedural" | "other";
+  recordStatus: RecordStatus;
 };
 
 export type IssueRecord = WorkspaceRecordBase & {
-  issueType?: "legal" | "factual" | "procedural" | "strategic" | "other";
-  issueStatus?: IssueStatus;
+  issueType: "legal" | "factual" | "procedural" | "strategic" | "other";
+  recordStatus: RecordStatus;
 };
 
 export type LegalPrecedentRecord = WorkspaceRecordBase & {
@@ -252,12 +252,12 @@ export type LegalPrecedentRecord = WorkspaceRecordBase & {
   court?: string; // e.g. "Supreme Court", "9th Circuit"
   citation?: string; // e.g. "123 Cal.4th 456 (2020)"
   relevance?: string; // brief explanation of how this precedent is relevant to the current case
-  precedentStatus?: LegalPrecedentStatus;
+  recordStatus: RecordStatus;
 };
 
 export type ObjectiveRecord = WorkspaceRecordBase & {
   priority?: "low" | "medium" | "high";
-  objectiveStatus?: ObjectiveStatus;
+  recordStatus: RecordStatus;
 };
 
 export type PostureRecord = WorkspaceRecordBase & {
@@ -268,11 +268,11 @@ export type PostureRecord = WorkspaceRecordBase & {
     | "settlement"
     | "appeal"
     | "other";
-  postureStatus?: PostureStatus;
+  recordStatus: RecordStatus;
 };
 
 export type TaskRecord = WorkspaceRecordBase & {
-  taskStatus?: TaskRecordStatus;
+  recordStatus: RecordStatus;
   priority?: "low" | "medium" | "high";
   dueDate?: Date;
 };
@@ -280,13 +280,13 @@ export type TaskRecord = WorkspaceRecordBase & {
 export type TestimonyRecord = WorkspaceRecordBase & {
   witnessName?: string;
   testimonyType?: "anticipated" | "actual" | "impeachment" | "other";
-  testimonyStatus?: TestimonyStatus;
+  recordStatus: RecordStatus;
 };
 
 export type TimelineRecord = WorkspaceRecordBase & {
   eventDate: Date;
   dateConfidence?: "exact" | "approximate" | "unknown";
-  timelineStatus?: TimelineStatus;
+  recordStatus: RecordStatus;
 };
 
 export type WorkspaceRecordMap<T extends WorkspaceRecordBase> = {
@@ -308,7 +308,7 @@ export type WorkspaceState = {
 
 export type ViewTypes =
   | StateObjectTypes
-  | "agent_config"
+  | "case_agent"
   | "case_summary"
   | "documents_index";
 export type WorkspaceViews = {

@@ -88,6 +88,7 @@ export const caseStatusOptions = buildOptions([
   "discovery",
   "motion_stage",
   "settlement_negotiations",
+  "trial_preparation",
   "trial",
   "post_trial",
   "appeal",
