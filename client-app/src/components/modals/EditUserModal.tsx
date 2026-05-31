@@ -405,7 +405,7 @@ const EditUserModal = () => {
               />
             </div>
             {!displayNameIsValid && (
-              <span className="text-[11px] text-red-600">
+              <span className="text-xs text-red-600">
                 Display name must be at least 3 characters.
               </span>
             )}
@@ -424,7 +424,7 @@ const EditUserModal = () => {
               />
             </div>
             {!billingEmailIsValid && (
-              <span className="text-[11px] text-red-600">
+              <span className="text-xs text-red-600">
                 Enter a valid billing email.
               </span>
             )}

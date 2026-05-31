@@ -67,7 +67,7 @@ Route families:
 - Standard UI text sizes:
   - Main body: `text-sm`
   - Menus, panels, form helpers: `text-xs`
-  - Tiny metadata/badges: `text-[11px]`, `text-[10px]`, or `text-[.625rem]`
+  - Tiny metadata/badges: `text-xs`, `text-[10px]`, or `text-[.625rem]`
   - Form section title: `text-[1.1rem] font-semibold`
   - Modal title: `font-serif text-base`
 
@@ -95,7 +95,7 @@ Status colors:
 - Error alerts: `border-red-200 bg-red-50 text-red-800` or `text-red-700`
 - Warning alerts: `border-amber-200 bg-amber-50 text-amber-800`
 - Info alerts: `border-blue-200 bg-blue-50 text-blue-800`
-- Case record chips use `rounded-full border px-2 py-0.5 text-[11px]`: accepted/success is green, proposed/info is blue, rejected/error is red, supersession/warning is amber, and superseded/metadata chips use black-alpha borders/fills such as `border-black/10 bg-black/5 text-black/55`.
+- Case record chips use `rounded-full border px-2 py-0.5 text-xs`: accepted/success is green, proposed/info is blue, rejected/error is red, supersession/warning is amber, and superseded/metadata chips use black-alpha borders/fills such as `border-black/10 bg-black/5 text-black/55`.
 
 ## Spacing And Radius
 
@@ -170,7 +170,7 @@ Form layout:
 - Prefer `grid gap-4 md:grid-cols-2` for two-column form sections.
 - Use `md:col-span-2` for full-width important fields.
 - Labels are usually `text-sm font-medium`; descriptions are `text-xs text-black/60`.
-- Validation helper text uses `text-[11px] text-red-600`.
+- Validation helper text uses `text-xs text-red-600`.
 
 ## Modals
 
@@ -251,7 +251,7 @@ Subscription modal:
 - Selected tier uses `border-black/50 bg-black/[0.06]`.
 - Available tier uses `border-black/10 bg-white/60 hover:border-black/25 hover:bg-black/[0.03]`.
 - Current tier uses `cursor-not-allowed border-black/10 bg-gray-100 text-gray-500`.
-- Summary chips use `rounded-full border border-black/10 bg-white/80 px-3 py-1 text-[11px] text-gray-700`.
+- Summary chips use `rounded-full border border-black/10 bg-white/80 px-3 py-1 text-xs text-gray-700`.
 
 ## Implementation Checklist
 

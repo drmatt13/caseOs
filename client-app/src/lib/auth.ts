@@ -11,7 +11,6 @@ import {
 
 import { API_ROUTE, API_ROUTES, type ApiRoute } from "@repo/api-contract";
 import { SignInResponseSchema } from "@repo/database/api.schemas";
-import z from "zod";
 
 export { API_ROUTE, API_ROUTES };
 export type { ApiRoute };
@@ -29,6 +28,12 @@ type FetchWithAuthRefreshInput = ApiRouteInput | AbsoluteUrl | URL | Request;
 
 type AuthState = { authenticated: boolean };
 type WebStorage = Pick<Storage, "getItem" | "removeItem" | "setItem">;
+type SignInResponse = {
+  success: boolean;
+  error?: string;
+  idToken?: string;
+  accessToken?: string;
+};
 
 const AUTH_SYNC_STORAGE_KEY = "auth-sync";
 const AUTH_SYNC_CHANNEL_NAME = "caseos-auth-sync";
@@ -43,7 +48,7 @@ let authSyncInitialized = false;
 let authBroadcastChannel: BroadcastChannel | null = null;
 const oauthSignInRequests = new Map<
   string,
-  Promise<z.infer<typeof SignInResponseSchema>>
+  Promise<SignInResponse>
 >();
 
 type AuthCacheOptions = {
@@ -212,6 +217,10 @@ function storeAuthTokens(
   if (data.accessToken) {
     storage.setItem(ACCESS_TOKEN_STORAGE_KEY, data.accessToken);
   }
+}
+
+function parseSignInResponse(data: unknown): SignInResponse {
+  return SignInResponseSchema.parse(data);
 }
 
 function withAuthorizationHeader(
@@ -502,9 +511,7 @@ export async function refreshSession(cookieHeader?: string): Promise<boolean> {
 
     if (response.ok) {
       try {
-        const data = (await response.clone().json()) as z.infer<
-          typeof SignInResponseSchema
-        >;
+        const data = parseSignInResponse(await response.clone().json());
         if (data.idToken) {
           storeAuthTokens(data, hasPersistentSessionHint());
         }
@@ -731,7 +738,7 @@ export async function signInUser(
   email: string,
   password: string,
   rememberMe = false,
-): Promise<z.infer<typeof SignInResponseSchema>> {
+): Promise<SignInResponse> {
   const response = await fetch(`${getApiUrl()}${API_ROUTE.signIn}`, {
     method: "POST",
     credentials: "include",
@@ -743,7 +750,7 @@ export async function signInUser(
     }),
   });
 
-  const data: z.infer<typeof SignInResponseSchema> = await response.json();
+  const data = parseSignInResponse(await response.json());
 
   if (!response.ok) {
     if (response.status === 403) {
@@ -787,7 +794,7 @@ export function signInWithGoogle(rememberMe = false): void {
 export async function completeOAuthSignIn(
   code: string,
   state: string,
-): Promise<z.infer<typeof SignInResponseSchema>> {
+): Promise<SignInResponse> {
   const requestKey = `${state}:${code}`;
   const existingRequest = oauthSignInRequests.get(requestKey);
 
@@ -795,7 +802,7 @@ export async function completeOAuthSignIn(
     return existingRequest;
   }
 
-  const request = (async (): Promise<z.infer<typeof SignInResponseSchema>> => {
+  const request = (async (): Promise<SignInResponse> => {
     const oauthState = consumeOAuthState(state);
     const oauthCallbackUrl = `${getApiUrl()}${API_ROUTE.oauthCallback}`;
     const response = await fetch(oauthCallbackUrl, {
@@ -810,9 +817,9 @@ export async function completeOAuthSignIn(
     });
 
     const responseBody = await response.text();
-    let data: z.infer<typeof SignInResponseSchema>;
+    let data: SignInResponse;
     try {
-      data = JSON.parse(responseBody) as z.infer<typeof SignInResponseSchema>;
+      data = parseSignInResponse(JSON.parse(responseBody));
     } catch {
       const bodyPreview = responseBody.slice(0, 120);
       return {

@@ -73,7 +73,7 @@ const FieldShell = ({
   children,
 }: FieldBaseProps & { children: ReactNode }) => (
   <label className={`grid self-start items-start gap-2 ${className}`.trim()}>
-    <span className="flex flex-col gap-0.5 justify-end">
+    <span className="flex flex-col gap-0.5 justify-end h-full">
       <span className="text-md font-medium text-black">{label}</span>
       {description ? (
         <span className="text-sm text-black/60">{description}</span>
@@ -104,8 +104,8 @@ export const FormSection = ({
         )}
       </div>
       <div className="flex flex-col min-w-0">
-        <h2 className="text-[1.1rem] font-semibold text-black">{title}</h2>
-        <p className="-translate-y-0.5 text-sm text-black/65 truncate">
+        <h2 className="text-xl font-semibold text-black">{title}</h2>
+        <p className="-translate-y-px text-sm text-black/65 truncate">
           {description}
         </p>
       </div>

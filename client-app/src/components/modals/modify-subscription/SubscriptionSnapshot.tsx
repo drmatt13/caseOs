@@ -39,7 +39,7 @@ const SubscriptionSnapshot = ({
           <p className="mt-1 font-serif text-xl">{tierName}</p>
         </div>
 
-        <span className="rounded-full border border-black/10 bg-white/80 px-3 py-1 text-[11px] text-gray-700">
+        <span className="rounded-full border border-black/10 bg-white/80 px-3 py-1 text-xs text-gray-700">
           {statusText}
         </span>
       </div>
