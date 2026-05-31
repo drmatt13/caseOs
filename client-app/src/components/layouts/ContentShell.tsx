@@ -4,11 +4,11 @@ import { type ReactNode, useContext } from "react";
 // context
 import { MenuContext } from "#/context/MenuContext";
 
-interface WorkPanelLayoutProps {
+interface ContentShellProps {
   children: ReactNode;
 }
 
-const WorkPanelLayout = ({ children }: WorkPanelLayoutProps) => {
+const ContentShell = ({ children }: ContentShellProps) => {
   const { setMenuOpen } = useContext(MenuContext);
 
   return (
@@ -30,4 +30,4 @@ const WorkPanelLayout = ({ children }: WorkPanelLayoutProps) => {
   );
 };
 
-export default WorkPanelLayout;
+export default ContentShell;

@@ -1,11 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import { getS3Permissions } from "./operations";
+import { getProfilePhotoUploadCredentials } from "./operations";
 
-export const s3PermissionsQueryKey = ["s3Permissions"] as const;
+export const profilePhotoUploadCredentialsQueryKey = [
+  "profilePhotoUploadCredentials",
+] as const;
 
-export function useS3PermissionsQuery() {
+export function useProfilePhotoUploadCredentialsQuery() {
   return useQuery({
-    queryKey: s3PermissionsQueryKey,
-    queryFn: getS3Permissions,
+    queryKey: profilePhotoUploadCredentialsQueryKey,
+    queryFn: getProfilePhotoUploadCredentials,
   });
 }

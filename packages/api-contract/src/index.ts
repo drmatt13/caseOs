@@ -8,7 +8,8 @@ export const API_ROUTE = {
   verifySession: "/verify-session",
   getUser: "/get-user",
   graphql: "/graphql",
-  s3AccessBroker: "/s3-access-broker",
+  profilePhotoUploadCredentialBroker:
+    "/profile-photo-upload-credential-broker",
   billingListProducts: "/billing/list-products",
   billingCreateSetupIntent: "/billing/create-setup-intent",
   billingCreateSubscription: "/billing/create-subscription",
@@ -28,7 +29,7 @@ export const AUTHENTICATED_API_ROUTES = [
   API_ROUTE.verifySession,
   API_ROUTE.getUser,
   API_ROUTE.graphql,
-  API_ROUTE.s3AccessBroker,
+  API_ROUTE.profilePhotoUploadCredentialBroker,
   API_ROUTE.billingListProducts,
   API_ROUTE.billingCreateSetupIntent,
   API_ROUTE.billingCreateSubscription,

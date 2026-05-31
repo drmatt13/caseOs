@@ -13,7 +13,7 @@ import { lambdaHandler as verifySession } from "../../cdk-app/lambda_functions/v
 import { lambdaHandler as refresh } from "../../cdk-app/lambda_functions/refresh/index";
 import { lambdaHandler as getUser } from "../../cdk-app/lambda_functions/get-user/index";
 import { lambdaHandler as graphqlApi } from "../../cdk-app/lambda_functions/graphql-api/index";
-import { lambdaHandler as s3AccessBroker } from "../../cdk-app/lambda_functions/s3-access-broker/index";
+import { lambdaHandler as profilePhotoUploadCredentialBroker } from "../../cdk-app/lambda_functions/profile-photo-upload-credential-broker/index";
 
 // Stripe-related Lambda functions
 import { lambdaHandler as billingListProducts } from "../../cdk-app/lambda_functions/billing-list-products/index";
@@ -104,7 +104,12 @@ proxyToLambda(app, API_ROUTE.stripeWebhook, stripeWebhook, "public");
 proxyToLambda(app, API_ROUTE.verifySession, verifySession, "authenticated");
 proxyToLambda(app, API_ROUTE.getUser, getUser, "authenticated");
 proxyToLambda(app, API_ROUTE.graphql, graphqlApi, "authenticated");
-proxyToLambda(app, API_ROUTE.s3AccessBroker, s3AccessBroker, "authenticated");
+proxyToLambda(
+  app,
+  API_ROUTE.profilePhotoUploadCredentialBroker,
+  profilePhotoUploadCredentialBroker,
+  "authenticated",
+);
 
 // -- Stripe Routes --
 proxyToLambda(

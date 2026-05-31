@@ -19,7 +19,7 @@ export interface HttpApiGatewayStackProps extends cdk.StackProps {
   refreshFn: IFunction;
   getUserFn: IFunction;
   graphqlApiFn: IFunction;
-  s3AccessBrokerFn: IFunction;
+  profilePhotoUploadCredentialBrokerFn: IFunction;
 
   // stripe functions
   billingListProductsFn: IFunction;
@@ -193,10 +193,10 @@ export class HttpApiGatewayStack extends cdk.Stack {
     );
 
     addAuthenticatedRoute(
-      "S3AccessBrokerIntegration",
-      API_ROUTE.s3AccessBroker,
+      "ProfilePhotoUploadCredentialBrokerIntegration",
+      API_ROUTE.profilePhotoUploadCredentialBroker,
       authenticatedReadWriteMethods,
-      props.s3AccessBrokerFn,
+      props.profilePhotoUploadCredentialBrokerFn,
     );
 
     // -- Stripe Routes --

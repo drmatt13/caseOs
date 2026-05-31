@@ -18,7 +18,7 @@ import type { LucideIcon } from "lucide-react";
 
 import type { ViewTypes } from "#/types/caseWorkspace";
 
-interface WorkspaceMenuProps {
+interface ActiveWorkspaceMenuProps {
   activeView: ViewTypes;
   onSelectView: (view: ViewTypes) => void;
   counts?: Partial<Record<ViewTypes, number>>;
@@ -44,11 +44,11 @@ const viewMenuItems: Array<{
   { value: "documents_index", label: "Documents", icon: Folder },
 ];
 
-const WorkspaceMenu = ({
+const ActiveWorkspaceMenu = ({
   activeView,
   onSelectView,
   counts = {},
-}: WorkspaceMenuProps) => {
+}: ActiveWorkspaceMenuProps) => {
   return (
     <>
       {viewMenuItems.map(({ value, label, icon: Icon }) => (
@@ -74,4 +74,4 @@ const WorkspaceMenu = ({
   );
 };
 
-export default WorkspaceMenu;
+export default ActiveWorkspaceMenu;

@@ -296,7 +296,7 @@ Current relevant UI:
 
 - `/cases/new`: case intake wizard.
 - `/case/$id`: authenticated case route shell.
-- `WorkspaceMenu.tsx`: left menu for `case_agent`, `case_summary`, record partitions, timeline, and documents.
+- `ActiveWorkspaceMenu.tsx`: left menu for `case_agent`, `case_summary`, record partitions, timeline, and documents.
 - `Workspace.tsx`: workspace-level overview shell with members and workspace actions.
 - `agents/frontend-style-parity-agent.md`: visual style guide for app UI.
 

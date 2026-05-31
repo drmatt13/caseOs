@@ -505,7 +505,8 @@ const httpApiGatewayStack = !useLocalDevStack
       refreshFn: synchronousLambdaFunctionsStack.refreshFn,
       getUserFn: synchronousLambdaFunctionsStack.getUserFn,
       graphqlApiFn: synchronousLambdaFunctionsStack.graphqlApiFn,
-      s3AccessBrokerFn: synchronousLambdaFunctionsStack.s3AccessBrokerFn,
+      profilePhotoUploadCredentialBrokerFn:
+        synchronousLambdaFunctionsStack.profilePhotoUploadCredentialBrokerFn,
       billingListProductsFn:
         synchronousLambdaFunctionsStack.billingListProductsFn,
       billingCreateSetupIntentFn:

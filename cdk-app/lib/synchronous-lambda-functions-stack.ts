@@ -37,7 +37,7 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
   public readonly refreshFn: nodejs.NodejsFunction;
   public readonly getUserFn: nodejs.NodejsFunction;
   public readonly graphqlApiFn: nodejs.NodejsFunction;
-  public readonly s3AccessBrokerFn: nodejs.NodejsFunction;
+  public readonly profilePhotoUploadCredentialBrokerFn: nodejs.NodejsFunction;
 
   // stripe functions
   public readonly billingListProductsFn: nodejs.NodejsFunction;
@@ -251,45 +251,51 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
       },
     });
 
-    this.s3AccessBrokerFn = new nodejs.NodejsFunction(this, "S3AccessBroker", {
-      runtime: lambda.Runtime.NODEJS_20_X,
-      architecture: props.lambdaArchitecture,
-      entry: path.join(
-        __dirname,
-        "..",
-        "lambda_functions",
-        "s3-access-broker",
-        "index.ts",
-      ),
-      handler: "lambdaHandler",
-      bundling: {
-        minify: true,
-        sourceMap: false,
-        target: "es2020",
-        commandHooks: prismaClientCommandHooks,
+    this.profilePhotoUploadCredentialBrokerFn = new nodejs.NodejsFunction(
+      this,
+      "ProfilePhotoUploadCredentialBroker",
+      {
+        runtime: lambda.Runtime.NODEJS_20_X,
+        architecture: props.lambdaArchitecture,
+        entry: path.join(
+          __dirname,
+          "..",
+          "lambda_functions",
+          "profile-photo-upload-credential-broker",
+          "index.ts",
+        ),
+        handler: "lambdaHandler",
+        bundling: {
+          minify: true,
+          sourceMap: false,
+          target: "es2020",
+          commandHooks: prismaClientCommandHooks,
+        },
+        memorySize: 512,
+        timeout: cdk.Duration.seconds(30),
+        environment: {
+          ...prismaLambdaEnvironment,
+          USER_POOL_ID: props.userPoolId,
+          USER_POOL_CLIENT_ID: props.userPoolClientId,
+          APPLICATION_DATA_BUCKET_ARN: props.applicationDataBucket.bucketArn,
+          ...(props.primaryDatabaseSecretArn
+            ? {
+                PRIMARY_DATABASE_SECRET_ARN: props.primaryDatabaseSecretArn,
+              }
+            : {}),
+        },
       },
-      memorySize: 512,
-      timeout: cdk.Duration.seconds(30),
-      environment: {
-        ...prismaLambdaEnvironment,
-        USER_POOL_ID: props.userPoolId,
-        USER_POOL_CLIENT_ID: props.userPoolClientId,
-        APPLICATION_DATA_BUCKET_ARN: props.applicationDataBucket.bucketArn,
-        ...(props.primaryDatabaseSecretArn
-          ? {
-              PRIMARY_DATABASE_SECRET_ARN: props.primaryDatabaseSecretArn,
-            }
-          : {}),
-      },
-    });
+    );
 
     const profilePictureUploadRole = new iam.Role(
       this,
       "ProfilePictureUploadRole",
       {
-        assumedBy: new iam.ArnPrincipal(this.s3AccessBrokerFn.role!.roleArn),
+        assumedBy: new iam.ArnPrincipal(
+          this.profilePhotoUploadCredentialBrokerFn.role!.roleArn,
+        ),
         description:
-          "Assumed by the S3 access broker Lambda to issue scoped profile-picture upload credentials.",
+          "Assumed by the profile photo upload credential broker Lambda to issue scoped upload credentials.",
       },
     );
 
@@ -302,13 +308,13 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
       }),
     );
 
-    this.s3AccessBrokerFn.addToRolePolicy(
+    this.profilePhotoUploadCredentialBrokerFn.addToRolePolicy(
       new iam.PolicyStatement({
         actions: ["sts:AssumeRole"],
         resources: [profilePictureUploadRole.roleArn],
       }),
     );
-    this.s3AccessBrokerFn.addEnvironment(
+    this.profilePhotoUploadCredentialBrokerFn.addEnvironment(
       "PROFILE_PICTURE_UPLOAD_ROLE_ARN",
       profilePictureUploadRole.roleArn,
     );
@@ -324,7 +330,9 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
       primaryDatabaseCredentialsSecret.grantRead(this.getUserFn);
       primaryDatabaseCredentialsSecret.grantRead(this.graphqlApiFn);
       primaryDatabaseCredentialsSecret.grantRead(this.oauthCallbackFn);
-      primaryDatabaseCredentialsSecret.grantRead(this.s3AccessBrokerFn);
+      primaryDatabaseCredentialsSecret.grantRead(
+        this.profilePhotoUploadCredentialBrokerFn,
+      );
     }
 
     // Stripe functions
@@ -510,9 +518,10 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
       exportName: "SynchronousLambdaFunctionsStack:GetUserFnLambdaArn",
     });
 
-    new cdk.CfnOutput(this, "S3AccessBrokerLambdaArn", {
-      value: this.s3AccessBrokerFn.functionArn,
-      exportName: "SynchronousLambdaFunctionsStack:S3AccessBrokerFnLambdaArn",
+    new cdk.CfnOutput(this, "ProfilePhotoUploadCredentialBrokerLambdaArn", {
+      value: this.profilePhotoUploadCredentialBrokerFn.functionArn,
+      exportName:
+        "SynchronousLambdaFunctionsStack:ProfilePhotoUploadCredentialBrokerFnLambdaArn",
     });
   }
 }

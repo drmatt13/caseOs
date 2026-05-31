@@ -9,12 +9,13 @@ import GoalsObjectivesAndRisksForm from "#/components/features/case-intake/Goals
 import PeoplePartiesAndWitnessesForm from "#/components/features/case-intake/PeoplePartiesAndWitnessesForm";
 import TimelineAndUrgencyForm from "#/components/features/case-intake/TimelineAndUrgencyForm";
 import ReviewForm from "#/components/features/case-intake/ReviewForm";
-import LeftPanelLayout from "#/components/layouts/LeftPanelLayout";
+import NavigationPanel from "#/components/layouts/NavigationPanel";
+import NewCase from "#/components/page_content/NewCase";
 import {
   CASE_INTAKE_TOTAL_STEPS,
   initialCaseIntake,
 } from "#/components/features/case-intake/caseIntakeForm";
-import WorkPanelLayout from "#/components/layouts/WorkPanelLayout";
+import ContentShell from "#/components/layouts/ContentShell";
 import CreateCaseMenu from "#/components/menus/CreateCaseMenu";
 import UserPanel from "#/components/UserPanel";
 import Button from "#/components/Button";
@@ -52,8 +53,8 @@ function RouteComponent() {
   const [caseIntakeState, setCaseIntakeState] = useState<CaseIntakeWizardState>(
     {
       step: 6,
-      caseIntake: testIntakeData,
-      // caseIntake: blankCaseIntake,
+      // caseIntake: testIntakeData,
+      caseIntake: blankCaseIntake,
     },
   );
 
@@ -215,15 +216,15 @@ function RouteComponent() {
 
   return (
     <AppLayout>
-      <LeftPanelLayout>
+      <NavigationPanel>
         <UserPanel user={user} settings={true} showTier={true} />
         <CreateCaseMenu
           caseIntakeState={caseIntakeState}
           setCaseIntakeState={setCaseIntakeState}
           hasUnsavedCaseIntake={hasUnsavedCaseIntake}
         />
-      </LeftPanelLayout>
-      <WorkPanelLayout>
+      </NavigationPanel>
+      <ContentShell>
         <div className="flex flex-col gap-6 h-full justify-between">
           {renderStep()}
           <div className="grid grid-cols-3 items-end gap-3 rounded-2xl">
@@ -265,7 +266,7 @@ function RouteComponent() {
             </div>
           </div>
         </div>
-      </WorkPanelLayout>
+      </ContentShell>
     </AppLayout>
   );
 }

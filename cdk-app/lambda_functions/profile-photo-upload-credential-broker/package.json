@@ -1,7 +1,7 @@
 {
-  "name": "s3-access-broker",
+  "name": "profile-photo-upload-credential-broker",
   "version": "1.0.0",
-  "description": "A Lambda function to broker access to S3 resources.",
+  "description": "A Lambda function to broker profile photo upload credentials.",
   "main": "index.ts",
   "repository": "",
   "author": "Matthew Sweeney",

@@ -3,8 +3,7 @@ import { API_ROUTE } from "@repo/api-contract";
 import { AwsSessionCredentialsSchema } from "#/schemas/awsSessionCredentials";
 import { fetchWithAuthRefresh } from "#/lib/auth";
 
-// Typed GraphQL documents for this feature's operations.
-const GetS3PermissionsResponseSchema = z.object({
+const GetProfilePhotoUploadCredentialsResponseSchema = z.object({
   aws: AwsSessionCredentialsSchema,
   bucketArn: z.string(),
   bucketName: z.string(),
@@ -12,15 +11,19 @@ const GetS3PermissionsResponseSchema = z.object({
   profilePictureUrl: z.string(),
 });
 
-// API operations consumed by hooks and other feature callers.
-export async function getS3Permissions() {
-  const res = await fetchWithAuthRefresh(API_ROUTE.s3AccessBroker, {
-    method: "GET",
-  });
+export async function getProfilePhotoUploadCredentials() {
+  const res = await fetchWithAuthRefresh(
+    API_ROUTE.profilePhotoUploadCredentialBroker,
+    {
+      method: "GET",
+    },
+  );
 
   if (!res.ok) {
     throw new Error(`Request failed: ${res.status}`);
   }
 
-  return GetS3PermissionsResponseSchema.safeParse(await res.json());
+  return GetProfilePhotoUploadCredentialsResponseSchema.safeParse(
+    await res.json(),
+  );
 }

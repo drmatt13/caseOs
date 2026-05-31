@@ -25,9 +25,9 @@ import {
 import type { LucideIcon } from "lucide-react";
 
 import AppLayout from "#/components/layouts/AppLayout";
-import LeftPanelLayout from "#/components/layouts/LeftPanelLayout";
-import WorkPanelLayout from "#/components/layouts/WorkPanelLayout";
-import WorkspaceMenu from "#/components/menus/WorkspaceMenu";
+import NavigationPanel from "#/components/layouts/NavigationPanel";
+import ContentShell from "#/components/layouts/ContentShell";
+import ActiveWorkspaceMenu from "#/components/menus/ActiveWorkspaceMenu";
 import UserPanel from "#/components/UserPanel";
 import LoadingSpinner from "#/components/LoadingSpinner";
 import Button from "#/components/Button";
@@ -352,10 +352,10 @@ function RouteComponent() {
 
   return (
     <AppLayout>
-      <LeftPanelLayout>
+      <NavigationPanel>
         <UserPanel user={user} settings={true} showTier={true} />
         <div className="text-sm flex gap-1.5 items-center">
-          <Link to="/">
+          <Link to="/workspace/workspace_id">
             <div className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
               <ArrowLeft className="w-3 h-3" />
             </div>
@@ -374,14 +374,14 @@ function RouteComponent() {
             }}
           />
         </label>
-        <WorkspaceMenu
+        <ActiveWorkspaceMenu
           activeView={activeView}
           onSelectView={handleSelectView}
           counts={viewCounts}
         />
-      </LeftPanelLayout>
+      </NavigationPanel>
 
-      <WorkPanelLayout>
+      <ContentShell>
         <div className="flex min-w-0 flex-col gap-4">
           <header className="flex flex-wrap items-start justify-between gap-3 border-b border-black/10 pb-4">
             <div className="min-w-0">
@@ -474,7 +474,7 @@ function RouteComponent() {
               />
             )}
         </div>
-      </WorkPanelLayout>
+      </ContentShell>
     </AppLayout>
   );
 }

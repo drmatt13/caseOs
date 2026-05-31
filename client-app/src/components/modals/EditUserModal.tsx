@@ -15,7 +15,7 @@ import {
   useCurrentUserQuery,
   useUpdateUserMutation,
 } from "#/api/currentUser/hooks";
-import { useS3PermissionsQuery } from "#/api/s3Permissions/hooks";
+import { useProfilePhotoUploadCredentialsQuery } from "#/api/s3Permissions/hooks";
 import {
   createProfilePictureJpeg,
   PROFILE_PICTURE_CONTENT_TYPE,
@@ -69,10 +69,10 @@ const EditUserModal = () => {
   } = useCurrentUserQuery();
 
   const {
-    data: s3PermissionsResult,
-    isPending: s3PermissionsPending,
-    error: s3PermissionsError,
-  } = useS3PermissionsQuery();
+    data: profilePhotoUploadCredentialsResult,
+    isPending: profilePhotoUploadCredentialsPending,
+    error: profilePhotoUploadCredentialsError,
+  } = useProfilePhotoUploadCredentialsQuery();
 
   const updateUserMutation = useUpdateUserMutation();
 
@@ -203,8 +203,8 @@ const EditUserModal = () => {
   const uploadProfilePicture = useCallback(async () => {
     if (!profilePictureFile) return profilePictureUrl;
 
-    if (!s3PermissionsResult?.success) {
-      throw new Error("Could not load S3 upload permissions.");
+    if (!profilePhotoUploadCredentialsResult?.success) {
+      throw new Error("Could not load profile photo upload credentials.");
     }
 
     const {
@@ -212,7 +212,7 @@ const EditUserModal = () => {
       bucketName,
       profilePictureKey,
       profilePictureUrl: uploadedProfilePictureUrl,
-    } = s3PermissionsResult.data;
+    } = profilePhotoUploadCredentialsResult.data;
 
     const jpeg = await createProfilePictureJpeg(profilePictureFile);
     const body = new Uint8Array(await jpeg.arrayBuffer());
@@ -237,7 +237,11 @@ const EditUserModal = () => {
 
     setProfilePictureUrl(uploadedProfilePictureUrl);
     return uploadedProfilePictureUrl;
-  }, [profilePictureFile, profilePictureUrl, s3PermissionsResult]);
+  }, [
+    profilePictureFile,
+    profilePictureUrl,
+    profilePhotoUploadCredentialsResult,
+  ]);
 
   const saveUser = useCallback(async () => {
     if (!user || isUpdating) return;
@@ -292,7 +296,7 @@ const EditUserModal = () => {
     user,
   ]);
 
-  if (userPending || s3PermissionsPending) {
+  if (userPending || profilePhotoUploadCredentialsPending) {
     return (
       <div className="w-lg max-w-[calc(100vw-3rem)] p-2 text-sm">
         <div className="h-4 w-24 rounded bg-black/10" />
@@ -307,7 +311,7 @@ const EditUserModal = () => {
     );
   }
 
-  if (userError || s3PermissionsError || !user) {
+  if (userError || profilePhotoUploadCredentialsError || !user) {
     return (
       <div className="w-lg max-w-[calc(100vw-3rem)] p-2 text-sm">
         <p className="font-serif text-lg">Edit User</p>

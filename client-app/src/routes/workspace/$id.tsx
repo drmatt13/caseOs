@@ -4,10 +4,10 @@ import AppLayout from "#/components/layouts/AppLayout";
 import NavigationPanel from "#/components/layouts/NavigationPanel";
 import ContentShell from "#/components/layouts/ContentShell";
 import UserPanel from "#/components/UserPanel";
+import WorkspaceDashboard from "#/components/page_content/WorkspaceDashboard";
 import LoadingSpinner from "#/components/LoadingSpinner";
 import GetUserError from "#/components/errors/GetUserError";
-import SelectWorkspaceMenu from "#/components/menus/SelectWorkspaceMenu";
-import WorkspaceOverview from "#/components/page_content/WorkspaceOverview";
+import SelectCaseMenu from "#/components/menus/SelectCaseMenu";
 
 // route guards
 import { requireAuth } from "#/lib/auth";
@@ -15,12 +15,14 @@ import { requireAuth } from "#/lib/auth";
 // useQuery
 import { useCurrentUserQuery } from "#/api/currentUser/hooks";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/workspace/$id")({
   beforeLoad: requireAuth,
   component: App,
 });
 
 function App() {
+  const { id } = Route.useParams();
+
   const {
     data: getUserResult,
     isPending: getUserPending,
@@ -28,16 +30,6 @@ function App() {
   } = useCurrentUserQuery();
   const user = getUserResult?.currentUser.user;
 
-  // REACT QUERY GET WORKSPACE NAMES WOULD GO HERE TO REPLACE THE HARDCODED WORKSPACES IN STATE
-  const [workspaces, setWorkspaces] = useState<string[]>([
-    "Workspace 1",
-    "Workspace 2",
-    "Workspace 3",
-    "Workspace 4",
-    "Workspace 5",
-  ]);
-
-  // UPDATE if user or workspace data is missing or errors out
   if (getUserPending) {
     return (
       <>
@@ -52,20 +44,40 @@ function App() {
     return <GetUserError />;
   }
 
-  // if workspace error
+  // Update later to account for account tier and workspace limits
+  const canCreateWorkspace =
+    user.accountTier === "PRO" || user.accountTier === "ENTERPRISE";
+
+  // useGetWorkspaceQuery would go here to fetch workspaces for the user and set them in state
+  // For example:
+  // const { data: getWorkspaceResult, isPending: getWorkspacePending, error: getWorkspaceError } = useGetWorkspacesQuery();
+
+  // if (getWorkspacePending) {
+  //   return (
+  //     <>
+  //       <div className="w-full h-52 flex justify-center items-center">
+  //         <LoadingSpinner />
+  //       </div>
+  //     </>
+  //   );
+  // }
+
+  // return (
+  //   <>
+  //     <div className="w-full h-40 flex justify-center items-center">
+  //       <LoadingSpinner />
+  //     </div>
+  //   </>
+  // );
 
   return (
     <AppLayout>
       <NavigationPanel>
         <UserPanel user={user} settings={true} showTier={true} />
-        <SelectWorkspaceMenu workspaces={workspaces} />
+        <SelectCaseMenu workspace="Workspace 1" />
       </NavigationPanel>
       <ContentShell>
-        {workspaces.length === 0 ? (
-          <>page content: No workspaces available</>
-        ) : (
-          <WorkspaceOverview />
-        )}
+        <WorkspaceDashboard workspaceId={id} />
       </ContentShell>
     </AppLayout>
   );

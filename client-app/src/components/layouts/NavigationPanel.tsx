@@ -14,7 +14,7 @@ import useWindowWidthCategory from "#/hooks/useWindowWidthCategory";
 import { MenuContext } from "#/context/MenuContext";
 import { XIcon } from "lucide-react";
 
-interface LeftPanelLayoutProps {
+interface NavigationPanelProps {
   children: ReactNode;
 }
 
@@ -83,7 +83,7 @@ const getPanelOffsetRem = () => {
   );
 };
 
-const LeftPanelLayout = ({ children }: LeftPanelLayoutProps) => {
+const NavigationPanel = ({ children }: NavigationPanelProps) => {
   const { menuOpen, setMenuOpen } = useContext(MenuContext);
   const panelRef = useRef<HTMLDivElement>(null);
   const windowWidthCategory = useWindowWidthCategory();
@@ -279,7 +279,7 @@ const LeftPanelLayout = ({ children }: LeftPanelLayoutProps) => {
           <div className="pointer-events-none fixed left-0 top-0 z-0 w-64 h-screen bg-neutral-400/40 backdrop-blur-lg lg:bg-transparent border-rborder-black/5" />
         </>
       )}
-      {windowWidthCategory === "large" && <AppLogo LeftPanelLayout={true} />}
+      {windowWidthCategory === "large" && <AppLogo NavigationPanel={true} />}
       <div
         ref={panelRef}
         style={windowWidthCategory === "large" ? panelStyle : undefined}
@@ -306,7 +306,7 @@ const LeftPanelLayout = ({ children }: LeftPanelLayoutProps) => {
           <div className="font-serif text-sm lg:bg-white/40 lg:backdrop-blur-sm pt-5 pb-4 pl-2 pr-4 lg:px-4 flex flex-col gap-2">
             {windowWidthCategory !== "large" && (
               <div className="mb-2">
-                <AppLogo LeftPanelLayout={true} />
+                <AppLogo NavigationPanel={true} />
               </div>
             )}
             {children}
@@ -317,4 +317,4 @@ const LeftPanelLayout = ({ children }: LeftPanelLayoutProps) => {
   );
 };
 
-export default LeftPanelLayout;
+export default NavigationPanel;

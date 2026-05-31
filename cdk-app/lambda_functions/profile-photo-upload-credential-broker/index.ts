@@ -3,6 +3,7 @@ import type {
   APIGatewayProxyEventV2,
   APIGatewayProxyResult,
 } from "aws-lambda";
+import { createHash } from "crypto";
 import {
   AssumeRoleCommand,
   GetFederationTokenCommand,
@@ -16,9 +17,13 @@ import {
 // Validate required environment configuration at startup.
 const { AWS_REGION, APPLICATION_DATA_BUCKET_ARN, PROFILE_PICTURE_UPLOAD_ROLE_ARN } =
   process.env;
+const STS_SESSION_NAME_PREFIX = "lawstruct-ai-";
+const STS_SESSION_NAME_MAX_LENGTH = 32;
 
 if (!AWS_REGION || !APPLICATION_DATA_BUCKET_ARN) {
-  throw new Error("Missing S3 access broker environment variables");
+  throw new Error(
+    "Missing profile photo upload credential broker environment variables",
+  );
 }
 
 const stsClient = new STSClient({ region: AWS_REGION });
@@ -46,8 +51,14 @@ const getProfilePicturePolicy = (profilePictureKey: string): string =>
     ],
   });
 
-const getSessionName = (cognitoSub: string): string =>
-  `lawstruct-ai-${cognitoSub.slice(0, 24)}`;
+const getSessionName = (cognitoSub: string): string => {
+  const digest = createHash("sha256").update(cognitoSub).digest("hex");
+
+  return `${STS_SESSION_NAME_PREFIX}${digest.slice(
+    0,
+    STS_SESSION_NAME_MAX_LENGTH - STS_SESSION_NAME_PREFIX.length,
+  )}`;
+};
 
 async function getScopedUploadCredentials(
   cognitoSub: string,
@@ -127,8 +138,10 @@ export const lambdaHandler = async (
       profilePictureUrl,
     });
   } catch (error) {
-    console.error("Error brokering S3 access:", error);
+    console.error("Error brokering profile photo upload credentials:", error);
 
-    return jsonResponse(500, { message: "Could not broker S3 access" });
+    return jsonResponse(500, {
+      message: "Could not broker profile photo upload credentials",
+    });
   }
 };

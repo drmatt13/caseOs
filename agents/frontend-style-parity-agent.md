@@ -10,14 +10,14 @@ Start with the global style/theme file, then inspect the closest matching surfac
 - App shell: `client-app/src/routes/__root.tsx`
 - Shared page background: `client-app/src/components/layouts/PageBackgroundLayout.tsx`
 - App layout: `client-app/src/components/layouts/AppLayout.tsx`
-- Left rail: `client-app/src/components/layouts/LeftPanelLayout.tsx`
-- Main work panel: `client-app/src/components/layouts/WorkPanelLayout.tsx`
+- Left rail: `client-app/src/components/layouts/NavigationPanel.tsx`
+- Main work panel: `client-app/src/components/layouts/ContentShell.tsx`
 - Auth layout: `client-app/src/components/layouts/LoginLayout.tsx`
 - Buttons: `client-app/src/components/Button.tsx`
 - Modals: `client-app/src/components/AppModal.tsx`
 - Popup menus: `client-app/src/components/popups/SettingsPopup.tsx`
 - User/profile rail: `client-app/src/components/UserPanel.tsx`
-- Workspace menu: `client-app/src/components/menus/WorkspaceMenu.tsx`
+- Workspace menu: `client-app/src/components/menus/ActiveWorkspaceMenu.tsx`
 - Case intake fields: `client-app/src/components/features/case-intake/fields.tsx`
 - Case intake wizard menu: `client-app/src/components/menus/CreateCaseMenu.tsx`
 - Dense case workspace UI: `client-app/src/routes/case/$id.tsx`
@@ -80,11 +80,11 @@ For authenticated app routes:
 
 - Wrap pages in `AppLayout`.
 - `AppLayout` provides `relative flex flex-row lg:gap-6 lg:pt-14 lg:pb-7 lg:px-8 lg:w-5xl` through `PageBackgroundLayout`.
-- Use `LeftPanelLayout` for the fixed-width left rail: `w-64 min-w-64`, sticky scrollable panel, and left-menu content in `font-serif text-sm`.
-- `LeftPanelLayout` has special responsive behavior. Small screens use a fixed slide-out rail with `bg-neutral-400/40 backdrop-blur-lg`; large screens return to the inline rail with `lg:rounded-2xl`, `lg:border-black/15`, `lg:shadow-md`, and an inner `lg:bg-white/40 lg:backdrop-blur-sm` content layer.
-- Large-screen left rail height is scroll-aware through CSS variables set in `LeftPanelLayout`; avoid replacing that shell with a static sidebar.
-- Use `WorkPanelLayout` for the main panel: `relative min-w-0 flex-1 flex justify-center lg:block h-max lg:rounded-2xl bg-white/40 backdrop-blur-sm lg:border border-black/15 lg:shadow-md`.
-- Keep work-panel inner spacing aligned with `WorkPanelLayout`: `w-full`, `pt-16 sm:pt-14 md:pt-5 lg:pt-4`, `px-6 sm:px-12 md:px-4`, `pb-6 md:pb-5 lg:pb-4`, `min-h-dvh lg:min-h-auto`.
+- Use `NavigationPanel` for the fixed-width left rail: `w-64 min-w-64`, sticky scrollable panel, and left-menu content in `font-serif text-sm`.
+- `NavigationPanel` has special responsive behavior. Small screens use a fixed slide-out rail with `bg-neutral-400/40 backdrop-blur-lg`; large screens return to the inline rail with `lg:rounded-2xl`, `lg:border-black/15`, `lg:shadow-md`, and an inner `lg:bg-white/40 lg:backdrop-blur-sm` content layer.
+- Large-screen left rail height is scroll-aware through CSS variables set in `NavigationPanel`; avoid replacing that shell with a static sidebar.
+- Use `ContentShell` for the main panel: `relative min-w-0 flex-1 flex justify-center lg:block h-max lg:rounded-2xl bg-white/40 backdrop-blur-sm lg:border border-black/15 lg:shadow-md`.
+- Keep work-panel inner spacing aligned with `ContentShell`: `w-full`, `pt-16 sm:pt-14 md:pt-5 lg:pt-4`, `px-6 sm:px-12 md:px-4`, `pb-6 md:pb-5 lg:pb-4`, `min-h-dvh lg:min-h-auto`.
 - Mobile work panels include a top-left menu opener with `p-1.5 hover:bg-black/15 rounded-lg`.
 - Loading states use full viewport centering: `w-full h-dvh flex justify-center items-center`.
 
@@ -99,7 +99,7 @@ For auth routes:
 
 Route families:
 
-- Home and create-case routes should use `AppLayout`, `LeftPanelLayout`, `WorkPanelLayout`, `UserPanel`, shared `Button`, and neutral menu rows.
+- Home and create-case routes should use `AppLayout`, `NavigationPanel`, `ContentShell`, `UserPanel`, shared `Button`, and neutral menu rows.
 - `/case/$id` is the main reference for dense case workspace UI: record cards, status chips, search inputs, empty states, timeline rows, proposal/review panels, and nested mini-panels.
 - Auth routes should keep compact `LoginLayout` forms, `w-84` cards, blue inline links, and the `LoginLeftMenu` preview-card language.
 

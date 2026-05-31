@@ -1,13 +1,13 @@
 interface AppLogoProps {
-  LeftPanelLayout?: boolean;
+  NavigationPanel?: boolean;
 }
 
-const AppLogo = ({ LeftPanelLayout }: AppLogoProps) => {
+const AppLogo = ({ NavigationPanel }: AppLogoProps) => {
   return (
     <div
-      className={`flex gap-2.5 ${!LeftPanelLayout ? "h-14 -translate-y-1.5 translate-x-1" : "/w-55.75 w-full flex justify-center"}`}
+      className={`flex gap-2.5 ${!NavigationPanel ? "h-14 -translate-y-1.5 translate-x-1" : "/w-55.75 w-full flex justify-center"}`}
     >
-      {!LeftPanelLayout && (
+      {!NavigationPanel && (
         <img
           className="-translate-y-2 h-16 w-auto object-contain"
           src="/logo1.png"

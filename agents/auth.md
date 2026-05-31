@@ -56,7 +56,7 @@ Authenticated routes:
 - `/verify-session`
 - `/get-user`
 - `/graphql`
-- `/s3-access-broker`
+- `/profile-photo-upload-credential-broker`
 - `/billing/list-products`
 - `/billing/create-setup-intent`
 - `/billing/create-subscription`
@@ -289,16 +289,16 @@ For authenticated local routes:
 
 `invokeLambdaFunction` should build APIGatewayProxyEventV2-shaped events by default.
 
-## S3 Access Broker
+## Profile Photo Upload Credential Broker
 
 Main files:
 
 ```text
-cdk-app/lambda_functions/s3-access-broker/index.ts
+cdk-app/lambda_functions/profile-photo-upload-credential-broker/index.ts
 cdk-app/lib/synchronous-lambda-functions-stack.ts
 ```
 
-The S3 broker is authenticated like other routes:
+The profile photo upload credential broker is authenticated like other routes:
 
 - Native Cognito authorizer at API Gateway.
 - Lambda-level `requireAuthenticatedSub()`.
@@ -428,7 +428,7 @@ For specific Lambda changes:
 
 ```powershell
 npx tsc --noEmit -p cdk-app\lambda_functions\oauth-callback\tsconfig.json
-npx tsc --noEmit -p cdk-app\lambda_functions\s3-access-broker\tsconfig.json
+npx tsc --noEmit -p cdk-app\lambda_functions\profile-photo-upload-credential-broker\tsconfig.json
 npx tsc --noEmit -p cdk-app\lambda_functions\cognito-post-confirmation-trigger\tsconfig.json
 ```
 
@@ -478,7 +478,7 @@ OAuth callback returns 500:
 - Common causes are missing Prisma tables, RDS connectivity, missing Cognito env vars, or bad token exchange.
 - If tables are missing in a new prod RDS, run Prisma `db push` or migrations.
 
-`/s3-access-broker` returns 401 but `/graphql` works:
+`/profile-photo-upload-credential-broker` returns 401 but `/graphql` works:
 
 - Check Lambda logs before assuming Cognito failure.
 - If logs show `Cannot call GetFederationToken with session credentials`, the broker needs the prod `AssumeRole` path and CDK role/env wiring.
