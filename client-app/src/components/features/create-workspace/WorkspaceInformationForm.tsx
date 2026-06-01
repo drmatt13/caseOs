@@ -21,7 +21,7 @@ const WorkspaceInformationForm = ({
     <FormSection
       title="Workspace Information"
       description="Name and describe the workspace your team will use."
-      icon="workflow"
+      icon="briefcase"
     >
       <div className="grid gap-4">
         <TextInputField
@@ -35,9 +35,7 @@ const WorkspaceInformationForm = ({
           label="Description"
           description="Summarize what this workspace is for."
           value={workspace.description}
-          onChange={(event) =>
-            onFieldChange("description", event.target.value)
-          }
+          onChange={(event) => onFieldChange("description", event.target.value)}
           placeholder="A shared workspace for tracking case work, documents, and team communication."
         />
       </div>

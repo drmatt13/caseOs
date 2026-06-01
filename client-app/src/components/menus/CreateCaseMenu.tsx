@@ -50,7 +50,7 @@ const CreateCaseMenu = ({
       }
     }
 
-    await navigate({ to: "/" });
+    await navigate({ to: "/workspace/workspace_id" });
   };
 
   return (

@@ -1,4 +1,4 @@
-import { Settings, MessageSquare, Mail, UserPlus } from "lucide-react";
+import { Settings, MessageSquare, Mail } from "lucide-react";
 import UserPanel from "#/components/UserPanel";
 import Button from "#/components/Button";
 
@@ -16,10 +16,14 @@ interface DemoWorkspaceMember {
 }
 
 const roleBadgeColors: Record<DemoWorkspaceMember["role"], string> = {
-  Owner: "bg-green-500/15 text-green-900/65",
-  Admin: "bg-red-500/15 text-red-900/55",
-  Contributor: "bg-blue-500/15 text-blue-900/60",
-  "Read Only": "bg-black/10 text-black/50",
+  Owner:
+    "border-purple-200 bg-purple-50 text-purple-800/80 group-hover:text-purple-900/70 group-hover:border-purple-900/25",
+  Admin:
+    "border-emerald-300/40 bg-green-50 text-green-800/85 group-hover:text-green-900/65 group-hover:border-green-900/25",
+  Contributor:
+    "border-blue-200 bg-blue-50 text-blue-800/85 group-hover:text-blue-900/70 group-hover:border-blue-900/25",
+  "Read Only":
+    "border-black/10 bg-black/5 text-black/65 group-hover:bg-gray-200/82.5 group-hover:text-black/60 group-hover:border-black/20",
 };
 
 const demoWorkspaceMembers: DemoWorkspaceMember[] = [
@@ -96,20 +100,17 @@ const WorkspaceDashboard = ({ workspaceId }: WorkspaceProps) => {
           and housing-related legal matters. Members can collaborate on case
           files, share documents, and communicate about ongoing proceedings.
         </p>
-        <div className="mt-2 pb-1 flex justify-between">
+        <div className="mt-2 pb-1 flex justify-between items-end">
           <p className="text-md font-medium">
             Members ({demoWorkspaceMembers.length})
           </p>
-          <div className="text-sm p-2 rounded-lg hover:bg-black/10 cursor-pointer flex items-center gap-1.5 text-black border border-black/15 transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
-            <UserPlus className="w-3.5 h-3.5" />
-            <div>Onboard Members</div>
-          </div>
+          <Button style="secondary" text="Onboard Members" icon="userPlus" />
         </div>
         <div className="flex flex-col gap-1">
           {demoWorkspaceMembers.map((member, index) => (
             <div
               key={`${member.displayName}-${index}`}
-              className="flex justify-between items-center p-2 cursor-pointer hover:bg-black/10 rounded-xl group transition-colors ease-in duration-150 hover:ease-out hover:duration-100"
+              className="group flex justify-between items-center p-2 cursor-pointer hover:bg-black/10 rounded-xl group transition-colors ease-in duration-150 hover:ease-out hover:duration-100"
             >
               <UserPanel
                 user={{
@@ -120,7 +121,7 @@ const WorkspaceDashboard = ({ workspaceId }: WorkspaceProps) => {
               />
               {member.role && (
                 <div
-                  className={`${roleBadgeColors[member.role]} inline-flex w-fit shrink-0 items-center px-2.5 py-1 rounded-lg text-sm transition-colors ease-in duration-150 group-hover:ease-out group-hover:duration-100`}
+                  className={`${roleBadgeColors[member.role]} border inline-flex w-fit shrink-0 items-center px-2 py-0.5 rounded-full text-xs transition-colors ease-in duration-150 group-hover:ease-out group-hover:duration-100`}
                 >
                   {member.role}
                 </div>

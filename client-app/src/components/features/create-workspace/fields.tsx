@@ -1,10 +1,10 @@
 import type { ChangeEventHandler, ReactNode } from "react";
-import { CheckSquare2, Users, Workflow } from "lucide-react";
+import { CheckSquare2, Users, Workflow, Briefcase } from "lucide-react";
 
 type FormSectionProps = {
   title: string;
   description: string;
-  icon: "workflow" | "users" | "checkSquare";
+  icon: "workflow" | "users" | "checkSquare" | "briefcase";
   children: ReactNode;
 };
 
@@ -59,6 +59,9 @@ export const FormSection = ({
         {icon === "users" && <Users className="w-5 h-5 text-black/90" />}
         {icon === "checkSquare" && (
           <CheckSquare2 className="w-5 h-5 text-black/90" />
+        )}
+        {icon === "briefcase" && (
+          <Briefcase className="w-5 h-5 text-black/90" />
         )}
       </div>
       <div className="flex flex-col min-w-0">

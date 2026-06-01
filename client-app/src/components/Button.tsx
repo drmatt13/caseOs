@@ -17,7 +17,8 @@ interface ButtonProps {
     | "reset"
     | "save"
     | "sparkles"
-    | "upload";
+    | "upload"
+    | "userPlus";
   submit?: boolean;
   fullWidth?: boolean;
   minWidth?: "sm" | "md" | "lg" | "xl";
@@ -34,6 +35,7 @@ import {
   RotateCcw,
   Save,
   Sparkles,
+  UserPlus,
 } from "lucide-react";
 
 const buttonIcons = {
@@ -46,6 +48,7 @@ const buttonIcons = {
   save: Save,
   sparkles: Sparkles,
   upload: ImageUp,
+  userPlus: UserPlus,
 } as const;
 
 const minWidthClasses = {

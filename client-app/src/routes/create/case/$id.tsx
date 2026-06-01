@@ -40,7 +40,7 @@ const createBlankCaseIntake = (): CaseIntake => ({
   documents: {},
 });
 
-export const Route = createFileRoute("/create/case")({
+export const Route = createFileRoute("/create/case/$id")({
   beforeLoad: requireAuth,
   component: RouteComponent,
 });

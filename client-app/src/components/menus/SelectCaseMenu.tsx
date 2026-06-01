@@ -37,7 +37,7 @@ const SelectCaseMenu = ({ workspace }: SelectCaseMenuProps) => {
         </Link>
         <p className="truncate">{workspace}</p>
       </div>
-      <Link to="/create/case">
+      <Link to="/create/case/workspace_id">
         <div className="text-sm h-8 p-2 rounded-lg hover:bg-black/10 cursor-pointer flex items-center gap-1.5 text-black transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
           <PlusIcon className="w-4 h-4" />
           <div>New Case</div>
