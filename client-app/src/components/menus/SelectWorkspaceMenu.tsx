@@ -49,10 +49,12 @@ const SelectWorkspaceMenu = ({ workspaces }: SelectWorkspaceMenuProps) => {
       <div className="text-sm flex pl-1.5 h-6 items-center">
         <p className="truncate underline">Select Workspace</p>
       </div>
-      <div className="text-sm h-8 p-2 rounded-lg hover:bg-black/10 cursor-pointer flex items-center gap-1.5 text-black transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
-        <PlusIcon className="w-4 h-4" />
-        <div>New Workspace</div>
-      </div>
+      <Link to="/create/workspace">
+        <div className="text-sm h-8 p-2 rounded-lg hover:bg-black/10 cursor-pointer flex items-center gap-1.5 text-black transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
+          <PlusIcon className="w-4 h-4" />
+          <div>New Workspace</div>
+        </div>
+      </Link>
       {workspaces.map((workspace) => (
         <Link
           key={workspace}

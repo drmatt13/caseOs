@@ -12,35 +12,46 @@ interface DemoWorkspaceMember {
   displayName: string;
   firstName: string;
   lastName: string;
-  role?: string;
+  role: "Owner" | "Admin" | "Contributor" | "Read Only";
 }
+
+const roleBadgeColors: Record<DemoWorkspaceMember["role"], string> = {
+  Owner: "bg-green-500/15 text-green-900/65",
+  Admin: "bg-red-500/15 text-red-900/55",
+  Contributor: "bg-blue-500/15 text-blue-900/60",
+  "Read Only": "bg-black/10 text-black/50",
+};
 
 const demoWorkspaceMembers: DemoWorkspaceMember[] = [
   {
-    displayName: "caseos-user",
-    firstName: "Jane",
-    lastName: "Doe",
+    displayName: "Sarah Mitchell",
+    firstName: "Sarah",
+    lastName: "Mitchell",
     role: "Owner",
   },
   {
-    displayName: "caseos-user",
-    firstName: "Jane",
-    lastName: "Doe",
+    displayName: "Michael Chen",
+    firstName: "Michael",
+    lastName: "Chen",
+    role: "Admin",
   },
   {
-    displayName: "caseos-user",
-    firstName: "Jane",
-    lastName: "Doe",
+    displayName: "Emily Rodriguez",
+    firstName: "Emily",
+    lastName: "Rodriguez",
+    role: "Contributor",
   },
   {
-    displayName: "caseos-user",
-    firstName: "Jane",
-    lastName: "Doe",
+    displayName: "David Patel",
+    firstName: "David",
+    lastName: "Patel",
+    role: "Contributor",
   },
   {
-    displayName: "caseos-user",
-    firstName: "Jane",
-    lastName: "Doe",
+    displayName: "Olivia Thompson",
+    firstName: "Olivia",
+    lastName: "Thompson",
+    role: "Read Only",
   },
 ];
 
@@ -57,6 +68,7 @@ const WorkspaceDashboard = ({ workspaceId }: WorkspaceProps) => {
 
   return (
     <div className="flex h-full min-w-0 flex-col gap-4">
+      {/* DUPLICATED LOGIC */}
       <div className="flex flex-row justify-between text-sm px-4 sm:px-0 border-b border-black/15 pb-3">
         <div className="flex gap-1.5">
           {/* ONLY IF INVITES ARE AVAILABLE */}
@@ -76,6 +88,7 @@ const WorkspaceDashboard = ({ workspaceId }: WorkspaceProps) => {
           </div>
         )}
       </div>
+      {/* DUPLICATED LOGIC */}
       <div className="flex flex-col px-4 gap-1.5">
         <p className="text-xl font-bold">Workspace name</p>
         <p className="mb-1.5 text-md">
@@ -106,7 +119,9 @@ const WorkspaceDashboard = ({ workspaceId }: WorkspaceProps) => {
                 }}
               />
               {member.role && (
-                <div className="inline-flex w-fit shrink-0 items-center bg-black/10 px-2.5 py-1 rounded-lg text-sm group-hover:bg-black/15 transition-colors ease-in duration-150 group-hover:ease-out group-hover:duration-100">
+                <div
+                  className={`${roleBadgeColors[member.role]} inline-flex w-fit shrink-0 items-center px-2.5 py-1 rounded-lg text-sm transition-colors ease-in duration-150 group-hover:ease-out group-hover:duration-100`}
+                >
                   {member.role}
                 </div>
               )}

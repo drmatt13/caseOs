@@ -2,26 +2,26 @@ import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 
 import AppLayout from "#/components/layouts/AppLayout";
-import CaseBasicsForm from "#/components/features/case-intake/CaseBasicsForm";
-import DisputeDetailsForm from "#/components/features/case-intake/DisputeDetailsForm";
-import DocumentsForm from "#/components/features/case-intake/DocumentsForm";
-import GoalsObjectivesAndRisksForm from "#/components/features/case-intake/GoalsObjectivesAndRisksForm";
-import PeoplePartiesAndWitnessesForm from "#/components/features/case-intake/PeoplePartiesAndWitnessesForm";
-import TimelineAndUrgencyForm from "#/components/features/case-intake/TimelineAndUrgencyForm";
-import ReviewForm from "#/components/features/case-intake/ReviewForm";
+import CaseBasicsForm from "#/components/features/create-case/CaseBasicsForm";
+import DisputeDetailsForm from "#/components/features/create-case/DisputeDetailsForm";
+import DocumentsForm from "#/components/features/create-case/DocumentsForm";
+import GoalsObjectivesAndRisksForm from "#/components/features/create-case/GoalsObjectivesAndRisksForm";
+import PeoplePartiesAndWitnessesForm from "#/components/features/create-case/PeoplePartiesAndWitnessesForm";
+import TimelineAndUrgencyForm from "#/components/features/create-case/TimelineAndUrgencyForm";
+import ReviewForm from "#/components/features/create-case/ReviewForm";
 import NavigationPanel from "#/components/layouts/NavigationPanel";
 import NewCase from "#/components/page_content/NewCase";
 import {
   CASE_INTAKE_TOTAL_STEPS,
   initialCaseIntake,
-} from "#/components/features/case-intake/caseIntakeForm";
+} from "#/components/features/create-case/caseIntakeForm";
 import ContentShell from "#/components/layouts/ContentShell";
 import CreateCaseMenu from "#/components/menus/CreateCaseMenu";
 import UserPanel from "#/components/UserPanel";
 import Button from "#/components/Button";
 
 import type { CaseIntake } from "#/types/caseWorkspace";
-import type { CaseIntakeWizardState } from "#/components/features/case-intake/caseIntakeForm";
+import type { CaseIntakeWizardState } from "#/components/features/create-case/caseIntakeForm";
 import LoadingSpinner from "#/components/LoadingSpinner";
 
 // route guards
@@ -36,11 +36,11 @@ void testIntakeData; // to prevent "declared but never used" error while develop
 
 const createBlankCaseIntake = (): CaseIntake => ({
   ...initialCaseIntake,
-  id: `case-intake-${Date.now()}`,
+  id: `create-case-${Date.now()}`,
   documents: {},
 });
 
-export const Route = createFileRoute("/cases/new")({
+export const Route = createFileRoute("/create/case")({
   beforeLoad: requireAuth,
   component: RouteComponent,
 });
