@@ -15,7 +15,7 @@ interface CreateWorkspaceMenuProps {
 const createWorkspaceStepIcons: StepMenuIcon[] = [
   "briefcase",
   "users",
-  "sparkles",
+  "checkSquare",
 ];
 
 const createWorkspaceStepLabels = [

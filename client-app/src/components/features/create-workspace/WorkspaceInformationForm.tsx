@@ -1,6 +1,6 @@
+import TextAreaField from "#/components/TextAreaField";
 import {
   FormSection,
-  TextAreaField,
   TextInputField,
 } from "#/components/features/create-workspace/fields";
 import type { CreateWorkspaceForm } from "#/components/features/create-workspace/workspaceForm";

@@ -1,4 +1,4 @@
-import { Sparkles } from "lucide-react";
+import { CheckSquare2 } from "lucide-react";
 import { FormSection } from "#/components/features/create-workspace/fields";
 import type { CreateWorkspaceForm } from "#/components/features/create-workspace/workspaceForm";
 
@@ -13,11 +13,11 @@ const CreateWorkspaceReviewForm = ({
     <FormSection
       title="Create"
       description="Review the workspace before creating it."
-      icon="sparkles"
+      icon="checkSquare"
     >
       <div className="flex flex-col items-center pt-6 text-center">
         <div className="mb-4 flex aspect-square items-center justify-center rounded-full border border-black/10 bg-black/6 p-4">
-          <Sparkles className="w-7 h-7 text-black/75" />
+          <CheckSquare2 className="w-7 h-7 text-black/75" />
         </div>
         <h2 className="text-xl font-semibold">Create Workspace</h2>
         <p className="mt-1 max-w-lg text-sm text-gray-600">

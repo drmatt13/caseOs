@@ -1,10 +1,10 @@
 import type { ChangeEventHandler, ReactNode } from "react";
-import { Sparkles, Users, Workflow } from "lucide-react";
+import { CheckSquare2, Users, Workflow } from "lucide-react";
 
 type FormSectionProps = {
   title: string;
   description: string;
-  icon: "workflow" | "users" | "sparkles";
+  icon: "workflow" | "users" | "checkSquare";
   children: ReactNode;
 };
 
@@ -18,13 +18,6 @@ type TextInputFieldProps = FieldBaseProps & {
   value: string;
   onChange: ChangeEventHandler<HTMLInputElement>;
   placeholder?: string;
-};
-
-type TextAreaFieldProps = FieldBaseProps & {
-  value: string;
-  onChange: ChangeEventHandler<HTMLTextAreaElement>;
-  placeholder?: string;
-  rows?: number;
 };
 
 type SelectFieldProps<T extends string> = FieldBaseProps & {
@@ -64,8 +57,8 @@ export const FormSection = ({
       <div className="rounded-lg bg-black/15 p-2.5">
         {icon === "workflow" && <Workflow className="w-5 h-5 text-black/90" />}
         {icon === "users" && <Users className="w-5 h-5 text-black/90" />}
-        {icon === "sparkles" && (
-          <Sparkles className="w-5 h-5 text-black/90" />
+        {icon === "checkSquare" && (
+          <CheckSquare2 className="w-5 h-5 text-black/90" />
         )}
       </div>
       <div className="flex flex-col min-w-0">
@@ -94,26 +87,6 @@ export const TextInputField = ({
       value={value}
       onChange={onChange}
       placeholder={placeholder}
-    />
-  </FieldShell>
-);
-
-export const TextAreaField = ({
-  label,
-  description,
-  value,
-  onChange,
-  placeholder,
-  rows = 5,
-  className,
-}: TextAreaFieldProps) => (
-  <FieldShell label={label} description={description} className={className}>
-    <textarea
-      className={`${fieldClassName} resize-y leading-6`}
-      value={value}
-      onChange={onChange}
-      placeholder={placeholder}
-      rows={rows}
     />
   </FieldShell>
 );

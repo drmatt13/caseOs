@@ -31,6 +31,7 @@ import ActiveWorkspaceMenu from "#/components/menus/ActiveWorkspaceMenu";
 import UserPanel from "#/components/UserPanel";
 import LoadingSpinner from "#/components/LoadingSpinner";
 import Button from "#/components/Button";
+import TextAreaField from "#/components/TextAreaField";
 import { requireAuth } from "#/lib/auth";
 import { useCurrentUserQuery } from "#/api/currentUser/hooks";
 import type { ViewTypes } from "#/types/caseWorkspace";
@@ -1037,11 +1038,13 @@ function CaseNoteComposer({
         <PencilLine className="h-4 w-4" />
         <span>New case note</span>
       </div>
-      <textarea
-        className="min-h-24 w-full resize-y rounded-lg border border-black/10 bg-white/80 px-3 py-2 text-md outline-none transition focus:border-black/30 focus:ring-2 focus:ring-black/5"
+      <TextAreaField
+        label="Case note"
         placeholder="Capture a strategy thought, question, witness point, or hearing note..."
         value={draft}
         onChange={(event) => setDraft(event.target.value)}
+        rows={3}
+        minRows={3}
       />
       <div className="mt-2 flex justify-end">
         <Button
@@ -1168,14 +1171,13 @@ function ProposalActions({
 
       {rejecting && (
         <div className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3">
-          <label className="text-sm font-medium text-red-900">
-            Reason for rejecting this proposal
-          </label>
-          <textarea
-            className="mt-2 min-h-20 w-full resize-y rounded-lg border border-red-200 bg-white px-3 py-2 text-md outline-none transition focus:border-red-300 focus:ring-2 focus:ring-red-100"
+          <TextAreaField
+            label="Reason for rejecting this proposal"
             placeholder="Example: unsupported by produced discovery, duplicates an accepted fact, or uses language that overstates the evidence."
             value={rejectionReason}
             onChange={(event) => setRejectionReason(event.target.value)}
+            rows={3}
+            minRows={3}
           />
           <div className="mt-2 flex justify-end">
             <button
@@ -1197,18 +1199,16 @@ function ProposalActions({
 
       {suggestingEdits && (
         <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3">
-          <label className="flex items-center gap-1.5 text-sm font-medium text-blue-900">
-            <Sparkles className="h-3.5 w-3.5" />
-            Suggested edit for the agent
-          </label>
-          <textarea
-            className="mt-2 min-h-20 w-full resize-y rounded-lg border border-blue-200 bg-white px-3 py-2 text-md outline-none transition focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
+          <TextAreaField
+            label="Suggested edit for the agent"
             placeholder="Tell the agent what to preserve, soften, cite, split, or rewrite before you accept it."
             value={editSuggestion}
             onChange={(event) => {
               setEditSuggestion(event.target.value);
               setEditSubmitted(false);
             }}
+            rows={3}
+            minRows={3}
           />
           <div className="mt-2 flex items-center justify-between gap-3">
             {editSubmitted ? (
@@ -1567,11 +1567,13 @@ function AgentConfigView() {
             <MessageSquare className="h-4 w-4" />
             <span>Ask Agent</span>
           </div>
-          <textarea
-            className="min-h-24 w-full resize-y rounded-lg border border-black/10 bg-white px-3 py-2 text-md outline-none transition focus:border-black/30 focus:ring-2 focus:ring-black/5"
+          <TextAreaField
+            label="Ask Agent"
             placeholder="Ask the agent to summarize discovery gaps, compare arguments, or draft a focused review queue..."
             value={agentPrompt}
             onChange={(event) => setAgentPrompt(event.target.value)}
+            rows={3}
+            minRows={3}
           />
           <div className="mt-2 flex justify-end">
             <Button
@@ -1598,14 +1600,13 @@ function AgentConfigView() {
           ))}
         </div>
         <div className="mt-3 rounded-lg border border-black/10 bg-white/70 p-3">
-          <label className="text-sm text-black/60">
-            Propose an instruction change
-          </label>
-          <textarea
-            className="mt-2 min-h-20 w-full resize-y rounded-lg border border-black/10 bg-white px-3 py-2 text-md outline-none transition focus:border-black/30 focus:ring-2 focus:ring-black/5"
+          <TextAreaField
+            label="Propose an instruction change"
             placeholder="Example: When reviewing discovery, prioritize missing records controlled by property management."
             value={instructionDraft}
             onChange={(event) => setInstructionDraft(event.target.value)}
+            rows={3}
+            minRows={3}
           />
           <div className="mt-2 flex justify-end">
             <Button

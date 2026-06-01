@@ -177,7 +177,6 @@ function RouteComponent() {
                 }
                 onClick={goToNextStep}
                 disabled={!isStepComplete(workspaceState.step)}
-                rainbow={workspaceState.step === CREATE_WORKSPACE_TOTAL_STEPS}
                 minWidth={
                   workspaceState.step === CREATE_WORKSPACE_TOTAL_STEPS
                     ? "xl"
@@ -185,7 +184,7 @@ function RouteComponent() {
                 }
                 icon={
                   workspaceState.step === CREATE_WORKSPACE_TOTAL_STEPS
-                    ? "sparkles"
+                    ? "check"
                     : undefined
                 }
               />

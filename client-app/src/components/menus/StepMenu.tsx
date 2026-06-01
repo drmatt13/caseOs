@@ -1,5 +1,6 @@
 import {
   Briefcase,
+  CheckSquare2,
   CheckSquare,
   Clock,
   FileTextIcon,
@@ -17,6 +18,7 @@ export type StepMenuIcon =
   | "target"
   | "users"
   | "fileText"
+  | "checkSquare"
   | "sparkles";
 
 export interface StepMenuLabel {
@@ -39,6 +41,7 @@ const preapprovedStepMenuIcons: Record<StepMenuIcon, LucideIcon> = {
   target: Target,
   users: Users,
   fileText: FileTextIcon,
+  checkSquare: CheckSquare2,
   sparkles: Sparkles,
 };
 

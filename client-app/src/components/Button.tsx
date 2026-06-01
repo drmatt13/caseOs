@@ -10,6 +10,7 @@ interface ButtonProps {
   rainbow?: boolean;
   icon?:
     | "briefcase"
+    | "check"
     | "continue"
     | "mail"
     | "plus"
@@ -26,6 +27,7 @@ interface ButtonProps {
 import {
   ArrowRight,
   BriefcaseBusiness,
+  Check,
   ImageUp,
   Mail,
   PlusIcon,
@@ -36,6 +38,7 @@ import {
 
 const buttonIcons = {
   briefcase: BriefcaseBusiness,
+  check: Check,
   continue: ArrowRight,
   mail: Mail,
   plus: PlusIcon,

@@ -1,9 +1,9 @@
 import type { CaseIntake } from "#/types/caseWorkspace";
+import TextAreaField from "#/components/TextAreaField";
 import { caseStatusOptions } from "#/components/features/create-case/caseIntakeForm";
 import {
   FormSection,
   SelectField,
-  TextAreaField,
   TextInputField,
 } from "#/components/features/create-case/fields";
 
