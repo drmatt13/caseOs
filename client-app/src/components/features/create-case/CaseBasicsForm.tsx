@@ -3,12 +3,12 @@ import {
   clientRoleOptions,
   representationPracticeAreaOptions,
   representationRoleOptions,
-} from "#/components/features/case-intake/caseIntakeForm";
+} from "#/components/features/create-case/caseIntakeForm";
 import {
   FormSection,
   SelectField,
   TextInputField,
-} from "#/components/features/case-intake/fields";
+} from "#/components/features/create-case/fields";
 
 type CaseBasicsFormProps = {
   caseIntake: CaseIntake;

@@ -7,7 +7,7 @@ import {
   useRef,
 } from "react";
 
-import type { SelectOption } from "#/components/features/case-intake/caseIntakeForm";
+import type { SelectOption } from "#/components/features/create-case/caseIntakeForm";
 import {
   Clock,
   Target,

@@ -2,42 +2,28 @@ import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 
 import AppLayout from "#/components/layouts/AppLayout";
-import CaseBasicsForm from "#/components/features/create-case/CaseBasicsForm";
-import DisputeDetailsForm from "#/components/features/create-case/DisputeDetailsForm";
-import DocumentsForm from "#/components/features/create-case/DocumentsForm";
-import GoalsObjectivesAndRisksForm from "#/components/features/create-case/GoalsObjectivesAndRisksForm";
-import PeoplePartiesAndWitnessesForm from "#/components/features/create-case/PeoplePartiesAndWitnessesForm";
-import TimelineAndUrgencyForm from "#/components/features/create-case/TimelineAndUrgencyForm";
-import ReviewForm from "#/components/features/create-case/ReviewForm";
-import NavigationPanel from "#/components/layouts/NavigationPanel";
-import NewCase from "#/components/page_content/NewCase";
-import {
-  CASE_INTAKE_TOTAL_STEPS,
-  initialCaseIntake,
-} from "#/components/features/create-case/caseIntakeForm";
 import ContentShell from "#/components/layouts/ContentShell";
-import CreateCaseMenu from "#/components/menus/CreateCaseMenu";
-import UserPanel from "#/components/UserPanel";
+import NavigationPanel from "#/components/layouts/NavigationPanel";
+import CreateWorkspaceMenu from "#/components/menus/CreateWorkspaceMenu";
 import Button from "#/components/Button";
-
-import type { CaseIntake } from "#/types/caseWorkspace";
-import type { CaseIntakeWizardState } from "#/components/features/create-case/caseIntakeForm";
 import LoadingSpinner from "#/components/LoadingSpinner";
-
-// route guards
-import { requireAuth } from "#/lib/auth";
+import UserPanel from "#/components/UserPanel";
+import CreateWorkspaceReviewForm from "#/components/features/create-workspace/CreateWorkspaceReviewForm";
+import TeamMembersForm from "#/components/features/create-workspace/TeamMembersForm";
+import WorkspaceInformationForm from "#/components/features/create-workspace/WorkspaceInformationForm";
+import {
+  CREATE_WORKSPACE_TOTAL_STEPS,
+  initialCreateWorkspace,
+  type CreateWorkspaceForm,
+  type CreateWorkspaceWizardState,
+} from "#/components/features/create-workspace/workspaceForm";
 
 import { useCurrentUserQuery } from "#/api/currentUser/hooks";
+import { requireAuth } from "#/lib/auth";
 
-// test data
-import testIntakeData from "#/test_data/intake/oj/caseIntake";
-
-void testIntakeData; // to prevent "declared but never used" error while developing with test data
-
-const createBlankCaseIntake = (): CaseIntake => ({
-  ...initialCaseIntake,
-  id: `create-case-${Date.now()}`,
-  documents: {},
+const createBlankWorkspace = (): CreateWorkspaceForm => ({
+  ...initialCreateWorkspace,
+  invites: [],
 });
 
 export const Route = createFileRoute("/create/workspace")({
@@ -48,114 +34,67 @@ export const Route = createFileRoute("/create/workspace")({
 function RouteComponent() {
   const { data: userResult, isPending, error } = useCurrentUserQuery();
   const user = userResult?.currentUser.user;
-  const [blankCaseIntake] = useState(createBlankCaseIntake);
+  const [blankWorkspace] = useState(createBlankWorkspace);
+  const [workspaceState, setWorkspaceState] =
+    useState<CreateWorkspaceWizardState>({
+      step: 1,
+      workspace: blankWorkspace,
+    });
 
-  const [caseIntakeState, setCaseIntakeState] = useState<CaseIntakeWizardState>(
-    {
-      step: 6,
-      // caseIntake: testIntakeData,
-      caseIntake: blankCaseIntake,
-    },
-  );
-
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-
-  if (isPending) {
-    return (
-      <>
-        <div className="w-full h-dvh flex justify-center items-center">
-          <LoadingSpinner />
-        </div>
-      </>
-    );
-  }
-
-  if (error || !user) {
-    return <>placeholder for error</>;
-  }
-
-  const hasUnsavedCaseIntake =
-    uploadedFiles.length > 0 ||
-    Object.entries(caseIntakeState.caseIntake).some(([key, value]) => {
-      const initialValue = blankCaseIntake[key as keyof CaseIntake];
+  const hasUnsavedWorkspace = Object.entries(workspaceState.workspace).some(
+    ([key, value]) => {
+      const initialValue = blankWorkspace[key as keyof CreateWorkspaceForm];
 
       if (typeof value === "string" && typeof initialValue === "string") {
         return value.trim() !== initialValue.trim();
       }
 
       return JSON.stringify(value) !== JSON.stringify(initialValue);
-    });
+    },
+  );
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
-  }, [caseIntakeState.step]);
+  }, [workspaceState.step]);
 
-  const updateCaseIntakeField = <K extends keyof CaseIntake>(
+  const updateWorkspaceField = <K extends keyof CreateWorkspaceForm>(
     field: K,
-    value: CaseIntake[K],
+    value: CreateWorkspaceForm[K],
   ) => {
-    setCaseIntakeState((prev) => ({
+    setWorkspaceState((prev) => ({
       ...prev,
-      caseIntake: {
-        ...prev.caseIntake,
+      workspace: {
+        ...prev.workspace,
         [field]: value,
       },
     }));
   };
 
   const goToNextStep = () => {
-    setCaseIntakeState((prev) => ({
+    setWorkspaceState((prev) => ({
       ...prev,
-      step: Math.min(prev.step + 1, CASE_INTAKE_TOTAL_STEPS),
+      step: Math.min(prev.step + 1, CREATE_WORKSPACE_TOTAL_STEPS),
     }));
   };
 
   const goToPreviousStep = () => {
-    setCaseIntakeState((prev) => ({
+    setWorkspaceState((prev) => ({
       ...prev,
       step: Math.max(prev.step - 1, 1),
     }));
   };
 
   const isStepComplete = (step: number): boolean => {
-    const c = caseIntakeState.caseIntake;
+    const workspace = workspaceState.workspace;
     const filled = (...fields: string[]) =>
-      fields.every((f) => f.trim().length > 0);
+      fields.every((field) => field.trim().length > 0);
 
     switch (step) {
       case 1:
-        return filled(c.caseName, c.intakeProvidedBy, c.jurisdictionOrCourt);
+        return filled(workspace.name, workspace.description);
       case 2:
-        return (
-          filled(
-            c.whatIsTheDisputeAbout,
-            c.whatClaimsOrAllegationsAreInvolved,
-          ) &&
-          (c.currentCaseStatus === "pre_filing" || filled(c.caseNumber ?? ""))
-        );
-      case 3:
-        return filled(
-          c.keyEventsSoFar,
-          c.importantFilingsDeadlinesAndIncidents,
-          c.anythingUrgentRightNow,
-        );
-      case 4:
-        return filled(
-          c.yourObjective,
-          c.otherSidesLikelyObjective,
-          c.desiredOutcome,
-          c.biggestCurrentRisk,
-        );
-      case 5:
-        return filled(
-          c.parties,
-          c.attorneys,
-          c.witnessesAndAnticipatedTestimony,
-          c.whoMattersMostRightNow,
-        );
-      case 6:
         return true;
-      case 7:
+      case 3:
         return true;
       default:
         return false;
@@ -163,69 +102,96 @@ function RouteComponent() {
   };
 
   const renderStep = () => {
-    switch (caseIntakeState.step) {
+    switch (workspaceState.step) {
       case 1:
         return (
-          <CaseBasicsForm
-            caseIntake={caseIntakeState.caseIntake}
-            onFieldChange={updateCaseIntakeField}
+          <WorkspaceInformationForm
+            workspace={workspaceState.workspace}
+            onFieldChange={updateWorkspaceField}
           />
         );
       case 2:
         return (
-          <DisputeDetailsForm
-            caseIntake={caseIntakeState.caseIntake}
-            onFieldChange={updateCaseIntakeField}
+          <TeamMembersForm
+            workspace={workspaceState.workspace}
+            onFieldChange={updateWorkspaceField}
           />
         );
       case 3:
         return (
-          <TimelineAndUrgencyForm
-            caseIntake={caseIntakeState.caseIntake}
-            onFieldChange={updateCaseIntakeField}
-          />
+          <CreateWorkspaceReviewForm workspace={workspaceState.workspace} />
         );
-      case 4:
-        return (
-          <GoalsObjectivesAndRisksForm
-            caseIntake={caseIntakeState.caseIntake}
-            onFieldChange={updateCaseIntakeField}
-          />
-        );
-      case 5:
-        return (
-          <PeoplePartiesAndWitnessesForm
-            caseIntake={caseIntakeState.caseIntake}
-            onFieldChange={updateCaseIntakeField}
-          />
-        );
-      case 6:
-        return (
-          <DocumentsForm
-            caseIntake={caseIntakeState.caseIntake}
-            uploadedFiles={uploadedFiles}
-            setUploadedFiles={setUploadedFiles}
-          />
-        );
-      case 7:
-        return <ReviewForm />;
       default:
         return null;
     }
   };
 
+  if (isPending) {
+    return (
+      <div className="w-full h-dvh flex justify-center items-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  if (error || !user) {
+    return <>placeholder for error</>;
+  }
+
   return (
     <AppLayout>
       <NavigationPanel>
         <UserPanel user={user} settings={true} showTier={true} />
-        <CreateCaseMenu
-          caseIntakeState={caseIntakeState}
-          setCaseIntakeState={setCaseIntakeState}
-          hasUnsavedCaseIntake={hasUnsavedCaseIntake}
+        <CreateWorkspaceMenu
+          workspaceState={workspaceState}
+          setWorkspaceState={setWorkspaceState}
+          hasUnsavedWorkspace={hasUnsavedWorkspace}
         />
       </NavigationPanel>
       <ContentShell>
-        <>Create Workspace</>
+        <div className="flex flex-col gap-6 h-full justify-between">
+          {renderStep()}
+          <div className="grid grid-cols-3 items-end gap-3 rounded-2xl">
+            <div className="justify-self-start">
+              {workspaceState.step !== 1 && (
+                <Button
+                  style="secondary"
+                  text="Back"
+                  disabled={workspaceState.step === 1}
+                  onClick={goToPreviousStep}
+                  minWidth="md"
+                />
+              )}
+            </div>
+            <p className="justify-self-center text-md text-black/55">
+              {workspaceState.step !== CREATE_WORKSPACE_TOTAL_STEPS &&
+                `Step ${workspaceState.step} of ${CREATE_WORKSPACE_TOTAL_STEPS - 1}`}
+            </p>
+            <div className="justify-self-end">
+              <Button
+                style="primary"
+                text={
+                  workspaceState.step === CREATE_WORKSPACE_TOTAL_STEPS
+                    ? "Create Workspace"
+                    : "Next"
+                }
+                onClick={goToNextStep}
+                disabled={!isStepComplete(workspaceState.step)}
+                rainbow={workspaceState.step === CREATE_WORKSPACE_TOTAL_STEPS}
+                minWidth={
+                  workspaceState.step === CREATE_WORKSPACE_TOTAL_STEPS
+                    ? "xl"
+                    : "md"
+                }
+                icon={
+                  workspaceState.step === CREATE_WORKSPACE_TOTAL_STEPS
+                    ? "sparkles"
+                    : undefined
+                }
+              />
+            </div>
+          </div>
+        </div>
       </ContentShell>
     </AppLayout>
   );

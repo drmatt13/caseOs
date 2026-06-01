@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import type { CaseIntake } from "#/types/caseWorkspace";
-import { FormSection } from "#/components/features/case-intake/fields";
+import { FormSection } from "#/components/features/create-case/fields";
 import { Upload, FileText, XIcon, CheckCircle } from "lucide-react";
 
 type DocumentsFormProps = {
