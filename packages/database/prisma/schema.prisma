@@ -33,25 +33,22 @@ enum AccountStatus {
 }
 
 enum WorkspaceStatus {
-  ACTIVE    @map("active")
-  ARCHIVED  @map("archived")
-  SUSPENDED @map("suspended")
+  ACTIVE   @map("active")
+  ARCHIVED @map("archived")
+  // SUSPENDED @map("suspended")
 }
 
 enum MembershipRole {
-  OWNER  @map("owner")
-  ADMIN  @map("admin")
-  MEMBER @map("member")
+  OWNER       @map("owner")
+  ADMIN       @map("admin")
+  CONTRIBUTOR @map("contributor")
+  READONLY    @map("readonly")
 }
 
 enum MembershipStatus {
-  ACTIVE    @map("active")
-  SUSPENDED @map("suspended")
-}
-
-enum InvitationRole {
-  ADMIN  @map("admin")
-  MEMBER @map("member")
+  ACTIVE  @map("active")
+  INVITED @map("invited")
+  REMOVED @map("removed")
 }
 
 enum InvitationStatus {
@@ -60,11 +57,11 @@ enum InvitationStatus {
   EXPIRED @map("expired")
 }
 
-enum CaseStatus {
-  OPEN     @map("open")
-  CLOSED   @map("closed")
-  ARCHIVED @map("archived")
-}
+// enum CaseStatus {
+//   OPEN     @map("open")
+//   CLOSED   @map("closed")
+//   ARCHIVED @map("archived")
+// }
 
 enum SubscriptionStatus {
   INACTIVE           @map("inactive")
@@ -82,95 +79,95 @@ enum BillingInterval {
   YEAR  @map("year")
 }
 
-enum ActorType {
-  HUMAN @map("human")
-  AGENT @map("agent")
-}
+// enum ActorType {
+//   HUMAN @map("human")
+//   AGENT @map("agent")
+// }
 
-enum DocumentStatus {
-  UPLOADED  @map("uploaded")
-  PROCESSED @map("processed")
-  ERROR     @map("error")
-}
+// enum DocumentStatus {
+//   UPLOADED  @map("uploaded")
+//   PROCESSED @map("processed")
+//   ERROR     @map("error")
+// }
 
-enum DocumentCategory {
-  EVIDENCE          @map("evidence")
-  RESEARCH          @map("research")
-  CLIENT_STATEMENT  @map("client_statement")
-  WITNESS_STATEMENT @map("witness_statement")
-  TRANSCRIPT        @map("transcript")
-  OTHER             @map("other")
-}
+// enum DocumentCategory {
+//   EVIDENCE          @map("evidence")
+//   RESEARCH          @map("research")
+//   CLIENT_STATEMENT  @map("client_statement")
+//   WITNESS_STATEMENT @map("witness_statement")
+//   TRANSCRIPT        @map("transcript")
+//   OTHER             @map("other")
+// }
 
-enum DateConfidence {
-  EXACT       @map("exact")
-  APPROXIMATE @map("approximate")
-  UNKNOWN     @map("unknown")
-}
+// enum DateConfidence {
+//   EXACT       @map("exact")
+//   APPROXIMATE @map("approximate")
+//   UNKNOWN     @map("unknown")
+// }
 
-enum CaseRecordType {
-  ARGUMENT        @map("arguments")
-  CASE_NOTE       @map("case_notes")
-  FACT            @map("facts")
-  ISSUE           @map("issues")
-  LEGAL_PRECEDENT @map("legal_precedent")
-  OBJECTIVE       @map("objectives")
-  POSTURE         @map("posture")
-  TASK            @map("tasks")
-  TESTIMONY       @map("testimony")
-  TIMELINE        @map("timeline")
-}
+// enum CaseRecordType {
+//   ARGUMENT        @map("arguments")
+//   CASE_NOTE       @map("case_notes")
+//   FACT            @map("facts")
+//   ISSUE           @map("issues")
+//   LEGAL_PRECEDENT @map("legal_precedent")
+//   OBJECTIVE       @map("objectives")
+//   POSTURE         @map("posture")
+//   TASK            @map("tasks")
+//   TESTIMONY       @map("testimony")
+//   TIMELINE        @map("timeline")
+// }
 
-enum RecordStatus {
-  PROPOSED             @map("proposed")
-  ACCEPTED             @map("accepted")
-  REJECTED             @map("rejected")
-  SUPERSESSION_PENDING @map("supersession_pending")
-  SUPERSEDED           @map("superseded")
-}
+// enum RecordStatus {
+//   PROPOSED             @map("proposed")
+//   ACCEPTED             @map("accepted")
+//   REJECTED             @map("rejected")
+//   SUPERSESSION_PENDING @map("supersession_pending")
+//   SUPERSEDED           @map("superseded")
+// }
 
-enum RecordParty {
-  PLAINTIFF @map("plaintiff")
-  DEFENSE   @map("defense")
-}
+// enum RecordParty {
+//   PLAINTIFF @map("plaintiff")
+//   DEFENSE   @map("defense")
+// }
 
-enum RecordVisibility {
-  HIDDEN  @map("hidden")
-  VISIBLE @map("visible")
-}
+// enum RecordVisibility {
+//   HIDDEN  @map("hidden")
+//   VISIBLE @map("visible")
+// }
 
-enum CaseViewType {
-  ARGUMENTS       @map("arguments")
-  CASE_NOTES      @map("case_notes")
-  FACTS           @map("facts")
-  ISSUES          @map("issues")
-  LEGAL_PRECEDENT @map("legal_precedent")
-  OBJECTIVES      @map("objectives")
-  POSTURE         @map("posture")
-  TASKS           @map("tasks")
-  TESTIMONY       @map("testimony")
-  TIMELINE        @map("timeline")
-  case_agent    @map("case_agent")
-  CASE_SUMMARY    @map("case_summary")
-  DOCUMENTS_INDEX @map("documents_index")
-}
+// enum CaseViewType {
+//   ARGUMENTS       @map("arguments")
+//   CASE_NOTES      @map("case_notes")
+//   FACTS           @map("facts")
+//   ISSUES          @map("issues")
+//   LEGAL_PRECEDENT @map("legal_precedent")
+//   OBJECTIVES      @map("objectives")
+//   POSTURE         @map("posture")
+//   TASKS           @map("tasks")
+//   TESTIMONY       @map("testimony")
+//   TIMELINE        @map("timeline")
+//   case_agent    @map("case_agent")
+//   CASE_SUMMARY    @map("case_summary")
+//   DOCUMENTS_INDEX @map("documents_index")
+// }
 
-enum ManifestKind {
-  WORKSPACE_STATE @map("workspace_state")
-  CASE_STATE      @map("case_state")
-  SNAPSHOT        @map("snapshot")
-}
+// enum ManifestKind {
+//   WORKSPACE_STATE @map("workspace_state")
+//   CASE_STATE      @map("case_state")
+//   SNAPSHOT        @map("snapshot")
+// }
 
-enum FileMimeFamily {
-  JSON     @map("json")
-  MARKDOWN @map("markdown")
-  TEXT     @map("text")
-  PDF      @map("pdf")
-  IMAGE    @map("image")
-  AUDIO    @map("audio")
-  VIDEO    @map("video")
-  OTHER    @map("other")
-}
+// enum FileMimeFamily {
+//   JSON     @map("json")
+//   MARKDOWN @map("markdown")
+//   TEXT     @map("text")
+//   PDF      @map("pdf")
+//   IMAGE    @map("image")
+//   AUDIO    @map("audio")
+//   VIDEO    @map("video")
+//   OTHER    @map("other")
+// }
 
 // Stripe subscription statuses include values like incomplete, trialing, active, past_due, canceled, unpaid, and paused, so your app should sync access from Stripe events, not manually guess it.
 
@@ -210,14 +207,15 @@ model User {
   trialEndsAt        DateTime?        @map("trial_ends_at") @db.Timestamptz(6)
 
   workspaceMemberships WorkspaceMembership[]
-  createdCases         ManagedCase[]         @relation("CaseCreatedByUser")
-  uploadedDocuments    CaseDocumentIndex[]   @relation("CaseDocumentUploadedByUser")
-  createdRecordIndexes CaseRecordIndex[]     @relation("CaseRecordIndexCreatedByUser")
-  updatedRecordIndexes CaseRecordIndex[]     @relation("CaseRecordIndexUpdatedByUser")
-  createdViewIndexes   CaseViewIndex[]       @relation("CaseViewIndexCreatedByUser")
-  manifestsCreated     CaseStateManifest[]   @relation("CaseStateManifestCreatedByUser")
-  actorUsageEvents     LlmUsageEvent[]       @relation("LlmUsageActorUser")
-  billedUsageEvents    LlmUsageEvent[]       @relation("LlmUsageBilledToUser")
+  sentWorkspaceInvitations WorkspaceInvitation[] @relation("WorkspaceInvitationInvitedBy")
+  // createdCases         ManagedCase[]         @relation("CaseCreatedByUser")
+  // uploadedDocuments    CaseDocumentIndex[]   @relation("CaseDocumentUploadedByUser")
+  // createdRecordIndexes CaseRecordIndex[]     @relation("CaseRecordIndexCreatedByUser")
+  // updatedRecordIndexes CaseRecordIndex[]     @relation("CaseRecordIndexUpdatedByUser")
+  // createdViewIndexes   CaseViewIndex[]       @relation("CaseViewIndexCreatedByUser")
+  // manifestsCreated     CaseStateManifest[]   @relation("CaseStateManifestCreatedByUser")
+  // actorUsageEvents     LlmUsageEvent[]       @relation("LlmUsageActorUser")
+  // billedUsageEvents    LlmUsageEvent[]       @relation("LlmUsageBilledToUser")
   // stripeEvents                StripeEventLog[]
   // individualUsageMonthly      UserUsageMonthly[]
   // workspaceBilledUsageMonthly WorkspaceUsageMonthly[]
@@ -229,27 +227,34 @@ model User {
 
 model Workspace {
   // in use
-  id            String          @id @default(uuid()) @db.Uuid
-  name          String
-  owner         User            @relation("WorkspaceOwner", fields: [ownerUserId], references: [id], onDelete: Restrict)
-  ownerUserId   String          @map("owner_user_id") @db.Uuid
-  storagePrefix String          @unique @map("storage_prefix")
-  status        WorkspaceStatus @default(ACTIVE)
-  createdAt     DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt     DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id          String          @id @default(uuid()) @db.Uuid
+  name        String
+  description String?
+  ownerUserId String          @map("owner_user_id") @db.Uuid
+  status      WorkspaceStatus @default(ACTIVE)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  owner       User                  @relation("WorkspaceOwner", fields: [ownerUserId], references: [id], onDelete: Restrict)
+  memberships WorkspaceMembership[]
+  // cases        ManagedCase[]
 
   // questionable
-  storageBucket   String                @map("storage_bucket")
-  memberships     WorkspaceMembership[]
-  invitations     WorkspaceInvitation[]
-  cases           ManagedCase[]
-  documentIndexes CaseDocumentIndex[]
-  recordIndexes   CaseRecordIndex[]
-  viewIndexes     CaseViewIndex[]
-  manifests       CaseStateManifest[]
-  llmUsageEvents  LlmUsageEvent[]
+  // storageBucket   String                @map("storage_bucket")
+  // memberships     WorkspaceMembership[]
+  // invitations     WorkspaceInvitation[]
+  // cases           ManagedCase[]
+  // documentIndexes CaseDocumentIndex[]
+  // recordIndexes   CaseRecordIndex[]
+  // viewIndexes     CaseViewIndex[]
+  // manifests       CaseStateManifest[]
+  // llmUsageEvents  LlmUsageEvent[]
   // monthlyUsage    WorkspaceUsageMonthly[]
   // stripeEvents    StripeEventLog[]
+  // @@index([status])
+
+  workspaceInvitations WorkspaceInvitation[]
 
   @@index([ownerUserId])
   @@index([status])
@@ -260,9 +265,11 @@ model WorkspaceMembership {
   id               String           @id @default(uuid()) @db.Uuid
   workspaceId      String           @map("workspace_id") @db.Uuid
   userId           String           @map("user_id") @db.Uuid
-  role             MembershipRole   @default(MEMBER)
+  role             MembershipRole
   membershipStatus MembershipStatus @default(ACTIVE) @map("membership_status")
-  joinedAt         DateTime         @default(now()) @map("joined_at") @db.Timestamptz(6)
+
+  joinedAt  DateTime @default(now()) @map("joined_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -276,226 +283,231 @@ model WorkspaceMembership {
 model WorkspaceInvitation {
   id              String           @id @default(uuid()) @db.Uuid
   workspaceId     String           @map("workspace_id") @db.Uuid
+  invitedByUserId String?          @map("invited_by_user_id") @db.Uuid
   email           String
-  role            InvitationRole   @default(MEMBER)
+  role            MembershipRole   @default(READONLY)
   invitationToken String           @unique @map("invitation_token")
   status          InvitationStatus @default(PENDING)
   expiresAt       DateTime         @map("expires_at") @db.Timestamptz(6)
   createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  invitedBy User?     @relation("WorkspaceInvitationInvitedBy", fields: [invitedByUserId], references: [id], onDelete: SetNull)
 
   @@index([workspaceId])
+  @@index([invitedByUserId])
   @@index([email])
+  @@index([workspaceId, email, status])
   @@index([status, expiresAt])
   @@map("workspace_invitations")
 }
 
-model ManagedCase {
-  id                    String     @id @default(uuid()) @db.Uuid
-  workspaceId           String     @map("workspace_id") @db.Uuid
-  createdByUserId       String     @map("created_by_user_id") @db.Uuid
-  title                 String
-  description           String?
-  status                CaseStatus @default(OPEN)
-  intake                Json?
-  currentManifestNumber Int?       @map("current_manifest_number")
-  createdAt             DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt             DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
+// model ManagedCase {
+//   id                    String     @id @default(uuid()) @db.Uuid
+//   workspaceId           String     @map("workspace_id") @db.Uuid
+//   createdByUserId       String     @map("created_by_user_id") @db.Uuid
+//   title                 String
+//   description           String?
+//   status                CaseStatus @default(OPEN)
+//   intake                Json?
+//   currentManifestNumber Int?       @map("current_manifest_number")
+//   createdAt             DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+//   updatedAt             DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  workspace       Workspace           @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  createdByUser   User                @relation("CaseCreatedByUser", fields: [createdByUserId], references: [id], onDelete: Restrict)
-  documentIndexes CaseDocumentIndex[]
-  recordIndexes   CaseRecordIndex[]
-  viewIndexes     CaseViewIndex[]
-  manifests       CaseStateManifest[]
-  llmUsageEvents  LlmUsageEvent[]
+//   workspace       Workspace           @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+//   createdByUser   User                @relation("CaseCreatedByUser", fields: [createdByUserId], references: [id], onDelete: Restrict)
+//   documentIndexes CaseDocumentIndex[]
+//   recordIndexes   CaseRecordIndex[]
+//   viewIndexes     CaseViewIndex[]
+//   manifests       CaseStateManifest[]
+//   llmUsageEvents  LlmUsageEvent[]
 
-  @@index([workspaceId])
-  @@index([createdByUserId])
-  @@index([status])
-  @@map("cases")
-}
+//   @@index([workspaceId])
+//   @@index([createdByUserId])
+//   @@index([status])
+//   @@map("cases")
+// }
 
-model CaseDocumentIndex {
-  id               String           @id @default(uuid()) @db.Uuid
-  workspaceId      String           @map("workspace_id") @db.Uuid
-  caseId           String           @map("case_id") @db.Uuid
-  uploadedByUserId String?          @map("uploaded_by_user_id") @db.Uuid
-  category         DocumentCategory
-  fileName         String           @map("file_name")
-  storageBucket    String           @map("storage_bucket")
-  storageKey       String           @unique @map("storage_key")
-  mimeType         String?          @map("mime_type")
-  mimeFamily       FileMimeFamily?  @map("mime_family")
-  fileSizeBytes    BigInt?          @map("file_size_bytes")
-  checksumSha256   String?          @map("checksum_sha256")
-  eTag             String?          @map("etag")
-  externalFileId   String?          @map("external_file_id")
-  userDescription  String?          @map("user_description")
-  whyThisMatters   String?          @map("why_this_matters")
-  llmSummary       String?          @map("llm_summary")
-  status           DocumentStatus   @default(UPLOADED)
-  createdBy        ActorType        @default(HUMAN) @map("created_by")
-  version          Int              @default(1)
-  relevantDate     DateTime?        @map("relevant_date") @db.Timestamptz(6)
-  dateConfidence   DateConfidence?  @map("date_confidence")
-  referencedBy     Json?            @map("referenced_by")
-  searchText       String?          @map("search_text")
-  createdAt        DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt        DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+// model CaseDocumentIndex {
+//   id               String           @id @default(uuid()) @db.Uuid
+//   workspaceId      String           @map("workspace_id") @db.Uuid
+//   caseId           String           @map("case_id") @db.Uuid
+//   uploadedByUserId String?          @map("uploaded_by_user_id") @db.Uuid
+//   category         DocumentCategory
+//   fileName         String           @map("file_name")
+//   storageBucket    String           @map("storage_bucket")
+//   storageKey       String           @unique @map("storage_key")
+//   mimeType         String?          @map("mime_type")
+//   mimeFamily       FileMimeFamily?  @map("mime_family")
+//   fileSizeBytes    BigInt?          @map("file_size_bytes")
+//   checksumSha256   String?          @map("checksum_sha256")
+//   eTag             String?          @map("etag")
+//   externalFileId   String?          @map("external_file_id")
+//   userDescription  String?          @map("user_description")
+//   whyThisMatters   String?          @map("why_this_matters")
+//   llmSummary       String?          @map("llm_summary")
+//   status           DocumentStatus   @default(UPLOADED)
+//   createdBy        ActorType        @default(HUMAN) @map("created_by")
+//   version          Int              @default(1)
+//   relevantDate     DateTime?        @map("relevant_date") @db.Timestamptz(6)
+//   dateConfidence   DateConfidence?  @map("date_confidence")
+//   referencedBy     Json?            @map("referenced_by")
+//   searchText       String?          @map("search_text")
+//   createdAt        DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+//   updatedAt        DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  workspace      Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  case           ManagedCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  uploadedByUser User?       @relation("CaseDocumentUploadedByUser", fields: [uploadedByUserId], references: [id], onDelete: SetNull)
+//   workspace      Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+//   case           ManagedCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+//   uploadedByUser User?       @relation("CaseDocumentUploadedByUser", fields: [uploadedByUserId], references: [id], onDelete: SetNull)
 
-  @@index([workspaceId, category])
-  @@index([caseId, category])
-  @@index([uploadedByUserId])
-  @@index([status])
-  @@map("case_document_indexes")
-}
+//   @@index([workspaceId, category])
+//   @@index([caseId, category])
+//   @@index([uploadedByUserId])
+//   @@index([status])
+//   @@map("case_document_indexes")
+// }
 
-model CaseRecordIndex {
-  id                  String           @id @default(uuid()) @db.Uuid
-  workspaceId         String           @map("workspace_id") @db.Uuid
-  caseId              String           @map("case_id") @db.Uuid
-  manifestId          String?          @map("manifest_id") @db.Uuid
-  recordType          CaseRecordType   @map("record_type")
-  recordCategory      String?          @map("record_category")
-  title               String?
-  storageBucket       String           @map("storage_bucket")
-  storageKey          String           @unique @map("storage_key")
-  mimeType            String?          @map("mime_type")
-  fileSizeBytes       BigInt?          @map("file_size_bytes")
-  checksumSha256      String?          @map("checksum_sha256")
-  eTag                String?          @map("etag")
-  version             Int              @default(1)
-  createdBy           ActorType        @default(HUMAN) @map("created_by")
-  createdByUserId     String?          @map("created_by_user_id") @db.Uuid
-  party               RecordParty?
-  recordStatus        RecordStatus?    @map("record_status")
-  recordVisibility    RecordVisibility @default(VISIBLE) @map("record_visibility")
-  typedMeta           Json?            @map("typed_meta")
-  references          Json?
-  referencedBy        Json?            @map("referenced_by")
-  supersedes          Json?
-  supersededBy        Json?            @map("superseded_by")
-  searchText          String?          @map("search_text")
-  eventDate           DateTime?        @map("event_date") @db.Timestamptz(6)
-  dueDate             DateTime?        @map("due_date") @db.Timestamptz(6)
-  dateConfidence      DateConfidence?  @map("date_confidence")
-  lastUpdatedAt       DateTime         @default(now()) @map("last_updated_at") @db.Timestamptz(6)
-  lastUpdatedByUserId String?          @map("last_updated_by_user_id") @db.Uuid
-  createdAt           DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+// model CaseRecordIndex {
+//   id                  String           @id @default(uuid()) @db.Uuid
+//   workspaceId         String           @map("workspace_id") @db.Uuid
+//   caseId              String           @map("case_id") @db.Uuid
+//   manifestId          String?          @map("manifest_id") @db.Uuid
+//   recordType          CaseRecordType   @map("record_type")
+//   recordCategory      String?          @map("record_category")
+//   title               String?
+//   storageBucket       String           @map("storage_bucket")
+//   storageKey          String           @unique @map("storage_key")
+//   mimeType            String?          @map("mime_type")
+//   fileSizeBytes       BigInt?          @map("file_size_bytes")
+//   checksumSha256      String?          @map("checksum_sha256")
+//   eTag                String?          @map("etag")
+//   version             Int              @default(1)
+//   createdBy           ActorType        @default(HUMAN) @map("created_by")
+//   createdByUserId     String?          @map("created_by_user_id") @db.Uuid
+//   party               RecordParty?
+//   recordStatus        RecordStatus?    @map("record_status")
+//   recordVisibility    RecordVisibility @default(VISIBLE) @map("record_visibility")
+//   typedMeta           Json?            @map("typed_meta")
+//   references          Json?
+//   referencedBy        Json?            @map("referenced_by")
+//   supersedes          Json?
+//   supersededBy        Json?            @map("superseded_by")
+//   searchText          String?          @map("search_text")
+//   eventDate           DateTime?        @map("event_date") @db.Timestamptz(6)
+//   dueDate             DateTime?        @map("due_date") @db.Timestamptz(6)
+//   dateConfidence      DateConfidence?  @map("date_confidence")
+//   lastUpdatedAt       DateTime         @default(now()) @map("last_updated_at") @db.Timestamptz(6)
+//   lastUpdatedByUserId String?          @map("last_updated_by_user_id") @db.Uuid
+//   createdAt           DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  workspace         Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  case              ManagedCase        @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  manifest          CaseStateManifest? @relation(fields: [manifestId], references: [id], onDelete: SetNull)
-  createdByUser     User?              @relation("CaseRecordIndexCreatedByUser", fields: [createdByUserId], references: [id], onDelete: SetNull)
-  lastUpdatedByUser User?              @relation("CaseRecordIndexUpdatedByUser", fields: [lastUpdatedByUserId], references: [id], onDelete: SetNull)
+//   workspace         Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+//   case              ManagedCase        @relation(fields: [caseId], references: [id], onDelete: Cascade)
+//   manifest          CaseStateManifest? @relation(fields: [manifestId], references: [id], onDelete: SetNull)
+//   createdByUser     User?              @relation("CaseRecordIndexCreatedByUser", fields: [createdByUserId], references: [id], onDelete: SetNull)
+//   lastUpdatedByUser User?              @relation("CaseRecordIndexUpdatedByUser", fields: [lastUpdatedByUserId], references: [id], onDelete: SetNull)
 
-  @@index([workspaceId, recordType])
-  @@index([caseId, recordType])
-  @@index([manifestId])
-  @@index([createdByUserId])
-  @@index([lastUpdatedByUserId])
-  @@index([recordStatus])
-  @@index([eventDate])
-  @@index([dueDate])
-  @@map("case_record_indexes")
-}
+//   @@index([workspaceId, recordType])
+//   @@index([caseId, recordType])
+//   @@index([manifestId])
+//   @@index([createdByUserId])
+//   @@index([lastUpdatedByUserId])
+//   @@index([recordStatus])
+//   @@index([eventDate])
+//   @@index([dueDate])
+//   @@map("case_record_indexes")
+// }
 
-model CaseViewIndex {
-  id              String          @id @default(uuid()) @db.Uuid
-  workspaceId     String          @map("workspace_id") @db.Uuid
-  caseId          String          @map("case_id") @db.Uuid
-  manifestId      String?         @map("manifest_id") @db.Uuid
-  viewType        CaseViewType    @map("view_type")
-  title           String?
-  storageBucket   String          @map("storage_bucket")
-  storageKey      String          @unique @map("storage_key")
-  mimeType        String?         @map("mime_type")
-  mimeFamily      FileMimeFamily? @map("mime_family")
-  fileSizeBytes   BigInt?         @map("file_size_bytes")
-  checksumSha256  String?         @map("checksum_sha256")
-  eTag            String?         @map("etag")
-  version         Int             @default(1)
-  sourceHash      String?         @map("source_hash")
-  searchText      String?         @map("search_text")
-  generatedBy     String?         @map("generated_by")
-  createdBy       ActorType       @default(AGENT) @map("created_by")
-  createdByUserId String?         @map("created_by_user_id") @db.Uuid
-  createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt       DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+// model CaseViewIndex {
+//   id              String          @id @default(uuid()) @db.Uuid
+//   workspaceId     String          @map("workspace_id") @db.Uuid
+//   caseId          String          @map("case_id") @db.Uuid
+//   manifestId      String?         @map("manifest_id") @db.Uuid
+//   viewType        CaseViewType    @map("view_type")
+//   title           String?
+//   storageBucket   String          @map("storage_bucket")
+//   storageKey      String          @unique @map("storage_key")
+//   mimeType        String?         @map("mime_type")
+//   mimeFamily      FileMimeFamily? @map("mime_family")
+//   fileSizeBytes   BigInt?         @map("file_size_bytes")
+//   checksumSha256  String?         @map("checksum_sha256")
+//   eTag            String?         @map("etag")
+//   version         Int             @default(1)
+//   sourceHash      String?         @map("source_hash")
+//   searchText      String?         @map("search_text")
+//   generatedBy     String?         @map("generated_by")
+//   createdBy       ActorType       @default(AGENT) @map("created_by")
+//   createdByUserId String?         @map("created_by_user_id") @db.Uuid
+//   createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+//   updatedAt       DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  workspace     Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  case          ManagedCase        @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  manifest      CaseStateManifest? @relation(fields: [manifestId], references: [id], onDelete: SetNull)
-  createdByUser User?              @relation("CaseViewIndexCreatedByUser", fields: [createdByUserId], references: [id], onDelete: SetNull)
+//   workspace     Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+//   case          ManagedCase        @relation(fields: [caseId], references: [id], onDelete: Cascade)
+//   manifest      CaseStateManifest? @relation(fields: [manifestId], references: [id], onDelete: SetNull)
+//   createdByUser User?              @relation("CaseViewIndexCreatedByUser", fields: [createdByUserId], references: [id], onDelete: SetNull)
 
-  @@index([workspaceId, viewType])
-  @@index([caseId, viewType])
-  @@index([manifestId])
-  @@index([createdByUserId])
-  @@map("case_view_indexes")
-}
+//   @@index([workspaceId, viewType])
+//   @@index([caseId, viewType])
+//   @@index([manifestId])
+//   @@index([createdByUserId])
+//   @@map("case_view_indexes")
+// }
 
-model CaseStateManifest {
-  id              String       @id @default(uuid()) @db.Uuid
-  workspaceId     String       @map("workspace_id") @db.Uuid
-  caseId          String?      @map("case_id") @db.Uuid
-  createdByUserId String?      @map("created_by_user_id") @db.Uuid
-  manifestKind    ManifestKind @map("manifest_kind")
-  manifestNumber  Int          @map("manifest_number")
-  storageBucket   String       @map("storage_bucket")
-  storageKey      String       @unique @map("storage_key")
-  checksumSha256  String?      @map("checksum_sha256")
-  sourceHash      String?      @map("source_hash")
-  isCurrent       Boolean      @default(false) @map("is_current")
-  notes           String?
-  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+// model CaseStateManifest {
+//   id              String       @id @default(uuid()) @db.Uuid
+//   workspaceId     String       @map("workspace_id") @db.Uuid
+//   caseId          String?      @map("case_id") @db.Uuid
+//   createdByUserId String?      @map("created_by_user_id") @db.Uuid
+//   manifestKind    ManifestKind @map("manifest_kind")
+//   manifestNumber  Int          @map("manifest_number")
+//   storageBucket   String       @map("storage_bucket")
+//   storageKey      String       @unique @map("storage_key")
+//   checksumSha256  String?      @map("checksum_sha256")
+//   sourceHash      String?      @map("source_hash")
+//   isCurrent       Boolean      @default(false) @map("is_current")
+//   notes           String?
+//   createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  workspace     Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  case          ManagedCase?      @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  createdByUser User?             @relation("CaseStateManifestCreatedByUser", fields: [createdByUserId], references: [id], onDelete: SetNull)
-  recordIndexes CaseRecordIndex[]
-  viewIndexes   CaseViewIndex[]
+//   workspace     Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+//   case          ManagedCase?      @relation(fields: [caseId], references: [id], onDelete: Cascade)
+//   createdByUser User?             @relation("CaseStateManifestCreatedByUser", fields: [createdByUserId], references: [id], onDelete: SetNull)
+//   recordIndexes CaseRecordIndex[]
+//   viewIndexes   CaseViewIndex[]
 
-  @@unique([caseId, manifestNumber])
-  @@index([workspaceId, manifestKind, createdAt])
-  @@index([caseId, isCurrent])
-  @@index([createdByUserId])
-  @@map("case_state_manifests")
-}
+//   @@unique([caseId, manifestNumber])
+//   @@index([workspaceId, manifestKind, createdAt])
+//   @@index([caseId, isCurrent])
+//   @@index([createdByUserId])
+//   @@map("case_state_manifests")
+// }
 
-model LlmUsageEvent {
-  id               String   @id @default(uuid()) @db.Uuid
-  workspaceId      String   @map("workspace_id") @db.Uuid
-  caseId           String   @map("case_id") @db.Uuid
-  actorUserId      String?  @map("actor_user_id") @db.Uuid
-  billedToUserId   String   @map("billed_to_user_id") @db.Uuid
-  provider         String
-  model            String
-  operation        String?
-  inputTokens      Int      @default(0) @map("input_tokens")
-  outputTokens     Int      @default(0) @map("output_tokens")
-  totalTokens      Int      @default(0) @map("total_tokens")
-  estimatedCostUsd Decimal? @map("estimated_cost_usd") @db.Decimal(12, 6)
-  requestFiles     Json?    @map("request_files")
-  metadata         Json?
-  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+// model LlmUsageEvent {
+//   id               String   @id @default(uuid()) @db.Uuid
+//   workspaceId      String   @map("workspace_id") @db.Uuid
+//   caseId           String   @map("case_id") @db.Uuid
+//   actorUserId      String?  @map("actor_user_id") @db.Uuid
+//   billedToUserId   String   @map("billed_to_user_id") @db.Uuid
+//   provider         String
+//   model            String
+//   operation        String?
+//   inputTokens      Int      @default(0) @map("input_tokens")
+//   outputTokens     Int      @default(0) @map("output_tokens")
+//   totalTokens      Int      @default(0) @map("total_tokens")
+//   estimatedCostUsd Decimal? @map("estimated_cost_usd") @db.Decimal(12, 6)
+//   requestFiles     Json?    @map("request_files")
+//   metadata         Json?
+//   createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  workspace    Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  case         ManagedCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  actorUser    User?       @relation("LlmUsageActorUser", fields: [actorUserId], references: [id], onDelete: SetNull)
-  billedToUser User        @relation("LlmUsageBilledToUser", fields: [billedToUserId], references: [id], onDelete: Restrict)
+//   workspace    Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+//   case         ManagedCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+//   actorUser    User?       @relation("LlmUsageActorUser", fields: [actorUserId], references: [id], onDelete: SetNull)
+//   billedToUser User        @relation("LlmUsageBilledToUser", fields: [billedToUserId], references: [id], onDelete: Restrict)
 
-  @@index([workspaceId, createdAt])
-  @@index([caseId])
-  @@index([billedToUserId, createdAt])
-  @@map("llm_usage_events")
-}
+//   @@index([workspaceId, createdAt])
+//   @@index([caseId])
+//   @@index([billedToUserId, createdAt])
+//   @@map("llm_usage_events")
+// }
 
 // model WorkspaceUsageMonthly {
 //   id                    String   @id @default(uuid()) @db.Uuid
