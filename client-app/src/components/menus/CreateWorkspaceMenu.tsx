@@ -21,7 +21,7 @@ const createWorkspaceStepIcons: StepMenuIcon[] = [
 const createWorkspaceStepLabels = [
   { title: "Workspace Information", subtitle: "Name & description" },
   { title: "Team Members", subtitle: "Invite users & assign roles" },
-  { title: "Create", subtitle: "Review & create workspace" },
+  { title: "Review Workspace", subtitle: "Confirm name & team" },
 ];
 
 const CreateWorkspaceMenu = ({

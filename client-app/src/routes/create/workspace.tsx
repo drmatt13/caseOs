@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
 import AppLayout from "#/components/layouts/AppLayout";
 import ContentShell from "#/components/layouts/ContentShell";
 import NavigationPanel from "#/components/layouts/NavigationPanel";
 import CreateWorkspaceMenu from "#/components/menus/CreateWorkspaceMenu";
 import Button from "#/components/Button";
-import LoadingSpinner from "#/components/LoadingSpinner";
+import PageLoading from "#/components/PageLoading";
 import UserPanel from "#/components/UserPanel";
 import CreateWorkspaceReviewForm from "#/components/features/create-workspace/CreateWorkspaceReviewForm";
 import TeamMembersForm from "#/components/features/create-workspace/TeamMembersForm";
@@ -15,15 +15,36 @@ import {
   CREATE_WORKSPACE_TOTAL_STEPS,
   initialCreateWorkspace,
   type CreateWorkspaceForm,
+  type WorkspaceRole,
   type CreateWorkspaceWizardState,
 } from "#/components/features/create-workspace/workspaceForm";
 
 import { useCurrentUserQuery } from "#/api/currentUser/hooks";
+import { useCreateWorkspaceMutation } from "#/api/workspace/hooks";
+import type { CreateWorkspacePayloadInput } from "#/api/workspace/operations";
+import type { MembershipRole } from "#/api/generated/graphql";
 import { requireAuth } from "#/lib/auth";
 
 const createBlankWorkspace = (): CreateWorkspaceForm => ({
   ...initialCreateWorkspace,
   invites: [],
+});
+
+const workspaceRoleToMembershipRole: Record<WorkspaceRole, MembershipRole> = {
+  Admin: "ADMIN",
+  Contributor: "CONTRIBUTOR",
+  "Read Only": "READONLY",
+};
+
+const toCreateWorkspaceInput = (
+  workspace: CreateWorkspaceForm,
+): CreateWorkspacePayloadInput => ({
+  name: workspace.name.trim(),
+  description: workspace.description.trim() || null,
+  invitations: workspace.invites.map((invite) => ({
+    email: invite.email.trim().toLowerCase(),
+    role: workspaceRoleToMembershipRole[invite.role],
+  })),
 });
 
 export const Route = createFileRoute("/create/workspace")({
@@ -32,7 +53,9 @@ export const Route = createFileRoute("/create/workspace")({
 });
 
 function RouteComponent() {
+  const navigate = useNavigate();
   const { data: userResult, isPending, error } = useCurrentUserQuery();
+  const createWorkspaceMutation = useCreateWorkspaceMutation();
   const user = userResult?.currentUser.user;
   const [blankWorkspace] = useState(createBlankWorkspace);
   const [workspaceState, setWorkspaceState] =
@@ -75,6 +98,22 @@ function RouteComponent() {
       ...prev,
       step: Math.min(prev.step + 1, CREATE_WORKSPACE_TOTAL_STEPS),
     }));
+  };
+
+  const handlePrimaryAction = async () => {
+    if (workspaceState.step !== CREATE_WORKSPACE_TOTAL_STEPS) {
+      goToNextStep();
+      return;
+    }
+
+    const result = await createWorkspaceMutation.mutateAsync(
+      toCreateWorkspaceInput(workspaceState.workspace),
+    );
+
+    await navigate({
+      to: "/workspace/$id",
+      params: { id: result.workspace.id },
+    });
   };
 
   const goToPreviousStep = () => {
@@ -127,11 +166,7 @@ function RouteComponent() {
   };
 
   if (isPending) {
-    return (
-      <div className="w-full h-dvh flex justify-center items-center">
-        <LoadingSpinner />
-      </div>
-    );
+    return <PageLoading />;
   }
 
   if (error || !user) {
@@ -151,32 +186,46 @@ function RouteComponent() {
       <ContentShell>
         <div className="flex flex-col gap-6 h-full justify-between">
           {renderStep()}
+          {createWorkspaceMutation.error && (
+            <div className="rounded-xl border border-red-500/20 bg-red-50 px-3 py-2 text-sm text-red-800">
+              {createWorkspaceMutation.error.message}
+            </div>
+          )}
           <div className="grid grid-cols-3 items-end gap-3 rounded-2xl">
             <div className="justify-self-start">
               {workspaceState.step !== 1 && (
                 <Button
                   style="secondary"
                   text="Back"
-                  disabled={workspaceState.step === 1}
+                  disabled={
+                    workspaceState.step === 1 ||
+                    createWorkspaceMutation.isPending
+                  }
                   onClick={goToPreviousStep}
                   minWidth="md"
                 />
               )}
             </div>
             <p className="justify-self-center text-md text-black/55">
-              {workspaceState.step !== CREATE_WORKSPACE_TOTAL_STEPS &&
-                `Step ${workspaceState.step} of ${CREATE_WORKSPACE_TOTAL_STEPS - 1}`}
+              {`Step ${workspaceState.step} of ${CREATE_WORKSPACE_TOTAL_STEPS}`}
             </p>
             <div className="justify-self-end">
               <Button
                 style="primary"
                 text={
                   workspaceState.step === CREATE_WORKSPACE_TOTAL_STEPS
-                    ? "Create Workspace"
+                    ? createWorkspaceMutation.isPending
+                      ? "Creating Workspace"
+                      : "Create Workspace"
                     : "Next"
                 }
-                onClick={goToNextStep}
-                disabled={!isStepComplete(workspaceState.step)}
+                onClick={() => {
+                  void handlePrimaryAction();
+                }}
+                disabled={
+                  !isStepComplete(workspaceState.step) ||
+                  createWorkspaceMutation.isPending
+                }
                 minWidth={
                   workspaceState.step === CREATE_WORKSPACE_TOTAL_STEPS
                     ? "xl"

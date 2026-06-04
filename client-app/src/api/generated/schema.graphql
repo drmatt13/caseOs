@@ -15,6 +15,22 @@ enum AccountTier {
   TRIAL
 }
 
+input CreateWorkspaceInput {
+  description: String
+  invitations: [CreateWorkspaceInvitationInput!]
+  name: String!
+}
+
+input CreateWorkspaceInvitationInput {
+  email: String!
+  role: MembershipRole!
+}
+
+type CreateWorkspacePayload {
+  success: Boolean
+  workspace: Workspace
+}
+
 type CurrentUser {
   accountStatus: AccountStatus
   accountTier: AccountTier
@@ -36,13 +52,48 @@ type CurrentUserPayload {
   user: CurrentUser
 }
 
+enum InvitationStatus {
+  EXPIRED
+  PENDING
+  REVOKED
+}
+
+input InviteWorkspaceMemberInput {
+  email: String!
+  role: MembershipRole!
+  workspaceId: ID!
+}
+
+type InviteWorkspaceMemberPayload {
+  invitation: WorkspaceInvitation
+  success: Boolean
+}
+
+enum MembershipRole {
+  ADMIN
+  CONTRIBUTOR
+  OWNER
+  READONLY
+}
+
+enum MembershipStatus {
+  ACTIVE
+  INVITED
+  REMOVED
+}
+
 type Mutation {
+  createWorkspace(data: CreateWorkspaceInput!): CreateWorkspacePayload
+  inviteWorkspaceMember(data: InviteWorkspaceMemberInput!): InviteWorkspaceMemberPayload
   updateCurrentUser(data: UpdateCurrentUserInput!): UpdateCurrentUserPayload
 }
 
 type Query {
   currentUser: CurrentUserPayload
   userById(id: ID!): UserProfile
+  workspace(id: ID!): Workspace
+  workspaceInvitations(status: InvitationStatus, workspaceId: ID): [WorkspaceInvitation!]
+  workspaces: [Workspace!]
 }
 
 enum SubscriptionStatus {
@@ -77,4 +128,55 @@ type UserProfile {
   lastName: String
   profilePicture: String
   userName: String
+}
+
+type Workspace {
+  createdAt: String
+  currentUserMembership: WorkspaceMembership
+  description: String
+  id: ID
+  invitations: [WorkspaceInvitation!]
+  memberships: [WorkspaceMembership!]
+  name: String
+  ownerUserId: ID
+  status: WorkspaceStatus
+  updatedAt: String
+}
+
+type WorkspaceInvitation {
+  createdAt: String
+  email: String
+  expiresAt: String
+  id: ID
+  invitedBy: WorkspaceUser
+  invitedByUserId: ID
+  role: MembershipRole
+  status: InvitationStatus
+  updatedAt: String
+  workspaceId: ID
+}
+
+type WorkspaceMembership {
+  id: ID
+  joinedAt: String
+  membershipStatus: MembershipStatus
+  role: MembershipRole
+  updatedAt: String
+  user: WorkspaceUser
+  userId: ID
+  workspaceId: ID
+}
+
+enum WorkspaceStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+type WorkspaceUser {
+  displayName: String
+  email: String
+  firstName: String
+  id: ID
+  lastName: String
+  profilePicture: String
 }

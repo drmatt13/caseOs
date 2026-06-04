@@ -11,7 +11,7 @@ const CreateWorkspaceReviewForm = ({
 }: CreateWorkspaceReviewFormProps) => {
   return (
     <FormSection
-      title="Create"
+      title="Review Workspace"
       description="Review the workspace before creating it."
       icon="checkSquare"
     >
@@ -19,7 +19,7 @@ const CreateWorkspaceReviewForm = ({
         <div className="mb-4 flex aspect-square items-center justify-center rounded-full border border-black/10 bg-black/6 p-4">
           <CheckSquare2 className="w-7 h-7 text-black/75" />
         </div>
-        <h2 className="text-xl font-semibold">Create Workspace</h2>
+        <h2 className="text-xl font-semibold">Review Workspace</h2>
         <p className="mt-1 max-w-lg text-sm text-gray-600">
           Review the workspace information and starter team. The real create
           action can be wired up when the backend flow is ready.

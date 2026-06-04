@@ -1,10 +1,9 @@
-import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import AppLayout from "#/components/layouts/AppLayout";
 import NavigationPanel from "#/components/layouts/NavigationPanel";
 import ContentShell from "#/components/layouts/ContentShell";
 import UserPanel from "#/components/UserPanel";
-import LoadingSpinner from "#/components/LoadingSpinner";
+import PageLoading from "#/components/PageLoading";
 import GetUserError from "#/components/errors/GetUserError";
 import SelectWorkspaceMenu from "#/components/menus/SelectWorkspaceMenu";
 import WorkspaceOverview from "#/components/page_content/WorkspaceOverview";
@@ -14,6 +13,7 @@ import { requireAuth } from "#/lib/auth";
 
 // useQuery
 import { useCurrentUserQuery } from "#/api/currentUser/hooks";
+import { useWorkspacesQuery } from "#/api/workspace/hooks";
 
 export const Route = createFileRoute("/")({
   beforeLoad: requireAuth,
@@ -27,32 +27,20 @@ function App() {
     error: getUserError,
   } = useCurrentUserQuery();
   const user = getUserResult?.currentUser.user;
-
-  // REACT QUERY GET WORKSPACE NAMES WOULD GO HERE TO REPLACE THE HARDCODED WORKSPACES IN STATE
-  const [workspaces, setWorkspaces] = useState<string[]>([
-    "Workspace 1",
-    "Workspace 2",
-    "Workspace 3",
-    "Workspace 4",
-    "Workspace 5",
-  ]);
+  const {
+    data: workspaces = [],
+    isPending: getWorkspacesPending,
+    error: getWorkspacesError,
+  } = useWorkspacesQuery({ enabled: Boolean(user) });
 
   // UPDATE if user or workspace data is missing or errors out
-  if (getUserPending) {
-    return (
-      <>
-        <div className="w-full h-dvh flex justify-center items-center">
-          <LoadingSpinner />
-        </div>
-      </>
-    );
+  if (getUserPending || getWorkspacesPending) {
+    return <PageLoading />;
   }
 
-  if (getUserError || !user) {
+  if (getUserError || !user || getWorkspacesError) {
     return <GetUserError />;
   }
-
-  // if workspace error
 
   return (
     <AppLayout>

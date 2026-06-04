@@ -22,7 +22,7 @@ import Button from "#/components/Button";
 
 import type { CaseIntake } from "#/types/caseWorkspace";
 import type { CaseIntakeWizardState } from "#/components/features/create-case/caseIntakeForm";
-import LoadingSpinner from "#/components/LoadingSpinner";
+import PageLoading from "#/components/PageLoading";
 
 // route guards
 import { requireAuth } from "#/lib/auth";
@@ -201,13 +201,7 @@ function RouteComponent() {
   };
 
   if (isPending) {
-    return (
-      <>
-        <div className="w-full h-dvh flex justify-center items-center">
-          <LoadingSpinner />
-        </div>
-      </>
-    );
+    return <PageLoading />;
   }
 
   if (error || !user) {
@@ -240,8 +234,7 @@ function RouteComponent() {
               )}
             </div>
             <p className="justify-self-center text-md text-black/55">
-              {caseIntakeState.step !== CASE_INTAKE_TOTAL_STEPS &&
-                `Step ${caseIntakeState.step} of ${CASE_INTAKE_TOTAL_STEPS - 1}`}
+              {`Step ${caseIntakeState.step} of ${CASE_INTAKE_TOTAL_STEPS}`}
             </p>
             <div className="justify-self-end">
               <Button

@@ -18,6 +18,7 @@ type TextInputFieldProps = FieldBaseProps & {
   value: string;
   onChange: ChangeEventHandler<HTMLInputElement>;
   placeholder?: string;
+  type?: "text" | "email";
 };
 
 type SelectFieldProps<T extends string> = FieldBaseProps & {
@@ -35,7 +36,7 @@ const FieldShell = ({
   className = "",
   children,
 }: FieldBaseProps & { children: ReactNode }) => (
-  <label className={`grid self-start items-start gap-2 ${className}`.trim()}>
+  <label className={`grid items-start gap-2 ${className}`.trim()}>
     <span className="flex flex-col gap-0.5 justify-end h-full">
       <span className="text-md font-medium text-black">{label}</span>
       {description ? (
@@ -82,11 +83,12 @@ export const TextInputField = ({
   onChange,
   placeholder,
   className,
+  type = "text",
 }: TextInputFieldProps) => (
   <FieldShell label={label} description={description} className={className}>
     <input
       className={fieldClassName}
-      type="text"
+      type={type}
       value={value}
       onChange={onChange}
       placeholder={placeholder}

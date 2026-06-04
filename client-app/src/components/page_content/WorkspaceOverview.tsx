@@ -36,11 +36,11 @@ const WorkspaceDashboard = () => {
           </div>
         </div>
         {/* ONLY IF YOU ARE THE WORKSPACE OWNER SHOULD YOU SEE THIS */}
-        {true && (
+        {/* {true && (
           <div className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
             <Settings className="w-5 h-5 text-black" />
           </div>
-        )}
+        )} */}
       </div>
       {/* DUPLICATED LOGIC */}
       <div className="flex /flex-1 flex-col items-center justify-center lg:px-6 pt-6 pb-2 text-center">

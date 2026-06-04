@@ -29,7 +29,7 @@ import NavigationPanel from "#/components/layouts/NavigationPanel";
 import ContentShell from "#/components/layouts/ContentShell";
 import ActiveWorkspaceMenu from "#/components/menus/ActiveWorkspaceMenu";
 import UserPanel from "#/components/UserPanel";
-import LoadingSpinner from "#/components/LoadingSpinner";
+import PageLoading from "#/components/PageLoading";
 import Button from "#/components/Button";
 import TextAreaField from "#/components/TextAreaField";
 import { requireAuth } from "#/lib/auth";
@@ -344,11 +344,7 @@ function RouteComponent() {
   };
 
   if (isPending && !userResult) {
-    return (
-      <div className="w-full h-dvh flex justify-center items-center">
-        <LoadingSpinner />
-      </div>
-    );
+    return <PageLoading />;
   }
 
   return (

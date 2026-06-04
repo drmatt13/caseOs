@@ -15,3 +15,11 @@ export function notFound(message: string): GraphQLError {
     },
   });
 }
+
+export function forbidden(message: string): GraphQLError {
+  return new GraphQLError(message, {
+    extensions: {
+      code: "FORBIDDEN",
+    },
+  });
+}

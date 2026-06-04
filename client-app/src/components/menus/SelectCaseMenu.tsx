@@ -3,10 +3,11 @@ import { ArrowLeft, PlusIcon } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
 interface SelectCaseMenuProps {
-  workspace: string;
+  workspaceId: string;
+  workspaceName: string;
 }
 
-const SelectCaseMenu = ({ workspace }: SelectCaseMenuProps) => {
+const SelectCaseMenu = ({ workspaceId, workspaceName }: SelectCaseMenuProps) => {
   const [cases, setCases] = useState<
     {
       id: string;
@@ -35,9 +36,9 @@ const SelectCaseMenu = ({ workspace }: SelectCaseMenuProps) => {
             <ArrowLeft className="w-3 h-3" />
           </button>
         </Link>
-        <p className="truncate">{workspace}</p>
+        <p className="truncate">{workspaceName}</p>
       </div>
-      <Link to="/create/case/$id" params={{ id: workspace }}>
+      <Link to="/create/case/$id" params={{ id: workspaceId }}>
         <div className="text-sm h-8 p-2 rounded-lg hover:bg-black/10 cursor-pointer flex items-center gap-1.5 text-black transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
           <PlusIcon className="w-4 h-4" />
           <div>New Case</div>
