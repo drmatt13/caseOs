@@ -9,6 +9,7 @@ export interface WorkspaceInvite {
 
 export interface CreateWorkspaceForm {
   name: string;
+  includeDescription: boolean;
   description: string;
   pendingInviteEmail: string;
   pendingInviteRole: WorkspaceRole;
@@ -31,6 +32,7 @@ export const workspaceRoleOptions: Array<{
 
 export const initialCreateWorkspace: CreateWorkspaceForm = {
   name: "",
+  includeDescription: false,
   description: "",
   pendingInviteEmail: "",
   pendingInviteRole: "Contributor",

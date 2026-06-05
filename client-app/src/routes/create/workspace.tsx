@@ -40,12 +40,35 @@ const toCreateWorkspaceInput = (
   workspace: CreateWorkspaceForm,
 ): CreateWorkspacePayloadInput => ({
   name: workspace.name.trim(),
-  description: workspace.description.trim() || null,
+  description: workspace.includeDescription
+    ? workspace.description.trim() || null
+    : null,
   invitations: workspace.invites.map((invite) => ({
     email: invite.email.trim().toLowerCase(),
     role: workspaceRoleToMembershipRole[invite.role],
   })),
 });
+
+const WorkspaceCreationNotPermitted = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const homeTimer = window.setTimeout(() => {
+      void navigate({ to: "/", replace: true });
+    }, 3000);
+
+    return () => window.clearTimeout(homeTimer);
+  }, [navigate]);
+
+  return (
+    <div className="h-dvh w-full flex justify-center items-center px-6 text-center">
+      <p className="max-w-lg text-lg">
+        Not permitted. Workspace creation is not available on the free tier. You
+        will be routed home in a few seconds.
+      </p>
+    </div>
+  );
+};
 
 export const Route = createFileRoute("/create/workspace")({
   beforeLoad: requireAuth,
@@ -130,7 +153,10 @@ function RouteComponent() {
 
     switch (step) {
       case 1:
-        return filled(workspace.name, workspace.description);
+        return (
+          filled(workspace.name) &&
+          (!workspace.includeDescription || filled(workspace.description))
+        );
       case 2:
         return true;
       case 3:
@@ -171,6 +197,10 @@ function RouteComponent() {
 
   if (error || !user) {
     return <>placeholder for error</>;
+  }
+
+  if (user.accountTier === "FREE") {
+    return <WorkspaceCreationNotPermitted />;
   }
 
   return (

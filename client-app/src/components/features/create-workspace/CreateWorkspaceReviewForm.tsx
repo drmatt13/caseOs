@@ -32,7 +32,7 @@ const CreateWorkspaceReviewForm = ({
         </div>
         <div className="rounded-xl border border-black/10 p-3">
           <p className="text-black/55">Description</p>
-          <p>{workspace.description}</p>
+          <p>{workspace.description.trim() || "No description added"}</p>
         </div>
         <div className="rounded-xl border border-black/10 p-3">
           <p className="text-black/55">Invites</p>

@@ -1,6 +1,6 @@
-import { Settings, MessageSquare, Mail } from "lucide-react";
 import UserPanel from "#/components/UserPanel";
 import Button from "#/components/Button";
+import ContentHeaderBar from "#/components/layouts/ContentHeaderBar";
 import WorkspaceRoleBadge, {
   type WorkspaceRoleBadgeRole,
 } from "#/components/WorkspaceRoleBadge";
@@ -25,27 +25,7 @@ const WorkspaceDashboard = ({ workspace }: WorkspaceProps) => {
 
   return (
     <div className="flex h-full min-w-0 flex-col gap-4">
-      {/* DUPLICATED LOGIC */}
-      <div className="flex flex-row justify-between text-sm px-4 sm:px-0 border-b border-black/15 pb-3">
-        <div className="flex gap-1.5">
-          {/* ONLY IF INVITES ARE AVAILABLE */}
-          <div className="text-sm p-2 rounded-lg hover:bg-black/10 cursor-pointer flex items-center gap-1.5 text-black transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
-            <Mail className="w-3.5 h-3.5" />
-            <div>Invites</div>
-          </div>
-          <div className="text-sm p-2 rounded-lg hover:bg-black/10 cursor-pointer flex items-center gap-1.5 text-black transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
-            <MessageSquare className="w-3.5 h-3.5" />
-            <div>Messages</div>
-          </div>
-        </div>
-        {/* ONLY IF YOU ARE THE WORKSPACE OWNER OR ADMINISTRATOR SHOULD YOU SEE THIS */}
-        {canManageWorkspace && (
-          <div className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
-            <Settings className="w-5 h-5 text-black" />
-          </div>
-        )}
-      </div>
-      {/* DUPLICATED LOGIC */}
+      <ContentHeaderBar showWorkspaceSettings={canManageWorkspace} />
       <div className="flex flex-col px-4 gap-1.5">
         <p className="text-xl font-bold">{workspace.name}</p>
         <p className="mb-1.5 text-md">
@@ -64,6 +44,7 @@ const WorkspaceDashboard = ({ workspace }: WorkspaceProps) => {
               className="h-14 group flex justify-between items-center px-3 cursor-pointer hover:bg-black/10 rounded-xl group transition-colors ease-in duration-150 hover:ease-out hover:duration-100"
             >
               <UserPanel
+                insetBottom={false}
                 user={{
                   displayName: member.user.displayName,
                   firstName: member.user.firstName,

@@ -125,5 +125,4 @@ export type PaymentStepProps = {
   startTrial: boolean;
   onPaymentStatusChange: (status: PaymentStatus) => void;
   onBack: () => void;
-  onSubscribed: () => void;
 };

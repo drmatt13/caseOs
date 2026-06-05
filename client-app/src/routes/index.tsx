@@ -42,18 +42,22 @@ function App() {
     return <GetUserError />;
   }
 
+  // return <PageLoading />;
+
   return (
     <AppLayout>
       <NavigationPanel>
         <UserPanel user={user} settings={true} showTier={true} />
-        <SelectWorkspaceMenu workspaces={workspaces} />
+        <SelectWorkspaceMenu
+          accountTier={user.accountTier}
+          workspaces={workspaces}
+        />
       </NavigationPanel>
       <ContentShell>
-        {workspaces.length === 0 ? (
-          <>page content: No workspaces available</>
-        ) : (
-          <WorkspaceOverview />
-        )}
+        <WorkspaceOverview
+          accountTier={user.accountTier}
+          workspaces={workspaces}
+        />
       </ContentShell>
     </AppLayout>
   );

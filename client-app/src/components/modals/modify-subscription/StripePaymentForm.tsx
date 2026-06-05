@@ -18,7 +18,6 @@ function StripePaymentForm({
   startTrial,
   onPaymentStatusChange,
   onBack,
-  onSubscribed,
 }: PaymentStepProps) {
   const stripe = useStripe();
   const elements = useElements();
@@ -69,7 +68,6 @@ function StripePaymentForm({
       await queryClient.invalidateQueries({ queryKey: currentUserQueryKey });
       onPaymentStatusChange("success");
       setIsProcessing(false);
-      onSubscribed();
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : "Subscription failed.",
@@ -79,7 +77,6 @@ function StripePaymentForm({
     }
   }, [
     elements,
-    onSubscribed,
     queryClient,
     createSubscriptionMutation,
     selectedOption.price?.stripePriceId,

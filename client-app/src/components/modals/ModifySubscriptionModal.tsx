@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { XIcon } from "lucide-react";
+import { BriefcaseBusiness, CheckCircle2, XIcon } from "lucide-react";
 
 import { useCurrentUserQuery } from "#/api/currentUser/hooks";
 import { useBillingProductsQuery } from "#/api/billing/hooks";
@@ -75,8 +75,13 @@ const ModifySubscriptionModal = () => {
       return;
     }
 
+    if (paymentStatus === "processing") {
+      setModalGuardState("locked");
+      return;
+    }
+
     setModalGuardState(
-      paymentStatus === "processing" ? "locked" : "state-modified",
+      paymentStatus === "success" ? "unlocked" : "state-modified",
     );
   }, [modalStep, paymentStatus, setModalGuardState]);
 
@@ -134,6 +139,32 @@ const ModifySubscriptionModal = () => {
 
     if (!selectedOption) return null;
 
+    if (paymentStatus === "success") {
+      return (
+        <div className="mt-4 rounded-lg border border-emerald-500/20 bg-emerald-50 p-4 text-emerald-950">
+          <div className="flex items-start gap-3">
+            <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" />
+            <div>
+              <p className="font-serif text-lg">Payment successful</p>
+              <p className="mt-1 max-w-xl leading-6 text-emerald-900/80">
+                Your {selectedOption.name} subscription is active. You can now
+                create workspaces, invite collaborators, and organize shared
+                case work from the workspace menu.
+              </p>
+              <button
+                type="button"
+                onClick={closeModal}
+                className="mt-4 inline-flex items-center justify-center gap-2 rounded border border-transparent bg-[#282828] px-4 py-2 text-sm text-white transition-colors ease-in duration-150 hover:bg-black hover:ease-out hover:duration-100"
+              >
+                <BriefcaseBusiness className="h-4 w-4" />
+                Continue
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     if (modalStep === "payment") {
       return (
         <PaymentStep
@@ -141,7 +172,6 @@ const ModifySubscriptionModal = () => {
           startTrial={startTrial}
           onPaymentStatusChange={setPaymentStatus}
           onBack={returnToTierSelection}
-          onSubscribed={closeModal}
         />
       );
     }

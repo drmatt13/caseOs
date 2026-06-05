@@ -1,6 +1,7 @@
 import AppLayout from "#/components/layouts/AppLayout";
 import ContentShell from "#/components/layouts/ContentShell";
 import NavigationPanel from "#/components/layouts/NavigationPanel";
+import LoadingSpinner from "./LoadingSpinner";
 
 const SkeletonBlock = ({ className }: { className: string }) => (
   <div className={`animate-pulse rounded-lg bg-black/5 ${className}`} />
@@ -18,13 +19,13 @@ const PageLoading = () => {
           <div className="mt-3 flex flex-col gap-2">
             <SkeletonBlock className="h-8 w-full" />
             <SkeletonBlock className="h-8 w-5/6" />
-            <SkeletonBlock className="h-8 w-11/12" />
+            {/* <SkeletonBlock className="h-8 w-11/12" /> */}
           </div>
         </div>
       </NavigationPanel>
       <ContentShell>
         <div className="flex min-h-[calc(64dvh)] flex-col gap-4">
-          <div className="flex flex-col gap-2 border-b border-black/10 pb-4">
+          {/* <div className="flex flex-col gap-2 border-b border-black/10 pb-4">
             <SkeletonBlock className="h-5 w-32" />
             <SkeletonBlock className="h-8 w-full max-w-xl" />
             <SkeletonBlock className="h-4 w-full max-w-md" />
@@ -33,9 +34,15 @@ const PageLoading = () => {
             <SkeletonBlock className="h-36 w-full" />
             <SkeletonBlock className="h-36 w-full" />
           </div>
-          <SkeletonBlock className="h-56 w-full flex-1" />
+          <SkeletonBlock className="h-56 w-full flex-1" /> */}
+          <div className="flex-1 flex justify-center items-center">
+            <LoadingSpinner />
+          </div>
         </div>
       </ContentShell>
+      {/* <div className="absolute top-0 left-0 w-full h-dvh flex justify-center items-center">
+        <LoadingSpinner />
+      </div> */}
     </AppLayout>
   );
 };

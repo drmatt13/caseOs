@@ -24,12 +24,14 @@ interface UserPanelProps {
   user: UserPanelUser;
   settings?: boolean;
   showTier?: boolean;
+  insetBottom?: boolean;
 }
 
 const UserPanel = ({
   user,
   settings = false,
   showTier = false,
+  insetBottom = true,
 }: UserPanelProps) => {
   const { togglePopup } = useContext(PopupContext);
   const [imageFailed, setImageFailed] = useState(false);
@@ -42,7 +44,9 @@ const UserPanel = ({
 
   return (
     <>
-      <div className="mb-1 flex min-w-0 items-center w-full justify-between gap-2 /pl-2 /pr-2">
+      <div
+        className={`${insetBottom ? "mb-1" : ""} flex min-w-0 items-center w-full justify-between gap-2 /pl-2 /pr-2`}
+      >
         <div className="flex min-w-0 flex-1 gap-2 items-center">
           {user.profilePicture && !imageFailed ? (
             <img

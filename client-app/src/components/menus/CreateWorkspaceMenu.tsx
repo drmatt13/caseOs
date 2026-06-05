@@ -19,7 +19,7 @@ const createWorkspaceStepIcons: StepMenuIcon[] = [
 ];
 
 const createWorkspaceStepLabels = [
-  { title: "Workspace Information", subtitle: "Name & description" },
+  { title: "Workspace Information", subtitle: "Name & optional description" },
   { title: "Team Members", subtitle: "Invite users & assign roles" },
   { title: "Review Workspace", subtitle: "Confirm name & team" },
 ];
