@@ -29,7 +29,7 @@ const readNavigationPanelLoadingHeight = (windowWidthCategory: string) => {
 };
 
 const SkeletonBlock = ({ className }: { className: string }) => (
-  <div className={`animate-pulse rounded-lg bg-black/1 ${className}`} />
+  <div className={`animate-pulse rounded-lg bg-black/2 ${className}`} />
 );
 
 const NavigationPanel = () => {
@@ -128,6 +128,13 @@ const NavigationPanel = () => {
                 <SkeletonBlock className="h-9 w-11/12" />
                 <div className="mt-3 flex flex-col gap-2">
                   <SkeletonBlock className="h-8 w-full" />
+                  <SkeletonBlock className="h-8 w-5/6" />
+                  <SkeletonBlock className="h-8 w-11/12" />
+                </div>
+                <div className="mt-3 flex flex-col gap-2">
+                  <SkeletonBlock className="h-8 w-full" />
+                  <SkeletonBlock className="h-8 w-5/6" />
+                  <SkeletonBlock className="h-8 w-11/12" />
                   <SkeletonBlock className="h-8 w-5/6" />
                   <SkeletonBlock className="h-8 w-11/12" />
                 </div>
