@@ -70,7 +70,7 @@ const WorkspaceCreationNotPermitted = () => {
   );
 };
 
-export const Route = createFileRoute("/create/workspace")({
+export const Route = createFileRoute("/workspaces/new")({
   beforeLoad: requireAuth,
   component: RouteComponent,
 });
@@ -134,8 +134,8 @@ function RouteComponent() {
     );
 
     await navigate({
-      to: "/workspace/$id",
-      params: { id: result.workspace.id },
+      to: "/workspaces/$workspaceId",
+      params: { workspaceId: result.workspace.id },
     });
   };
 

@@ -15,13 +15,13 @@ import { requireAuth } from "#/lib/auth";
 import { useCurrentUserQuery } from "#/api/currentUser/hooks";
 import { useWorkspaceQuery } from "#/api/workspace/hooks";
 
-export const Route = createFileRoute("/workspace/$id")({
+export const Route = createFileRoute("/workspaces/$workspaceId")({
   beforeLoad: requireAuth,
   component: App,
 });
 
 function App() {
-  const { id } = Route.useParams();
+  const { workspaceId } = Route.useParams();
 
   const {
     data: getUserResult,
@@ -33,7 +33,7 @@ function App() {
     data: workspace,
     isPending: getWorkspacePending,
     error: getWorkspaceError,
-  } = useWorkspaceQuery(id, { enabled: Boolean(user) });
+  } = useWorkspaceQuery(workspaceId, { enabled: Boolean(user) });
 
   if (getUserPending || getWorkspacePending) {
     return <PageLoading />;

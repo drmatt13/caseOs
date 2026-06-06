@@ -10,7 +10,6 @@ import PeoplePartiesAndWitnessesForm from "#/components/features/create-case/Peo
 import TimelineAndUrgencyForm from "#/components/features/create-case/TimelineAndUrgencyForm";
 import ReviewForm from "#/components/features/create-case/ReviewForm";
 import NavigationPanel from "#/components/layouts/NavigationPanel";
-import NewCase from "#/components/page_content/NewCase";
 import {
   CASE_INTAKE_TOTAL_STEPS,
   initialCaseIntake,
@@ -43,13 +42,13 @@ const createBlankCaseIntake = (): CaseIntake => ({
   documents: {},
 });
 
-export const Route = createFileRoute("/create/case/$id")({
+export const Route = createFileRoute("/workspaces/$workspaceId_/cases/new")({
   beforeLoad: requireAuth,
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { id } = Route.useParams();
+  const { workspaceId } = Route.useParams();
 
   const {
     data: getUserResult,
@@ -61,7 +60,7 @@ function RouteComponent() {
     data: workspace,
     isPending: getWorkspacePending,
     error: getWorkspaceError,
-  } = useWorkspaceQuery(id, { enabled: Boolean(user) });
+  } = useWorkspaceQuery(workspaceId, { enabled: Boolean(user) });
 
   if (getUserPending || getWorkspacePending) {
     return <PageLoading />;
@@ -228,7 +227,7 @@ function RouteComponent() {
       <NavigationPanel>
         <UserPanel user={user} settings={true} showTier={true} />
         <CreateCaseMenu
-          workspaceId={id}
+          workspaceId={workspaceId}
           caseIntakeState={caseIntakeState}
           setCaseIntakeState={setCaseIntakeState}
           hasUnsavedCaseIntake={hasUnsavedCaseIntake}

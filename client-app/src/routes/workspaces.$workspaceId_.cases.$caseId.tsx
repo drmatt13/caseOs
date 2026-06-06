@@ -40,16 +40,19 @@ import {
   demoCase,
   demoDocuments,
   demoRecords,
-  demoUserId,
   type DemoRecord,
   type DemoRecordParty,
   type DemoRecordStatus,
 } from "#/lib/caseWorkspaceDemo";
+import GetUserError from "#/components/errors/GetUserError";
+import { useWorkspaceQuery } from "#/api/workspace/hooks";
 
-export const Route = createFileRoute("/case/$id")({
-  beforeLoad: requireAuth,
-  component: RouteComponent,
-});
+export const Route = createFileRoute("/workspaces/$workspaceId_/cases/$caseId")(
+  {
+    beforeLoad: requireAuth,
+    component: RouteComponent,
+  },
+);
 
 type ProposalDecision = {
   status: "accepted" | "rejected";
@@ -148,23 +151,6 @@ const viewDescriptions: Partial<Record<ViewTypes, string>> = {
     "Shape witness modules, anticipated testimony, impeachment points, and examination themes.",
 };
 
-const routeFallbackUser = {
-  id: demoUserId,
-  email: "matthew.sweeney001@gmail.com",
-  billingEmail: "matthew.sweeney001@gmail.com",
-  displayName: "Matthew Sweeney",
-  firstName: "Matthew",
-  lastName: "Sweeney",
-  hasHadActiveSubscription: true,
-  profilePicture:
-    "https://lh3.googleusercontent.com/a/ACg8ocJr13lEuSBUqIM5uAnNndbPe1lqOqszPECLE74iG_PafQE-Y-GZ=s96-c",
-  updatedAt: new Date().toISOString(),
-  userName: null,
-  accountTier: "PRO" as const,
-  accountStatus: "ACTIVE" as const,
-  subscriptionStatus: "ACTIVE" as const,
-};
-
 function recordMatchesSearch(record: DemoRecord, searchValue: string) {
   const normalizedSearch = searchValue.trim().toLowerCase();
 
@@ -195,7 +181,21 @@ function recordMatchesSearch(record: DemoRecord, searchValue: string) {
 }
 
 function RouteComponent() {
-  const { id } = Route.useParams();
+  const { workspaceId, caseId } = Route.useParams();
+  // const caseTitle = caseTitlesById[caseId] ?? "Case Workspace";
+
+  const {
+    data: getUserResult,
+    isPending: getUserPending,
+    error: getUserError,
+  } = useCurrentUserQuery();
+  const user = getUserResult?.currentUser.user;
+  const {
+    data: workspace,
+    isPending: getWorkspacePending,
+    error: getWorkspaceError,
+  } = useWorkspaceQuery(workspaceId, { enabled: Boolean(user) });
+
   const [activeView, setActiveView] = useState<ViewTypes>("case_agent");
   const [selectedStatuses, setSelectedStatuses] =
     useState<SelectedRecordStatuses>([]);
@@ -208,8 +208,6 @@ function RouteComponent() {
   const [caseNotes, setCaseNotes] = useState<DemoRecord[]>([]);
   const [deletedRecordIds, setDeletedRecordIds] = useState<string[]>([]);
 
-  const { data: userResult, isPending } = useCurrentUserQuery();
-  const user = userResult?.currentUser.user ?? routeFallbackUser;
   const workspaceRecords = useMemo(
     () =>
       [...caseNotes, ...demoRecords].filter(
@@ -343,8 +341,12 @@ function RouteComponent() {
     }));
   };
 
-  if (isPending && !userResult) {
+  if (getUserPending || getWorkspacePending) {
     return <PageLoading />;
+  }
+
+  if (getUserError || !user || getWorkspaceError || !workspace) {
+    return <GetUserError />;
   }
 
   return (
@@ -352,7 +354,10 @@ function RouteComponent() {
       <NavigationPanel>
         <UserPanel user={user} settings={true} showTier={true} />
         <div className="text-sm flex gap-1.5 items-center">
-          <Link to="/workspace/workspace_id">
+          <Link
+            to="/workspaces/$workspaceId"
+            params={{ workspaceId }}
+          >
             <div className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
               <ArrowLeft className="w-3 h-3" />
             </div>
@@ -402,7 +407,8 @@ function RouteComponent() {
                 {demoCase.title}
               </h1>
               <p className="mt-1 text-sm text-black/60">
-                {demoCase.court} · Workspace id: {id}
+                {demoCase.court} · Workspace id: {workspaceId} · Case id:{" "}
+                {caseId}
               </p>
             </div>
           </header>
@@ -934,7 +940,6 @@ function TimelineView({
                     <div className="absolute right-2.5 top-2.5">
                       <RecordSettingsMenu
                         record={record}
-                        decision={decision}
                         onDelete={onDeleteRecord}
                       />
                     </div>
@@ -1408,7 +1413,6 @@ function RecordCard({
           <div className="absolute right-3 top-3">
             <RecordSettingsMenu
               record={record}
-              decision={decision}
               onDelete={onDelete}
             />
           </div>

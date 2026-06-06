@@ -1,6 +1,6 @@
-import { useState } from "react";
 import { ArrowLeft, PlusIcon } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { defaultWorkspaceCases } from "#/lib/defaultWorkspaceCases";
 
 interface SelectCaseMenuProps {
   workspaceId: string;
@@ -8,23 +8,6 @@ interface SelectCaseMenuProps {
 }
 
 const SelectCaseMenu = ({ workspaceId, workspaceName }: SelectCaseMenuProps) => {
-  const [cases, setCases] = useState<
-    {
-      id: string;
-      name: string;
-    }[]
-  >([
-    {
-      id: "case-faxon-commons-demo",
-      name: "Faxon Commons v. Sweeney",
-    },
-    {
-      id: "9w8ufw98wsd",
-      name: "In re: Residential Tenancy Dispute – Unit 71-612-21",
-    },
-    { id: "98sufs98euf", name: "Smith v. Jones – 2023 LT Case No. 12345" },
-  ]);
-
   return (
     <>
       <div className="text-sm flex gap-1.5 items-center">
@@ -38,14 +21,21 @@ const SelectCaseMenu = ({ workspaceId, workspaceName }: SelectCaseMenuProps) => 
         </Link>
         <p className="truncate">{workspaceName}</p>
       </div>
-      <Link to="/create/case/$id" params={{ id: workspaceId }}>
+      <Link
+        to="/workspaces/$workspaceId/cases/new"
+        params={{ workspaceId }}
+      >
         <div className="text-sm h-8 p-2 rounded-lg hover:bg-black/10 cursor-pointer flex items-center gap-1.5 text-black transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
           <PlusIcon className="w-4 h-4" />
           <div>New Case</div>
         </div>
       </Link>
-      {cases.map((caseItem) => (
-        <Link key={caseItem.id} to="/case/$id" params={{ id: caseItem.id }}>
+      {defaultWorkspaceCases.map((caseItem) => (
+        <Link
+          key={caseItem.id}
+          to="/workspaces/$workspaceId/cases/$caseId"
+          params={{ workspaceId, caseId: caseItem.id }}
+        >
           <div className="text-sm h-8 p-2 rounded-lg hover:bg-black/10 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
             <p className="truncate">{caseItem.name}</p>
           </div>

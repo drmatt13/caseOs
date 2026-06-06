@@ -20,7 +20,7 @@ const SelectWorkspaceMenu = ({
         <p className="truncate underline">Select Workspace</p>
       </div>
       {canCreateWorkspace ? (
-        <Link to="/create/workspace">
+        <Link to="/workspaces/new">
           <div className="text-sm h-8 p-2 rounded-lg hover:bg-black/10 cursor-pointer flex items-center gap-1.5 text-black transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
             <PlusIcon className="w-4 h-4" />
             <div>New Workspace</div>
@@ -38,8 +38,8 @@ const SelectWorkspaceMenu = ({
       {workspaces.map((workspace) => (
         <Link
           key={workspace.id}
-          to="/workspace/$id"
-          params={{ id: workspace.id }}
+          to="/workspaces/$workspaceId"
+          params={{ workspaceId: workspace.id }}
         >
           <div className="text-sm h-8 p-2 rounded-lg hover:bg-black/10 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
             <p className="truncate">{workspace.name}</p>

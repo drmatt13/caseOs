@@ -1,3 +1,5 @@
+import { Link } from "@tanstack/react-router";
+import { BriefcaseBusiness } from "lucide-react";
 import UserPanel from "#/components/UserPanel";
 import Button from "#/components/Button";
 import ContentHeaderBar from "#/components/layouts/ContentHeaderBar";
@@ -6,6 +8,7 @@ import WorkspaceRoleBadge, {
 } from "#/components/WorkspaceRoleBadge";
 import type { MembershipRole } from "#/api/generated/graphql";
 import type { WorkspaceDetail } from "#/api/workspace/hooks";
+import { defaultWorkspaceCases } from "#/lib/defaultWorkspaceCases";
 
 interface WorkspaceProps {
   workspace: WorkspaceDetail;
@@ -34,6 +37,37 @@ const WorkspaceDashboard = ({ workspace }: WorkspaceProps) => {
             {workspace.description}
           </p>
         )}
+        <div className="mt-2 pb-1 flex justify-between items-end">
+          <p className="text-md font-medium">
+            Cases ({defaultWorkspaceCases.length})
+          </p>
+          <Link
+            to="/workspaces/$workspaceId/cases/new"
+            params={{ workspaceId: workspace.id }}
+          >
+            <Button style="secondary" text="New Case" icon="plus" />
+          </Link>
+        </div>
+        <div className="flex flex-col gap-1">
+          {defaultWorkspaceCases.map((caseItem) => (
+            <Link
+              key={caseItem.id}
+              to="/workspaces/$workspaceId/cases/$caseId"
+              params={{ workspaceId: workspace.id, caseId: caseItem.id }}
+              className="group flex min-h-14 items-center gap-3 rounded-xl px-3 transition-colors ease-in duration-150 hover:bg-black/10 hover:ease-out hover:duration-100"
+            >
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black/5 text-black/70">
+                <BriefcaseBusiness className="h-4 w-4" />
+              </div>
+              <div className="min-w-0">
+                <p className="truncate text-md font-medium">{caseItem.name}</p>
+                <p className="truncate text-sm text-black/55">
+                  Default workspace case
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
         <div className="mt-2 pb-1 flex justify-between items-end">
           <p className="text-md font-medium">
             Members ({workspace.memberships.length})

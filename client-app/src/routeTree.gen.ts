@@ -14,11 +14,11 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as WorkspaceIdRouteImport } from './routes/workspace/$id'
-import { Route as CreateWorkspaceRouteImport } from './routes/create/workspace'
-import { Route as CaseIdRouteImport } from './routes/case/$id'
+import { Route as WorkspacesNewRouteImport } from './routes/workspaces.new'
+import { Route as WorkspacesWorkspaceIdRouteImport } from './routes/workspaces.$workspaceId'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
-import { Route as CreateCaseIdRouteImport } from './routes/create/case/$id'
+import { Route as WorkspacesWorkspaceIdCasesNewRouteImport } from './routes/workspaces.$workspaceId_.cases.new'
+import { Route as WorkspacesWorkspaceIdCasesCaseIdRouteImport } from './routes/workspaces.$workspaceId_.cases.$caseId'
 
 const VerifyAccountRoute = VerifyAccountRouteImport.update({
   id: '/verify-account',
@@ -45,19 +45,14 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WorkspaceIdRoute = WorkspaceIdRouteImport.update({
-  id: '/workspace/$id',
-  path: '/workspace/$id',
+const WorkspacesNewRoute = WorkspacesNewRouteImport.update({
+  id: '/workspaces/new',
+  path: '/workspaces/new',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CreateWorkspaceRoute = CreateWorkspaceRouteImport.update({
-  id: '/create/workspace',
-  path: '/create/workspace',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CaseIdRoute = CaseIdRouteImport.update({
-  id: '/case/$id',
-  path: '/case/$id',
+const WorkspacesWorkspaceIdRoute = WorkspacesWorkspaceIdRouteImport.update({
+  id: '/workspaces/$workspaceId',
+  path: '/workspaces/$workspaceId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
@@ -65,11 +60,18 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CreateCaseIdRoute = CreateCaseIdRouteImport.update({
-  id: '/create/case/$id',
-  path: '/create/case/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const WorkspacesWorkspaceIdCasesNewRoute =
+  WorkspacesWorkspaceIdCasesNewRouteImport.update({
+    id: '/workspaces/$workspaceId_/cases/new',
+    path: '/workspaces/$workspaceId/cases/new',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const WorkspacesWorkspaceIdCasesCaseIdRoute =
+  WorkspacesWorkspaceIdCasesCaseIdRouteImport.update({
+    id: '/workspaces/$workspaceId_/cases/$caseId',
+    path: '/workspaces/$workspaceId/cases/$caseId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -78,10 +80,10 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/verify-account': typeof VerifyAccountRoute
   '/auth/callback': typeof AuthCallbackRoute
-  '/case/$id': typeof CaseIdRoute
-  '/create/workspace': typeof CreateWorkspaceRoute
-  '/workspace/$id': typeof WorkspaceIdRoute
-  '/create/case/$id': typeof CreateCaseIdRoute
+  '/workspaces/$workspaceId': typeof WorkspacesWorkspaceIdRoute
+  '/workspaces/new': typeof WorkspacesNewRoute
+  '/workspaces/$workspaceId/cases/$caseId': typeof WorkspacesWorkspaceIdCasesCaseIdRoute
+  '/workspaces/$workspaceId/cases/new': typeof WorkspacesWorkspaceIdCasesNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -90,10 +92,10 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/verify-account': typeof VerifyAccountRoute
   '/auth/callback': typeof AuthCallbackRoute
-  '/case/$id': typeof CaseIdRoute
-  '/create/workspace': typeof CreateWorkspaceRoute
-  '/workspace/$id': typeof WorkspaceIdRoute
-  '/create/case/$id': typeof CreateCaseIdRoute
+  '/workspaces/$workspaceId': typeof WorkspacesWorkspaceIdRoute
+  '/workspaces/new': typeof WorkspacesNewRoute
+  '/workspaces/$workspaceId/cases/$caseId': typeof WorkspacesWorkspaceIdCasesCaseIdRoute
+  '/workspaces/$workspaceId/cases/new': typeof WorkspacesWorkspaceIdCasesNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -103,10 +105,10 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/verify-account': typeof VerifyAccountRoute
   '/auth/callback': typeof AuthCallbackRoute
-  '/case/$id': typeof CaseIdRoute
-  '/create/workspace': typeof CreateWorkspaceRoute
-  '/workspace/$id': typeof WorkspaceIdRoute
-  '/create/case/$id': typeof CreateCaseIdRoute
+  '/workspaces/$workspaceId': typeof WorkspacesWorkspaceIdRoute
+  '/workspaces/new': typeof WorkspacesNewRoute
+  '/workspaces/$workspaceId_/cases/$caseId': typeof WorkspacesWorkspaceIdCasesCaseIdRoute
+  '/workspaces/$workspaceId_/cases/new': typeof WorkspacesWorkspaceIdCasesNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -117,10 +119,10 @@ export interface FileRouteTypes {
     | '/register'
     | '/verify-account'
     | '/auth/callback'
-    | '/case/$id'
-    | '/create/workspace'
-    | '/workspace/$id'
-    | '/create/case/$id'
+    | '/workspaces/$workspaceId'
+    | '/workspaces/new'
+    | '/workspaces/$workspaceId/cases/$caseId'
+    | '/workspaces/$workspaceId/cases/new'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -129,10 +131,10 @@ export interface FileRouteTypes {
     | '/register'
     | '/verify-account'
     | '/auth/callback'
-    | '/case/$id'
-    | '/create/workspace'
-    | '/workspace/$id'
-    | '/create/case/$id'
+    | '/workspaces/$workspaceId'
+    | '/workspaces/new'
+    | '/workspaces/$workspaceId/cases/$caseId'
+    | '/workspaces/$workspaceId/cases/new'
   id:
     | '__root__'
     | '/'
@@ -141,10 +143,10 @@ export interface FileRouteTypes {
     | '/register'
     | '/verify-account'
     | '/auth/callback'
-    | '/case/$id'
-    | '/create/workspace'
-    | '/workspace/$id'
-    | '/create/case/$id'
+    | '/workspaces/$workspaceId'
+    | '/workspaces/new'
+    | '/workspaces/$workspaceId_/cases/$caseId'
+    | '/workspaces/$workspaceId_/cases/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -154,10 +156,10 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   VerifyAccountRoute: typeof VerifyAccountRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
-  CaseIdRoute: typeof CaseIdRoute
-  CreateWorkspaceRoute: typeof CreateWorkspaceRoute
-  WorkspaceIdRoute: typeof WorkspaceIdRoute
-  CreateCaseIdRoute: typeof CreateCaseIdRoute
+  WorkspacesWorkspaceIdRoute: typeof WorkspacesWorkspaceIdRoute
+  WorkspacesNewRoute: typeof WorkspacesNewRoute
+  WorkspacesWorkspaceIdCasesCaseIdRoute: typeof WorkspacesWorkspaceIdCasesCaseIdRoute
+  WorkspacesWorkspaceIdCasesNewRoute: typeof WorkspacesWorkspaceIdCasesNewRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -197,25 +199,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/workspace/$id': {
-      id: '/workspace/$id'
-      path: '/workspace/$id'
-      fullPath: '/workspace/$id'
-      preLoaderRoute: typeof WorkspaceIdRouteImport
+    '/workspaces/new': {
+      id: '/workspaces/new'
+      path: '/workspaces/new'
+      fullPath: '/workspaces/new'
+      preLoaderRoute: typeof WorkspacesNewRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/create/workspace': {
-      id: '/create/workspace'
-      path: '/create/workspace'
-      fullPath: '/create/workspace'
-      preLoaderRoute: typeof CreateWorkspaceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/case/$id': {
-      id: '/case/$id'
-      path: '/case/$id'
-      fullPath: '/case/$id'
-      preLoaderRoute: typeof CaseIdRouteImport
+    '/workspaces/$workspaceId': {
+      id: '/workspaces/$workspaceId'
+      path: '/workspaces/$workspaceId'
+      fullPath: '/workspaces/$workspaceId'
+      preLoaderRoute: typeof WorkspacesWorkspaceIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/callback': {
@@ -225,11 +220,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/create/case/$id': {
-      id: '/create/case/$id'
-      path: '/create/case/$id'
-      fullPath: '/create/case/$id'
-      preLoaderRoute: typeof CreateCaseIdRouteImport
+    '/workspaces/$workspaceId_/cases/new': {
+      id: '/workspaces/$workspaceId_/cases/new'
+      path: '/workspaces/$workspaceId/cases/new'
+      fullPath: '/workspaces/$workspaceId/cases/new'
+      preLoaderRoute: typeof WorkspacesWorkspaceIdCasesNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/workspaces/$workspaceId_/cases/$caseId': {
+      id: '/workspaces/$workspaceId_/cases/$caseId'
+      path: '/workspaces/$workspaceId/cases/$caseId'
+      fullPath: '/workspaces/$workspaceId/cases/$caseId'
+      preLoaderRoute: typeof WorkspacesWorkspaceIdCasesCaseIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -242,10 +244,10 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   VerifyAccountRoute: VerifyAccountRoute,
   AuthCallbackRoute: AuthCallbackRoute,
-  CaseIdRoute: CaseIdRoute,
-  CreateWorkspaceRoute: CreateWorkspaceRoute,
-  WorkspaceIdRoute: WorkspaceIdRoute,
-  CreateCaseIdRoute: CreateCaseIdRoute,
+  WorkspacesWorkspaceIdRoute: WorkspacesWorkspaceIdRoute,
+  WorkspacesNewRoute: WorkspacesNewRoute,
+  WorkspacesWorkspaceIdCasesCaseIdRoute: WorkspacesWorkspaceIdCasesCaseIdRoute,
+  WorkspacesWorkspaceIdCasesNewRoute: WorkspacesWorkspaceIdCasesNewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -56,8 +56,8 @@ const CreateCaseMenu = ({
   return (
     <>
       <Link
-        to="/workspace/$id"
-        params={{ id: workspaceId }}
+        to="/workspaces/$workspaceId"
+        params={{ workspaceId }}
         onClick={handleLeaveCreateCase}
         className="text-sm flex gap-1.5 items-center"
       >

@@ -91,8 +91,8 @@ const BestFitWorkspace = ({ workspaces }: BestFitWorkspaceProps) => {
             </p>
           </div>
           <Link
-            to="/workspace/$id"
-            params={{ id: bestFitWorkspace.id }}
+            to="/workspaces/$workspaceId"
+            params={{ workspaceId: bestFitWorkspace.id }}
             className={workspaceActionClassName}
           >
             Open workspace
@@ -105,8 +105,8 @@ const BestFitWorkspace = ({ workspaces }: BestFitWorkspaceProps) => {
         {otherWorkspaces.map((workspace) => (
           <Link
             key={workspace.id}
-            to="/workspace/$id"
-            params={{ id: workspace.id }}
+            to="/workspaces/$workspaceId"
+            params={{ workspaceId: workspace.id }}
             className="rounded-lg bg-black/5 p-3 transition-colors ease-in duration-150 hover:bg-black/10 hover:ease-out hover:duration-100"
           >
             <p className="truncate text-sm font-medium">{workspace.name}</p>
@@ -115,7 +115,7 @@ const BestFitWorkspace = ({ workspaces }: BestFitWorkspaceProps) => {
             </p>
           </Link>
         ))}
-        {/* <Link to="/create/workspace" className={secondaryActionClassName}>
+        {/* <Link to="/workspaces/new" className={secondaryActionClassName}>
           <PlusIcon className="h-4 w-4" />
           New workspace
         </Link> */}
@@ -191,7 +191,7 @@ const WorkspaceOverview = ({
 
           <div className="mt-7 flex flex-col items-center justify-center gap-2 sm:flex-row">
             {canCreateWorkspace ? (
-              <Link to="/create/workspace" className={workspaceActionClassName}>
+              <Link to="/workspaces/new" className={workspaceActionClassName}>
                 <PlusIcon className="h-4 w-4" />
                 Create workspace
               </Link>
