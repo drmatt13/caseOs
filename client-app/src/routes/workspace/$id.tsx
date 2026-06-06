@@ -43,6 +43,8 @@ function App() {
     return <GetUserError />;
   }
 
+  // return <PageLoading />;
+
   return (
     <AppLayout>
       <NavigationPanel>

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef } from "react";
+import { type CSSProperties, useContext, useEffect, useRef } from "react";
 import AppLogo from "#/components/AppLogo";
 import { XIcon } from "lucide-react";
 
@@ -7,10 +7,44 @@ import { MenuContext } from "#/context/MenuContext";
 
 import useWindowWidthCategory from "#/hooks/useWindowWidthCategory";
 
+const navigationPanelLoadingHeightStorageKeyPrefix =
+  "lawstruct.navigationPanel.loadingHeight";
+const getNavigationPanelLoadingHeightStorageKey = (
+  windowWidthCategory: string,
+) => `${navigationPanelLoadingHeightStorageKeyPrefix}.${windowWidthCategory}`;
+
+const readNavigationPanelLoadingHeight = (windowWidthCategory: string) => {
+  try {
+    const storedHeight = window.sessionStorage.getItem(
+      getNavigationPanelLoadingHeightStorageKey(windowWidthCategory),
+    );
+    const parsedHeight = Number(storedHeight);
+
+    return Number.isFinite(parsedHeight) && parsedHeight > 0
+      ? parsedHeight
+      : null;
+  } catch {
+    return null;
+  }
+};
+
+const SkeletonBlock = ({ className }: { className: string }) => (
+  <div className={`animate-pulse rounded-lg bg-black/1 ${className}`} />
+);
+
 const NavigationPanel = () => {
   const windowWidthCategory = useWindowWidthCategory();
   const { menuOpen, setMenuOpen } = useContext(MenuContext);
   const previousWindowWidthCategoryRef = useRef(windowWidthCategory);
+  const storedLoadingHeight =
+    readNavigationPanelLoadingHeight(windowWidthCategory);
+  const loadingHeightStyle = {
+    maxHeight: "calc(100dvh - 11.15rem)",
+    height:
+      storedLoadingHeight === null
+        ? "calc(50dvh)"
+        : `${storedLoadingHeight - 47.5}px`,
+  } as CSSProperties;
 
   const shouldAnimateSmallMenu =
     windowWidthCategory === "small" &&
@@ -57,7 +91,7 @@ const NavigationPanel = () => {
         {menuOpen && (
           <div className="pointer-events-none absolute right-0 translate-x-full w-[200vw] h-full" />
         )}
-        <div className="overflow-y-auto max-h-[inherit] overflow-x-hidden">
+        <div className="overflow-y-hidden max-h-[inherit] overflow-x-hidden">
           {windowWidthCategory === "small" && (
             <div className="h-0 flex justify-end pointer-events-none">
               <button
@@ -84,10 +118,21 @@ const NavigationPanel = () => {
 
             <div
               style={{
-                maxHeight: "calc(100dvh - 11.5rem)",
-                height: "LOCAL STORAGE HEIGHT",
+                ...loadingHeightStyle,
               }}
-            />
+            >
+              <div className="flex flex-col gap-3">
+                <SkeletonBlock className="h-12 w-full" />
+                <SkeletonBlock className="h-9 w-4/5" />
+                <SkeletonBlock className="h-9 w-full" />
+                <SkeletonBlock className="h-9 w-11/12" />
+                <div className="mt-3 flex flex-col gap-2">
+                  <SkeletonBlock className="h-8 w-full" />
+                  <SkeletonBlock className="h-8 w-5/6" />
+                  <SkeletonBlock className="h-8 w-11/12" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

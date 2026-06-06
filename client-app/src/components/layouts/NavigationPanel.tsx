@@ -18,6 +18,12 @@ interface NavigationPanelProps {
   children: ReactNode;
 }
 
+const navigationPanelLoadingHeightStorageKeyPrefix =
+  "lawstruct.navigationPanel.loadingHeight";
+const getNavigationPanelLoadingHeightStorageKey = (
+  windowWidthCategory: string,
+) => `${navigationPanelLoadingHeightStorageKeyPrefix}.${windowWidthCategory}`;
+
 const pixelsToRem = (px: number) => px / 21;
 const maxBodyScrollDeltaRem = 5.25;
 const stickyTopRem = 1.75;
@@ -86,9 +92,11 @@ const getPanelOffsetRem = () => {
 const NavigationPanel = ({ children }: NavigationPanelProps) => {
   const { menuOpen, setMenuOpen } = useContext(MenuContext);
   const panelRef = useRef<HTMLDivElement>(null);
+  const containerForLoadingHeightRef = useRef<HTMLDivElement>(null);
   const windowWidthCategory = useWindowWidthCategory();
   const previousWindowWidthCategoryRef = useRef(windowWidthCategory);
   const animationFrameRef = useRef<number | null>(null);
+  const lastStoredLoadingHeightRef = useRef<number | null>(null);
   const previousScrollSampleRef = useRef({
     scrollY: 0,
     time: 0,
@@ -208,6 +216,72 @@ const NavigationPanel = ({ children }: NavigationPanelProps) => {
   }, [handleScroll, updatePanelHeightOffset, windowWidthCategory]);
 
   useEffect(() => {
+    const container = containerForLoadingHeightRef.current;
+
+    if (!container) {
+      return;
+    }
+
+    let measurementAnimationFrame: number | null = null;
+    lastStoredLoadingHeightRef.current = null;
+
+    const writeLoadingHeight = () => {
+      measurementAnimationFrame = null;
+
+      const height = Math.ceil(container.getBoundingClientRect().height);
+
+      if (!Number.isFinite(height) || height <= 0) {
+        return;
+      }
+
+      if (lastStoredLoadingHeightRef.current === height) {
+        return;
+      }
+
+      lastStoredLoadingHeightRef.current = height;
+
+      try {
+        window.sessionStorage.setItem(
+          getNavigationPanelLoadingHeightStorageKey(windowWidthCategory),
+          String(height),
+        );
+      } catch {
+        // Session storage is an enhancement for smoother route transitions.
+      }
+    };
+
+    const scheduleLoadingHeightWrite = () => {
+      if (measurementAnimationFrame !== null) {
+        return;
+      }
+
+      measurementAnimationFrame =
+        window.requestAnimationFrame(writeLoadingHeight);
+    };
+
+    scheduleLoadingHeightWrite();
+    window.addEventListener("resize", scheduleLoadingHeightWrite);
+    window.addEventListener("load", scheduleLoadingHeightWrite);
+
+    const resizeObserver =
+      "ResizeObserver" in window
+        ? new ResizeObserver(scheduleLoadingHeightWrite)
+        : null;
+
+    resizeObserver?.observe(container);
+
+    return () => {
+      window.removeEventListener("resize", scheduleLoadingHeightWrite);
+      window.removeEventListener("load", scheduleLoadingHeightWrite);
+      resizeObserver?.disconnect();
+
+      if (measurementAnimationFrame !== null) {
+        window.cancelAnimationFrame(measurementAnimationFrame);
+      }
+    };
+  }, [windowWidthCategory]);
+
+  useEffect(() => {
     if (!menuOpen) return;
 
     const handleDocumentPointerDown = (event: PointerEvent) => {
@@ -303,7 +377,10 @@ const NavigationPanel = ({ children }: NavigationPanelProps) => {
               </button>
             </div>
           )}
-          <div className="font-serif text-sm lg:bg-white/40 lg:backdrop-blur-sm pt-5 pb-4 pl-2 pr-4 lg:px-4 flex flex-col gap-2">
+          <div
+            ref={containerForLoadingHeightRef}
+            className="font-serif text-sm lg:bg-white/40 lg:backdrop-blur-sm pt-5 pb-4 pl-2 pr-4 lg:px-4 flex flex-col gap-2"
+          >
             {windowWidthCategory !== "large" && (
               <div className="mb-2">
                 <AppLogo NavigationPanel={true} />
