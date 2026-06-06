@@ -23,11 +23,14 @@ import Button from "#/components/Button";
 import type { CaseIntake } from "#/types/caseWorkspace";
 import type { CaseIntakeWizardState } from "#/components/features/create-case/caseIntakeForm";
 import PageLoading from "#/components/PageLoading";
+import GetUserError from "#/components/errors/GetUserError";
 
 // route guards
 import { requireAuth } from "#/lib/auth";
 
+// useQuery
 import { useCurrentUserQuery } from "#/api/currentUser/hooks";
+import { useWorkspaceQuery } from "#/api/workspace/hooks";
 
 // test data
 import testIntakeData from "#/test_data/intake/oj/caseIntake";
@@ -46,8 +49,28 @@ export const Route = createFileRoute("/create/case/$id")({
 });
 
 function RouteComponent() {
-  const { data: userResult, isPending, error } = useCurrentUserQuery();
-  const user = userResult?.currentUser.user;
+  const { id } = Route.useParams();
+
+  const {
+    data: getUserResult,
+    isPending: getUserPending,
+    error: getUserError,
+  } = useCurrentUserQuery();
+  const user = getUserResult?.currentUser.user;
+  const {
+    data: workspace,
+    isPending: getWorkspacePending,
+    error: getWorkspaceError,
+  } = useWorkspaceQuery(id, { enabled: Boolean(user) });
+
+  if (getUserPending || getWorkspacePending) {
+    return <PageLoading />;
+  }
+
+  if (getUserError || !user || getWorkspaceError || !workspace) {
+    return <GetUserError />;
+  }
+
   const [blankCaseIntake] = useState(createBlankCaseIntake);
 
   const [caseIntakeState, setCaseIntakeState] = useState<CaseIntakeWizardState>(
@@ -200,19 +223,12 @@ function RouteComponent() {
     }
   };
 
-  if (isPending) {
-    return <PageLoading />;
-  }
-
-  if (error || !user) {
-    return <>placeholder for error</>;
-  }
-
   return (
     <AppLayout>
       <NavigationPanel>
         <UserPanel user={user} settings={true} showTier={true} />
         <CreateCaseMenu
+          workspaceId={id}
           caseIntakeState={caseIntakeState}
           setCaseIntakeState={setCaseIntakeState}
           hasUnsavedCaseIntake={hasUnsavedCaseIntake}

@@ -28,10 +28,10 @@ const accountTierLabels = {
 } satisfies Record<AccountTier, string>;
 
 const workspaceActionClassName =
-  "inline-flex items-center justify-center gap-2 rounded border border-transparent bg-[#282828] px-4 py-2 text-sm text-white transition-colors ease-in duration-150 hover:bg-black hover:ease-out hover:duration-100";
+  "inline-flex items-center justify-center gap-2 rounded border border-transparent bg-[#282828] px-2 py-2 text-sm text-white transition-colors ease-in duration-150 hover:bg-black hover:ease-out hover:duration-100";
 
 const secondaryActionClassName =
-  "inline-flex items-center justify-center gap-2 rounded border border-black/10 bg-black/10 px-4 py-2 text-sm text-black/75 shadow-sm transition-colors ease-in duration-150 hover:bg-gray-300 hover:text-black hover:ease-out hover:duration-100";
+  "inline-flex items-center justify-center gap-2 rounded border border-black/10 bg-black/10 px-2 py-2 text-sm text-black/75 shadow-sm transition-colors ease-in duration-150 hover:bg-gray-300 hover:text-black hover:ease-out hover:duration-100";
 
 const formatUpdatedAt = (updatedAt: string | null) => {
   if (!updatedAt) return "Updated recently";
@@ -67,7 +67,7 @@ const BestFitWorkspace = ({ workspaces }: BestFitWorkspaceProps) => {
     .slice(0, 3);
 
   return (
-    <div className="flex flex-col gap-4 px-4">
+    <div className="flex flex-col gap-4 px-2">
       <div className="flex flex-col gap-1.5">
         <p className="text-xl font-bold">Workspace overview</p>
         <p className="max-w-2xl text-md leading-6 text-black/65">

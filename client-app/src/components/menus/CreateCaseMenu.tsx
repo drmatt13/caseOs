@@ -1,10 +1,12 @@
-import { useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
+import type { MouseEvent } from "react";
 import { ArrowLeft } from "lucide-react";
 import StepMenu from "#/components/menus/StepMenu";
 import type { StepMenuIcon } from "#/components/menus/StepMenu";
 import type { CaseIntakeWizardState } from "#/components/features/create-case/caseIntakeForm";
 
 interface CreateCaseMenuProps {
+  workspaceId: string;
   caseIntakeState: CaseIntakeWizardState;
   setCaseIntakeState: React.Dispatch<
     React.SetStateAction<CaseIntakeWizardState>
@@ -33,41 +35,37 @@ const createCaseStepLabels = [
 ];
 
 const CreateCaseMenu = ({
+  workspaceId,
   caseIntakeState,
   setCaseIntakeState,
   hasUnsavedCaseIntake,
 }: CreateCaseMenuProps) => {
-  const navigate = useNavigate();
-
-  const handleLeaveCreateCase = async () => {
+  const handleLeaveCreateCase = (event: MouseEvent<HTMLAnchorElement>) => {
     if (hasUnsavedCaseIntake) {
       const shouldLeave = window.confirm(
         "You have unsaved case intake details or uploaded files. Leaving now will discard your changes. Continue?",
       );
 
       if (!shouldLeave) {
+        event.preventDefault();
         return;
       }
     }
-
-    await navigate({ to: "/workspace/$id", params: { id: "workspace_id" } });
   };
 
   return (
     <>
-      <div className="text-sm flex gap-1.5 items-center">
-        <button
-          type="button"
-          className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer"
-          onClick={() => {
-            void handleLeaveCreateCase();
-          }}
-        >
+      <Link
+        to="/workspace/$id"
+        params={{ id: workspaceId }}
+        onClick={handleLeaveCreateCase}
+        className="text-sm flex gap-1.5 items-center"
+      >
+        <span className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer">
           <ArrowLeft className="w-3 h-3" />
-        </button>
-
+        </span>
         <p className="truncate">Create New Case</p>
-      </div>
+      </Link>
       <StepMenu
         steps={7}
         icons={createCaseStepIcons}

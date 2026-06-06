@@ -26,11 +26,14 @@ const WorkspaceDashboard = ({ workspace }: WorkspaceProps) => {
   return (
     <div className="flex h-full min-w-0 flex-col gap-4">
       <ContentHeaderBar showWorkspaceSettings={canManageWorkspace} />
-      <div className="flex flex-col px-4 gap-1.5">
+      <div className="flex flex-col px-2 gap-1.5">
         <p className="text-xl font-bold">{workspace.name}</p>
-        <p className="mb-1.5 text-md">
-          {workspace.description || "No workspace description yet."}
-        </p>
+        {workspace.description && (
+          <p className="mb-1.5 text-md">
+            <span className="underline mr-2">Description:</span>
+            {workspace.description}
+          </p>
+        )}
         <div className="mt-2 pb-1 flex justify-between items-end">
           <p className="text-md font-medium">
             Members ({workspace.memberships.length})
