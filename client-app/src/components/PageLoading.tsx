@@ -1,6 +1,7 @@
 import AppLayout from "#/components/layouts/AppLayout";
 import ContentShell from "#/components/layouts/ContentShell";
 import NavigationPanel from "#/components/layouts/NavigationPanel";
+import NavigationPanelLoading from "#/components/layouts/NavigationPanelLoading";
 import LoadingSpinner from "./LoadingSpinner";
 
 const SkeletonBlock = ({ className }: { className: string }) => (
@@ -10,7 +11,7 @@ const SkeletonBlock = ({ className }: { className: string }) => (
 const PageLoading = () => {
   return (
     <AppLayout>
-      <NavigationPanel>
+      {/* <NavigationPanel>
         <div className="flex flex-col gap-3">
           <SkeletonBlock className="h-12 w-full" />
           <SkeletonBlock className="h-9 w-4/5" />
@@ -19,10 +20,11 @@ const PageLoading = () => {
           <div className="mt-3 flex flex-col gap-2">
             <SkeletonBlock className="h-8 w-full" />
             <SkeletonBlock className="h-8 w-5/6" />
-            {/* <SkeletonBlock className="h-8 w-11/12" /> */}
+            <SkeletonBlock className="h-8 w-11/12" />
           </div>
         </div>
-      </NavigationPanel>
+      </NavigationPanel> */}
+      <NavigationPanelLoading />
       <ContentShell>
         <div className="flex min-h-[calc(64dvh)] flex-col gap-4">
           {/* <div className="flex flex-col gap-2 border-b border-black/10 pb-4">
