@@ -100,7 +100,7 @@ const ContentShell = ({
   }, [persistLoadingHeight, windowWidthCategory]);
 
   return (
-    <div className="relative min-w-0 flex-1 flex justify-center lg:block h-max lg:rounded-2xl bg-white/40 lg:backdrop-blur-sm lg:bg-white/40 backdrop-blur-sm lg:border border-black/15 lg:shadow-md">
+    <div className="relative min-w-0 flex-1 flex justify-center lg:block h-max lg:rounded-2xl bg-white/40 backdrop-blur-sm lg:border border-black/15 lg:shadow-md">
       <div className="md:hidden absolute top-4 left-4">
         <button
           type="button"
@@ -113,7 +113,7 @@ const ContentShell = ({
       </div>
       <div
         ref={containerForLoadingHeightRef}
-        className="w-full /md:max-w-160 lg:max-w-full! pt-16 sm:pt-14 pb-6 md:pt-5 md:pb-5 lg:pb-4 lg:pt-4 px-6 sm:px-12 md:px-4 min-h-dvh lg:min-h-auto"
+        className="w-full pt-16 sm:pt-14 pb-6 md:pt-5 md:pb-5 lg:pb-4 lg:pt-4 px-6 sm:px-12 md:px-4 min-h-dvh lg:min-h-auto"
       >
         {children}
       </div>

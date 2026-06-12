@@ -79,7 +79,7 @@ function RouteComponent() {
   return (
     <>
       <LoginLayout>
-        <div className="flex flex-col w-84">
+        <div className="flex flex-col w-full max-w-84">
           <form
             onSubmit={handleSubmit}
             id="login-form"
@@ -107,7 +107,7 @@ function RouteComponent() {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="rounded-md px-2 py-2.5 text-sm bg-gray-100 border border-black/15"
+              className="rounded-md px-2 py-2.5 text-sm bg-gray-100 border border-black/15 outline-none transition-colors focus:border-black/40"
               placeholder="name@firm.com"
             />
             <label
@@ -121,7 +121,7 @@ function RouteComponent() {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="rounded-md px-2 py-2.5 mb-3 text-sm bg-gray-100 border border-black/15"
+              className="rounded-md px-2 py-2.5 mb-3 text-sm bg-gray-100 border border-black/15 outline-none transition-colors focus:border-black/40"
               placeholder="••••••••"
             />
             <div className="flex items-center justify-between mt-2 mb-4">
@@ -171,7 +171,7 @@ function RouteComponent() {
             <button
               type="button"
               onClick={handleGoogleSignIn}
-              className="flex w-full items-center justify-center gap-2 rounded-md border border-black/15 bg-white/90 py-2.5 text-md font-medium hover:bg-gray-50 cursor-pointer"
+              className="flex w-full items-center justify-center gap-2 rounded-md border border-black/15 bg-white/90 py-2.5 text-md font-medium hover:bg-gray-50 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100"
             >
               <svg
                 aria-hidden="true"

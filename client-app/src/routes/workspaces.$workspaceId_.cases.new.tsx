@@ -62,19 +62,11 @@ function RouteComponent() {
     error: getWorkspaceError,
   } = useWorkspaceQuery(workspaceId, { enabled: Boolean(user) });
 
-  if (getUserPending || getWorkspacePending) {
-    return <PageLoading />;
-  }
-
-  if (getUserError || !user || getWorkspaceError || !workspace) {
-    return <GetUserError />;
-  }
-
   const [blankCaseIntake] = useState(createBlankCaseIntake);
 
   const [caseIntakeState, setCaseIntakeState] = useState<CaseIntakeWizardState>(
     {
-      step: 6,
+      step: 1,
       // caseIntake: testIntakeData,
       caseIntake: blankCaseIntake,
     },
@@ -97,6 +89,14 @@ function RouteComponent() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, [caseIntakeState.step]);
+
+  if (getUserPending || getWorkspacePending) {
+    return <PageLoading />;
+  }
+
+  if (getUserError || !user || getWorkspaceError || !workspace) {
+    return <GetUserError />;
+  }
 
   const updateCaseIntakeField = <K extends keyof CaseIntake>(
     field: K,

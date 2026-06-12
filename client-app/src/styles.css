@@ -153,6 +153,14 @@
   box-sizing: border-box;
 }
 
+@layer base {
+  /* Tailwind v4 preflight leaves buttons at cursor: default; the app's
+     interactive language expects pointer on every enabled control. */
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
 html,
 body {
   min-height: 100%;

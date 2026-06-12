@@ -51,7 +51,7 @@ const SettingsModal = () => {
       />
 
       <div
-        className={`top-12 h-max max-h-[calc(100vh-6rem)] /w-lg max-w-full overflow-hidden text-md relative z-20 border rounded-xl bg-white/90 backdrop-blur-sm border-black/15 shadow-md transition-all ${
+        className={`top-12 h-max max-h-[calc(100vh-6rem)] max-w-full overflow-hidden text-md relative z-20 border rounded-xl bg-white/90 backdrop-blur-sm border-black/15 shadow-md transition-all ${
           modal
             ? "duration-100 ease-out scale-100 opacity-100 translate-0"
             : "duration-150 ease-in scale-95 opacity-0 translate-y-8"

@@ -29,7 +29,7 @@ const readNavigationPanelLoadingHeight = (windowWidthCategory: string) => {
 };
 
 const SkeletonBlock = ({ className }: { className: string }) => (
-  <div className={`animate-pulse rounded-lg bg-black/2 ${className}`} />
+  <div className={`animate-pulse rounded-lg bg-black/5 ${className}`} />
 );
 
 const NavigationPanel = () => {
@@ -79,11 +79,11 @@ const NavigationPanel = () => {
 
   return (
     <div
-      className={`${smallMenuPositionClassName} z-1000 w-64 min-w-64 lg:flex flex-col gap-2`}
+      className={`${smallMenuPositionClassName} z-[1000] w-64 min-w-64 lg:flex flex-col gap-2`}
     >
       {windowWidthCategory !== "large" && (
         <>
-          <div className="pointer-events-none fixed left-0 top-0 z-0 w-64 h-screen bg-neutral-400/40 backdrop-blur-lg lg:bg-transparent border-rborder-black/5" />
+          <div className="pointer-events-none fixed left-0 top-0 z-0 w-64 h-screen bg-neutral-400/40 backdrop-blur-lg lg:bg-transparent" />
         </>
       )}
       {windowWidthCategory === "large" && <AppLogo NavigationPanel={true} />}

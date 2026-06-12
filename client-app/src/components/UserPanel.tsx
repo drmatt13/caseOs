@@ -45,7 +45,7 @@ const UserPanel = ({
   return (
     <>
       <div
-        className={`${insetBottom ? "mb-1" : ""} flex min-w-0 items-center w-full justify-between gap-2 /pl-2 /pr-2`}
+        className={`${insetBottom ? "mb-1" : ""} flex min-w-0 items-center w-full justify-between gap-2`}
       >
         <div className="flex min-w-0 flex-1 gap-2 items-center">
           {user.profilePicture && !imageFailed ? (

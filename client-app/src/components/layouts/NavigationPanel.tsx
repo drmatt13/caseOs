@@ -350,7 +350,7 @@ const NavigationPanel = ({ children }: NavigationPanelProps) => {
     >
       {windowWidthCategory !== "large" && (
         <>
-          <div className="pointer-events-none fixed left-0 top-0 z-0 w-64 h-screen bg-neutral-400/40 backdrop-blur-lg lg:bg-transparent border-rborder-black/5" />
+          <div className="pointer-events-none fixed left-0 top-0 z-0 w-64 h-screen bg-neutral-400/40 backdrop-blur-lg lg:bg-transparent" />
         </>
       )}
       {windowWidthCategory === "large" && <AppLogo NavigationPanel={true} />}

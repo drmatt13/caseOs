@@ -14,7 +14,7 @@ const SelectCaseMenu = ({ workspaceId, workspaceName }: SelectCaseMenuProps) => 
         <Link to="/">
           <button
             type="button"
-            className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer"
+            className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100"
           >
             <ArrowLeft className="w-3 h-3" />
           </button>

@@ -90,7 +90,7 @@ function RouteComponent() {
   return (
     <>
       <LoginLayout>
-        <div className="flex flex-col w-84">
+        <div className="flex flex-col w-full max-w-84">
           <form
             id="register-form"
             onSubmit={handleSubmit}
@@ -115,7 +115,7 @@ function RouteComponent() {
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               disabled={isSubmitting}
-              className="rounded-md px-2 py-2.5 text-sm bg-gray-100 border border-black/15"
+              className="rounded-md px-2 py-2.5 text-sm bg-gray-100 border border-black/15 outline-none transition-colors focus:border-black/40"
               placeholder="Jane"
             />
             <label
@@ -133,7 +133,7 @@ function RouteComponent() {
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
               disabled={isSubmitting}
-              className="rounded-md px-2 py-2.5 text-sm bg-gray-100 border border-black/15"
+              className="rounded-md px-2 py-2.5 text-sm bg-gray-100 border border-black/15 outline-none transition-colors focus:border-black/40"
               placeholder="Doe"
             />
             <label
@@ -150,7 +150,7 @@ function RouteComponent() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={isSubmitting}
-              className="rounded-md px-2 py-2.5 text-sm bg-gray-100 border border-black/15"
+              className="rounded-md px-2 py-2.5 text-sm bg-gray-100 border border-black/15 outline-none transition-colors focus:border-black/40"
               placeholder="name@firm.com"
             />
             <label
@@ -169,7 +169,7 @@ function RouteComponent() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={isSubmitting}
-              className="rounded-md px-2 py-2.5 text-sm bg-gray-100 border border-black/15"
+              className="rounded-md px-2 py-2.5 text-sm bg-gray-100 border border-black/15 outline-none transition-colors focus:border-black/40"
               placeholder="••••••••"
             />
             <label
@@ -188,7 +188,7 @@ function RouteComponent() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               disabled={isSubmitting}
-              className="rounded-md px-2 py-2.5 mb-3 text-sm bg-gray-100 border border-black/15"
+              className="rounded-md px-2 py-2.5 mb-3 text-sm bg-gray-100 border border-black/15 outline-none transition-colors focus:border-black/40"
               placeholder="••••••••"
             />
             {status && (

@@ -13,7 +13,7 @@ const PageBackgroundLayout = ({
 }: PageBackgroundLayoutProps) => {
   return (
     <div className="relative isolate min-h-dvh overflow-x-clip">
-      <div className="/hidden block lg:block pointer-events-none fixed inset-x-0 top-0 z-0 h-svh overflow-hidden">
+      <div className="block pointer-events-none fixed inset-x-0 top-0 z-0 h-svh overflow-hidden">
         <img
           src="/65a6bf61-3b46-42c2-bcba-d596f9898e90.webp"
           alt="app_background"

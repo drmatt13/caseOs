@@ -61,7 +61,7 @@ const CreateCaseMenu = ({
         onClick={handleLeaveCreateCase}
         className="text-sm flex gap-1.5 items-center"
       >
-        <span className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer">
+        <span className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
           <ArrowLeft className="w-3 h-3" />
         </span>
         <p className="truncate">Create New Case</p>

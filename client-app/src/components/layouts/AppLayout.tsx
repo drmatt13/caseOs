@@ -8,7 +8,7 @@ interface AppLayoutProps {
 const AppLayout = ({ children }: AppLayoutProps) => {
   return (
     <>
-      <PageBackgroundLayout className="relative flex flex-row lg:gap-6 lg:pt-14 lg:pb-7 lg:px-8 lg:w-5xl lg:max-w-full /lg:max-w-[75vw]">
+      <PageBackgroundLayout className="relative flex flex-row lg:gap-6 lg:pt-14 lg:pb-7 lg:px-8 lg:w-5xl lg:max-w-full">
         {children}
       </PageBackgroundLayout>
     </>

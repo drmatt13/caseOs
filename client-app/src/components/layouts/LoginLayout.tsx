@@ -126,9 +126,12 @@ interface LoginLayoutProps {
 
 const LoginLayout = ({ children }: LoginLayoutProps) => {
   return (
-    <PageBackgroundLayout className="min-h-dvh gap-6 pb-10 pt-20 px-8 xl:px-0 max-w-max xl:max-w-5xl">
-      <div className="flex gap-4">
-        <div className="flex-1 flex flex-col gap-1 justify-start">
+    <PageBackgroundLayout className="min-h-dvh gap-6 pb-10 pt-10 lg:pt-20 px-4 sm:px-8 xl:px-0 max-w-full lg:max-w-max xl:max-w-5xl">
+      <div className="flex flex-col items-center gap-8 lg:flex-row lg:items-start lg:gap-4">
+        <div className="lg:hidden">
+          <AppLogo />
+        </div>
+        <div className="hidden lg:flex flex-1 flex-col gap-1 justify-start">
           <AppLogo />
           <div className="w-full flex flex-col xl:grid xl:grid-cols-2 gap-4">
             {/* TOP LEFT: FILE-BASED KNOWLEDGE GRAPH */}

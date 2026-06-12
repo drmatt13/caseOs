@@ -5,7 +5,7 @@ interface AppLogoProps {
 const AppLogo = ({ NavigationPanel }: AppLogoProps) => {
   return (
     <div
-      className={`flex gap-2.5 ${!NavigationPanel ? "h-14 -translate-y-1.5 translate-x-1" : "/w-55.75 w-full flex justify-center"}`}
+      className={`flex gap-2.5 ${!NavigationPanel ? "h-14 -translate-y-1.5 translate-x-1" : "w-full flex justify-center"}`}
     >
       {!NavigationPanel && (
         <img
@@ -19,7 +19,7 @@ const AppLogo = ({ NavigationPanel }: AppLogoProps) => {
           LAWSTRUCT
         </div>
 
-        <div className="flex items-center w-full -translate-y-0.75 /px-2 gap-1">
+        <div className="flex items-center w-full -translate-y-0.75 gap-1">
           <div className="flex-1 flex justify-center">
             <div className="w-full border-b border-black h-1 select-none pointer-events-none text-transparent">
               x

@@ -113,7 +113,7 @@ function RouteComponent() {
 
   return (
     <LoginLayout>
-      <div className="flex flex-col w-84">
+      <div className="flex flex-col w-full max-w-84">
         <div className="flex flex-col px-5 pt-8 pb-5 rounded-2xl bg-white/40 backdrop-blur-sm border border-black/15 shadow-md">
           <p className="text-[1.7rem] font-bold">Reset your password</p>
           <p className="mt-0.5 text-md text-gray-600">
@@ -149,7 +149,7 @@ function RouteComponent() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-md px-2 py-2.5 mb-3 text-sm bg-gray-100 border border-black/15"
+                className="w-full rounded-md px-2 py-2.5 mb-3 text-sm bg-gray-100 border border-black/15 outline-none transition-colors focus:border-black/40"
                 placeholder="name@firm.com"
               />
               <div className="mt-1" />
@@ -178,7 +178,7 @@ function RouteComponent() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-md px-2 py-2.5 text-sm bg-gray-100 border border-black/15"
+                className="w-full rounded-md px-2 py-2.5 text-sm bg-gray-100 border border-black/15 outline-none transition-colors focus:border-black/40"
                 placeholder="name@firm.com"
               />
               <label
@@ -195,7 +195,7 @@ function RouteComponent() {
                 required
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                className="w-full rounded-md px-2 py-2.5 text-sm bg-gray-100 border border-black/15"
+                className="w-full rounded-md px-2 py-2.5 text-sm bg-gray-100 border border-black/15 outline-none transition-colors focus:border-black/40"
                 placeholder="Enter 6-digit code"
               />
               <label
@@ -213,7 +213,7 @@ function RouteComponent() {
                 title={PASSWORD_POLICY_MESSAGE}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full rounded-md px-2 py-2.5 text-sm bg-gray-100 border border-black/15"
+                className="w-full rounded-md px-2 py-2.5 text-sm bg-gray-100 border border-black/15 outline-none transition-colors focus:border-black/40"
                 placeholder="••••••••"
               />
               <label
@@ -231,7 +231,7 @@ function RouteComponent() {
                 title={PASSWORD_POLICY_MESSAGE}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full rounded-md px-2 py-2.5 mb-3 text-sm bg-gray-100 border border-black/15"
+                className="w-full rounded-md px-2 py-2.5 mb-3 text-sm bg-gray-100 border border-black/15 outline-none transition-colors focus:border-black/40"
                 placeholder="••••••••"
               />
               <div className="mt-1" />

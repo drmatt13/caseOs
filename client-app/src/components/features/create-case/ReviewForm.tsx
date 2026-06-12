@@ -1,17 +1,9 @@
-// import React from "react";
-import {
-  Sparkles,
-  FileText,
-  Clock,
-  Scale,
-  Users,
-  BriefcaseBusiness,
-} from "lucide-react";
+import { Sparkles, FileText, Clock, Scale, Users } from "lucide-react";
 
 const ReviewForm = () => {
   return (
     <>
-      <div className="/bg-black/10 pt-10 pb-6 flex flex-col items-center">
+      <div className="pt-10 pb-6 flex flex-col items-center">
         <div className="mb-4 flex aspect-square items-center justify-center rounded-full border border-black/10 bg-black/6 p-4">
           <Sparkles className="w-7 h-7 text-black/75" />
         </div>

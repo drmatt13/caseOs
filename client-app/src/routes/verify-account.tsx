@@ -138,7 +138,7 @@ function RouteComponent() {
 
   return (
     <LoginLayout>
-      <div className="flex flex-col w-84">
+      <div className="flex flex-col w-full max-w-84">
         <div className="flex flex-col px-5 pt-8 pb-5 rounded-2xl bg-white/40 backdrop-blur-sm border border-black/15 shadow-md">
           <p className="text-[1.7rem] font-bold">Verify your account</p>
           <p className="mt-0.5 text-md text-gray-600">
@@ -176,7 +176,7 @@ function RouteComponent() {
                 autoComplete="one-time-code"
                 value={manualCode}
                 onChange={(e) => setManualCode(e.target.value)}
-                className="w-full rounded-md px-2 py-2.5 mb-3 text-sm bg-gray-100 border border-black/15"
+                className="w-full rounded-md px-2 py-2.5 mb-3 text-sm bg-gray-100 border border-black/15 outline-none transition-colors focus:border-black/40"
                 placeholder="Enter 6-digit code"
               />
               <div className="mt-1" />

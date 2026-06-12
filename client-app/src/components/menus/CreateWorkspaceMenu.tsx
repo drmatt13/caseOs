@@ -50,7 +50,7 @@ const CreateWorkspaceMenu = ({
       <div className="text-sm flex gap-1.5 items-center">
         <button
           type="button"
-          className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer"
+          className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100"
           onClick={() => {
             void handleLeaveCreateWorkspace();
           }}

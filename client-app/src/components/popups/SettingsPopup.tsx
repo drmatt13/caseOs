@@ -106,7 +106,7 @@ const SettingsPopup = () => {
 
         <div
           onClick={() => toggleModal("edit user")}
-          className="pr-4 /mr-3 flex text-sm p-2 rounded-lg hover:bg-black/10 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100"
+          className="pr-4 flex text-sm p-2 rounded-lg hover:bg-black/10 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100"
         >
           <UserPen className="w-4 h-4 mr-2" />
           <p className="truncate">Edit User</p>
@@ -114,7 +114,7 @@ const SettingsPopup = () => {
 
         <div
           onClick={() => toggleModal("manage subscription")}
-          className="pr-4 /mr-3 flex text-sm p-2 rounded-lg hover:bg-black/10 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100"
+          className="pr-4 flex text-sm p-2 rounded-lg hover:bg-black/10 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100"
         >
           <CreditCard className="w-4 h-4 mr-2" />
           <p className="truncate">Modify Subscription</p>
@@ -126,7 +126,7 @@ const SettingsPopup = () => {
 
             toggleModal("manage workspaces");
           }}
-          className={`pr-4 /mr-3 flex text-sm p-2 rounded-lg transition-colors ease-in duration-150 hover:ease-out hover:duration-100 ${
+          className={`pr-4 flex text-sm p-2 rounded-lg transition-colors ease-in duration-150 hover:ease-out hover:duration-100 ${
             manageWorkspacesDisabled
               ? "cursor-not-allowed text-gray-400"
               : "hover:bg-black/10 cursor-pointer"

@@ -7,6 +7,7 @@ import NavigationPanel from "#/components/layouts/NavigationPanel";
 import CreateWorkspaceMenu from "#/components/menus/CreateWorkspaceMenu";
 import Button from "#/components/Button";
 import PageLoading from "#/components/PageLoading";
+import GetUserError from "#/components/errors/GetUserError";
 import UserPanel from "#/components/UserPanel";
 import CreateWorkspaceReviewForm from "#/components/features/create-workspace/CreateWorkspaceReviewForm";
 import TeamMembersForm from "#/components/features/create-workspace/TeamMembersForm";
@@ -196,7 +197,7 @@ function RouteComponent() {
   }
 
   if (error || !user) {
-    return <>placeholder for error</>;
+    return <GetUserError />;
   }
 
   if (user.accountTier === "FREE") {
@@ -217,7 +218,7 @@ function RouteComponent() {
         <div className="flex flex-col gap-6 h-full justify-between">
           {renderStep()}
           {createWorkspaceMutation.error && (
-            <div className="rounded-xl border border-red-500/20 bg-red-50 px-3 py-2 text-sm text-red-800">
+            <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
               {createWorkspaceMutation.error.message}
             </div>
           )}
