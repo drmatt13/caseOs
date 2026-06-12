@@ -15,14 +15,23 @@ CDK_APP_NAME=
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 
-# Required when PROD_URL is configured for CloudFront alternate domain support.
-PROD_CERTIFICATE_ARN=
-
 # Optional localhost origin for testing prod APIs/auth from local frontend.
 LOCAL_DEV_URL=
 
 # Production frontend origin for Cognito callbacks/logout, emails, and CORS.
+# Leave empty to use the generated CloudFront URL instead of a custom frontend
+# domain.
 PROD_URL=
+
+# Required only when PROD_URL is configured for CloudFront alternate domain
+# support. Leave empty when PROD_URL is empty.
+PROD_CLOUDFRONT_CERTIFICATE_ARN=
+
+# Optional custom Cognito hosted UI domain.
+# Set both values together, or leave both empty to use the generated
+# *.auth.<region>.amazoncognito.com domain.
+COGNITO_DOMAIN_NAME=
+COGNITO_DOMAIN_CERTIFICATE_ARN=
 
 # Optional Lambda CPU architecture. Valid values: x86_64 or arm64.
 # Defaults to x86_64. The CDK context flag `-c lambdaArchitecture=...` overrides this.
@@ -32,9 +41,23 @@ LAMBDA_ARCHITECTURE=
 Do not commit real secrets. `CDK_APP_NAME` should match the value passed to
 `npm run export:cdk-outputs --cdkAppName=...`. For production deployments,
 `PROD_URL` should point to the production frontend origin used for callback,
-logout, email, and CORS configuration. `PROD_CERTIFICATE_ARN` is required when
-`PROD_URL` is set. Leave `LAMBDA_ARCHITECTURE` empty for x86_64 Lambdas, or set
-it to `arm64` when deploying ARM_64 Lambdas.
+logout, email, and CORS configuration when you want a custom frontend domain.
+`PROD_CLOUDFRONT_CERTIFICATE_ARN` is required only when `PROD_URL` is set.
+Leave both empty to deploy CloudFront without an alternate domain name and use
+the generated `CLOUDFRONT_URL` output.
+
+Leave `COGNITO_DOMAIN_NAME` and `COGNITO_DOMAIN_CERTIFICATE_ARN` empty to use
+the generated Cognito hosted UI domain. To use a custom Cognito domain, set
+`COGNITO_DOMAIN_NAME` to the domain name or URL, for example
+`auth.example.com` or `https://auth.example.com`, and set
+`COGNITO_DOMAIN_CERTIFICATE_ARN` to an ACM certificate ARN in `us-east-1`.
+Do not create the custom domain DNS record before the Cognito stack deploys.
+Cognito creates its own managed CloudFront distribution first; after deployment,
+point the custom domain at the `UserPoolDomainCloudFrontEndpoint` output. See
+`docs/COGNITO-CUSTOM-DOMAIN-DNS.md` for the failure mode and recovery steps.
+
+Leave `LAMBDA_ARCHITECTURE` empty for x86_64 Lambdas, or set it to `arm64` when
+deploying ARM_64 Lambdas.
 
 CDK sets the Prisma Lambda binary target from this architecture value during
 deployment. `x86_64` uses `rhel-openssl-3.0.x`; `arm64` uses
@@ -47,6 +70,20 @@ deployment. `x86_64` uses `rhel-openssl-3.0.x`; `arm64` uses
 ```powershell
 cdk deploy --all -c useLocalDevStack=false -c enableWebSockets=true -c useCustomWsAuthorizer=true -c enableEcsStack=false --require-approval never --profile=<PROFILE>
 ```
+
+Use `/cdk-app/.env` for custom-domain configuration. Set both `PROD_URL` and
+`PROD_CLOUDFRONT_CERTIFICATE_ARN` to use a custom frontend CloudFront domain,
+or omit both values to use the generated CloudFront distribution URL.
+
+Set both `COGNITO_DOMAIN_NAME` and `COGNITO_DOMAIN_CERTIFICATE_ARN` to use a
+custom Cognito hosted UI domain, or omit both values to use the generated
+Cognito hosted UI domain.
+
+If `AWS::Cognito::UserPoolDomain` fails with a generic `InvalidRequest`, first
+check whether the custom domain already has a DNS record pointing at a
+CloudFront distribution. Remove that DNS record, redeploy, then recreate DNS
+from the new `UserPoolDomainCloudFrontEndpoint` output. See
+`docs/COGNITO-CUSTOM-DOMAIN-DNS.md`.
 
 To override `/cdk-app/.env` for one deploy, pass the architecture explicitly:
 

@@ -30,9 +30,9 @@ const viewMenuItems: Array<{
   icon: LucideIcon;
 }> = [
   { value: "case_agent", label: "Case Agent", icon: Bot },
-  { value: "case_summary", label: "Case Summary", icon: FileText },
+  { value: "case_summary", label: "Overview", icon: FileText },
   { value: "arguments", label: "Arguments", icon: Gavel },
-  { value: "case_notes", label: "Case Notes", icon: NotebookPen },
+  { value: "case_notes", label: "Notes", icon: NotebookPen },
   { value: "facts", label: "Facts", icon: Lightbulb },
   { value: "issues", label: "Issues", icon: AlertCircle },
   { value: "legal_precedent", label: "Legal Precedent", icon: Scale },

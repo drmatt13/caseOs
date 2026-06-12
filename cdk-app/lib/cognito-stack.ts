@@ -1,11 +1,14 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
+import * as acm from "aws-cdk-lib/aws-certificatemanager";
 import * as cognito from "aws-cdk-lib/aws-cognito";
 import * as iam from "aws-cdk-lib/aws-iam";
 import { IFunction } from "aws-cdk-lib/aws-lambda";
 
 export interface CognitoStackProps extends cdk.StackProps {
   cognitoDomainPrefix?: string;
+  cognitoDomainName?: string;
+  cognitoDomainCertificateArn?: string;
   googleClientId?: string;
   googleClientSecret?: cdk.SecretValue;
   callbackUrls?: string[];
@@ -37,7 +40,28 @@ export class CognitoStack extends cdk.Stack {
 
     const domainPrefix = props.cognitoDomainPrefix ?? "matts-aws-cdk-dev-kit";
 
-    if (!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(domainPrefix)) {
+    if (
+      props.cognitoDomainName !== undefined &&
+      props.cognitoDomainCertificateArn === undefined
+    ) {
+      throw new Error(
+        "cognitoDomainCertificateArn is required when cognitoDomainName is configured.",
+      );
+    }
+
+    if (
+      props.cognitoDomainName === undefined &&
+      props.cognitoDomainCertificateArn !== undefined
+    ) {
+      throw new Error(
+        "cognitoDomainName is required when cognitoDomainCertificateArn is configured.",
+      );
+    }
+
+    if (
+      !props.cognitoDomainName &&
+      !/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(domainPrefix)
+    ) {
       throw new Error(
         `cognitoDomainPrefix must be 1-63 lowercase letters, numbers, or hyphens, and cannot start or end with a hyphen. Received: ${domainPrefix}`,
       );
@@ -96,12 +120,26 @@ export class CognitoStack extends cdk.Stack {
         : cdk.RemovalPolicy.DESTROY,
     });
 
-    const domain = userPool.addDomain("UserPoolDomain", {
-      cognitoDomain: {
-        domainPrefix,
-      },
-    });
-    const userPoolDomainUrl = `https://${domain.domainName}.auth.${this.region}.amazoncognito.com`;
+    const domain = userPool.addDomain(
+      "UserPoolDomain",
+      props.cognitoDomainName && props.cognitoDomainCertificateArn
+        ? {
+            customDomain: {
+              domainName: props.cognitoDomainName,
+              certificate: acm.Certificate.fromCertificateArn(
+                this,
+                "UserPoolDomainCertificate",
+                props.cognitoDomainCertificateArn,
+              ),
+            },
+          }
+        : {
+            cognitoDomain: {
+              domainPrefix,
+            },
+          },
+    );
+    const userPoolDomainUrl = domain.baseUrl();
 
     props.cognitoPreSignUpTriggerFn?.addToRolePolicy(
       new iam.PolicyStatement({
@@ -200,6 +238,15 @@ export class CognitoStack extends cdk.Stack {
       value: userPoolDomainUrl,
       exportName: `${this.stackName}:UserPoolDomainUrl`,
     });
+
+    if (props.cognitoDomainName) {
+      new cdk.CfnOutput(this, "UserPoolDomainCloudFrontEndpoint", {
+        value: domain.cloudFrontEndpoint,
+        exportName: `${this.stackName}:UserPoolDomainCloudFrontEndpoint`,
+        description:
+          "CloudFront endpoint to use as the DNS target for the Cognito custom domain.",
+      });
+    }
 
     new cdk.CfnOutput(this, "OAuthProviderRedirectUri", {
       value: this.oauthProviderRedirectUri,

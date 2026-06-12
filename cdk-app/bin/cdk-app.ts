@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import * as cdk from "aws-cdk-lib";
 import * as lambda from "aws-cdk-lib/aws-lambda";
+import { createHash } from "crypto";
 import { execSync } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
@@ -119,9 +120,11 @@ runDatabaseGenerate(lambdaArchitectureConfig.prismaBinaryTarget);
 //
 // -c cdkAppName                    (default: CDK_APP_NAME from .env, fallback: matts-aws-cdk-dev-kit)
 // -c prodUrl                       (default: PROD_URL from .env)
-// -c prodCertificateArn            (default: PROD_CERTIFICATE_ARN from .env, required when prodUrl is configured)
+// -c prodCloudFrontCertificateArn  (default: PROD_CLOUDFRONT_CERTIFICATE_ARN from .env, required when prodUrl is configured)
 // -c localDevUrl                   (default: LOCAL_DEV_URL from .env, fallback: http://localhost:3000 in local mode)
-// -c cognitoDomainPrefix           (default: COGNITO_DOMAIN_PREFIX from .env, fallback: cdkAppName)
+// -c cognitoDomainPrefix           (default: COGNITO_DOMAIN_PREFIX from .env, fallback: generated from cdkAppName-account-region)
+// -c cognitoDomainName             (default: COGNITO_DOMAIN_NAME from .env, optional custom Cognito domain)
+// -c cognitoDomainCertificateArn   (default: COGNITO_DOMAIN_CERTIFICATE_ARN from .env, required when cognitoDomainName is configured)
 // -c googleClientId                (default: GOOGLE_CLIENT_ID from .env)
 // -c googleClientSecret            (default: GOOGLE_CLIENT_SECRET from .env)
 // -c stripePublishableKey          (default: STRIPE_PUBLISHABLE_KEY from .env)
@@ -134,7 +137,7 @@ runDatabaseGenerate(lambdaArchitectureConfig.prismaBinaryTarget);
 // cdk deploy --all -c useCustomWsAuthorizer=true -c enableWebSockets=true -c skipEmailVerification=true --require-approval never
 
 // Current PROD deployment:
-// cdk deploy --all -c useLocalDevStack=false -c prodCertificateArn=arn:aws:acm:us-east-1:<account-id>:certificate/<certificate-id> -c localDevUrl=http://localhost:3000 -c useCustomWsAuthorizer=true -c enableWebSockets=true -c enableEcsStack=false -c skipEmailVerification=true --require-approval never --profile=dev
+// cdk deploy --all -c useLocalDevStack=false -c prodCloudFrontCertificateArn=arn:aws:acm:us-east-1:<account-id>:certificate/<certificate-id> -c localDevUrl=http://localhost:3000 -c useCustomWsAuthorizer=true -c enableWebSockets=true -c enableEcsStack=false -c skipEmailVerification=true --require-approval never --profile=dev
 
 // Frontend website bucket deployment:
 // <build frontend assets in ../client-app/dist>
@@ -225,6 +228,23 @@ if (!/^[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(deploymentName)) {
 
 const stackId = (baseName: string) => `${deploymentName}-${baseName}`;
 
+const getGeneratedCognitoDomainPrefix = () => {
+  const rawPrefix = `${deploymentName}-${account}-${region}`;
+
+  if (rawPrefix.length <= 63) {
+    return rawPrefix;
+  }
+
+  const hash = createHash("sha256").update(rawPrefix).digest("hex").slice(0, 8);
+  const suffix = `-${account}-${region}-${hash}`;
+  const maxDeploymentNameLength = 63 - suffix.length;
+  const shortenedDeploymentName = deploymentName
+    .slice(0, maxDeploymentNameLength)
+    .replace(/-+$/, "");
+
+  return `${shortenedDeploymentName}${suffix}`;
+};
+
 const getDomainNameFromUrl = (url: string, label: string) => {
   const normalizedUrl = normalizeFrontendUrl(url);
 
@@ -237,6 +257,20 @@ const getDomainNameFromUrl = (url: string, label: string) => {
   } catch {
     throw new Error(`${label} must be an absolute URL. Received: ${url}`);
   }
+};
+
+const normalizeDomainName = (value: string, label: string) => {
+  const trimmedValue = value.trim().replace(/\/+$/, "");
+
+  if (!trimmedValue) {
+    return undefined;
+  }
+
+  if (!trimmedValue.includes("://")) {
+    return trimmedValue;
+  }
+
+  return getDomainNameFromUrl(trimmedValue, label);
 };
 
 const isLoopbackHttpUrl = (url: string) => {
@@ -304,10 +338,12 @@ const dedupeFrontendUrls = (urls: string[]) => {
 const prodUrlContext = app.node.tryGetContext("prodUrl");
 const configuredProdUrl =
   optionalString(prodUrlContext) ?? optionalString(process.env.PROD_URL);
-const prodCertificateArnContext = app.node.tryGetContext("prodCertificateArn");
-const configuredProdCertificateArn =
-  optionalString(prodCertificateArnContext) ??
-  optionalString(process.env.PROD_CERTIFICATE_ARN);
+const prodCloudFrontCertificateArnContext = app.node.tryGetContext(
+  "prodCloudFrontCertificateArn",
+);
+const configuredProdCloudFrontCertificateArn =
+  optionalString(prodCloudFrontCertificateArnContext) ??
+  optionalString(process.env.PROD_CLOUDFRONT_CERTIFICATE_ARN);
 const localDevUrlContext = app.node.tryGetContext("localDevUrl");
 const configuredLocalDevUrl =
   optionalString(localDevUrlContext) ??
@@ -318,9 +354,13 @@ const prodDomainName = configuredProdUrl
   ? getDomainNameFromUrl(configuredProdUrl, "prodUrl/PROD_URL")
   : undefined;
 
-if (!useLocalDevStack && prodDomainName && !configuredProdCertificateArn) {
+if (
+  !useLocalDevStack &&
+  prodDomainName &&
+  !configuredProdCloudFrontCertificateArn
+) {
   throw new Error(
-    "prodCertificateArn/PROD_CERTIFICATE_ARN is required when prodUrl/PROD_URL is configured so CloudFront can attach the alternate domain name.",
+    "prodCloudFrontCertificateArn/PROD_CLOUDFRONT_CERTIFICATE_ARN is required when prodUrl/PROD_URL is configured so CloudFront can attach the alternate domain name.",
   );
 }
 
@@ -331,8 +371,8 @@ const frontendWebsiteS3Stack = new FrontendWebsiteS3Stack(
     env: stackEnv,
     enableCloudFront: !useLocalDevStack,
     prodDomainName: !useLocalDevStack ? prodDomainName : undefined,
-    prodCertificateArn: !useLocalDevStack
-      ? configuredProdCertificateArn
+    prodCloudFrontCertificateArn: !useLocalDevStack
+      ? configuredProdCloudFrontCertificateArn
       : undefined,
   },
 );
@@ -360,7 +400,22 @@ const cognitoDomainPrefixContext = app.node.tryGetContext(
 const cognitoDomainPrefix =
   optionalString(cognitoDomainPrefixContext) ??
   optionalString(process.env.COGNITO_DOMAIN_PREFIX) ??
-  deploymentName;
+  getGeneratedCognitoDomainPrefix();
+const cognitoDomainNameContext = app.node.tryGetContext("cognitoDomainName");
+const cognitoDomainNameFromEnv = optionalString(
+  process.env.COGNITO_DOMAIN_NAME,
+);
+const configuredCognitoDomainName = optionalString(cognitoDomainNameContext)
+  ? normalizeDomainName(String(cognitoDomainNameContext), "cognitoDomainName")
+  : cognitoDomainNameFromEnv
+    ? normalizeDomainName(cognitoDomainNameFromEnv, "COGNITO_DOMAIN_NAME")
+    : undefined;
+const cognitoDomainCertificateArnContext = app.node.tryGetContext(
+  "cognitoDomainCertificateArn",
+);
+const cognitoDomainCertificateArn =
+  optionalString(cognitoDomainCertificateArnContext) ??
+  optionalString(process.env.COGNITO_DOMAIN_CERTIFICATE_ARN);
 
 const googleClientIdContext = app.node.tryGetContext("googleClientId");
 const googleClientSecretContext = app.node.tryGetContext("googleClientSecret");
@@ -441,6 +496,8 @@ const cognitoStack = new CognitoStack(app, stackId("CognitoStack"), {
   retainStatefulResouces,
   skipEmailVerification,
   cognitoDomainPrefix,
+  cognitoDomainName: configuredCognitoDomainName,
+  cognitoDomainCertificateArn,
   googleClientId,
   googleClientSecret,
   callbackUrls: authCallbackUrls,

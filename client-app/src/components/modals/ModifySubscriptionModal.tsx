@@ -146,7 +146,7 @@ const ModifySubscriptionModal = () => {
             <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" />
             <div>
               <p className="font-serif text-lg">Payment successful</p>
-              <p className="mt-1 max-w-xl leading-6 text-emerald-900/80">
+              <p className="mt-1 max-w-xl text-md leading-6 text-emerald-900/80">
                 Your {selectedOption.name} subscription is active. You can now
                 create workspaces, invite collaborators, and organize shared
                 case work from the workspace menu.

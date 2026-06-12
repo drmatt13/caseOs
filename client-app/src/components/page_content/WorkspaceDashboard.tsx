@@ -32,7 +32,7 @@ const WorkspaceDashboard = ({ workspace }: WorkspaceProps) => {
       <div className="flex flex-col px-2 gap-1.5">
         <p className="text-xl font-bold">{workspace.name}</p>
         {workspace.description && (
-          <p className="mb-1.5 text-md">
+          <p className="mb-1.5 text-md leading-6">
             <span className="underline mr-2">Description:</span>
             {workspace.description}
           </p>

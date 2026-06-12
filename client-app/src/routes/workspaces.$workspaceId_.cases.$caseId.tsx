@@ -90,7 +90,7 @@ const partyLabels: Record<DemoRecordParty, string> = {
 
 const viewLabels: Record<ViewTypes, string> = {
   case_agent: "Case Agent",
-  case_summary: "Case Summary",
+  case_summary: "Case Overview",
   arguments: "Arguments",
   case_notes: "Case Notes",
   facts: "Facts",
@@ -354,10 +354,7 @@ function RouteComponent() {
       <NavigationPanel>
         <UserPanel user={user} settings={true} showTier={true} />
         <div className="text-sm flex gap-1.5 items-center">
-          <Link
-            to="/workspaces/$workspaceId"
-            params={{ workspaceId }}
-          >
+          <Link to="/workspaces/$workspaceId" params={{ workspaceId }}>
             <div className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
               <ArrowLeft className="w-3 h-3" />
             </div>
@@ -1411,10 +1408,7 @@ function RecordCard({
       >
         {(displayStatus === "accepted" || displayStatus === "rejected") && (
           <div className="absolute right-3 top-3">
-            <RecordSettingsMenu
-              record={record}
-              onDelete={onDelete}
-            />
+            <RecordSettingsMenu record={record} onDelete={onDelete} />
           </div>
         )}
         <div className="min-w-0">
@@ -1635,7 +1629,7 @@ function RecordRow({ record }: { record: DemoRecord }) {
       <div className="flex min-w-0 items-center justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate text-md font-medium">{record.title}</p>
-          <p className="mt-1 break-words text-sm text-black/55">
+          <p className="mt-1 break-words text-sm leading-5 text-black/55">
             {record.typeStatus} · {record.miniDescription}
           </p>
         </div>

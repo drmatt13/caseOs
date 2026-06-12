@@ -7,7 +7,7 @@ import { Construct } from "constructs";
 export interface FrontendWebsiteS3StackProps extends cdk.StackProps {
   enableCloudFront?: boolean;
   prodDomainName?: string;
-  prodCertificateArn?: string;
+  prodCloudFrontCertificateArn?: string;
 }
 
 export class FrontendWebsiteS3Stack extends cdk.Stack {
@@ -31,9 +31,9 @@ export class FrontendWebsiteS3Stack extends cdk.Stack {
     );
 
     if (props?.enableCloudFront) {
-      if (props.prodDomainName && !props.prodCertificateArn) {
+      if (props.prodDomainName && !props.prodCloudFrontCertificateArn) {
         throw new Error(
-          "prodCertificateArn is required when prodDomainName is configured.",
+          "prodCloudFrontCertificateArn is required when prodDomainName is configured.",
         );
       }
 
@@ -62,7 +62,7 @@ export class FrontendWebsiteS3Stack extends cdk.Stack {
               ? {
                   aliases: [props.prodDomainName],
                   viewerCertificate: {
-                    acmCertificateArn: props.prodCertificateArn,
+                    acmCertificateArn: props.prodCloudFrontCertificateArn,
                     minimumProtocolVersion: "TLSv1.2_2021",
                     sslSupportMethod: "sni-only",
                   },
