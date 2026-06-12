@@ -33,6 +33,8 @@ function App() {
     error: getWorkspacesError,
   } = useWorkspacesQuery({ enabled: Boolean(user) });
 
+  // return <PageLoading />;
+
   // UPDATE if user or workspace data is missing or errors out
   if (getUserPending || getWorkspacesPending) {
     return <PageLoading />;

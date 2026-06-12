@@ -29,7 +29,7 @@ const readNavigationPanelLoadingHeight = (windowWidthCategory: string) => {
 };
 
 const SkeletonBlock = ({ className }: { className: string }) => (
-  <div className={`animate-pulse rounded-lg bg-black/5 ${className}`} />
+  <div className={`animate-pulse rounded-lg bg-black/2 ${className}`} />
 );
 
 const NavigationPanel = () => {

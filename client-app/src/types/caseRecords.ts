@@ -1,5 +1,7 @@
 // source-grounded case knowledge graph
 
+import type { CaseContext } from "./caseContext";
+
 export type PersonRole =
   | "PLAINTIFF"
   | "DEFENDANT"
@@ -34,18 +36,18 @@ export type PersonRole =
 
 export interface CasePerson {
   id: string;
+  workspaceId: string;
+  caseId: string;
   name: string;
+  roles: PersonRole[];
+  primaryRole?: PersonRole;
+  aliases?: string[];
+  title?: string;
+  organization?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
 }
-
-export type PersonCaseRole =
-  | "PLAINTIFF"
-  | "DEFENDANT"
-  | "WITNESS"
-  | "ATTORNEY"
-  | "JUDGE"
-  | "THIRD_PARTY";
-
-// ^ EXPERIMENTAL
 
 export type RecordStatus =
   | "PROPOSED"
@@ -83,6 +85,7 @@ export type RecordType =
   | "LEGAL_PRECEDENT"
   | "OBJECTIVE"
   | "POSTURE"
+  | "PERSON"
   | "TASK"
   | "TESTIMONY"
   | "THEORY"
@@ -107,6 +110,7 @@ export const RECORD_LEVEL: Record<RecordType, number> = {
   FACT: 3,
   TIMELINE_EVENT: 3,
   TESTIMONY: 3,
+  PERSON: 0,
   LEGAL_PRECEDENT: 3,
   NOTE: 3,
 
@@ -136,6 +140,46 @@ export interface CaseRecord {
   supersedes?: string[]; // record IDs of older records that this record supersedes
   createdAt: string;
   updatedAt: string;
+}
+
+export type CaseSummarySectionType =
+  | "OVERVIEW"
+  | "FACTS"
+  | "CLAIMS"
+  | "ISSUES"
+  | "ARGUMENTS"
+  | "TIMELINE"
+  | "EVIDENCE"
+  | "RISKS"
+  | "NEXT_STEPS"
+  | "OPEN_QUESTIONS"
+  | "CUSTOM";
+
+export interface CaseSummarySection {
+  id: string;
+  type: CaseSummarySectionType;
+  title: string;
+  content: string;
+  recordIds?: string[];
+  updatedAt: string;
+}
+
+export interface CaseSummaryData {
+  caseContext: CaseContext;
+  overview: string;
+  sections: CaseSummarySection[];
+  generatedFromRecordIds: string[];
+  lastExpandedAt?: string;
+}
+
+export interface CaseSummaryRecord extends CaseRecord {
+  type: "CASE_SUMMARY";
+  summary: CaseSummaryData;
+}
+
+export interface CasePersonRecord extends CaseRecord {
+  type: "PERSON";
+  person: CasePerson;
 }
 
 export interface GraphLink {
