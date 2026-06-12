@@ -6,23 +6,23 @@ import {
   CalendarDays,
   CheckCircle2,
   ChevronDown,
+  ChevronLeft,
   ChevronRight,
   CircleAlert,
-  FileCheck2,
   FileText,
   Filter,
   GitBranch,
   Link2,
-  MessageSquare,
   PencilLine,
   Search,
   Settings,
   ShieldCheck,
   Sparkles,
   Trash2,
+  Users,
+  X,
   XCircle,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 
 import AppLayout from "#/components/layouts/AppLayout";
 import NavigationPanel from "#/components/layouts/NavigationPanel";
@@ -34,18 +34,50 @@ import Button from "#/components/Button";
 import TextAreaField from "#/components/TextAreaField";
 import { requireAuth } from "#/lib/auth";
 import { useCurrentUserQuery } from "#/api/currentUser/hooks";
-import type { ViewTypes } from "#/types/caseWorkspace";
+import { useWorkspaceQuery } from "#/api/workspace/hooks";
+import GetUserError from "#/components/errors/GetUserError";
+
+import type {
+  CaseDocument,
+  GraphLink,
+  RecordStatus,
+  TimelineEventRecord,
+  TypedCaseRecord,
+} from "#/types/caseRecords";
+import {
+  RECORD_TYPE_VIEW,
+  VIEW_RECORD_TYPE,
+  type RecordViewType,
+  type WorkspaceViewType,
+} from "#/types/caseWorkspace";
+import {
+  ATTENTION_SUBSTATUSES,
+  LINK_TYPE_INBOUND_LABELS,
+  LINK_TYPE_LABELS,
+  RECORD_PARTY_CLASSES,
+  RECORD_STATUS_CLASSES,
+  RECORD_STATUS_LABELS,
+  RECORD_SUBSTATUS_LABELS,
+  RECORD_TYPE_LABELS,
+  SINGULAR_VIEW_LABELS,
+  SUPPORT_STATUS_LABELS,
+  VIEW_DESCRIPTIONS,
+  VIEW_LABELS,
+  recordPartyLabel,
+} from "#/lib/caseRecordPresentation";
 import {
   demoActivity,
+  demoAgentInstructions,
+  demoAgentThread,
   demoCase,
+  demoCaseContext,
   demoDocuments,
+  demoLinks,
   demoRecords,
-  type DemoRecord,
-  type DemoRecordParty,
-  type DemoRecordStatus,
+  demoUserId,
+  DEMO_CASE_ID,
+  DEMO_WORKSPACE_ID,
 } from "#/lib/caseWorkspaceDemo";
-import GetUserError from "#/components/errors/GetUserError";
-import { useWorkspaceQuery } from "#/api/workspace/hooks";
 
 export const Route = createFileRoute("/workspaces/$workspaceId_/cases/$caseId")(
   {
@@ -54,135 +86,209 @@ export const Route = createFileRoute("/workspaces/$workspaceId_/cases/$caseId")(
   },
 );
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Local types & helpers
+// ─────────────────────────────────────────────────────────────────────────────
+
 type ProposalDecision = {
   status: "accepted" | "rejected";
   reason?: string;
-  suggestedEdit?: string;
 };
 
-type SelectedRecordStatuses = DemoRecordStatus[];
+const clientRole = demoCaseContext.representation.clientRole;
 
-const statusClassName: Record<DemoRecordStatus, string> = {
-  accepted: "border-green-200 bg-green-50 text-green-800",
-  proposed: "border-blue-200 bg-blue-50 text-blue-800",
-  rejected: "border-red-200 bg-red-50 text-red-800",
-  supersession_pending: "border-amber-200 bg-amber-50 text-amber-800",
-  superseded: "border-black/10 bg-black/5 text-black/55",
-};
+function formatDate(iso?: string) {
+  if (!iso) return "—";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return iso;
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
 
-const statusLabels: Record<DemoRecordStatus, string> = {
-  accepted: "Accepted",
-  proposed: "Proposed",
-  rejected: "Rejected",
-  supersession_pending: "Supersession pending",
-  superseded: "Superseded",
-};
-
-const partyClassName: Record<DemoRecordParty, string> = {
-  plaintiff: "border-rose-200 bg-rose-50 text-rose-800",
-  defense: "border-sky-200 bg-sky-50 text-sky-800",
-};
-
-const partyLabels: Record<DemoRecordParty, string> = {
-  plaintiff: "Plaintiff",
-  defense: "Defense",
-};
-
-const viewLabels: Record<ViewTypes, string> = {
-  case_agent: "Case Agent",
-  case_summary: "Case Overview",
-  arguments: "Arguments",
-  case_notes: "Case Notes",
-  facts: "Facts",
-  issues: "Issues",
-  legal_precedent: "Legal Precedent",
-  objectives: "Objectives",
-  posture: "Posture",
-  tasks: "Tasks",
-  testimony: "Testimony",
-  timeline: "Timeline",
-  documents_index: "Documents",
-};
-
-const singularViewLabels: Partial<Record<ViewTypes, string>> = {
-  arguments: "argument",
-  case_notes: "case note",
-  facts: "fact",
-  issues: "issue",
-  legal_precedent: "precedent",
-  objectives: "objective",
-  posture: "posture update",
-  tasks: "task",
-  testimony: "testimony note",
-  timeline: "timeline event",
-};
-
-const createLabels: Partial<Record<ViewTypes, string>> = {
-  arguments: "Create argument",
-  case_notes: "Create case note",
-  facts: "Create fact",
-  issues: "Create issue",
-  legal_precedent: "Create precedent",
-  objectives: "Create objective",
-  posture: "Create posture update",
-  tasks: "Create task",
-  testimony: "Create testimony note",
-  timeline: "Create timeline event",
-};
-
-const viewDescriptions: Partial<Record<ViewTypes, string>> = {
-  arguments:
-    "Organize claims, defenses, counterarguments, and trial theories with source support.",
-  case_notes:
-    "Capture working thoughts, questions, hearing notes, and strategy observations.",
-  facts:
-    "Track factual assertions, disputed points, source support, and proof gaps.",
-  issues:
-    "Frame the legal, factual, procedural, and strategic questions driving the case.",
-  legal_precedent:
-    "Manage authorities, cite-check status, jurisdiction, and relevance to active issues.",
-  objectives:
-    "Keep desired outcomes, priorities, settlement posture, and risk-aware goals visible.",
-  posture:
-    "Summarize where the case stands procedurally and what that means for next work.",
-  tasks:
-    "Turn case strategy into accountable work items, blockers, and preparation steps.",
-  testimony:
-    "Shape witness modules, anticipated testimony, impeachment points, and examination themes.",
-};
-
-function recordMatchesSearch(record: DemoRecord, searchValue: string) {
+function recordMatchesSearch(record: TypedCaseRecord, searchValue: string) {
   const normalizedSearch = searchValue.trim().toLowerCase();
-
-  if (normalizedSearch.length === 0) {
-    return true;
-  }
+  if (normalizedSearch.length === 0) return true;
 
   return [
-    viewLabels[record.type],
+    RECORD_TYPE_LABELS[record.type],
     record.title,
-    record.miniDescription,
+    record.summary ?? "",
     record.content,
-    record.category,
-    record.typeStatus,
-    record.party ? partyLabels[record.party] : "",
-    record.createdBy,
-    record.updatedAt,
-    record.date ?? "",
-    record.priority ?? "",
-    record.sources.join(" "),
-    record.linkedRecords.join(" "),
-    record.supersedes?.title ?? "",
-    record.supersedes?.summary ?? "",
+    record.category ?? "",
+    record.substatus ? RECORD_SUBSTATUS_LABELS[record.substatus] : "",
+    record.party ? recordPartyLabel(record.party, clientRole) : "",
+    RECORD_STATUS_LABELS[record.status],
   ]
     .join(" ")
     .toLowerCase()
     .includes(normalizedSearch);
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Workspace data hook: records + graph lookups + simulated lifecycle state
+// ─────────────────────────────────────────────────────────────────────────────
+
+function useWorkspaceGraph() {
+  const [localNotes, setLocalNotes] = useState<TypedCaseRecord[]>([]);
+  const [deletedRecordIds, setDeletedRecordIds] = useState<string[]>([]);
+  const [proposalDecisions, setProposalDecisions] = useState<
+    Record<string, ProposalDecision>
+  >({});
+  // Records whose supersession completed in this session (proposal accepted).
+  const [supersededIds, setSupersededIds] = useState<string[]>([]);
+
+  const records = useMemo(
+    () =>
+      [...localNotes, ...demoRecords].filter(
+        (record) => !deletedRecordIds.includes(record.id),
+      ),
+    [localNotes, deletedRecordIds],
+  );
+
+  const recordsById = useMemo(
+    () => new Map(records.map((record) => [record.id, record])),
+    [records],
+  );
+
+  const { outboundLinks, inboundLinks } = useMemo(() => {
+    const outbound = new Map<string, GraphLink[]>();
+    const inbound = new Map<string, GraphLink[]>();
+
+    for (const link of demoLinks) {
+      if (
+        deletedRecordIds.includes(link.fromRecordId) ||
+        deletedRecordIds.includes(link.toRecordId)
+      ) {
+        continue;
+      }
+      outbound.set(link.fromRecordId, [
+        ...(outbound.get(link.fromRecordId) ?? []),
+        link,
+      ]);
+      inbound.set(link.toRecordId, [
+        ...(inbound.get(link.toRecordId) ?? []),
+        link,
+      ]);
+    }
+
+    return { outboundLinks: outbound, inboundLinks: inbound };
+  }, [deletedRecordIds]);
+
+  const effectiveStatus = (record: TypedCaseRecord): RecordStatus => {
+    const decision = proposalDecisions[record.id];
+    if (decision) return decision.status === "accepted" ? "ACCEPTED" : "REJECTED";
+    if (supersededIds.includes(record.id)) return "SUPERSEDED";
+    return record.status;
+  };
+
+  // Proposed records that supersede another record, keyed by the target id.
+  const pendingSupersessionByTargetId = useMemo(() => {
+    const map = new Map<string, TypedCaseRecord>();
+    for (const record of records) {
+      if (
+        record.status === "PROPOSED" &&
+        !proposalDecisions[record.id] &&
+        record.supersedesIds
+      ) {
+        for (const targetId of record.supersedesIds) {
+          map.set(targetId, record);
+        }
+      }
+    }
+    return map;
+  }, [records, proposalDecisions]);
+
+  const proposedRecords = useMemo(
+    () =>
+      records.filter(
+        (record) =>
+          record.status === "PROPOSED" && !proposalDecisions[record.id],
+      ),
+    [records, proposalDecisions],
+  );
+
+  const decideProposal = (recordId: string, decision: ProposalDecision) => {
+    setProposalDecisions((decisions) => ({
+      ...decisions,
+      [recordId]: decision,
+    }));
+    // Accepting a superseding proposal retires its targets.
+    if (decision.status === "accepted") {
+      const record = recordsById.get(recordId);
+      if (record?.supersedesIds?.length) {
+        setSupersededIds((ids) => [
+          ...ids,
+          ...record.supersedesIds!.filter((id) => !ids.includes(id)),
+        ]);
+      }
+    }
+  };
+
+  const deleteRecord = (recordId: string) => {
+    setDeletedRecordIds((ids) =>
+      ids.includes(recordId) ? ids : [...ids, recordId],
+    );
+    setProposalDecisions((decisions) => {
+      const next = { ...decisions };
+      delete next[recordId];
+      return next;
+    });
+  };
+
+  const createNote = (content: string) => {
+    const trimmed = content.trim();
+    if (!trimmed) return;
+
+    setLocalNotes((notes) => [
+      {
+        id: `note-local-${Date.now()}`,
+        workspaceId: DEMO_WORKSPACE_ID,
+        caseId: DEMO_CASE_ID,
+        type: "NOTE",
+        substatus: "GENERAL",
+        title: trimmed.split("\n")[0].slice(0, 72),
+        summary: "New working case note captured in the workspace.",
+        content: trimmed,
+        category: "Case note",
+        status: "ACCEPTED",
+        version: 1,
+        createdBy: "human",
+        createdByUserId: demoUserId,
+        approvedByUserId: demoUserId,
+        approvedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      ...notes,
+    ]);
+  };
+
+  return {
+    records,
+    recordsById,
+    outboundLinks,
+    inboundLinks,
+    effectiveStatus,
+    pendingSupersessionByTargetId,
+    proposedRecords,
+    proposalDecisions,
+    decideProposal,
+    deleteRecord,
+    createNote,
+  };
+}
+
+type WorkspaceGraph = ReturnType<typeof useWorkspaceGraph>;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Route component
+// ─────────────────────────────────────────────────────────────────────────────
+
 function RouteComponent() {
   const { workspaceId, caseId } = Route.useParams();
-  // const caseTitle = caseTitlesById[caseId] ?? "Case Workspace";
 
   const {
     data: getUserResult,
@@ -196,150 +302,45 @@ function RouteComponent() {
     error: getWorkspaceError,
   } = useWorkspaceQuery(workspaceId, { enabled: Boolean(user) });
 
-  const [activeView, setActiveView] = useState<ViewTypes>("case_agent");
-  const [selectedStatuses, setSelectedStatuses] =
-    useState<SelectedRecordStatuses>([]);
+  const graph = useWorkspaceGraph();
+  const [activeView, setActiveView] = useState<WorkspaceViewType>("overview");
   const [globalSearch, setGlobalSearch] = useState("");
   const [panelSearch, setPanelSearch] = useState("");
-  const [showProposalReview, setShowProposalReview] = useState(false);
-  const [proposalDecisions, setProposalDecisions] = useState<
-    Record<string, ProposalDecision>
-  >({});
-  const [caseNotes, setCaseNotes] = useState<DemoRecord[]>([]);
-  const [deletedRecordIds, setDeletedRecordIds] = useState<string[]>([]);
+  const [selectedStatuses, setSelectedStatuses] = useState<RecordStatus[]>([]);
+  // Graph traversal: a stack of record ids opened in the inspector drawer.
+  const [inspectorStack, setInspectorStack] = useState<string[]>([]);
 
-  const workspaceRecords = useMemo(
-    () =>
-      [...caseNotes, ...demoRecords].filter(
-        (record) => !deletedRecordIds.includes(record.id),
-      ),
-    [caseNotes, deletedRecordIds],
-  );
+  const openRecord = (recordId: string) => {
+    setInspectorStack((stack) =>
+      stack[stack.length - 1] === recordId ? stack : [...stack, recordId],
+    );
+  };
 
-  const filteredRecords = useMemo(() => {
-    return workspaceRecords.filter((record) => {
-      const effectiveStatus =
-        proposalDecisions[record.id]?.status ?? record.status;
-      const matchesView = record.type === activeView;
-      const matchesStatus =
-        selectedStatuses.length === 0 ||
-        selectedStatuses.includes(effectiveStatus);
-      const matchesSearch = recordMatchesSearch(record, panelSearch);
+  const handleSelectView = (view: WorkspaceViewType) => {
+    setActiveView(view);
+    setPanelSearch("");
+    setGlobalSearch("");
+  };
 
-      return matchesView && matchesStatus && matchesSearch;
-    });
-  }, [
-    activeView,
-    panelSearch,
-    proposalDecisions,
-    selectedStatuses,
-    workspaceRecords,
-  ]);
+  const viewCounts = useMemo(() => {
+    const counts: Partial<Record<WorkspaceViewType, number>> = {};
+    for (const record of graph.records) {
+      const view = RECORD_TYPE_VIEW[record.type];
+      counts[view] = (counts[view] ?? 0) + 1;
+    }
+    counts.documents = demoDocuments.length;
+    return counts;
+  }, [graph.records]);
 
   const globalSearchResults = useMemo(
     () =>
       globalSearch.trim().length === 0
         ? []
-        : workspaceRecords.filter((record) =>
+        : graph.records.filter((record) =>
             recordMatchesSearch(record, globalSearch),
           ),
-    [globalSearch, workspaceRecords],
+    [globalSearch, graph.records],
   );
-
-  const handleSelectView = (view: ViewTypes) => {
-    setActiveView(view);
-    setPanelSearch("");
-    setShowProposalReview(false);
-  };
-
-  const proposedCount = workspaceRecords.filter(
-    (record) => record.status === "proposed" && !proposalDecisions[record.id],
-  ).length;
-
-  const proposedRecords = useMemo(
-    () =>
-      workspaceRecords.filter(
-        (record) =>
-          record.status === "proposed" && !proposalDecisions[record.id],
-      ),
-    [proposalDecisions, workspaceRecords],
-  );
-
-  const pendingSupersessionByTargetId = useMemo(() => {
-    return proposedRecords.reduce<Record<string, DemoRecord>>(
-      (nextMap, proposal) => {
-        if (proposal.supersedes) {
-          nextMap[proposal.supersedes.id] = proposal;
-        }
-
-        return nextMap;
-      },
-      {},
-    );
-  }, [proposedRecords]);
-
-  const viewCounts = useMemo(() => {
-    const counts = workspaceRecords.reduce<Partial<Record<ViewTypes, number>>>(
-      (nextCounts, record) => {
-        nextCounts[record.type] = (nextCounts[record.type] ?? 0) + 1;
-        return nextCounts;
-      },
-      {},
-    );
-
-    counts.documents_index = demoDocuments.length;
-    counts.case_summary = 1;
-    counts.case_agent = 1;
-
-    return counts;
-  }, [workspaceRecords]);
-
-  const handleCreateCaseNote = (content: string) => {
-    const trimmedContent = content.trim();
-
-    if (!trimmedContent) {
-      return;
-    }
-
-    setCaseNotes((notes) => [
-      {
-        id: `note-local-${Date.now()}`,
-        type: "case_notes",
-        title: trimmedContent.split("\n")[0].slice(0, 72),
-        miniDescription: "New working case note captured in the workspace.",
-        content: trimmedContent,
-        category: "Case note",
-        status: "accepted",
-        typeStatus: "Pinned note",
-        createdBy: "Human",
-        updatedAt: "Just now",
-        sources: [],
-        linkedRecords: [],
-      },
-      ...notes,
-    ]);
-  };
-
-  const handleDeleteRecord = (recordId: string) => {
-    setDeletedRecordIds((ids) =>
-      ids.includes(recordId) ? ids : [...ids, recordId],
-    );
-    setProposalDecisions((decisions) => {
-      const nextDecisions = { ...decisions };
-      delete nextDecisions[recordId];
-      return nextDecisions;
-    });
-  };
-
-  const handleProposalDecision = (
-    recordId: string,
-    decision: ProposalDecision,
-  ) => {
-    setProposalDecisions((decisions) => ({
-      ...decisions,
-      [recordId]: decision,
-    }));
-  };
 
   if (getUserPending || getWorkspacePending) {
     return <PageLoading />;
@@ -348,6 +349,8 @@ function RouteComponent() {
   if (getUserError || !user || getWorkspaceError || !workspace) {
     return <GetUserError />;
   }
+
+  const pendingProposalCount = graph.proposedRecords.length;
 
   return (
     <AppLayout>
@@ -367,16 +370,14 @@ function RouteComponent() {
             className="w-full rounded-lg border border-black/15 lg:border-black/10 bg-white/25 lg:bg-black/3 py-2.5 pl-8 pr-2 text-sm placeholder:text-black/55 text-black/75 outline-none transition focus:border-black/30 focus:bg-white/50 lg:focus:bg-white/70"
             placeholder="Search workspace"
             value={globalSearch}
-            onChange={(event) => {
-              setGlobalSearch(event.target.value);
-              setShowProposalReview(false);
-            }}
+            onChange={(event) => setGlobalSearch(event.target.value)}
           />
         </label>
         <ActiveWorkspaceMenu
           activeView={activeView}
           onSelectView={handleSelectView}
           counts={viewCounts}
+          reviewCount={pendingProposalCount}
         />
       </NavigationPanel>
 
@@ -388,738 +389,660 @@ function RouteComponent() {
                 <span className="rounded-full border border-black/10 bg-white/70 px-2.5 py-1 text-xs text-black/65">
                   {demoCase.caseNumber}
                 </span>
-                <button
-                  type="button"
-                  className="rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-xs text-red-800 transition-colors hover:border-red-300 hover:bg-red-100 hover:text-red-900"
-                  onClick={() => {
-                    setGlobalSearch("");
-                    setPanelSearch("");
-                    setShowProposalReview(true);
-                  }}
-                >
-                  {proposedCount} proposals need review
-                </button>
+                {pendingProposalCount > 0 && (
+                  <button
+                    type="button"
+                    className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs text-amber-800 transition-colors hover:border-amber-300 hover:bg-amber-100"
+                    onClick={() => handleSelectView("review")}
+                  >
+                    {pendingProposalCount} proposals need review
+                  </button>
+                )}
               </div>
               <h1 className="truncate text-2xl font-semibold">
                 {demoCase.title}
               </h1>
               <p className="mt-1 text-sm text-black/60">
-                {demoCase.court} · Workspace id: {workspaceId} · Case id:{" "}
-                {caseId}
+                {demoCaseContext.jurisdictionOrCourt} ·{" "}
+                {recordPartyLabel("ours", clientRole)} side · Case id: {caseId}
               </p>
             </div>
           </header>
 
-          {showProposalReview ? (
-            <ProposalReviewView
-              records={proposedRecords}
-              proposalDecisions={proposalDecisions}
-              pendingSupersessionByTargetId={pendingSupersessionByTargetId}
-              onClearReview={() => setShowProposalReview(false)}
-              onProposalDecision={handleProposalDecision}
-              onDeleteRecord={handleDeleteRecord}
-            />
-          ) : globalSearch.trim().length > 0 ? (
+          {globalSearch.trim().length > 0 ? (
             <GlobalSearchView
               query={globalSearch}
               records={globalSearchResults}
-              proposalDecisions={proposalDecisions}
-              pendingSupersessionByTargetId={pendingSupersessionByTargetId}
+              graph={graph}
               onClearSearch={() => setGlobalSearch("")}
-              onProposalDecision={handleProposalDecision}
-              onDeleteRecord={handleDeleteRecord}
+              onOpenRecord={openRecord}
             />
-          ) : activeView === "case_summary" ? (
-            <CaseSummaryView records={workspaceRecords} />
-          ) : null}
-          {!showProposalReview &&
-            globalSearch.trim().length === 0 &&
-            activeView === "case_agent" && <AgentConfigView />}
-          {!showProposalReview &&
-            globalSearch.trim().length === 0 &&
-            activeView === "documents_index" && <DocumentsView />}
-          {!showProposalReview &&
-            globalSearch.trim().length === 0 &&
-            activeView === "timeline" && (
-              <TimelineView
-                records={filteredRecords}
-                panelSearch={panelSearch}
-                setPanelSearch={setPanelSearch}
-                selectedStatuses={selectedStatuses}
-                setSelectedStatuses={setSelectedStatuses}
-                proposalDecisions={proposalDecisions}
-                pendingSupersessionByTargetId={pendingSupersessionByTargetId}
-                onProposalDecision={handleProposalDecision}
-                onDeleteRecord={handleDeleteRecord}
-              />
-            )}
-          {!showProposalReview &&
-            globalSearch.trim().length === 0 &&
-            !["case_summary", "case_agent", "documents_index"].includes(
-              activeView,
-            ) &&
-            activeView !== "timeline" && (
-              <RecordsView
-                activeView={activeView}
-                filteredRecords={filteredRecords}
-                panelSearch={panelSearch}
-                setPanelSearch={setPanelSearch}
-                selectedStatuses={selectedStatuses}
-                setSelectedStatuses={setSelectedStatuses}
-                proposalDecisions={proposalDecisions}
-                pendingSupersessionByTargetId={pendingSupersessionByTargetId}
-                onProposalDecision={handleProposalDecision}
-                onCreateCaseNote={handleCreateCaseNote}
-                onDeleteRecord={handleDeleteRecord}
-              />
-            )}
+          ) : activeView === "overview" ? (
+            <OverviewView
+              graph={graph}
+              onOpenRecord={openRecord}
+              onSelectView={handleSelectView}
+            />
+          ) : activeView === "agent" ? (
+            <AgentView graph={graph} onOpenRecord={openRecord} />
+          ) : activeView === "review" ? (
+            <ReviewView graph={graph} onOpenRecord={openRecord} />
+          ) : activeView === "documents" ? (
+            <DocumentsView graph={graph} onOpenRecord={openRecord} />
+          ) : activeView === "people" ? (
+            <PeopleView graph={graph} onOpenRecord={openRecord} />
+          ) : activeView === "timeline" ? (
+            <TimelineView
+              graph={graph}
+              panelSearch={panelSearch}
+              setPanelSearch={setPanelSearch}
+              selectedStatuses={selectedStatuses}
+              setSelectedStatuses={setSelectedStatuses}
+              onOpenRecord={openRecord}
+            />
+          ) : (
+            <RecordsView
+              activeView={activeView as RecordViewType}
+              graph={graph}
+              panelSearch={panelSearch}
+              setPanelSearch={setPanelSearch}
+              selectedStatuses={selectedStatuses}
+              setSelectedStatuses={setSelectedStatuses}
+              onOpenRecord={openRecord}
+            />
+          )}
         </div>
+
+        {inspectorStack.length > 0 && (
+          <RecordInspector
+            stack={inspectorStack}
+            graph={graph}
+            onOpenRecord={openRecord}
+            onBack={() => setInspectorStack((stack) => stack.slice(0, -1))}
+            onClose={() => setInspectorStack([])}
+          />
+        )}
       </ContentShell>
     </AppLayout>
   );
 }
 
-function CaseSummaryView({ records }: { records: DemoRecord[] }) {
+// ─────────────────────────────────────────────────────────────────────────────
+// Shared badges & chips
+// ─────────────────────────────────────────────────────────────────────────────
+
+function StatusBadge({ status }: { status: RecordStatus }) {
   return (
-    <div className="flex min-w-0 flex-col gap-4">
-      <section className="flex flex-col gap-3">
-        <div className="rounded-xl border border-black/10 bg-white/55 p-4">
-          <div className="mb-3 flex items-start justify-between gap-3">
-            <div>
-              <h2 className="font-serif text-lg">Strategic Snapshot</h2>
-              <p className="mt-1 text-sm text-black/60">{demoCase.posture}</p>
-            </div>
-            <ShieldCheck className="h-5 w-5 text-green-700" />
-          </div>
-          <p className="text-md leading-6 text-black/75">
-            {demoCase.objective}
-          </p>
-          <div className="mt-4 grid gap-2 sm:grid-cols-3">
-            <Metric label="Case health" value={`${demoCase.health}%`} />
-            <Metric
-              label="Trial readiness"
-              value={`${demoCase.trialReadiness}%`}
-            />
-            <Metric label="Open gaps" value={String(demoCase.unresolvedGaps)} />
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-black/10 bg-white/55 p-4">
-          <h2 className="font-serif text-lg">High-Value Work Queue</h2>
-          <div className="mt-3 grid gap-2">
-            {records
-              .filter((record) => record.priority === "High")
-              .map((record) => (
-                <RecordRow key={record.id} record={record} />
-              ))}
-          </div>
-        </div>
-      </section>
-
-      <aside className="flex flex-col gap-3">
-        <div className="rounded-xl border border-black/10 bg-black/[0.03] p-4">
-          <div className="flex items-center gap-2">
-            <CircleAlert className="h-4 w-4 text-amber-700" />
-            <h2 className="font-serif text-lg">Main Risk</h2>
-          </div>
-          <p className="mt-2 text-md leading-6 text-black/75">
-            {demoCase.risk}
-          </p>
-        </div>
-        <div className="rounded-xl border border-black/10 bg-white/55 p-4">
-          <h2 className="font-serif text-lg">Workspace Activity</h2>
-          <div className="mt-3 flex flex-col gap-2">
-            {demoActivity.map((item) => (
-              <div
-                key={item.id}
-                className="rounded-lg border border-black/10 bg-white/70 p-3"
-              >
-                <div className="flex items-center justify-between gap-2 text-xs text-black/55">
-                  <span>{item.actor}</span>
-                  <span>{item.time}</span>
-                </div>
-                <p className="mt-1.5 text-sm leading-5 text-black/75">
-                  {item.action}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </aside>
-    </div>
+    <span
+      className={`rounded-full border px-2 py-0.5 text-xs ${RECORD_STATUS_CLASSES[status]}`}
+    >
+      {RECORD_STATUS_LABELS[status]}
+    </span>
   );
 }
 
-function WorkPanelSearch({
-  value,
-  onChange,
-  placeholder,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  placeholder: string;
-}) {
+function SubstatusBadge({ record }: { record: TypedCaseRecord }) {
+  if (!record.substatus) return null;
+  const needsAttention = ATTENTION_SUBSTATUSES.includes(record.substatus);
+
   return (
-    <label className="relative block">
-      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-black/40" />
-      <input
-        className="w-full rounded-lg border border-black/10 bg-white/65 py-2.5 pl-9 pr-3 text-md text-black/75 outline-none transition focus:border-black/30 focus:bg-white"
-        placeholder={placeholder}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-      />
-    </label>
+    <span
+      className={`rounded-full border px-2 py-0.5 text-xs ${
+        needsAttention
+          ? "border-amber-200 bg-amber-50 text-amber-800"
+          : "border-black/10 bg-black/[0.03] text-black/60"
+      }`}
+    >
+      {RECORD_SUBSTATUS_LABELS[record.substatus]}
+    </span>
   );
 }
 
-function GlobalSearchView({
-  query,
-  records,
-  proposalDecisions,
-  pendingSupersessionByTargetId,
-  onClearSearch,
-  onProposalDecision,
-  onDeleteRecord,
-}: {
-  query: string;
-  records: DemoRecord[];
-  proposalDecisions: Record<string, ProposalDecision>;
-  pendingSupersessionByTargetId: Record<string, DemoRecord>;
-  onClearSearch: () => void;
-  onProposalDecision: (recordId: string, decision: ProposalDecision) => void;
-  onDeleteRecord: (recordId: string) => void;
-}) {
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 className="font-serif text-lg">Workspace Search</h2>
-          <p className="mt-1 text-sm text-black/60">
-            Searching all case records for "{query.trim()}".
-          </p>
-        </div>
-        <button
-          type="button"
-          className="rounded-lg border border-black/10 bg-white/70 px-3 py-1.5 text-sm text-black/65 transition-colors hover:bg-black/10"
-          onClick={onClearSearch}
-        >
-          Clear search
-        </button>
-      </div>
+function PartyBadge({ record }: { record: TypedCaseRecord }) {
+  if (!record.party) return null;
 
-      <div className="grid gap-3">
-        {records.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-black/15 bg-white/40 p-8 text-center text-md text-black/55">
-            No case records match this workspace search.
-          </div>
-        ) : (
-          records.map((record) => (
-            <div key={record.id} className="flex flex-col gap-2">
-              <div className="flex items-center gap-2 text-xs text-black/50">
-                <span className="rounded-full border border-black/10 bg-white/70 px-2 py-0.5">
-                  {viewLabels[record.type]}
-                </span>
-                <span>{record.updatedAt}</span>
-              </div>
-              <RecordCard
-                record={record}
-                decision={proposalDecisions[record.id]}
-                pendingSupersessionProposal={
-                  pendingSupersessionByTargetId[record.id]
-                }
-                onDelete={onDeleteRecord}
-                onProposalDecision={onProposalDecision}
-              />
-            </div>
-          ))
-        )}
-      </div>
-    </div>
+  return (
+    <span
+      className={`rounded-full border px-2 py-0.5 text-xs ${RECORD_PARTY_CLASSES[record.party]}`}
+    >
+      {recordPartyLabel(record.party, clientRole)}
+    </span>
   );
 }
 
-function ProposalReviewView({
-  records,
-  proposalDecisions,
-  pendingSupersessionByTargetId,
-  onClearReview,
-  onProposalDecision,
-  onDeleteRecord,
+// Clickable reference to another record — the core graph-traversal affordance.
+function RecordChip({
+  record,
+  onOpenRecord,
 }: {
-  records: DemoRecord[];
-  proposalDecisions: Record<string, ProposalDecision>;
-  pendingSupersessionByTargetId: Record<string, DemoRecord>;
-  onClearReview: () => void;
-  onProposalDecision: (recordId: string, decision: ProposalDecision) => void;
-  onDeleteRecord: (recordId: string) => void;
+  record: TypedCaseRecord;
+  onOpenRecord: (recordId: string) => void;
 }) {
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 className="font-serif text-lg">Proposal Review</h2>
-          <p className="mt-1 text-sm text-black/60">
-            All pending proposed records across the case workspace.
-          </p>
-        </div>
-        <button
-          type="button"
-          className="rounded-lg border border-black/10 bg-white/70 px-3 py-1.5 text-sm text-black/65 transition-colors hover:bg-black/10"
-          onClick={onClearReview}
-        >
-          Close review
-        </button>
-      </div>
-
-      <div className="grid gap-3">
-        {records.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-black/15 bg-white/40 p-8 text-center text-md text-black/55">
-            No pending proposals need review.
-          </div>
-        ) : (
-          records.map((record) => (
-            <div key={record.id} className="flex flex-col gap-2">
-              <div className="flex items-center gap-2 text-xs text-black/50">
-                <span className="rounded-full border border-black/10 bg-white/70 px-2 py-0.5">
-                  {viewLabels[record.type]}
-                </span>
-                <span>{record.updatedAt}</span>
-              </div>
-              <RecordCard
-                record={record}
-                decision={proposalDecisions[record.id]}
-                pendingSupersessionProposal={
-                  pendingSupersessionByTargetId[record.id]
-                }
-                onDelete={onDeleteRecord}
-                onProposalDecision={onProposalDecision}
-              />
-            </div>
-          ))
-        )}
-      </div>
-    </div>
+    <button
+      type="button"
+      className="group flex w-full min-w-0 items-center gap-2 rounded-lg border border-black/10 bg-white/80 px-2.5 py-1.5 text-left text-sm transition-colors hover:border-black/25 hover:bg-white"
+      onClick={(event) => {
+        event.stopPropagation();
+        onOpenRecord(record.id);
+      }}
+    >
+      <span className="shrink-0 rounded border border-black/10 bg-black/[0.03] px-1.5 py-0.5 text-[0.65rem] uppercase tracking-wide text-black/50">
+        {RECORD_TYPE_LABELS[record.type]}
+      </span>
+      <span className="truncate text-black/75 group-hover:text-black">
+        {record.title}
+      </span>
+      <ChevronRight className="ml-auto h-3.5 w-3.5 shrink-0 text-black/30 group-hover:text-black/60" />
+    </button>
   );
 }
 
-function RecordsView({
-  activeView,
-  filteredRecords,
-  panelSearch,
-  setPanelSearch,
-  selectedStatuses,
-  setSelectedStatuses,
-  proposalDecisions,
-  pendingSupersessionByTargetId,
-  onProposalDecision,
-  onCreateCaseNote,
-  onDeleteRecord,
+// Outbound + inbound graph links for a record, grouped by link type.
+function RecordLinksPanel({
+  record,
+  graph,
+  onOpenRecord,
 }: {
-  activeView: ViewTypes;
-  filteredRecords: DemoRecord[];
-  panelSearch: string;
-  setPanelSearch: (value: string) => void;
-  selectedStatuses: SelectedRecordStatuses;
-  setSelectedStatuses: (statuses: SelectedRecordStatuses) => void;
-  proposalDecisions: Record<string, ProposalDecision>;
-  pendingSupersessionByTargetId: Record<string, DemoRecord>;
-  onProposalDecision: (recordId: string, decision: ProposalDecision) => void;
-  onCreateCaseNote: (content: string) => void;
-  onDeleteRecord: (recordId: string) => void;
+  record: TypedCaseRecord;
+  graph: WorkspaceGraph;
+  onOpenRecord: (recordId: string) => void;
 }) {
-  const createLabel = createLabels[activeView];
+  const outbound = graph.outboundLinks.get(record.id) ?? [];
+  const inbound = graph.inboundLinks.get(record.id) ?? [];
 
-  return (
-    <div className="flex flex-col gap-3">
-      <div>
-        <div>
-          <h2 className="font-serif text-lg">{viewLabels[activeView]}</h2>
-          <p className="mt-1 text-sm text-black/60">
-            {viewDescriptions[activeView]}
-          </p>
-        </div>
+  if (outbound.length === 0 && inbound.length === 0) {
+    return (
+      <div className="rounded-lg border border-black/10 bg-black/[0.025] p-3 text-sm text-black/40">
+        No linked records yet.
       </div>
-
-      {activeView !== "case_notes" && createLabel && (
-        <div className="flex justify-end">
-          <Button style="secondary" text={createLabel} icon="plus" />
-        </div>
-      )}
-
-      <WorkPanelSearch
-        value={panelSearch}
-        onChange={setPanelSearch}
-        placeholder={`Search ${viewLabels[activeView].toLowerCase()}`}
-      />
-
-      <StatusFilter
-        selectedStatuses={selectedStatuses}
-        onSelectStatuses={setSelectedStatuses}
-      />
-
-      {activeView === "case_notes" && (
-        <CaseNoteComposer onCreateCaseNote={onCreateCaseNote} />
-      )}
-
-      <div className="grid gap-3">
-        {filteredRecords.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-black/15 bg-white/40 p-8 text-center text-md text-black/55">
-            No {viewLabels[activeView].toLowerCase()} match the current filters.
-          </div>
-        ) : (
-          filteredRecords.map((record) => (
-            <RecordCard
-              key={record.id}
-              record={record}
-              decision={proposalDecisions[record.id]}
-              pendingSupersessionProposal={
-                pendingSupersessionByTargetId[record.id]
-              }
-              onDelete={onDeleteRecord}
-              onProposalDecision={onProposalDecision}
-            />
-          ))
-        )}
-      </div>
-    </div>
-  );
-}
-
-function StatusFilter({
-  selectedStatuses,
-  onSelectStatuses,
-}: {
-  selectedStatuses: SelectedRecordStatuses;
-  onSelectStatuses: (statuses: SelectedRecordStatuses) => void;
-}) {
-  const toggleStatus = (status: "all" | DemoRecordStatus) => {
-    if (status === "all") {
-      onSelectStatuses([]);
-      return;
-    }
-
-    onSelectStatuses(
-      selectedStatuses.includes(status)
-        ? selectedStatuses.filter((selectedStatus) => selectedStatus !== status)
-        : [...selectedStatuses, status],
     );
-  };
-
-  return (
-    <div className="flex flex-wrap items-center gap-2 text-sm">
-      <Filter className="h-4 w-4 text-black/50" />
-      {(
-        [
-          "all",
-          "accepted",
-          "proposed",
-          "rejected",
-          "supersession_pending",
-          "superseded",
-        ] as const
-      ).map((status) => {
-        const selected =
-          status === "all"
-            ? selectedStatuses.length === 0
-            : selectedStatuses.includes(status);
-
-        return (
-          <button
-            key={status}
-            className={`rounded-full border px-2.5 py-1 capitalize transition-colors ${
-              selected
-                ? "border-black/30 bg-black/10"
-                : "border-black/10 bg-white/60 hover:bg-black/5"
-            }`}
-            onClick={() => toggleStatus(status)}
-          >
-            {status === "all" ? "All" : statusLabels[status]}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-function TimelineView({
-  records,
-  panelSearch,
-  setPanelSearch,
-  selectedStatuses,
-  setSelectedStatuses,
-  proposalDecisions,
-  pendingSupersessionByTargetId,
-  onProposalDecision,
-  onDeleteRecord,
-}: {
-  records: DemoRecord[];
-  panelSearch: string;
-  setPanelSearch: (value: string) => void;
-  selectedStatuses: SelectedRecordStatuses;
-  setSelectedStatuses: (statuses: SelectedRecordStatuses) => void;
-  proposalDecisions: Record<string, ProposalDecision>;
-  pendingSupersessionByTargetId: Record<string, DemoRecord>;
-  onProposalDecision: (recordId: string, decision: ProposalDecision) => void;
-  onDeleteRecord: (recordId: string) => void;
-}) {
-  const [expandedIds, setExpandedIds] = useState<string[]>([]);
-  const sortedRecords = [...records].sort((a, b) =>
-    (a.date ?? "").localeCompare(b.date ?? ""),
-  );
-
-  const toggleExpanded = (recordId: string) => {
-    setExpandedIds((ids) =>
-      ids.includes(recordId)
-        ? ids.filter((id) => id !== recordId)
-        : [...ids, recordId],
-    );
-  };
-
-  return (
-    <div className="flex flex-col gap-3">
-      <div>
-        <div>
-          <h2 className="font-serif text-lg">Timeline</h2>
-          <p className="mt-1 text-sm text-black/60">
-            Chronological case events. Select an event to inspect sources and
-            links.
-          </p>
-        </div>
-      </div>
-
-      <div className="flex justify-end">
-        <Button style="secondary" text="Create timeline event" icon="plus" />
-      </div>
-
-      <WorkPanelSearch
-        value={panelSearch}
-        onChange={setPanelSearch}
-        placeholder="Search timeline events"
-      />
-
-      <StatusFilter
-        selectedStatuses={selectedStatuses}
-        onSelectStatuses={setSelectedStatuses}
-      />
-
-      <div className="relative flex flex-col gap-2 pl-5">
-        <div className="absolute left-[.55rem] top-2 bottom-2 w-px bg-black/10" />
-        {sortedRecords.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-black/15 bg-white/40 p-8 text-center text-md text-black/55">
-            No timeline events match the current filters.
-          </div>
-        ) : (
-          sortedRecords.map((record) => {
-            const expanded = expandedIds.includes(record.id);
-            const decision = proposalDecisions[record.id];
-            const displayStatus =
-              record.status === "proposed" && decision
-                ? decision.status
-                : record.status;
-
-            return (
-              <article key={record.id} className="relative">
-                <div className="absolute -left-[1.05rem] top-3 h-2.5 w-2.5 rounded-full border border-white bg-black/35" />
-                <div
-                  role="button"
-                  tabIndex={0}
-                  className="relative w-full cursor-pointer rounded-lg border border-black/10 bg-white/65 p-3 pr-10 text-left transition-colors hover:bg-black/[0.04]"
-                  onClick={() => toggleExpanded(record.id)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      toggleExpanded(record.id);
-                    }
-                  }}
-                >
-                  {(displayStatus === "accepted" ||
-                    displayStatus === "rejected") && (
-                    <div className="absolute right-2.5 top-2.5">
-                      <RecordSettingsMenu
-                        record={record}
-                        onDelete={onDeleteRecord}
-                      />
-                    </div>
-                  )}
-                  <div className="min-w-0">
-                    <div className="mb-1 flex flex-wrap items-center gap-2 text-xs text-black/55">
-                      <span className="inline-flex items-center gap-1">
-                        <CalendarDays className="h-3.5 w-3.5" />
-                        {record.date ?? "Date unknown"}
-                      </span>
-                      <span
-                        className={`rounded-full border px-2 py-0.5 capitalize ${statusClassName[displayStatus]}`}
-                      >
-                        {statusLabels[displayStatus]}
-                      </span>
-                      <span className="rounded-full border border-black/10 bg-white/80 px-2 py-0.5 text-black/55">
-                        {record.typeStatus}
-                      </span>
-                      <PartyBadge party={record.party} />
-                      {record.status === "proposed" && record.supersedes && (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-amber-800">
-                          <GitBranch className="h-3 w-3" />
-                          Supersedes existing
-                        </span>
-                      )}
-                    </div>
-                    <h3 className="truncate text-md font-medium">
-                      {record.title}
-                    </h3>
-                    <p className="mt-1 line-clamp-2 text-sm leading-5 text-black/60">
-                      {record.miniDescription}
-                    </p>
-                  </div>
-                  <span className="absolute bottom-2.5 right-2.5 rounded-lg p-1 text-black/45">
-                    {expanded ? (
-                      <ChevronDown className="h-4 w-4 shrink-0 text-black/45" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4 shrink-0 text-black/45" />
-                    )}
-                  </span>
-                </div>
-
-                {expanded && (
-                  <div className="mt-2 rounded-lg border border-black/10 bg-white/55 p-3">
-                    <p className="text-md leading-6 text-black/75">
-                      {record.content}
-                    </p>
-                    {record.status === "proposed" && record.supersedes && (
-                      <SupersessionNotice record={record} />
-                    )}
-                    {pendingSupersessionByTargetId[record.id] && (
-                      <SupersessionPendingNotice
-                        proposal={pendingSupersessionByTargetId[record.id]}
-                      />
-                    )}
-                    <div className="mt-3 flex flex-col gap-2">
-                      <MiniPanel
-                        icon={FileCheck2}
-                        label="Sources"
-                        values={record.sources}
-                      />
-                      <MiniPanel
-                        icon={Link2}
-                        label="Linked items"
-                        values={record.linkedRecords}
-                      />
-                    </div>
-                    {record.status === "proposed" && !decision && (
-                      <ProposalActions
-                        record={record}
-                        onDelete={onDeleteRecord}
-                        onDecision={onProposalDecision}
-                      />
-                    )}
-                    {decision && <ProposalDecisionNote decision={decision} />}
-                  </div>
-                )}
-              </article>
-            );
-          })
-        )}
-      </div>
-    </div>
-  );
-}
-
-function CaseNoteComposer({
-  onCreateCaseNote,
-}: {
-  onCreateCaseNote: (content: string) => void;
-}) {
-  const [draft, setDraft] = useState("");
-
-  return (
-    <div className="rounded-xl border border-black/10 bg-white/60 p-3">
-      <div className="mb-2 flex items-center gap-2 text-sm text-black/60">
-        <PencilLine className="h-4 w-4" />
-        <span>New case note</span>
-      </div>
-      <TextAreaField
-        label="Case note"
-        placeholder="Capture a strategy thought, question, witness point, or hearing note..."
-        value={draft}
-        onChange={(event) => setDraft(event.target.value)}
-        rows={3}
-        minRows={3}
-      />
-      <div className="mt-2 flex justify-end">
-        <Button
-          style="secondary"
-          text="Add case note"
-          icon="plus"
-          disabled={!draft.trim()}
-          onClick={() => {
-            onCreateCaseNote(draft);
-            setDraft("");
-          }}
-        />
-      </div>
-    </div>
-  );
-}
-
-function SupersessionNotice({ record }: { record: DemoRecord }) {
-  if (!record.supersedes) {
-    return null;
   }
+
+  const groupLinks = (
+    links: GraphLink[],
+    direction: "outbound" | "inbound",
+  ) => {
+    const groups = new Map<string, { record: TypedCaseRecord; link: GraphLink }[]>();
+    for (const link of links) {
+      const targetId =
+        direction === "outbound" ? link.toRecordId : link.fromRecordId;
+      const target = graph.recordsById.get(targetId);
+      if (!target) continue;
+      const label =
+        direction === "outbound"
+          ? LINK_TYPE_LABELS[link.type]
+          : LINK_TYPE_INBOUND_LABELS[link.type];
+      groups.set(label, [...(groups.get(label) ?? []), { record: target, link }]);
+    }
+    return groups;
+  };
+
+  const renderGroups = (groups: ReturnType<typeof groupLinks>) =>
+    [...groups.entries()].map(([label, entries]) => (
+      <div key={label} className="min-w-0">
+        <p className="mb-1.5 flex items-center gap-1.5 text-xs text-black/55">
+          <Link2 className="h-3.5 w-3.5" />
+          {label}
+        </p>
+        <div className="flex flex-col gap-1.5">
+          {entries.map(({ record: target, link }) => (
+            <div key={link.id} className="min-w-0">
+              <RecordChip record={target} onOpenRecord={onOpenRecord} />
+              {link.status === "PROPOSED" && (
+                <p className="mt-0.5 pl-1 text-xs text-blue-800/70">
+                  Proposed link
+                  {link.explanation ? ` — ${link.explanation}` : ""}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    ));
+
+  return (
+    <div className="flex flex-col gap-3">
+      {outbound.length > 0 && renderGroups(groupLinks(outbound, "outbound"))}
+      {inbound.length > 0 && renderGroups(groupLinks(inbound, "inbound"))}
+    </div>
+  );
+}
+
+function SupersessionNotice({
+  record,
+  graph,
+  onOpenRecord,
+}: {
+  record: TypedCaseRecord;
+  graph: WorkspaceGraph;
+  onOpenRecord: (recordId: string) => void;
+}) {
+  const targets = (record.supersedesIds ?? [])
+    .map((id) => graph.recordsById.get(id))
+    .filter((target): target is TypedCaseRecord => Boolean(target));
+
+  if (targets.length === 0) return null;
 
   return (
     <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
       <div className="flex items-center gap-1.5 font-medium">
         <GitBranch className="h-3.5 w-3.5" />
-        <span>This proposal would supersede another case item</span>
+        <span>This proposal would supersede:</span>
       </div>
-      <p className="mt-1 leading-5 text-amber-900/80">
-        Proposed replacement for{" "}
-        <span className="font-medium">{record.supersedes.title}</span>.
-      </p>
-      <p className="mt-1 leading-5 text-amber-900/80">
-        {record.supersedes.summary}
+      <div className="mt-2 flex flex-col gap-1.5">
+        {targets.map((target) => (
+          <RecordChip
+            key={target.id}
+            record={target}
+            onOpenRecord={onOpenRecord}
+          />
+        ))}
+      </div>
+      <p className="mt-2 leading-5 text-amber-900/80">
+        Accepting it retires the records above and removes their chunks from
+        retrieval.
       </p>
     </div>
   );
 }
 
-function PartyBadge({ party }: { party?: DemoRecordParty }) {
-  if (!party) {
-    return null;
-  }
-
-  return (
-    <span
-      className={`rounded-full border px-2 py-0.5 text-xs ${partyClassName[party]}`}
-    >
-      {partyLabels[party]}
-    </span>
-  );
-}
-
-function SupersessionPendingNotice({ proposal }: { proposal: DemoRecord }) {
+function SupersessionPendingNotice({
+  proposal,
+  onOpenRecord,
+}: {
+  proposal: TypedCaseRecord;
+  onOpenRecord: (recordId: string) => void;
+}) {
   return (
     <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
       <div className="flex items-center gap-1.5 font-medium">
         <GitBranch className="h-3.5 w-3.5" />
         <span>Locked while a replacement proposal is pending</span>
       </div>
-      <p className="mt-1 leading-5 text-amber-900/80">
-        Proposed replacement:{" "}
-        <span className="font-medium">{proposal.title}</span>.
-      </p>
-      <p className="mt-1 leading-5 text-amber-900/80">
+      <div className="mt-2">
+        <RecordChip record={proposal} onOpenRecord={onOpenRecord} />
+      </div>
+      <p className="mt-2 leading-5 text-amber-900/80">
         Review the proposal before editing, deleting, or rewriting this record.
       </p>
     </div>
   );
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Record inspector drawer (graph traversal)
+// ─────────────────────────────────────────────────────────────────────────────
+
+function RecordInspector({
+  stack,
+  graph,
+  onOpenRecord,
+  onBack,
+  onClose,
+}: {
+  stack: string[];
+  graph: WorkspaceGraph;
+  onOpenRecord: (recordId: string) => void;
+  onBack: () => void;
+  onClose: () => void;
+}) {
+  const recordId = stack[stack.length - 1];
+  const record = graph.recordsById.get(recordId);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
+  if (!record) return null;
+
+  const status = graph.effectiveStatus(record);
+  const sourceDocument =
+    record.type === "DOCUMENT"
+      ? demoDocuments.find((document) => document.id === record.documentId)
+      : undefined;
+  const siblingDocumentRecords =
+    record.type === "DOCUMENT"
+      ? graph.records.filter(
+          (candidate) =>
+            candidate.type === "DOCUMENT" &&
+            candidate.documentId === record.documentId &&
+            candidate.id !== record.id,
+        )
+      : [];
+  const supersededBy = record.supersededById
+    ? graph.recordsById.get(record.supersededById)
+    : undefined;
+  const pendingProposal = graph.pendingSupersessionByTargetId.get(record.id);
+
+  return (
+    <>
+      <div
+        className="fixed inset-0 z-30 bg-black/20 backdrop-blur-[1px]"
+        onClick={onClose}
+      />
+      <aside className="fixed inset-y-0 right-0 z-40 flex w-full max-w-xl flex-col border-l border-black/15 bg-[#faf9f7] shadow-xl">
+        <div className="flex items-center gap-2 border-b border-black/10 px-4 py-3">
+          {stack.length > 1 ? (
+            <button
+              type="button"
+              className="inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-sm text-black/65 transition-colors hover:bg-black/10"
+              onClick={onBack}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Back
+            </button>
+          ) : (
+            <span className="text-sm text-black/45">Record inspector</span>
+          )}
+          <span className="ml-auto text-xs text-black/40">
+            {stack.length > 1 ? `${stack.length} records deep` : ""}
+          </span>
+          <button
+            type="button"
+            className="rounded-lg p-1.5 text-black/65 transition-colors hover:bg-black/10"
+            onClick={onClose}
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4">
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            <span className="rounded border border-black/10 bg-black/[0.03] px-1.5 py-0.5 text-[0.65rem] uppercase tracking-wide text-black/50">
+              {RECORD_TYPE_LABELS[record.type]}
+            </span>
+            <StatusBadge status={status} />
+            <SubstatusBadge record={record} />
+            <PartyBadge record={record} />
+          </div>
+
+          <h2 className="font-serif text-xl leading-snug">{record.title}</h2>
+          {record.summary && (
+            <p className="mt-1 text-sm text-black/60">{record.summary}</p>
+          )}
+
+          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-black/50">
+            {record.category && <span>Category: {record.category}</span>}
+            {record.supportStatus && (
+              <span>Support: {SUPPORT_STATUS_LABELS[record.supportStatus]}</span>
+            )}
+            <span>Version {record.version}</span>
+            <span>
+              {record.createdBy === "agent" ? "Agent" : "Human"} ·{" "}
+              {formatDate(record.createdAt)}
+            </span>
+            {record.approvedAt && (
+              <span>Approved {formatDate(record.approvedAt)}</span>
+            )}
+          </div>
+
+          {record.type === "PERSON" && (
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {record.roles.map((role) => (
+                <span
+                  key={role}
+                  className="rounded-full border border-black/10 bg-white/80 px-2 py-0.5 text-xs capitalize text-black/60"
+                >
+                  {role.replaceAll("_", " ").toLowerCase()}
+                </span>
+              ))}
+              {record.organization && (
+                <span className="rounded-full border border-black/10 bg-white/80 px-2 py-0.5 text-xs text-black/60">
+                  {record.organization}
+                </span>
+              )}
+            </div>
+          )}
+
+          {record.type === "TIMELINE_EVENT" && (
+            <p className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-black/10 bg-white/70 px-2.5 py-1.5 text-sm text-black/70">
+              <CalendarDays className="h-4 w-4" />
+              {formatDate(record.eventDate)}
+            </p>
+          )}
+
+          {record.type === "DOCUMENT" && sourceDocument && (
+            <div className="mt-3 rounded-lg border border-black/10 bg-white/70 p-3">
+              <div className="flex items-center gap-2 text-sm text-black/70">
+                <FileText className="h-4 w-4 shrink-0" />
+                <span className="truncate">{sourceDocument.fileName}</span>
+              </div>
+              <p className="mt-1 text-xs text-black/50">
+                {record.pageRange
+                  ? `Pages ${record.pageRange.start}–${record.pageRange.end}`
+                  : "Whole file"}
+                {sourceDocument.pageCount
+                  ? ` of ${sourceDocument.pageCount}`
+                  : ""}{" "}
+                · {sourceDocument.processingStatus}
+              </p>
+              {siblingDocumentRecords.length > 0 && (
+                <div className="mt-3">
+                  <p className="mb-1.5 text-xs text-black/55">
+                    Other records from this file
+                  </p>
+                  <div className="flex flex-col gap-1.5">
+                    {siblingDocumentRecords.map((sibling) => (
+                      <RecordChip
+                        key={sibling.id}
+                        record={sibling}
+                        onOpenRecord={onOpenRecord}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          <p className="mt-4 text-md leading-6 text-black/80">
+            {record.content}
+          </p>
+
+          {(supersededBy || record.supersedesIds?.length || pendingProposal) && (
+            <div className="mt-4">
+              <p className="mb-1.5 flex items-center gap-1.5 text-xs text-black/55">
+                <GitBranch className="h-3.5 w-3.5" />
+                Version history
+              </p>
+              <div className="flex flex-col gap-1.5">
+                {supersededBy && (
+                  <div>
+                    <p className="mb-1 text-xs text-black/45">Superseded by</p>
+                    <RecordChip
+                      record={supersededBy}
+                      onOpenRecord={onOpenRecord}
+                    />
+                  </div>
+                )}
+                {pendingProposal && (
+                  <div>
+                    <p className="mb-1 text-xs text-amber-800/80">
+                      Pending replacement proposal
+                    </p>
+                    <RecordChip
+                      record={pendingProposal}
+                      onOpenRecord={onOpenRecord}
+                    />
+                  </div>
+                )}
+                {(record.supersedesIds ?? [])
+                  .map((id) => graph.recordsById.get(id))
+                  .filter((target): target is TypedCaseRecord =>
+                    Boolean(target),
+                  )
+                  .map((target) => (
+                    <div key={target.id}>
+                      <p className="mb-1 text-xs text-black/45">Supersedes</p>
+                      <RecordChip
+                        record={target}
+                        onOpenRecord={onOpenRecord}
+                      />
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
+
+          <div className="mt-4">
+            <p className="mb-1.5 text-xs text-black/55">Knowledge graph</p>
+            <RecordLinksPanel
+              record={record}
+              graph={graph}
+              onOpenRecord={onOpenRecord}
+            />
+          </div>
+
+          {status === "PROPOSED" && (
+            <ProposalActions
+              record={record}
+              onDelete={(id) => {
+                graph.deleteRecord(id);
+                onClose();
+              }}
+              onDecision={graph.decideProposal}
+            />
+          )}
+        </div>
+      </aside>
+    </>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Record card (list views)
+// ─────────────────────────────────────────────────────────────────────────────
+
+function RecordCard({
+  record,
+  graph,
+  onOpenRecord,
+}: {
+  record: TypedCaseRecord;
+  graph: WorkspaceGraph;
+  onOpenRecord: (recordId: string) => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const status = graph.effectiveStatus(record);
+  const decision = graph.proposalDecisions[record.id];
+  const pendingProposal = graph.pendingSupersessionByTargetId.get(record.id);
+
+  return (
+    <article className="rounded-xl border border-black/10 bg-white/60 shadow-sm">
+      <div
+        role="button"
+        tabIndex={0}
+        className="relative w-full cursor-pointer p-4 pr-12 text-left"
+        onClick={() => setExpanded((value) => !value)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            setExpanded((value) => !value);
+          }
+        }}
+      >
+        {(status === "ACCEPTED" || status === "REJECTED") && (
+          <div className="absolute right-3 top-3">
+            <RecordSettingsMenu record={record} onDelete={graph.deleteRecord} />
+          </div>
+        )}
+        <div className="min-w-0">
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            <StatusBadge status={status} />
+            <SubstatusBadge record={record} />
+            {record.category && (
+              <span className="rounded-full border border-black/10 bg-white/80 px-2 py-0.5 text-xs text-black/55">
+                {record.category}
+              </span>
+            )}
+            <PartyBadge record={record} />
+            {record.status === "PROPOSED" &&
+              !decision &&
+              record.supersedesIds?.length && (
+                <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs text-amber-800">
+                  <GitBranch className="h-3 w-3" />
+                  Supersedes existing
+                </span>
+              )}
+          </div>
+          <h3 className="text-md font-semibold">{record.title}</h3>
+          {record.summary && (
+            <p className="mt-1 line-clamp-2 text-sm leading-5 text-black/60">
+              {record.summary}
+            </p>
+          )}
+        </div>
+        <span className="absolute bottom-3 right-3 rounded-lg p-1 text-black/45">
+          {expanded ? (
+            <ChevronDown className="h-4 w-4" />
+          ) : (
+            <ChevronRight className="h-4 w-4" />
+          )}
+        </span>
+      </div>
+
+      {expanded && (
+        <div className="border-t border-black/10 px-4 pb-4 pt-3">
+          {record.status === "PROPOSED" && !decision && (
+            <SupersessionNotice
+              record={record}
+              graph={graph}
+              onOpenRecord={onOpenRecord}
+            />
+          )}
+          {pendingProposal && (
+            <SupersessionPendingNotice
+              proposal={pendingProposal}
+              onOpenRecord={onOpenRecord}
+            />
+          )}
+          <p className="text-md leading-6 text-black/75">{record.content}</p>
+          <div className="mt-4">
+            <RecordLinksPanel
+              record={record}
+              graph={graph}
+              onOpenRecord={onOpenRecord}
+            />
+          </div>
+          <div className="mt-3 flex justify-end">
+            <button
+              type="button"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-black/10 bg-white/80 px-2.5 py-1.5 text-sm text-black/65 transition-colors hover:bg-black/10"
+              onClick={() => onOpenRecord(record.id)}
+            >
+              Open in inspector
+              <ChevronRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
+          {record.status === "PROPOSED" && !decision && (
+            <ProposalActions
+              record={record}
+              onDelete={graph.deleteRecord}
+              onDecision={graph.decideProposal}
+            />
+          )}
+          {decision && <ProposalDecisionNote decision={decision} />}
+        </div>
+      )}
+    </article>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Proposal actions
+// ─────────────────────────────────────────────────────────────────────────────
+
 function ProposalActions({
   record,
   onDelete,
   onDecision,
 }: {
-  record: DemoRecord;
+  record: TypedCaseRecord;
   onDelete: (recordId: string) => void;
   onDecision: (recordId: string, decision: ProposalDecision) => void;
 }) {
@@ -1133,7 +1056,7 @@ function ProposalActions({
     <div className="mt-4 rounded-lg border border-black/10 bg-white/70 p-3">
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <button
-          className="inline-flex items-center gap-1.5 rounded-lg border border-green-200 bg-green-50 px-2.5 py-1.5 text-green-800 transition-colors hover:bg-black/15"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-green-200 bg-green-50 px-2.5 py-1.5 text-green-800 transition-colors hover:bg-green-100"
           onClick={() => onDecision(record.id, { status: "accepted" })}
           type="button"
         >
@@ -1141,7 +1064,7 @@ function ProposalActions({
           Accept proposal
         </button>
         <button
-          className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-2.5 py-1.5 text-red-800 transition-colors hover:bg-black/15"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-2.5 py-1.5 text-red-800 transition-colors hover:bg-red-100"
           onClick={() => setRejecting((value) => !value)}
           type="button"
         >
@@ -1149,7 +1072,7 @@ function ProposalActions({
           Reject proposal
         </button>
         <button
-          className="inline-flex items-center gap-1.5 rounded-lg border border-black/10 bg-white px-2.5 py-1.5 text-black/70 transition-colors hover:bg-black/15"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-black/10 bg-white px-2.5 py-1.5 text-black/70 transition-colors hover:bg-black/10"
           onClick={() => onDelete(record.id)}
           type="button"
         >
@@ -1157,7 +1080,7 @@ function ProposalActions({
           Delete proposal
         </button>
         <button
-          className="inline-flex items-center gap-1.5 rounded-lg border border-black/10 bg-black/[0.03] px-2.5 py-1.5 text-black/70 transition-colors hover:bg-black/15"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-black/10 bg-black/[0.03] px-2.5 py-1.5 text-black/70 transition-colors hover:bg-black/10"
           onClick={() => setSuggestingEdits((value) => !value)}
           title="Suggest edits with AI"
           type="button"
@@ -1256,19 +1179,18 @@ function RecordSettingsMenu({
   record,
   onDelete,
 }: {
-  record: DemoRecord;
+  record: TypedCaseRecord;
   onDelete: (recordId: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [menuNote, setMenuNote] = useState("");
   const menuRef = useRef<HTMLDivElement>(null);
-  const itemLabel = singularViewLabels[record.type] ?? "item";
-  const isSuperseded = record.status === "superseded";
+  const itemLabel =
+    SINGULAR_VIEW_LABELS[RECORD_TYPE_VIEW[record.type]] ?? "record";
+  const isSuperseded = record.status === "SUPERSEDED";
 
   useEffect(() => {
-    if (!open) {
-      return;
-    }
+    if (!open) return;
 
     const handlePointerDown = (event: PointerEvent) => {
       if (!menuRef.current?.contains(event.target as Node)) {
@@ -1277,7 +1199,6 @@ function RecordSettingsMenu({
     };
 
     document.addEventListener("pointerdown", handlePointerDown);
-
     return () => document.removeEventListener("pointerdown", handlePointerDown);
   }, [open]);
 
@@ -1317,10 +1238,7 @@ function RecordSettingsMenu({
                 type="button"
                 className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-black/70 transition-colors hover:bg-black/10"
                 onClick={(event) =>
-                  handleMenuAction(
-                    event,
-                    `Edit mode queued for this ${itemLabel}.`,
-                  )
+                  handleMenuAction(event, `Edit mode queued for this ${itemLabel}.`)
                 }
               >
                 <PencilLine className="h-3.5 w-3.5" />
@@ -1338,17 +1256,6 @@ function RecordSettingsMenu({
               >
                 <Sparkles className="h-3.5 w-3.5" />
                 Suggest edits
-              </button>
-              <button
-                type="button"
-                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-red-800 transition-colors hover:bg-black/10"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setMenuNote(`Rejection review queued for this ${itemLabel}.`);
-                }}
-              >
-                <XCircle className="h-3.5 w-3.5" />
-                Reject {itemLabel}
               </button>
               <button
                 type="button"
@@ -1375,304 +1282,897 @@ function RecordSettingsMenu({
   );
 }
 
-function RecordCard({
-  record,
-  decision,
-  pendingSupersessionProposal,
-  onDelete,
-  onProposalDecision,
+// ─────────────────────────────────────────────────────────────────────────────
+// Search & filters
+// ─────────────────────────────────────────────────────────────────────────────
+
+function WorkPanelSearch({
+  value,
+  onChange,
+  placeholder,
 }: {
-  record: DemoRecord;
-  decision?: ProposalDecision;
-  pendingSupersessionProposal?: DemoRecord;
-  onDelete: (recordId: string) => void;
-  onProposalDecision: (recordId: string, decision: ProposalDecision) => void;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
 }) {
-  const [expanded, setExpanded] = useState(false);
-  const displayStatus =
-    record.status === "proposed" && decision ? decision.status : record.status;
-
   return (
-    <article className="rounded-xl border border-black/10 bg-white/60 shadow-sm">
-      <div
-        role="button"
-        tabIndex={0}
-        className="relative w-full cursor-pointer p-4 pr-12 text-left"
-        onClick={() => setExpanded((value) => !value)}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            setExpanded((value) => !value);
-          }
-        }}
-      >
-        {(displayStatus === "accepted" || displayStatus === "rejected") && (
-          <div className="absolute right-3 top-3">
-            <RecordSettingsMenu record={record} onDelete={onDelete} />
-          </div>
-        )}
-        <div className="min-w-0">
-          <div className="mb-2 flex flex-wrap items-center gap-2">
-            <span
-              className={`rounded-full border px-2 py-0.5 text-xs capitalize ${statusClassName[displayStatus]}`}
-            >
-              {statusLabels[displayStatus]}
-            </span>
-            <span className="rounded-full border border-black/10 bg-black/[0.03] px-2 py-0.5 text-xs text-black/60">
-              {record.typeStatus}
-            </span>
-            <span className="rounded-full border border-black/10 bg-white/80 px-2 py-0.5 text-xs text-black/55">
-              {record.category}
-            </span>
-            <PartyBadge party={record.party} />
-            {record.status === "proposed" && record.supersedes && (
-              <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs text-amber-800">
-                <GitBranch className="h-3 w-3" />
-                Supersedes existing
-              </span>
-            )}
-          </div>
-          <h3 className="text-md font-semibold">{record.title}</h3>
-          <p className="mt-1 line-clamp-2 text-sm leading-5 text-black/60">
-            {record.miniDescription}
-          </p>
-        </div>
-        <span className="absolute bottom-3 right-3 rounded-lg p-1 text-black/45">
-          {expanded ? (
-            <ChevronDown className="h-4 w-4 text-black/45" />
-          ) : (
-            <ChevronRight className="h-4 w-4 text-black/45" />
-          )}
-        </span>
-      </div>
-
-      {expanded && (
-        <div className="border-t border-black/10 px-4 pb-4 pt-3">
-          {record.status === "proposed" && record.supersedes && (
-            <SupersessionNotice record={record} />
-          )}
-          {pendingSupersessionProposal && (
-            <SupersessionPendingNotice proposal={pendingSupersessionProposal} />
-          )}
-          <p className="text-md leading-6 text-black/75">{record.content}</p>
-          <div className="mt-4 flex flex-col gap-2">
-            <MiniPanel
-              icon={FileCheck2}
-              label="Sources"
-              values={record.sources}
-            />
-            <MiniPanel
-              icon={Link2}
-              label="Linked items"
-              values={record.linkedRecords}
-            />
-          </div>
-          {record.status === "proposed" && !decision && (
-            <ProposalActions
-              record={record}
-              onDelete={onDelete}
-              onDecision={onProposalDecision}
-            />
-          )}
-          {decision && <ProposalDecisionNote decision={decision} />}
-        </div>
-      )}
-    </article>
+    <label className="relative block">
+      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-black/40" />
+      <input
+        className="w-full rounded-lg border border-black/10 bg-white/65 py-2.5 pl-9 pr-3 text-md text-black/75 outline-none transition focus:border-black/30 focus:bg-white"
+        placeholder={placeholder}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      />
+    </label>
   );
 }
 
-function DocumentsView() {
+const FILTERABLE_STATUSES: RecordStatus[] = [
+  "ACCEPTED",
+  "PROPOSED",
+  "REJECTED",
+  "SUPERSESSION_PENDING",
+  "SUPERSEDED",
+];
+
+function StatusFilter({
+  selectedStatuses,
+  onSelectStatuses,
+}: {
+  selectedStatuses: RecordStatus[];
+  onSelectStatuses: (statuses: RecordStatus[]) => void;
+}) {
+  const toggleStatus = (status: "all" | RecordStatus) => {
+    if (status === "all") {
+      onSelectStatuses([]);
+      return;
+    }
+
+    onSelectStatuses(
+      selectedStatuses.includes(status)
+        ? selectedStatuses.filter((selected) => selected !== status)
+        : [...selectedStatuses, status],
+    );
+  };
+
+  return (
+    <div className="flex flex-wrap items-center gap-2 text-sm">
+      <Filter className="h-4 w-4 text-black/50" />
+      {(["all", ...FILTERABLE_STATUSES] as const).map((status) => {
+        const selected =
+          status === "all"
+            ? selectedStatuses.length === 0
+            : selectedStatuses.includes(status);
+
+        return (
+          <button
+            key={status}
+            className={`rounded-full border px-2.5 py-1 transition-colors ${
+              selected
+                ? "border-black/30 bg-black/10"
+                : "border-black/10 bg-white/60 hover:bg-black/5"
+            }`}
+            onClick={() => toggleStatus(status)}
+            type="button"
+          >
+            {status === "all" ? "All" : RECORD_STATUS_LABELS[status]}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Views
+// ─────────────────────────────────────────────────────────────────────────────
+
+function GlobalSearchView({
+  query,
+  records,
+  graph,
+  onClearSearch,
+  onOpenRecord,
+}: {
+  query: string;
+  records: TypedCaseRecord[];
+  graph: WorkspaceGraph;
+  onClearSearch: () => void;
+  onOpenRecord: (recordId: string) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="font-serif text-lg">Workspace Search</h2>
+          <p className="mt-1 text-sm text-black/60">
+            Searching all case records for "{query.trim()}".
+          </p>
+        </div>
+        <button
+          type="button"
+          className="rounded-lg border border-black/10 bg-white/70 px-3 py-1.5 text-sm text-black/65 transition-colors hover:bg-black/10"
+          onClick={onClearSearch}
+        >
+          Clear search
+        </button>
+      </div>
+
+      <div className="grid gap-3">
+        {records.length === 0 ? (
+          <EmptyState message="No case records match this workspace search." />
+        ) : (
+          records.map((record) => (
+            <div key={record.id} className="flex flex-col gap-2">
+              <div className="flex items-center gap-2 text-xs text-black/50">
+                <span className="rounded-full border border-black/10 bg-white/70 px-2 py-0.5">
+                  {RECORD_TYPE_LABELS[record.type]}
+                </span>
+                <span>{formatDate(record.updatedAt)}</span>
+              </div>
+              <RecordCard
+                record={record}
+                graph={graph}
+                onOpenRecord={onOpenRecord}
+              />
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+function EmptyState({ message }: { message: string }) {
+  return (
+    <div className="rounded-xl border border-dashed border-black/15 bg-white/40 p-8 text-center text-md text-black/55">
+      {message}
+    </div>
+  );
+}
+
+function OverviewView({
+  graph,
+  onOpenRecord,
+  onSelectView,
+}: {
+  graph: WorkspaceGraph;
+  onOpenRecord: (recordId: string) => void;
+  onSelectView: (view: WorkspaceViewType) => void;
+}) {
+  const highPriorityRecords = graph.records.filter(
+    (record) =>
+      record.priority === "high" &&
+      graph.effectiveStatus(record) === "ACCEPTED",
+  );
+  const attentionRecords = graph.records.filter(
+    (record) =>
+      record.substatus &&
+      ATTENTION_SUBSTATUSES.includes(record.substatus) &&
+      graph.effectiveStatus(record) !== "SUPERSEDED" &&
+      graph.effectiveStatus(record) !== "REJECTED",
+  );
+
+  return (
+    <div className="flex min-w-0 flex-col gap-4">
+      <section className="flex flex-col gap-3">
+        <div className="rounded-xl border border-black/10 bg-white/55 p-4">
+          <div className="mb-3 flex items-start justify-between gap-3">
+            <div>
+              <h2 className="font-serif text-lg">Strategic Snapshot</h2>
+              <p className="mt-1 text-sm text-black/60">
+                {demoCaseContext.currentPosture}
+              </p>
+            </div>
+            <ShieldCheck className="h-5 w-5 text-green-700" />
+          </div>
+          <p className="text-md leading-6 text-black/75">
+            {demoCaseContext.objectives.ours}
+          </p>
+          <div className="mt-4 grid gap-2 sm:grid-cols-3">
+            <Metric label="Case health" value={`${demoCase.health}%`} />
+            <Metric
+              label="Trial readiness"
+              value={`${demoCase.trialReadiness}%`}
+            />
+            <Metric
+              label="Pending proposals"
+              value={String(graph.proposedRecords.length)}
+            />
+          </div>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2">
+          <div className="rounded-xl border border-black/10 bg-black/[0.03] p-4">
+            <div className="flex items-center gap-2">
+              <CircleAlert className="h-4 w-4 text-amber-700" />
+              <h2 className="font-serif text-lg">Main Risk</h2>
+            </div>
+            <p className="mt-2 text-md leading-6 text-black/75">
+              {demoCaseContext.objectives.biggestCurrentRisk}
+            </p>
+          </div>
+          <div className="rounded-xl border border-black/10 bg-black/[0.03] p-4">
+            <div className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-black/55" />
+              <h2 className="font-serif text-lg">Their Objective</h2>
+            </div>
+            <p className="mt-2 text-md leading-6 text-black/75">
+              {demoCaseContext.objectives.theirs}
+            </p>
+          </div>
+        </div>
+
+        {attentionRecords.length > 0 && (
+          <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-4">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="font-serif text-lg">Needs Attention</h2>
+              <button
+                type="button"
+                className="rounded-lg border border-amber-200 bg-white/80 px-3 py-1.5 text-sm text-amber-800 transition-colors hover:bg-amber-100"
+                onClick={() => onSelectView("review")}
+              >
+                Open review queue
+              </button>
+            </div>
+            <p className="mt-1 text-sm text-black/55">
+              Records flagged for source review, missing support, date
+              conflicts, or pending supersession.
+            </p>
+            <div className="mt-3 flex flex-col gap-1.5">
+              {attentionRecords.slice(0, 6).map((record) => (
+                <RecordChip
+                  key={record.id}
+                  record={record}
+                  onOpenRecord={onOpenRecord}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="rounded-xl border border-black/10 bg-white/55 p-4">
+          <h2 className="font-serif text-lg">High-Priority Work</h2>
+          <div className="mt-3 flex flex-col gap-1.5">
+            {highPriorityRecords.map((record) => (
+              <RecordChip
+                key={record.id}
+                record={record}
+                onOpenRecord={onOpenRecord}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <aside className="flex flex-col gap-3">
+        <div className="rounded-xl border border-black/10 bg-white/55 p-4">
+          <h2 className="font-serif text-lg">Workspace Activity</h2>
+          <div className="mt-3 flex flex-col gap-2">
+            {demoActivity.map((item) => (
+              <div
+                key={item.id}
+                className="rounded-lg border border-black/10 bg-white/70 p-3"
+              >
+                <div className="flex items-center justify-between gap-2 text-xs text-black/55">
+                  <span>{item.actor}</span>
+                  <span>{item.time}</span>
+                </div>
+                <p className="mt-1.5 text-sm leading-5 text-black/75">
+                  {item.action}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </aside>
+    </div>
+  );
+}
+
+function ReviewView({
+  graph,
+  onOpenRecord,
+}: {
+  graph: WorkspaceGraph;
+  onOpenRecord: (recordId: string) => void;
+}) {
+  const supersessionProposals = graph.proposedRecords.filter(
+    (record) => record.supersedesIds?.length,
+  );
+  const newProposals = graph.proposedRecords.filter(
+    (record) => !record.supersedesIds?.length,
+  );
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div>
+        <h2 className="font-serif text-lg">{VIEW_LABELS.review}</h2>
+        <p className="mt-1 text-sm text-black/60">{VIEW_DESCRIPTIONS.review}</p>
+      </div>
+
+      {graph.proposedRecords.length === 0 && (
+        <EmptyState message="No pending proposals need review." />
+      )}
+
+      {supersessionProposals.length > 0 && (
+        <section className="flex flex-col gap-2">
+          <h3 className="flex items-center gap-2 text-sm font-medium text-black/65">
+            <GitBranch className="h-4 w-4" />
+            Supersession proposals ({supersessionProposals.length})
+          </h3>
+          <div className="grid gap-3">
+            {supersessionProposals.map((record) => (
+              <RecordCard
+                key={record.id}
+                record={record}
+                graph={graph}
+                onOpenRecord={onOpenRecord}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {newProposals.length > 0 && (
+        <section className="flex flex-col gap-2">
+          <h3 className="flex items-center gap-2 text-sm font-medium text-black/65">
+            <Sparkles className="h-4 w-4" />
+            New proposals ({newProposals.length})
+          </h3>
+          <div className="grid gap-3">
+            {newProposals.map((record) => (
+              <RecordCard
+                key={record.id}
+                record={record}
+                graph={graph}
+                onOpenRecord={onOpenRecord}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}
+
+function RecordsView({
+  activeView,
+  graph,
+  panelSearch,
+  setPanelSearch,
+  selectedStatuses,
+  setSelectedStatuses,
+  onOpenRecord,
+}: {
+  activeView: RecordViewType;
+  graph: WorkspaceGraph;
+  panelSearch: string;
+  setPanelSearch: (value: string) => void;
+  selectedStatuses: RecordStatus[];
+  setSelectedStatuses: (statuses: RecordStatus[]) => void;
+  onOpenRecord: (recordId: string) => void;
+}) {
+  const recordType = VIEW_RECORD_TYPE[activeView];
+  const singular = SINGULAR_VIEW_LABELS[activeView] ?? "record";
+
+  const filteredRecords = graph.records.filter((record) => {
+    if (record.type !== recordType) return false;
+    const status = graph.effectiveStatus(record);
+    const matchesStatus =
+      selectedStatuses.length === 0 || selectedStatuses.includes(status);
+    return matchesStatus && recordMatchesSearch(record, panelSearch);
+  });
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div>
+        <h2 className="font-serif text-lg">{VIEW_LABELS[activeView]}</h2>
+        <p className="mt-1 text-sm text-black/60">
+          {VIEW_DESCRIPTIONS[activeView]}
+        </p>
+      </div>
+
+      {activeView !== "notes" && (
+        <div className="flex justify-end">
+          <Button style="secondary" text={`Create ${singular}`} icon="plus" />
+        </div>
+      )}
+
+      <WorkPanelSearch
+        value={panelSearch}
+        onChange={setPanelSearch}
+        placeholder={`Search ${VIEW_LABELS[activeView].toLowerCase()}`}
+      />
+
+      <StatusFilter
+        selectedStatuses={selectedStatuses}
+        onSelectStatuses={setSelectedStatuses}
+      />
+
+      {activeView === "notes" && (
+        <CaseNoteComposer onCreateCaseNote={graph.createNote} />
+      )}
+
+      <div className="grid gap-3">
+        {filteredRecords.length === 0 ? (
+          <EmptyState
+            message={`No ${VIEW_LABELS[activeView].toLowerCase()} match the current filters.`}
+          />
+        ) : (
+          filteredRecords.map((record) => (
+            <RecordCard
+              key={record.id}
+              record={record}
+              graph={graph}
+              onOpenRecord={onOpenRecord}
+            />
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+function TimelineView({
+  graph,
+  panelSearch,
+  setPanelSearch,
+  selectedStatuses,
+  setSelectedStatuses,
+  onOpenRecord,
+}: {
+  graph: WorkspaceGraph;
+  panelSearch: string;
+  setPanelSearch: (value: string) => void;
+  selectedStatuses: RecordStatus[];
+  setSelectedStatuses: (statuses: RecordStatus[]) => void;
+  onOpenRecord: (recordId: string) => void;
+}) {
+  const events = graph.records
+    .filter((record): record is TimelineEventRecord => {
+      if (record.type !== "TIMELINE_EVENT") return false;
+      const status = graph.effectiveStatus(record);
+      const matchesStatus =
+        selectedStatuses.length === 0 || selectedStatuses.includes(status);
+      return matchesStatus && recordMatchesSearch(record, panelSearch);
+    })
+    .sort((a, b) => a.eventDate.localeCompare(b.eventDate));
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div>
+        <h2 className="font-serif text-lg">{VIEW_LABELS.timeline}</h2>
+        <p className="mt-1 text-sm text-black/60">
+          {VIEW_DESCRIPTIONS.timeline}
+        </p>
+      </div>
+
+      <div className="flex justify-end">
+        <Button style="secondary" text="Create timeline event" icon="plus" />
+      </div>
+
+      <WorkPanelSearch
+        value={panelSearch}
+        onChange={setPanelSearch}
+        placeholder="Search timeline events"
+      />
+
+      <StatusFilter
+        selectedStatuses={selectedStatuses}
+        onSelectStatuses={setSelectedStatuses}
+      />
+
+      <div className="relative flex flex-col gap-2 pl-5">
+        <div className="absolute left-[.55rem] top-2 bottom-2 w-px bg-black/10" />
+        {events.length === 0 ? (
+          <EmptyState message="No timeline events match the current filters." />
+        ) : (
+          events.map((record) => (
+            <article key={record.id} className="relative">
+              <div className="absolute -left-[1.05rem] top-5 h-2.5 w-2.5 rounded-full border border-white bg-black/35" />
+              <div className="mb-1 flex items-center gap-1.5 pl-1 text-xs text-black/55">
+                <CalendarDays className="h-3.5 w-3.5" />
+                {formatDate(record.eventDate)}
+              </div>
+              <RecordCard
+                record={record}
+                graph={graph}
+                onOpenRecord={onOpenRecord}
+              />
+            </article>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+function DocumentsView({
+  graph,
+  onOpenRecord,
+}: {
+  graph: WorkspaceGraph;
+  onOpenRecord: (recordId: string) => void;
+}) {
+  const documentRecordsByDocumentId = useMemo(() => {
+    const map = new Map<string, TypedCaseRecord[]>();
+    for (const record of graph.records) {
+      if (record.type !== "DOCUMENT") continue;
+      map.set(record.documentId, [
+        ...(map.get(record.documentId) ?? []),
+        record,
+      ]);
+    }
+    return map;
+  }, [graph.records]);
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="font-serif text-lg">Documents</h2>
+          <h2 className="font-serif text-lg">{VIEW_LABELS.documents}</h2>
           <p className="mt-1 text-sm text-black/60">
-            Indexed files become sources for facts, issues, arguments, and
-            timeline events.
+            {VIEW_DESCRIPTIONS.documents}
           </p>
         </div>
         <Button text="Upload document" icon="upload" />
       </div>
-      <div className="grid gap-3 md:grid-cols-2">
+      <div className="grid gap-3">
         {demoDocuments.map((document) => (
-          <article
+          <DocumentCard
             key={document.id}
-            className="rounded-xl border border-black/10 bg-white/60 p-4"
-          >
-            <div className="flex items-start justify-between gap-3">
-              <FileText className="h-5 w-5 text-black/55" />
-              <span className="rounded-full border border-black/10 bg-white/80 px-2 py-0.5 text-xs text-black/60">
-                {document.status}
-              </span>
-            </div>
-            <h3 className="mt-3 text-md font-semibold">{document.fileName}</h3>
-            <p className="mt-1 text-sm text-black/55">
-              {document.category} · {document.date} · {document.linkedRecords}{" "}
-              links
-            </p>
-            <p className="mt-3 text-md leading-6 text-black/75">
-              {document.summary}
-            </p>
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {document.gaps.map((gap) => (
-                <span
-                  key={gap}
-                  className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs text-amber-800"
-                >
-                  {gap}
-                </span>
-              ))}
-            </div>
-          </article>
+            document={document}
+            documentRecords={documentRecordsByDocumentId.get(document.id) ?? []}
+            onOpenRecord={onOpenRecord}
+          />
         ))}
       </div>
     </div>
   );
 }
 
-function AgentConfigView() {
-  const instructions = [
-    "Draft case objects as proposals first; never silently promote AI output to accepted.",
-    "Every strategic claim should cite a source document, note, or case item.",
-    "Prefer short, reviewable proposals over long freeform analysis.",
-    "Flag missing evidence and unsupported legal citations before trial use.",
-  ];
+function DocumentCard({
+  document,
+  documentRecords,
+  onOpenRecord,
+}: {
+  document: CaseDocument;
+  documentRecords: TypedCaseRecord[];
+  onOpenRecord: (recordId: string) => void;
+}) {
+  return (
+    <article className="rounded-xl border border-black/10 bg-white/60 p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <FileText className="h-5 w-5 shrink-0 text-black/55" />
+          <h3 className="truncate text-md font-semibold">
+            {document.fileName}
+          </h3>
+        </div>
+        <span className="shrink-0 rounded-full border border-black/10 bg-white/80 px-2 py-0.5 text-xs capitalize text-black/60">
+          {document.processingStatus}
+        </span>
+      </div>
+      <p className="mt-1 text-sm text-black/55">
+        <span className="capitalize">
+          {document.category.replaceAll("_", " ")}
+        </span>
+        {document.pageCount ? ` · ${document.pageCount} pages` : ""} · Uploaded{" "}
+        {formatDate(document.createdAt)}
+      </p>
+      {document.description && (
+        <p className="mt-3 text-md leading-6 text-black/75">
+          {document.description}
+        </p>
+      )}
+      <div className="mt-3">
+        <p className="mb-1.5 text-xs text-black/55">
+          Document records extracted from this file ({documentRecords.length})
+        </p>
+        {documentRecords.length === 0 ? (
+          <p className="text-sm text-black/40">
+            No document records yet — processing will propose them.
+          </p>
+        ) : (
+          <div className="flex flex-col gap-1.5">
+            {documentRecords.map((record) => (
+              <RecordChip
+                key={record.id}
+                record={record}
+                onOpenRecord={onOpenRecord}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </article>
+  );
+}
+
+function PeopleView({
+  graph,
+  onOpenRecord,
+}: {
+  graph: WorkspaceGraph;
+  onOpenRecord: (recordId: string) => void;
+}) {
+  const people = graph.records.filter((record) => record.type === "PERSON");
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="font-serif text-lg">{VIEW_LABELS.people}</h2>
+          <p className="mt-1 text-sm text-black/60">
+            {VIEW_DESCRIPTIONS.people}
+          </p>
+        </div>
+        <Button style="secondary" text="Add person" icon="userPlus" />
+      </div>
+      <div className="grid gap-3 md:grid-cols-2">
+        {people.map((person) => {
+          if (person.type !== "PERSON") return null;
+          const involvedIn = (graph.inboundLinks.get(person.id) ?? []).filter(
+            (link) => link.type === "INVOLVES",
+          );
+
+          return (
+            <article
+              key={person.id}
+              className="rounded-xl border border-black/10 bg-white/60 p-4"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <h3 className="text-md font-semibold">{person.name}</h3>
+                <StatusBadge status={graph.effectiveStatus(person)} />
+              </div>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {person.roles.map((role) => (
+                  <span
+                    key={role}
+                    className="rounded-full border border-black/10 bg-white/80 px-2 py-0.5 text-xs capitalize text-black/60"
+                  >
+                    {role.replaceAll("_", " ").toLowerCase()}
+                  </span>
+                ))}
+                {person.organization && (
+                  <span className="rounded-full border border-black/10 bg-black/[0.03] px-2 py-0.5 text-xs text-black/60">
+                    {person.organization}
+                  </span>
+                )}
+              </div>
+              <p className="mt-3 line-clamp-3 text-sm leading-5 text-black/70">
+                {person.content}
+              </p>
+              <div className="mt-3 flex items-center justify-between gap-2">
+                <span className="text-xs text-black/50">
+                  Involved in {involvedIn.length} record
+                  {involvedIn.length === 1 ? "" : "s"}
+                </span>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1 rounded-lg border border-black/10 bg-white/80 px-2.5 py-1.5 text-sm text-black/65 transition-colors hover:bg-black/10"
+                  onClick={() => onOpenRecord(person.id)}
+                >
+                  Open
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function CaseNoteComposer({
+  onCreateCaseNote,
+}: {
+  onCreateCaseNote: (content: string) => void;
+}) {
+  const [draft, setDraft] = useState("");
+
+  return (
+    <div className="rounded-xl border border-black/10 bg-white/60 p-3">
+      <div className="mb-2 flex items-center gap-2 text-sm text-black/60">
+        <PencilLine className="h-4 w-4" />
+        <span>New case note</span>
+      </div>
+      <TextAreaField
+        label="Case note"
+        placeholder="Capture a strategy thought, question, witness point, or hearing note..."
+        value={draft}
+        onChange={(event) => setDraft(event.target.value)}
+        rows={3}
+        minRows={3}
+      />
+      <div className="mt-2 flex justify-end">
+        <Button
+          style="secondary"
+          text="Add case note"
+          icon="plus"
+          disabled={!draft.trim()}
+          onClick={() => {
+            onCreateCaseNote(draft);
+            setDraft("");
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Case agent view
+// ─────────────────────────────────────────────────────────────────────────────
+
+function AgentView({
+  graph,
+  onOpenRecord,
+}: {
+  graph: WorkspaceGraph;
+  onOpenRecord: (recordId: string) => void;
+}) {
+  const [prompt, setPrompt] = useState("");
+  const [showInstructions, setShowInstructions] = useState(false);
   const [instructionDraft, setInstructionDraft] = useState("");
-  const [agentPrompt, setAgentPrompt] = useState("");
   const [proposedInstructions, setProposedInstructions] = useState<string[]>(
     [],
   );
 
   return (
-    <div className="flex flex-col gap-4">
-      <section className="rounded-xl border border-black/10 bg-white/60 p-4">
-        <div className="flex items-center gap-2">
-          <Bot className="h-5 w-5" />
-          <h2 className="font-serif text-lg">{demoCase.title} Agent</h2>
-        </div>
-        <p className="mt-3 text-md leading-6 text-black/75">
-          Ask for case work in plain language. Agent outputs stay reviewable:
-          proposed links, proposed changes, draft summaries, and suggested case
-          objects.
-        </p>
-        <div className="mt-4 rounded-lg border border-black/10 bg-white/75 p-3">
-          <div className="mb-2 flex items-center gap-2 text-sm text-black/60">
-            <MessageSquare className="h-4 w-4" />
-            <span>Ask Agent</span>
-          </div>
-          <TextAreaField
-            label="Ask Agent"
-            placeholder="Ask the agent to summarize discovery gaps, compare arguments, or draft a focused review queue..."
-            value={agentPrompt}
-            onChange={(event) => setAgentPrompt(event.target.value)}
-            rows={3}
-            minRows={3}
-          />
-          <div className="mt-2 flex justify-end">
-            <Button
-              text="Ask Agent"
-              icon="sparkles"
-              disabled={!agentPrompt.trim()}
-              onClick={() => setAgentPrompt("")}
-            />
-          </div>
-        </div>
-      </section>
-
-      <section className="rounded-xl border border-black/10 bg-black/[0.03] p-4">
-        <h2 className="font-serif text-lg">Instructions</h2>
-        <div className="mt-3 flex flex-col gap-2">
-          {[...instructions, ...proposedInstructions].map((instruction) => (
-            <div
-              key={instruction}
-              className="flex gap-2 rounded-lg border border-black/10 bg-white/70 p-3 text-md text-black/75"
-            >
-              <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-black/45" />
-              <span>{instruction}</span>
-            </div>
-          ))}
-        </div>
-        <div className="mt-3 rounded-lg border border-black/10 bg-white/70 p-3">
-          <TextAreaField
-            label="Propose an instruction change"
-            placeholder="Example: When reviewing discovery, prioritize missing records controlled by property management."
-            value={instructionDraft}
-            onChange={(event) => setInstructionDraft(event.target.value)}
-            rows={3}
-            minRows={3}
-          />
-          <div className="mt-2 flex justify-end">
-            <Button
-              style="secondary"
-              text="Propose change"
-              icon="save"
-              disabled={!instructionDraft.trim()}
-              onClick={() => {
-                setProposedInstructions((items) => [
-                  ...items,
-                  `Proposed: ${instructionDraft.trim()}`,
-                ]);
-                setInstructionDraft("");
-              }}
-            />
-          </div>
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function RecordRow({ record }: { record: DemoRecord }) {
-  return (
-    <div className="min-w-0 rounded-lg border border-black/10 bg-white/70 p-3">
-      <div className="flex min-w-0 items-center justify-between gap-3">
-        <div className="min-w-0">
-          <p className="truncate text-md font-medium">{record.title}</p>
-          <p className="mt-1 break-words text-sm leading-5 text-black/55">
-            {record.typeStatus} · {record.miniDescription}
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="flex items-center gap-2 font-serif text-lg">
+            <Bot className="h-5 w-5" />
+            Case Agent
+          </h2>
+          <p className="mt-1 text-sm text-black/60">
+            Grounded in the case knowledge graph. Every answer cites records you
+            can open, and every change arrives as a reviewable proposal.
           </p>
         </div>
+        <button
+          type="button"
+          className="rounded-lg border border-black/10 bg-white/70 px-3 py-1.5 text-sm text-black/65 transition-colors hover:bg-black/10"
+          onClick={() => setShowInstructions((value) => !value)}
+        >
+          {showInstructions ? "Hide instructions" : "Agent instructions"}
+        </button>
       </div>
+
+      {showInstructions && (
+        <section className="rounded-xl border border-black/10 bg-black/[0.03] p-4">
+          <h3 className="text-sm font-medium text-black/70">
+            Standing instructions
+          </h3>
+          <div className="mt-2 flex flex-col gap-2">
+            {[...demoAgentInstructions, ...proposedInstructions].map(
+              (instruction) => (
+                <div
+                  key={instruction}
+                  className="flex gap-2 rounded-lg border border-black/10 bg-white/70 p-3 text-sm text-black/75"
+                >
+                  <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-black/45" />
+                  <span>{instruction}</span>
+                </div>
+              ),
+            )}
+          </div>
+          <div className="mt-3 rounded-lg border border-black/10 bg-white/70 p-3">
+            <TextAreaField
+              label="Propose an instruction change"
+              placeholder="Example: When reviewing discovery, prioritize missing records controlled by property management."
+              value={instructionDraft}
+              onChange={(event) => setInstructionDraft(event.target.value)}
+              rows={2}
+              minRows={2}
+            />
+            <div className="mt-2 flex justify-end">
+              <Button
+                style="secondary"
+                text="Propose change"
+                icon="save"
+                disabled={!instructionDraft.trim()}
+                onClick={() => {
+                  setProposedInstructions((items) => [
+                    ...items,
+                    `Proposed: ${instructionDraft.trim()}`,
+                  ]);
+                  setInstructionDraft("");
+                }}
+              />
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section className="flex flex-col gap-3 rounded-xl border border-black/10 bg-white/55 p-4">
+        {demoAgentThread.map((message) => (
+          <div
+            key={message.id}
+            className={`flex flex-col gap-1.5 ${
+              message.role === "user" ? "items-end" : "items-start"
+            }`}
+          >
+            <div
+              className={`max-w-[85%] rounded-xl border p-3 ${
+                message.role === "user"
+                  ? "border-black/10 bg-black/[0.05]"
+                  : "border-black/10 bg-white/85"
+              }`}
+            >
+              <div className="mb-1 flex items-center gap-1.5 text-xs text-black/45">
+                {message.role === "agent" && <Bot className="h-3.5 w-3.5" />}
+                <span>{message.role === "agent" ? "Case Agent" : "You"}</span>
+                <span>· {message.time}</span>
+              </div>
+              <p className="text-md leading-6 text-black/80">
+                {message.content}
+              </p>
+              {message.citedRecordIds && message.citedRecordIds.length > 0 && (
+                <div className="mt-3 border-t border-black/10 pt-2">
+                  <p className="mb-1.5 text-xs text-black/50">
+                    Grounded in {message.citedRecordIds.length} records
+                  </p>
+                  <div className="flex flex-col gap-1.5">
+                    {message.citedRecordIds
+                      .map((id) => graph.recordsById.get(id))
+                      .filter((record): record is TypedCaseRecord =>
+                        Boolean(record),
+                      )
+                      .map((record) => (
+                        <RecordChip
+                          key={record.id}
+                          record={record}
+                          onOpenRecord={onOpenRecord}
+                        />
+                      ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+
+        <div className="mt-2 rounded-lg border border-black/10 bg-white/75 p-3">
+          <TextAreaField
+            label="Ask the case agent"
+            placeholder="Ask the agent to summarize discovery gaps, compare arguments, or propose new records from a document..."
+            value={prompt}
+            onChange={(event) => setPrompt(event.target.value)}
+            rows={3}
+            minRows={3}
+          />
+          <div className="mt-2 flex items-center justify-between gap-3">
+            <span className="text-xs text-black/45">
+              Responses cite records; proposed changes go to the review queue.
+            </span>
+            <Button
+              text="Send"
+              icon="sparkles"
+              disabled={!prompt.trim()}
+              onClick={() => setPrompt("")}
+            />
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Small bits
+// ─────────────────────────────────────────────────────────────────────────────
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border border-black/10 bg-white/70 p-3">
       <p className="text-xs text-black/55">{label}</p>
       <p className="mt-1 text-xl font-semibold">{value}</p>
-    </div>
-  );
-}
-
-function MiniPanel({
-  icon: Icon,
-  label,
-  values,
-}: {
-  icon: LucideIcon;
-  label: string;
-  values: string[];
-}) {
-  return (
-    <div className="min-w-0 rounded-lg border border-black/10 bg-black/[0.025] p-3">
-      <div className="mb-2 flex items-center gap-1.5 text-xs text-black/55">
-        <Icon className="h-3.5 w-3.5" />
-        <span>{label}</span>
-      </div>
-      <div className="flex flex-col gap-1">
-        {values.length > 0 ? (
-          values.slice(0, 3).map((value) => (
-            <span key={value} className="truncate text-sm text-black/75">
-              {value}
-            </span>
-          ))
-        ) : (
-          <span className="text-sm text-black/40">None yet</span>
-        )}
-      </div>
     </div>
   );
 }

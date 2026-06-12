@@ -1,328 +1,95 @@
-export type RepresentationPracticeArea =
-  | "civil_litigation"
-  | "criminal"
-  | "family"
-  | "corporate"
-  | "personal_injury"
-  | "employment"
-  | "landlord_tenant"
-  | "probate_and_estate"
-  | "real_estate"
-  | "immigration"
-  | "bankruptcy"
-  | "juvenile"
-  | "appeals"
-  | "administrative"
-  | "intellectual_property"
-  | "tax"
-  | "other";
+// Client-side workspace view model.
+// Record/document/link data types live in caseRecords.ts.
+// Shared domain enums live in caseDomain.ts.
 
-export type ClientRole =
-  | "plaintiff"
-  | "defendant"
-  | "petitioner"
-  | "respondent"
-  | "appellant"
-  | "appellee"
-  | "claimant"
-  | "counterclaimant"
-  | "counterdefendant"
-  | "third_party_plaintiff"
-  | "third_party_defendant"
-  | "interested_party"
-  | "other";
+import type { RecordType } from "./caseRecords";
 
-export type RepresentationRole =
-  | "lead_counsel"
-  | "co_counsel"
-  | "local_counsel"
-  | "outside_counsel"
-  | "in_house_counsel"
-  | "appellate_counsel"
-  | "defense_counsel"
-  | "prosecutor"
-  | "guardian_ad_litem"
-  | "other";
+// Backward-compatible re-exports (intake wizard + test data import from here)
+export type {
+  CaseStatus,
+  ClientRole,
+  DocumentCategory,
+  RepresentationPracticeArea,
+  RepresentationRole,
+} from "./caseDomain";
+export type { CaseIntake, CaseIntakeDocument } from "./caseIntake";
 
-export type CaseStatus =
-  | "pre_filing"
-  | "filed"
-  | "discovery"
-  | "motion_stage"
-  | "settlement_negotiations"
-  | "trial_preparation"
-  | "trial"
-  | "post_trial"
-  | "appeal";
+// ─────────────────────────────────────────────────────────────────────────────
+// Workspace views
+// ─────────────────────────────────────────────────────────────────────────────
 
-export type DocumentStatus = "uploaded" | "processed" | "error";
-
-export type DocumentCategory =
-  | "evidence"
-  | "research"
-  | "client_statement"
-  | "witness_statement"
-  | "transcript"
-  | "other";
-
-export type StateObjectTypes =
-  | "arguments"
-  | "case_notes"
-  | "facts"
-  | "issues"
-  | "legal_precedent"
+export type WorkspaceViewType =
+  // Workspace-level views
+  | "agent"      // case agent chat
+  | "overview"   // case summary + activity
+  | "review"     // proposed records awaiting user approval
+  // Record-type views (each maps to one RecordType)
   | "objectives"
+  | "claims"
   | "posture"
+  | "theories"
+  | "issues"
+  | "arguments"
   | "tasks"
+  | "facts"
+  | "timeline"
   | "testimony"
-  | "timeline";
+  | "precedent"
+  | "notes"
+  | "documents"
+  | "people";
 
-export type ReferenceTargets = StateObjectTypes | "documents";
+// Views that render a filtered list of one record type
+export const VIEW_RECORD_TYPE = {
+  objectives: "OBJECTIVE",
+  claims: "CLAIM",
+  posture: "POSTURE",
+  theories: "THEORY",
+  issues: "ISSUE",
+  arguments: "ARGUMENT",
+  tasks: "TASK",
+  facts: "FACT",
+  timeline: "TIMELINE_EVENT",
+  testimony: "TESTIMONY",
+  precedent: "LEGAL_PRECEDENT",
+  notes: "NOTE",
+  documents: "DOCUMENT",
+  people: "PERSON",
+} as const satisfies Partial<Record<WorkspaceViewType, RecordType>>;
 
-export type LinkStatus = "proposed" | "accepted" | "rejected";
-export type RecordParty = "plaintiff" | "defense";
-export type RecordStatus =
-  | "proposed"
-  | "accepted"
-  | "rejected"
-  | "supersession_pending"
-  | "superseded";
+export type RecordViewType = keyof typeof VIEW_RECORD_TYPE;
 
-export type WorkspaceReferenceMap = {
-  [StateObjectType in ReferenceTargets]?: {
-    id: string;
-    linkStatus?: LinkStatus;
-  }[];
+// Reverse map: which view shows a given record type
+export const RECORD_TYPE_VIEW: Record<RecordType, WorkspaceViewType> = {
+  CASE_SUMMARY: "overview",
+  OBJECTIVE: "objectives",
+  CLAIM: "claims",
+  POSTURE: "posture",
+  THEORY: "theories",
+  ISSUE: "issues",
+  ARGUMENT: "arguments",
+  TASK: "tasks",
+  FACT: "facts",
+  TIMELINE_EVENT: "timeline",
+  TESTIMONY: "testimony",
+  LEGAL_PRECEDENT: "precedent",
+  NOTE: "notes",
+  DOCUMENT: "documents",
+  PERSON: "people",
 };
 
-export type WorkspaceReferencedByMap = {
-  [StateObjectType in StateObjectTypes]?: string[];
-};
-
-export interface Document {
-  category: DocumentCategory;
-  fileName: string;
-  documentId?: string;
-  userDescription?: string;
-  whyThisMatters?: string;
-  llmSummary?: string;
-  status?: DocumentStatus;
-
-  createdBy?: "human" | "agent";
-  uploadedAt?: string;
-  user_id?: string; // ID of the user who uploaded the document
-
-  version?: number; // for tracking updates to the document
-
-  // relevantDate?: string; // ISO string recommended
-  // dateConfidence?: "exact" | "approximate" | "unknown";
-  referencedBy?: WorkspaceReferencedByMap;
-}
-
-export type CaseBasics = {
-  caseName: string; // e.g. "Smith v. Jones"
-  intakeProvidedBy: string; // e.g. "John Doe, Esq." or "Jane Smith, Client"
-  representationPracticeArea: RepresentationPracticeArea; // e.g. "Civil Litigation"
-  representationRole: RepresentationRole; // e.g. "Lead Counsel"
-  clientRole: ClientRole; // e.g. "Plaintiff"
-  jurisdictionOrCourt: string; // e.g. "Superior Court of California, County of Los Angeles"
-};
-
-export type DisputeDetails = {
-  whatIsTheDisputeAbout: string; // Describe the nature of the dispute, conflict, or legal issue at hand.
-  whatClaimsOrAllegationsAreInvolved: string; // Describe the specific claims or allegations involved in the case.
-  caseNumber?: string; // e.g. "2023-CV-12345"
-  currentCaseStatus: CaseStatus; // e.g. "Discovery"
-};
-
-export type TimelineAndUrgency = {
-  keyEventsSoFar: string; // List the key events that have occurred in the case so far, such as filings, hearings, or significant developments.
-  importantFilingsDeadlinesAndIncidents: string; // Court filings, deadlines, hearings, or incidents that are upcoming or have recently occurred.
-  anythingUrgentRightNow: string; // Upcoming deadlines, pending motions, time-sensitive matters...
-};
-
-export type GoalsObjectivesAndRisks = {
-  yourObjective: string; // What are you trying to archieve in this case? Describe your main goals and objectives.
-  otherSidesLikelyObjective: string; // What do you think the other side's main goals and objectives are in this case?
-  desiredOutcome: string; // What would be the ideal resolution or outcome for your client in this case?
-  biggestCurrentRisk: string; // What concerns you the most about this case?
-};
-
-export type PeoplePartiesAndWitnesses = {
-  parties: string; // List the parties involved in the case. e.g. "John Smith (Plaintiff), Jane Doe (Defendant)"
-  attorneys: string; // List the attorneys involved in the case. e.g. "John Doe, Esq. (Lead Counsel for Plaintiff), Jane Smith, Esq. (Defense Counsel for Defendant)"
-  witnessesAndAnticipatedTestimony: string; // List the witnesses and their anticipated testimony. e.g. "Alice Johnson (Eyewitness to the incident), Bob Lee (Expert witness on industry standards)"
-  whoMattersMostRightNow: string; // Identify the key individuals or entities that are most important at this stage of the case. e.g. "The judge assigned to the case, the opposing counsel, and the key witness whose testimony is expected to be crucial in the upcoming hearing."
-};
-
-export type DocumentsAndEvidence = {
-  documents: {
-    [documentId: string]: Document;
-  };
-};
-
-export interface CaseIntake
-  extends
-    CaseBasics,
-    DisputeDetails,
-    TimelineAndUrgency,
-    GoalsObjectivesAndRisks,
-    PeoplePartiesAndWitnesses,
-    DocumentsAndEvidence {
-  id: string; // unique identifier for the case intake, e.g. a UUID
-}
-
-export type WorkspaceRecordBase = {
-  id: string;
-  catagory?: string; // that way you can segment your records such as have different parallel records for different theories, lines of argument, or parties
-  content: string;
-  party?: RecordParty;
-  createdBy?: "human" | "agent";
-  user_id?: string; // ID of the user who created the record
-  recordStatus?: RecordStatus;
-  recordVisibility: "hidden" | "visible";
-  lastUpdated: Date;
-  lastUpdatedBy?: string; // ID of the user or agent that last updated the record
-  references?: WorkspaceReferenceMap;
-  referencedBy?: WorkspaceReferencedByMap;
-  supersedes?: WorkspaceReferencedByMap; // references to records that this record supersedes
-  supersededBy?: WorkspaceReferencedByMap; // references to records that supersede this record
-};
-
-// export type ArgumentStatus =
-//   | RecordStatus
-//   | "draft"
-//   | "trial_ready"
-//   | "needs_support";
-// export type CaseNoteStatus = RecordStatus | "pinned" | "open_question";
-// export type FactStatus =
-//   | RecordStatus
-//   | "undisputed"
-//   | "disputed"
-//   | "needs_source";
-// export type IssueStatus = RecordStatus | "open" | "resolved" | "reserved";
-// export type LegalPrecedentStatus =
-//   | RecordStatus
-//   | "unverified"
-//   | "good_law"
-//   | "distinguished"
-//   | "overruled"
-//   | "questioned";
-// export type ObjectiveStatus = RecordStatus | "active" | "at_risk" | "achieved";
-// export type PostureStatus = RecordStatus | "current" | "stale" | "needs_update";
-// export type TaskRecordStatus =
-//   | RecordStatus
-//   | "open"
-//   | "in_progress"
-//   | "blocked"
-//   | "done";
-// export type TestimonyStatus =
-//   | RecordStatus
-//   | "anticipated"
-//   | "prepared"
-//   | "impeachment";
-// export type TimelineStatus =
-//   | RecordStatus
-//   | "confirmed"
-//   | "approximate"
-//   | "disputed";
-
-export type ArgumentRecord = WorkspaceRecordBase & {
-  argumentType: "claim" | "defense" | "counterargument" | "theory" | "other";
-  recordStatus: RecordStatus;
-};
-
-export type CaseNoteRecord = WorkspaceRecordBase & {
-  noteType: "general" | "strategy" | "research" | "question" | "other";
-  recordStatus: RecordStatus;
-};
-
-export type FactRecord = WorkspaceRecordBase & {
-  factType: "background" | "disputed" | "undisputed" | "procedural" | "other";
-  recordStatus: RecordStatus;
-};
-
-export type IssueRecord = WorkspaceRecordBase & {
-  issueType: "legal" | "factual" | "procedural" | "strategic" | "other";
-  recordStatus: RecordStatus;
-};
-
-export type LegalPrecedentRecord = WorkspaceRecordBase & {
-  jurisdiction?: string; // e.g. "California", "Federal"
-  court?: string; // e.g. "Supreme Court", "9th Circuit"
-  citation?: string; // e.g. "123 Cal.4th 456 (2020)"
-  relevance?: string; // brief explanation of how this precedent is relevant to the current case
-  recordStatus: RecordStatus;
-};
-
-export type ObjectiveRecord = WorkspaceRecordBase & {
-  priority?: "low" | "medium" | "high";
-  recordStatus: RecordStatus;
-};
-
-export type PostureRecord = WorkspaceRecordBase & {
-  postureType?:
-    | "procedural"
-    | "litigation"
-    | "discovery"
-    | "settlement"
-    | "appeal"
-    | "other";
-  recordStatus: RecordStatus;
-};
-
-export type TaskRecord = WorkspaceRecordBase & {
-  recordStatus: RecordStatus;
-  priority?: "low" | "medium" | "high";
-  dueDate?: Date;
-};
-
-export type TestimonyRecord = WorkspaceRecordBase & {
-  witnessName?: string;
-  testimonyType?: "anticipated" | "actual" | "impeachment" | "other";
-  recordStatus: RecordStatus;
-};
-
-export type TimelineRecord = WorkspaceRecordBase & {
-  eventDate: Date;
-  dateConfidence?: "exact" | "approximate" | "unknown";
-  recordStatus: RecordStatus;
-};
-
-export type WorkspaceRecordMap<T extends WorkspaceRecordBase> = {
-  [id: string]: T;
-};
-
-export type WorkspaceState = {
-  arguments: WorkspaceRecordMap<ArgumentRecord>;
-  case_notes: WorkspaceRecordMap<CaseNoteRecord>;
-  facts: WorkspaceRecordMap<FactRecord>;
-  issues: WorkspaceRecordMap<IssueRecord>;
-  legal_precedent: WorkspaceRecordMap<LegalPrecedentRecord>;
-  objectives: WorkspaceRecordMap<ObjectiveRecord>;
-  posture: WorkspaceRecordMap<PostureRecord>;
-  tasks: WorkspaceRecordMap<TaskRecord>;
-  testimony: WorkspaceRecordMap<TestimonyRecord>;
-  timeline: WorkspaceRecordMap<TimelineRecord>;
-};
-
-export type ViewTypes =
-  | StateObjectTypes
-  | "case_agent"
-  | "case_summary"
-  | "documents_index";
-export type WorkspaceViews = {
-  [view in ViewTypes]: {
-    content: string;
-    lastUpdated: string;
-  };
-};
-
-export interface CaseWorkspace {
-  agent: string; //  "agent.md"
-  state: WorkspaceState;
-  views: WorkspaceViews;
-  documents: {
-    [documentId: string]: Document;
-  };
-}
+// Sidebar grouping, ordered top-down to mirror RECORD_LEVEL flow:
+// strategy → analysis → grounding → sources.
+export const WORKSPACE_MENU_GROUPS: Array<{
+  label?: string;
+  views: WorkspaceViewType[];
+}> = [
+  { views: ["agent", "overview", "review"] },
+  { label: "Strategy", views: ["objectives", "claims", "posture"] },
+  { label: "Analysis", views: ["theories", "issues", "arguments", "tasks"] },
+  {
+    label: "Grounding",
+    views: ["facts", "timeline", "testimony", "precedent", "notes"],
+  },
+  { label: "Sources", views: ["documents", "people"] },
+];

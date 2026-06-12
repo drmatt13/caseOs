@@ -1,54 +1,80 @@
-// source-grounded case knowledge graph
+// Source-grounded case knowledge graph.
+// All records begin as PROPOSED (agent-generated) and must be explicitly
+// ACCEPTED by a user before they are considered authoritative.
+// Records and links both support versioning via supersession.
 
 import type { CaseContext } from "./caseContext";
+import type {
+  DocumentCategory,
+  DocumentProcessingStatus,
+  PersonRole,
+} from "./caseDomain";
 
-export type PersonRole =
-  | "PLAINTIFF"
-  | "DEFENDANT"
-  | "PETITIONER"
-  | "RESPONDENT"
-  | "WITNESS"
-  | "EXPERT_WITNESS"
-  | "FACT_WITNESS"
-  | "ATTORNEY"
-  | "PARALEGAL"
-  | "JUDGE"
-  | "MAGISTRATE"
-  | "MEDIATOR"
-  | "ARBITRATOR"
-  | "CLIENT"
-  | "PROPERTY_MANAGER"
-  | "LANDLORD"
-  | "TENANT"
-  | "EMPLOYER"
-  | "EMPLOYEE"
-  | "CONTRACTOR"
-  | "PHYSICIAN"
-  | "THERAPIST"
-  | "CASE_WORKER"
-  | "POLICE_OFFICER"
-  | "INVESTIGATOR"
-  | "GOVERNMENT_OFFICIAL"
-  | "AGENCY_REPRESENTATIVE"
-  | "CORPORATE_REPRESENTATIVE"
-  | "THIRD_PARTY"
-  | "UNKNOWN";
+export type { PersonRole };
 
-export interface CasePerson {
-  id: string;
-  workspaceId: string;
-  caseId: string;
-  name: string;
-  roles: PersonRole[];
-  primaryRole?: PersonRole;
-  aliases?: string[];
-  title?: string;
-  organization?: string;
-  notes?: string;
-  createdAt: string;
-  updatedAt: string;
-}
+// ─────────────────────────────────────────────────────────────────────────────
+// Record taxonomy
+// ─────────────────────────────────────────────────────────────────────────────
 
+export type RecordType =
+  // Level 0 – meta / orthogonal
+  | "CASE_SUMMARY"    // synthesized case overview (agent-generated)
+  | "PERSON"          // a party, witness, or attorney; referenced across all levels
+
+  // Level 1 – strategic frame
+  | "OBJECTIVE"       // what we're trying to accomplish
+  | "POSTURE"         // current litigation posture
+  | "CLAIM"           // claims or allegations in the case
+
+  // Level 2 – legal & analytical layer
+  | "THEORY"          // legal/factual theory of the case
+  | "ISSUE"           // discrete legal or factual issue
+  | "ARGUMENT"        // argument in support of a claim or theory
+  | "TASK"            // action item
+
+  // Level 3 – evidentiary grounding
+  | "FACT"            // a discrete fact
+  | "TIMELINE_EVENT"  // a dated event in the case timeline
+  | "TESTIMONY"       // witness testimony (anticipated or actual)
+  | "LEGAL_PRECEDENT" // case law, statute, or regulation
+  | "NOTE"            // open-ended note or question
+
+  // Level 4 – source grounding layer (bridges raw files and the graph)
+  | "DOCUMENT";       // record representing content extracted from a source file
+
+// Natural information flow: high level depends on lower levels.
+// PERSON (0) and CASE_SUMMARY (0) sit outside the main directional hierarchy.
+export const RECORD_LEVEL: Record<RecordType, number> = {
+  CASE_SUMMARY: 0,
+  PERSON: 0,
+
+  OBJECTIVE: 1,
+  POSTURE: 1,
+  CLAIM: 1,
+
+  THEORY: 2,
+  ISSUE: 2,
+  ARGUMENT: 2,
+  TASK: 2,
+
+  FACT: 3,
+  TIMELINE_EVENT: 3,
+  TESTIMONY: 3,
+  LEGAL_PRECEDENT: 3,
+  NOTE: 3,
+
+  DOCUMENT: 4,
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Status types
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Lifecycle of a single record:
+//   PROPOSED → ACCEPTED (user approves)
+//   PROPOSED → REJECTED (user rejects)
+//   ACCEPTED → SUPERSESSION_PENDING (a proposed replacement exists)
+//   SUPERSESSION_PENDING → SUPERSEDED (replacement approved; old record retired)
 export type RecordStatus =
   | "PROPOSED"
   | "ACCEPTED"
@@ -56,17 +82,7 @@ export type RecordStatus =
   | "SUPERSESSION_PENDING"
   | "SUPERSEDED";
 
-export type RecordLinkType =
-  | "DEPENDS_ON" // higher record relies on lower record
-  | "EVIDENCED_BY" // record is grounded by source/document
-  | "CONTRADICTED_BY"
-  | "EXPLAINED_BY"
-  | "CONTEXTUALIZED_BY"
-  | "CITES"
-  | "DERIVED_FROM"
-  | "SUPERSEDES"
-  | "DUPLICATES"
-  | "RELATED_TO";
+export type LinkStatus = "PROPOSED" | "ACCEPTED" | "REJECTED";
 
 export type SupportStatus =
   | "SUPPORTED"
@@ -75,72 +91,221 @@ export type SupportStatus =
   | "SUPPORT_NOT_REQUIRED"
   | "SUPPORT_UNKNOWN";
 
-export type RecordType =
-  | "CASE_SUMMARY"
-  | "ARGUMENT"
-  | "CLAIM"
-  | "NOTE"
-  | "FACT"
-  | "ISSUE"
-  | "LEGAL_PRECEDENT"
-  | "OBJECTIVE"
-  | "POSTURE"
-  | "PERSON"
-  | "TASK"
-  | "TESTIMONY"
-  | "THEORY"
-  | "TIMELINE_EVENT"
-  | "DOCUMENT";
+// Which side of the matter a record concerns. Resolved to display labels
+// (e.g. "Defense" / "Plaintiffs") using CaseContext.representation.clientRole.
+export type RecordParty = "ours" | "opposing" | "neutral";
 
-export const RECORD_LEVEL: Record<RecordType, number> = {
-  CASE_SUMMARY: 0,
+export type RecordPriority = "low" | "medium" | "high";
 
-  // What are we trying to accomplish?
-  OBJECTIVE: 1,
-  POSTURE: 1,
-  CLAIM: 1,
+// ─────────────────────────────────────────────────────────────────────────────
+// Per-type substatus (replaces free-text "typeStatus")
+// Each record type carries a small, typed working state in addition to the
+// shared PROPOSED/ACCEPTED lifecycle.
+// ─────────────────────────────────────────────────────────────────────────────
 
-  // How are we framing and pursuing it?
-  THEORY: 2,
-  ISSUE: 2,
-  ARGUMENT: 2,
-  TASK: 2,
+export type ObjectiveSubstatus = "ACTIVE" | "AT_RISK" | "ACHIEVED" | "ABANDONED";
+export type PostureSubstatus = "CURRENT" | "STALE";
+export type ClaimSubstatus = "ASSERTED" | "ANTICIPATED" | "WITHDRAWN" | "DISMISSED";
+export type TheorySubstatus = "ADOPTED" | "EXPLORING" | "BACKUP" | "ABANDONED";
+export type IssueSubstatus = "OPEN" | "RESERVED" | "RESOLVED";
+export type ArgumentSubstatus = "DRAFT" | "NEEDS_SUPPORT" | "TRIAL_READY";
+export type TaskSubstatus = "OPEN" | "IN_PROGRESS" | "BLOCKED" | "DONE";
+export type FactSubstatus =
+  | "UNDISPUTED"
+  | "DISPUTED"
+  | "NEEDS_SOURCE_REVIEW"
+  | "CONTEXT";
+export type TimelineEventSubstatus =
+  | "CONFIRMED"
+  | "APPROXIMATE"
+  | "DISPUTED"
+  | "DATE_CONFLICT";
+export type TestimonySubstatus =
+  | "ANTICIPATED"
+  | "PREPARED"
+  | "GIVEN"
+  | "IMPEACHMENT";
+export type PrecedentSubstatus =
+  | "NEEDS_CITE_CHECK"
+  | "GOOD_LAW"
+  | "DISTINGUISHED"
+  | "QUESTIONED"
+  | "OVERRULED";
+export type NoteSubstatus = "GENERAL" | "PINNED" | "OPEN_QUESTION" | "RESOLVED";
 
-  // What supports it?
-  FACT: 3,
-  TIMELINE_EVENT: 3,
-  TESTIMONY: 3,
-  PERSON: 0,
-  LEGAL_PRECEDENT: 3,
-  NOTE: 3,
+export type RecordSubstatus =
+  | ObjectiveSubstatus
+  | PostureSubstatus
+  | ClaimSubstatus
+  | TheorySubstatus
+  | IssueSubstatus
+  | ArgumentSubstatus
+  | TaskSubstatus
+  | FactSubstatus
+  | TimelineEventSubstatus
+  | TestimonySubstatus
+  | PrecedentSubstatus
+  | NoteSubstatus;
 
-  DOCUMENT: 4,
-};
+// Semantic edge types in the knowledge graph.
+// Direction: fromRecord → type → toRecord
+// Typical flow: higher-level records depend on / are evidenced by lower-level ones.
+export type RecordLinkType =
+  | "DEPENDS_ON"         // fromRecord relies on toRecord (follows RECORD_LEVEL flow)
+  | "EVIDENCED_BY"       // fromRecord is grounded by toRecord (usually a DOCUMENT record)
+  | "CONTRADICTED_BY"    // toRecord contradicts fromRecord
+  | "EXPLAINED_BY"       // toRecord explains fromRecord
+  | "CONTEXTUALIZED_BY"  // toRecord provides broader context for fromRecord
+  | "CITES"              // fromRecord cites toRecord (e.g. a LEGAL_PRECEDENT)
+  | "DERIVED_FROM"       // fromRecord was synthesized from toRecord
+  | "INVOLVES"           // fromRecord involves toRecord (always a PERSON record)
+  | "DUPLICATES"         // fromRecord is a potential duplicate of toRecord (flag for review)
+  | "RELATED_TO";        // general relationship when no specific type applies
 
-export interface Document {
-  id: string;
-  workspaceId: string;
-  caseId: string;
-  name: string;
-  description?: string;
-  createdAt: string;
-  updatedAt: string;
-}
+// ─────────────────────────────────────────────────────────────────────────────
+// Base record interface
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface CaseRecord {
   id: string;
   workspaceId: string;
   caseId: string;
-  approvedBy?: string;
   type: RecordType;
+
+  // Short display label; included in embeddings alongside content.
+  title: string;
+  // Full prose content; this is what gets chunked and embedded.
   content: string;
+  // One-line description for cards and search results.
+  summary?: string;
+  // Free-form segmentation tag (e.g. "Habitability", "Discovery").
+  category?: string;
+  party?: RecordParty;
+  priority?: RecordPriority;
+
   status: RecordStatus;
+  // Typed per record type; narrowed in each typed interface below.
+  substatus?: RecordSubstatus;
   supportStatus?: SupportStatus;
-  supersededBy?: string; // record ID of the newer record that supersedes this one
-  supersedes?: string[]; // record IDs of older records that this record supersedes
+
+  // Versioning – follows the supersession lifecycle
+  version: number;
+  supersededById?: string;  // ID of the record that replaces this one
+  supersedesIds?: string[]; // IDs of older records this one replaces
+
+  // Authorship & approval
+  createdBy: "human" | "agent";
+  createdByUserId?: string;
+  approvedByUserId?: string;
+  approvedAt?: string;
+
   createdAt: string;
   updatedAt: string;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Typed record extensions
+// Each extends CaseRecord with a type discriminant and type-specific fields.
+// Type-specific fields are stored in `typedMeta` (Json) in the database.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface ObjectiveRecord extends CaseRecord {
+  type: "OBJECTIVE";
+  substatus: ObjectiveSubstatus;
+}
+
+export interface PostureRecord extends CaseRecord {
+  type: "POSTURE";
+  substatus: PostureSubstatus;
+}
+
+export interface ClaimRecord extends CaseRecord {
+  type: "CLAIM";
+  substatus: ClaimSubstatus;
+  claimType?: "affirmative" | "counterclaim" | "cross" | "third_party" | "defense";
+}
+
+export interface TheoryRecord extends CaseRecord {
+  type: "THEORY";
+  substatus: TheorySubstatus;
+}
+
+export interface IssueRecord extends CaseRecord {
+  type: "ISSUE";
+  substatus: IssueSubstatus;
+  issueType?: "legal" | "factual" | "procedural" | "strategic";
+}
+
+export interface ArgumentRecord extends CaseRecord {
+  type: "ARGUMENT";
+  substatus: ArgumentSubstatus;
+}
+
+export interface TaskRecord extends CaseRecord {
+  type: "TASK";
+  substatus: TaskSubstatus;
+  dueDate?: string; // ISO 8601
+  assignedToUserId?: string;
+}
+
+export interface FactRecord extends CaseRecord {
+  type: "FACT";
+  substatus: FactSubstatus;
+}
+
+export interface TimelineEventRecord extends CaseRecord {
+  type: "TIMELINE_EVENT";
+  substatus: TimelineEventSubstatus;
+  eventDate: string; // ISO 8601 date
+}
+
+export interface TestimonyRecord extends CaseRecord {
+  type: "TESTIMONY";
+  substatus: TestimonySubstatus;
+  witnessPersonRecordId?: string; // ID of the linked PERSON record
+}
+
+export interface LegalPrecedentRecord extends CaseRecord {
+  type: "LEGAL_PRECEDENT";
+  substatus: PrecedentSubstatus;
+  citation?: string;    // e.g. "410 U.S. 113 (1973)"
+  jurisdiction?: string;
+  court?: string;
+}
+
+export interface NoteRecord extends CaseRecord {
+  type: "NOTE";
+  substatus: NoteSubstatus;
+}
+
+// PERSON – special record type.
+// Can be linked from any other record via an INVOLVES GraphLink.
+// content = free-text description/notes about this person.
+export interface PersonRecord extends CaseRecord {
+  type: "PERSON";
+  substatus?: undefined;
+  name: string;
+  roles: PersonRole[];
+  primaryRole?: PersonRole;
+  aliases?: string[];
+  organization?: string;
+}
+
+// DOCUMENT – special record type; bridges CaseDocument (raw file) and the graph.
+// A single source file can have many DocumentRecords (e.g. one per key section
+// of a 40-page PDF). Other records link to DocumentRecords via EVIDENCED_BY.
+// content = description / extracted summary of what this record captures.
+export interface DocumentRecord extends CaseRecord {
+  type: "DOCUMENT";
+  substatus?: undefined;
+  documentId: string;               // FK → CaseDocument.id (the actual stored file)
+  fileName: string;                 // display label of the source file
+  pageRange?: { start: number; end: number };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Case summary
+// ─────────────────────────────────────────────────────────────────────────────
 
 export type CaseSummarySectionType =
   | "OVERVIEW"
@@ -160,47 +325,121 @@ export interface CaseSummarySection {
   type: CaseSummarySectionType;
   title: string;
   content: string;
-  recordIds?: string[];
+  recordIds?: string[]; // records that contributed to this section
   updatedAt: string;
 }
 
 export interface CaseSummaryData {
-  caseContext: CaseContext;
+  // Full snapshot of CaseContext at generation time (intentionally denormalized
+  // so the summary stays self-contained even if context later changes).
+  caseContextSnapshot: CaseContext;
   overview: string;
   sections: CaseSummarySection[];
   generatedFromRecordIds: string[];
-  lastExpandedAt?: string;
+  generatedAt: string;
 }
 
 export interface CaseSummaryRecord extends CaseRecord {
   type: "CASE_SUMMARY";
-  summary: CaseSummaryData;
+  substatus?: undefined;
+  summary?: string;
+  summaryData: CaseSummaryData;
 }
 
-export interface CasePersonRecord extends CaseRecord {
-  type: "PERSON";
-  person: CasePerson;
-}
+// ─────────────────────────────────────────────────────────────────────────────
+// Discriminated union of all record types
+// ─────────────────────────────────────────────────────────────────────────────
 
+export type TypedCaseRecord =
+  | CaseSummaryRecord
+  | ObjectiveRecord
+  | PostureRecord
+  | ClaimRecord
+  | TheoryRecord
+  | IssueRecord
+  | ArgumentRecord
+  | TaskRecord
+  | FactRecord
+  | TimelineEventRecord
+  | TestimonyRecord
+  | LegalPrecedentRecord
+  | NoteRecord
+  | PersonRecord
+  | DocumentRecord;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Graph links
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Edges in the knowledge graph. Both the link itself and the record it connects
+// follow the same PROPOSED → ACCEPTED lifecycle so that the graph
+// evolves safely as new evidence arrives.
 export interface GraphLink {
   id: string;
   workspaceId: string;
   caseId: string;
 
-  fromNodeType: RecordType;
-  fromNodeId: string;
-
-  toNodeType: RecordType;
-  toNodeId: string;
+  fromRecordId: string;
+  fromRecordType: RecordType;
+  toRecordId: string;
+  toRecordType: RecordType;
 
   type: RecordLinkType;
+  status: LinkStatus;
 
-  confidence?: number;
+  // Versioning – mirrors record supersession pattern
+  supersededById?: string;
+  supersedesIds?: string[];
+
+  confidence?: number; // 0–1, agent confidence in this connection
   explanation?: string;
+
+  createdBy: "human" | "agent";
+  createdByUserId?: string;
+  approvedByUserId?: string;
+  approvedAt?: string;
 
   createdAt: string;
   updatedAt: string;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Source documents (the actual stored files)
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Represents a file uploaded to storage (S3 / equivalent).
+// Linked to the knowledge graph through one or more DOCUMENT type CaseRecords.
+// DocumentChunks (for vector search) are derived directly from the raw file content.
+export interface CaseDocument {
+  id: string;
+  workspaceId: string;
+  caseId: string;
+  fileName: string;
+  storageKey: string; // key in object storage (S3/R2/etc.)
+  mimeType?: string;
+  fileSizeBytes?: number;
+  category: DocumentCategory;
+  description?: string;
+  processingStatus: DocumentProcessingStatus;
+  pageCount?: number;
+  uploadedByUserId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Chunks (vector grounding layer)
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ownerType = "DOCUMENT"     → ownerId is a CaseDocument.id
+//             "CASE_RECORD"  → ownerId is a CaseRecord.id
+//
+// RAG flow:
+//   1. Vector search across all chunks
+//   2. For DOCUMENT chunks: resolve CaseDocument → linked DocumentRecords
+//      → traverse inbound EVIDENCED_BY links to find FACT/ARGUMENT/etc. records
+//   3. For CASE_RECORD chunks: resolve the record directly
+//   4. Traverse additional links as needed for depth
 
 export type ChunkOwnerType = "DOCUMENT" | "CASE_RECORD";
 
@@ -209,11 +448,11 @@ export interface Chunk {
   workspaceId: string;
   caseId: string;
   ownerType: ChunkOwnerType;
-  ownerId: string; // record ID or document ID that this chunk belongs to
-  fileName: string; // the document or record that this chunk belongs to
-  pageNumber?: number; // for document chunks, the page number this chunk belongs to
+  ownerId: string;     // CaseDocument.id or CaseRecord.id
+  fileName: string;    // display label for the source (file name or record label)
+  pageNumber?: number; // for document chunks
   content: string;
-  vectorKey: string;
+  vectorKey: string;   // reference key in the external vector store
   createdAt: string;
   updatedAt: string;
 }

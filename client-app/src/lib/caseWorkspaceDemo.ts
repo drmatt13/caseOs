@@ -1,45 +1,1296 @@
+// Hardcoded demo workspace simulating a real case as it would exist in the
+// database: typed CaseRecords, GraphLinks between them, CaseDocuments with
+// document records extracted from them, and a CaseContext.
+//
+// Demonstrates every part of the domain model:
+//  - records at every level of RECORD_LEVEL (objective → document)
+//  - PROPOSED / ACCEPTED / SUPERSESSION_PENDING / SUPERSEDED lifecycles
+//  - a completed supersession (posture-003 → posture-002) and two pending ones
+//  - one source file (the affidavit) split into several DOCUMENT records
+//  - PERSON records referenced through INVOLVES links
+
+import type { CaseContext } from "#/types/caseContext";
 import type {
-  RecordParty,
-  RecordStatus,
-  ViewTypes,
-} from "#/types/caseWorkspace";
+  CaseDocument,
+  GraphLink,
+  LinkStatus,
+  RecordLinkType,
+  RecordType,
+  TypedCaseRecord,
+} from "#/types/caseRecords";
 
-export type DemoRecordStatus = RecordStatus;
-export type DemoRecordParty = RecordParty;
+export const demoUserId = "5bdbb6c2-877a-4772-ad9e-00a10d6073b5";
+export const DEMO_WORKSPACE_ID = "11111111-1111-4111-8111-111111111111";
+export const DEMO_CASE_ID = "case-faxon-commons-demo";
 
-export type DemoRecord = {
-  id: string;
-  type: Exclude<ViewTypes, "case_agent" | "case_summary" | "documents_index">;
-  title: string;
-  miniDescription: string;
-  content: string;
-  category: string;
-  party?: DemoRecordParty;
-  status: DemoRecordStatus;
-  typeStatus: string;
-  createdBy: "Human" | "CaseOS Agent";
-  updatedAt: string;
-  date?: string;
-  priority?: "Low" | "Medium" | "High";
-  sources: string[];
-  linkedRecords: string[];
-  supersedes?: {
-    id: string;
-    title: string;
-    summary: string;
-  };
+// Workspace-level display metrics for the overview dashboard.
+export const demoCase = {
+  id: DEMO_CASE_ID,
+  title: "Faxon Commons v. Sweeney",
+  court: "Massachusetts Housing Court, Metro South Division",
+  caseNumber: "25H82SP02904",
+  client: "Matthew Sweeney",
+  health: 78,
+  trialReadiness: 64,
+  unresolvedGaps: 7,
 };
 
-export type DemoDocument = {
-  id: string;
-  fileName: string;
-  category: string;
-  status: "Processed" | "Uploaded" | "Needs review";
-  date: string;
-  summary: string;
-  linkedRecords: number;
-  gaps: string[];
+export const demoCaseContext: CaseContext = {
+  id: "context-faxon-commons",
+  workspaceId: DEMO_WORKSPACE_ID,
+  caseId: DEMO_CASE_ID,
+  sourceIntakeId: "case-intake-faxon-commons-001",
+  version: 3,
+  caseName: "Faxon Commons v. Sweeney",
+  caseNumberOrDocket: "25H82SP02904",
+  jurisdictionOrCourt: "Massachusetts Housing Court, Metro South Division",
+  practiceArea: "landlord_tenant",
+  representation: {
+    clientRole: "defendant",
+    representationRole: "other",
+    representedPartyName: "Matthew Sweeney",
+  },
+  objectives: {
+    ours: "Defeat or materially reduce possession and money claims while proving habitability, quiet enjoyment, mitigation, and c. 93A counterclaims.",
+    theirs:
+      "Keep the case narrow as straightforward nonpayment, obtain possession and a money judgment, and avoid discovery that expands the case.",
+    desiredOutcome:
+      "Defense verdict or materially reduced recovery, recognition of counterclaims, and a finding that the case cannot fairly be reduced to unpaid rent alone.",
+    biggestCurrentRisk:
+      "Plaintiffs may compress the story into nonpayment while key discovery remains missing.",
+  },
+  claims: {
+    dispute:
+      "Residential summary process eviction that Defendants contend also involves habitability, unauthorized entry, quiet enjoyment, unfair conduct, and damages increased by Plaintiffs' filing delay.",
+    claimsOrAllegations:
+      "Plaintiffs seek possession and money. Defendants assert habitability, quiet enjoyment, unauthorized entry, failure to mitigate, and c. 93A counterclaims.",
+  },
+  currentPosture:
+    "Motion stage, trial preparation, discovery disputes active.",
+  createdAt: "2026-05-08T15:00:00Z",
+  updatedAt: "2026-05-16T18:30:00Z",
+  lastReviewedAt: "2026-05-16T18:30:00Z",
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Source documents (raw files in object storage)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const documentDefaults = {
+  workspaceId: DEMO_WORKSPACE_ID,
+  caseId: DEMO_CASE_ID,
+  uploadedByUserId: demoUserId,
+} as const;
+
+export const demoDocuments: CaseDocument[] = [
+  {
+    ...documentDefaults,
+    id: "doc-affidavit",
+    fileName: "Affidavit of Matthew Sweeney - Draft.pdf",
+    storageKey: `cases/${DEMO_CASE_ID}/documents/affidavit-msweeney-draft.pdf`,
+    mimeType: "application/pdf",
+    category: "witness_statement",
+    description:
+      "Draft affidavit covering payment history, pest conditions, family hardship, RAFT, no-fault discussions, notices, entry, and filing-delay chronology.",
+    processingStatus: "processed",
+    pageCount: 18,
+    createdAt: "2026-05-16T14:00:00Z",
+    updatedAt: "2026-05-16T15:30:00Z",
+  },
+  {
+    ...documentDefaults,
+    id: "doc-notice-first",
+    fileName: "2025-06-17 Notice to Quit.pdf",
+    storageKey: `cases/${DEMO_CASE_ID}/documents/2025-06-17-notice-to-quit.pdf`,
+    mimeType: "application/pdf",
+    category: "pleading",
+    description:
+      "Nonpayment notice used by Plaintiffs to begin the summary process sequence.",
+    processingStatus: "processed",
+    pageCount: 2,
+    createdAt: "2026-05-10T12:00:00Z",
+    updatedAt: "2026-05-10T12:20:00Z",
+  },
+  {
+    ...documentDefaults,
+    id: "doc-cert-letter",
+    fileName: "2025-08-05 Certified Filing Request.pdf",
+    storageKey: `cases/${DEMO_CASE_ID}/documents/2025-08-05-certified-filing-request.pdf`,
+    mimeType: "application/pdf",
+    category: "correspondence",
+    description:
+      "Tenant-side certified letter tying filing timing to mitigation and assistance options, with USPS receipt.",
+    processingStatus: "processed",
+    pageCount: 4,
+    createdAt: "2026-05-10T12:05:00Z",
+    updatedAt: "2026-05-10T12:25:00Z",
+  },
+  {
+    ...documentDefaults,
+    id: "doc-agreement",
+    fileName: "Agreement to Vacate and September Emails.pdf",
+    storageKey: `cases/${DEMO_CASE_ID}/documents/agreement-to-vacate-sept-emails.pdf`,
+    mimeType: "application/pdf",
+    category: "contract",
+    description:
+      "Agreement and email chain used to evaluate no-fault filing expectations, the September 12 deadline, and later classification tension.",
+    processingStatus: "processed",
+    pageCount: 9,
+    createdAt: "2026-05-11T10:00:00Z",
+    updatedAt: "2026-05-11T10:40:00Z",
+  },
+  {
+    ...documentDefaults,
+    id: "doc-raft",
+    fileName: "RAFT Approval and Rent Ledger Packet.pdf",
+    storageKey: `cases/${DEMO_CASE_ID}/documents/raft-approval-rent-ledger.pdf`,
+    mimeType: "application/pdf",
+    category: "financial",
+    description:
+      "RAFT and ledger materials for verifying payment amounts, cure timing, and the relationship between initial arrears and later notices.",
+    processingStatus: "processed",
+    pageCount: 12,
+    createdAt: "2026-05-11T10:10:00Z",
+    updatedAt: "2026-05-11T11:00:00Z",
+  },
+  {
+    ...documentDefaults,
+    id: "doc-discovery",
+    fileName: "Plaintiffs Supplemental Discovery Responses.pdf",
+    storageKey: `cases/${DEMO_CASE_ID}/documents/plaintiffs-supplemental-discovery.pdf`,
+    mimeType: "application/pdf",
+    category: "evidence",
+    description:
+      "Late supplemental responses with remaining gaps around entry, pest, and internal decision records. Table extraction needs manual verification.",
+    processingStatus: "processed",
+    pageCount: 31,
+    createdAt: "2026-05-12T09:00:00Z",
+    updatedAt: "2026-05-12T09:45:00Z",
+  },
+  {
+    ...documentDefaults,
+    id: "doc-maintenance",
+    fileName: "Maintenance Portal Export - Work Orders.csv",
+    storageKey: `cases/${DEMO_CASE_ID}/documents/maintenance-portal-work-orders.csv`,
+    mimeType: "text/csv",
+    category: "evidence",
+    description:
+      "Work-order export that may show response activity but does not by itself prove durable remediation.",
+    processingStatus: "processed",
+    createdAt: "2026-05-12T09:10:00Z",
+    updatedAt: "2026-05-12T09:50:00Z",
+  },
+  {
+    ...documentDefaults,
+    id: "doc-photos",
+    fileName: "Apartment Condition Photos - Metadata Report.csv",
+    storageKey: `cases/${DEMO_CASE_ID}/documents/condition-photos-metadata.csv`,
+    mimeType: "text/csv",
+    category: "evidence",
+    description:
+      "Metadata review for condition photos, highlighting missing capture data and authentication needs.",
+    processingStatus: "processing",
+    createdAt: "2026-05-16T13:00:00Z",
+    updatedAt: "2026-05-16T13:05:00Z",
+  },
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Records
+// ─────────────────────────────────────────────────────────────────────────────
+
+const recordDefaults = {
+  workspaceId: DEMO_WORKSPACE_ID,
+  caseId: DEMO_CASE_ID,
+  version: 1,
+  createdBy: "agent",
+  createdAt: "2026-05-14T12:00:00Z",
+  updatedAt: "2026-05-16T12:00:00Z",
+} as const;
+
+const acceptedByUser = {
+  status: "ACCEPTED",
+  approvedByUserId: demoUserId,
+  approvedAt: "2026-05-15T16:00:00Z",
+} as const;
+
+const humanAuthored = {
+  createdBy: "human",
+  createdByUserId: demoUserId,
+} as const;
+
+export const demoRecords: TypedCaseRecord[] = [
+  // ── People ────────────────────────────────────────────────────────────────
+  {
+    ...recordDefaults,
+    ...humanAuthored,
+    ...acceptedByUser,
+    id: "person-msweeney",
+    type: "PERSON",
+    name: "Matthew Sweeney",
+    roles: ["CLIENT", "TENANT", "FACT_WITNESS"],
+    primaryRole: "CLIENT",
+    title: "Matthew Sweeney",
+    summary: "Client, tenant, and primary fact witness, appearing pro se.",
+    content:
+      "Defendant and head of household. Can testify to move-in conditions, repeated complaints, hardship communications, the July 24, 2025 entry incident, RAFT and shelter pathway discussions, and discovery prejudice.",
+    party: "ours",
+  },
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "person-dferreira",
+    type: "PERSON",
+    name: "Denise Ferreira",
+    roles: ["CASE_WORKER"],
+    primaryRole: "CASE_WORKER",
+    organization: "QCAP",
+    title: "Denise Ferreira (QCAP Housing Coordinator)",
+    summary:
+      "Housing coordinator who allegedly tied shelter access to a no-fault court pathway.",
+    content:
+      "QCAP Housing Coordinator who, per the affidavit, informed the family that EA Family Shelter access and related assistance depended on a no-fault Housing Court pathway and a court-ordered move-out date. Potential corroborating witness for the reliance and prejudice theory.",
+    party: "neutral",
+  },
+  {
+    ...recordDefaults,
+    id: "person-fc-management",
+    type: "PERSON",
+    status: "PROPOSED",
+    name: "Faxon Commons property management",
+    roles: ["PROPERTY_MANAGER", "CORPORATE_REPRESENTATIVE"],
+    primaryRole: "PROPERTY_MANAGER",
+    organization: "Faxon Commons",
+    title: "Faxon Commons management witness",
+    summary:
+      "Management records witness for entry logs, work orders, vendors, and filing decisions.",
+    content:
+      "Management-side witness expected to testify about rent records, notices, portal records, maintenance handling, and the process used to classify the eviction filing. Identity of the specific records custodian still needs confirmation.",
+    party: "opposing",
+  },
+
+  // ── Objectives (level 1) ──────────────────────────────────────────────────
+  {
+    ...recordDefaults,
+    ...humanAuthored,
+    ...acceptedByUser,
+    id: "objective-001",
+    type: "OBJECTIVE",
+    substatus: "ACTIVE",
+    priority: "high",
+    party: "ours",
+    category: "Primary",
+    title: "Keep the factfinder focused on conduct, not just arrears",
+    summary:
+      "Active objective that keeps case presentation aligned to landlord conduct and prejudice.",
+    content:
+      "The case strategy should repeatedly connect rent allegations to landlord conduct, conditions, timing, and evidentiary gaps so the court never sees a ledger-only story.",
+    createdAt: "2026-05-10T12:00:00Z",
+  },
+  {
+    ...recordDefaults,
+    ...humanAuthored,
+    ...acceptedByUser,
+    id: "objective-002",
+    type: "OBJECTIVE",
+    substatus: "ACTIVE",
+    priority: "high",
+    party: "ours",
+    category: "Risk control",
+    title: "Avoid overclaiming causation while preserving prejudice theme",
+    summary:
+      "Strategy objective constraining how filing-delay arguments should be framed.",
+    content:
+      "The workspace should preserve the filing-delay/prejudice theme while avoiding a factual assertion that assistance or mitigation would definitely have succeeded absent stronger support.",
+  },
+  {
+    ...recordDefaults,
+    id: "objective-003",
+    type: "OBJECTIVE",
+    status: "PROPOSED",
+    substatus: "AT_RISK",
+    priority: "high",
+    party: "ours",
+    category: "Trial strategy",
+    title: "Turn discovery gaps into a proof structure, not only a grievance",
+    summary:
+      "Strategic objective for making missing records useful at trial.",
+    content:
+      "Discovery deficiencies should be connected to specific claims, defenses, witness questions, and exhibit gaps so the court sees prejudice rather than generalized frustration.",
+  },
+
+  // ── Claims (level 1) ──────────────────────────────────────────────────────
+  {
+    ...recordDefaults,
+    ...humanAuthored,
+    ...acceptedByUser,
+    id: "claim-001",
+    type: "CLAIM",
+    substatus: "ASSERTED",
+    claimType: "affirmative",
+    party: "opposing",
+    category: "Possession",
+    title: "Plaintiffs' claim for possession and money damages",
+    summary:
+      "Nonpayment summary process claim seeking possession and alleged arrears.",
+    content:
+      "Plaintiffs seek possession of the unit and money allegedly owed for rent or use and occupancy, framed as straightforward nonpayment beginning from the June 2025 notice sequence.",
+  },
+  {
+    ...recordDefaults,
+    ...humanAuthored,
+    ...acceptedByUser,
+    id: "claim-002",
+    type: "CLAIM",
+    substatus: "ASSERTED",
+    claimType: "counterclaim",
+    party: "ours",
+    category: "Counterclaims",
+    title: "Habitability, quiet enjoyment, and c. 93A counterclaims",
+    summary:
+      "Defense counterclaims grounded in conditions, entry, and unfair conduct.",
+    content:
+      "Defendants assert breach of the implied warranty of habitability, interference with quiet enjoyment, unauthorized entry, failure to mitigate damages, and violations of G.L. c. 93A.",
+  },
+
+  // ── Posture (level 1, completed supersession pair) ───────────────────────
+  {
+    ...recordDefaults,
+    ...humanAuthored,
+    ...acceptedByUser,
+    id: "posture-002",
+    type: "POSTURE",
+    substatus: "CURRENT",
+    category: "Trial posture",
+    version: 2,
+    supersedesIds: ["posture-003"],
+    title:
+      "Trial-facing posture constrained by unresolved discovery and proof quality",
+    summary:
+      "Current posture linking urgency to missing records and exhibit foundation.",
+    content:
+      "The matter is trial-facing, but unresolved discovery gaps and evidence-integrity questions should shape preparation. The strongest work now is proof mapping, witness sequencing, and careful review of agent proposals before any trial use.",
+  },
+  {
+    ...recordDefaults,
+    id: "posture-003",
+    type: "POSTURE",
+    status: "SUPERSEDED",
+    substatus: "STALE",
+    category: "Discovery posture",
+    supersededById: "posture-002",
+    title: "Earlier posture treated discovery as mostly complete",
+    summary:
+      "Superseded posture replaced by newer discovery-pressure analysis.",
+    content:
+      "Earlier workspace notes treated the April supplemental response as mostly resolving discovery concerns. Later review identified remaining gaps in entry logs, internal communications, vendor records, and extraction quality.",
+    createdAt: "2026-05-12T12:00:00Z",
+    updatedAt: "2026-05-15T12:00:00Z",
+  },
+
+  // ── Theories (level 2) ────────────────────────────────────────────────────
+  {
+    ...recordDefaults,
+    ...humanAuthored,
+    ...acceptedByUser,
+    id: "theory-001",
+    type: "THEORY",
+    substatus: "ADOPTED",
+    priority: "high",
+    party: "ours",
+    category: "Trial theory",
+    title: "This is not a ledger-only nonpayment case",
+    summary:
+      "Primary trial theory for keeping the case broader than rent accounting.",
+    content:
+      "The defense should resist a narrow rent-ledger frame and present a joined narrative of habitability, notice, management conduct, mitigation, and prejudice.",
+    createdAt: "2026-05-12T12:00:00Z",
+  },
+  {
+    ...recordDefaults,
+    id: "theory-002",
+    type: "THEORY",
+    status: "PROPOSED",
+    substatus: "EXPLORING",
+    party: "ours",
+    category: "Equitable prejudice",
+    supersedesIds: ["arg-003"],
+    title:
+      "Filing delay shows equitable prejudice more cleanly than strict mitigation",
+    summary:
+      "Alternative theory that may fit the record better than narrow causation.",
+    content:
+      "Rather than relying only on strict mitigation causation, the better framing may be that Plaintiffs' timing and communications created equitable prejudice by changing Defendants' practical options while preserving Plaintiffs' ability to present the matter as simple nonpayment.",
+  },
+
+  // ── Issues (level 2) ──────────────────────────────────────────────────────
+  {
+    ...recordDefaults,
+    ...humanAuthored,
+    ...acceptedByUser,
+    id: "issue-001",
+    type: "ISSUE",
+    substatus: "OPEN",
+    issueType: "legal",
+    party: "ours",
+    category: "Habitability",
+    title: "Whether habitability conditions offset or defeat the rent claim",
+    summary:
+      "Legal issue connecting condition evidence to rent abatement and counterclaim value.",
+    content:
+      "The core factual and legal issue is whether prolonged pest and maintenance conditions support defenses, counterclaims, damages, or rent abatement.",
+    createdAt: "2026-05-13T12:00:00Z",
+  },
+  {
+    ...recordDefaults,
+    id: "issue-002",
+    type: "ISSUE",
+    status: "PROPOSED",
+    substatus: "RESERVED",
+    issueType: "procedural",
+    party: "ours",
+    category: "Discovery",
+    title: "Whether missing discovery supports adverse inference",
+    summary:
+      "Procedural issue for deciding how missing records should shape trial presentation.",
+    content:
+      "Missing entry logs, internal communications, extermination records, and decision-making documents may justify discovery sanctions or adverse inference framing.",
+  },
+  {
+    ...recordDefaults,
+    id: "issue-003",
+    type: "ISSUE",
+    status: "PROPOSED",
+    substatus: "OPEN",
+    issueType: "strategic",
+    party: "ours",
+    category: "Strategic",
+    title: "Whether filing delay caused legally meaningful prejudice",
+    summary:
+      "Strategic issue separating strict mitigation from broader equitable prejudice.",
+    content:
+      "The key question is whether the timing and handling of the filing materially affected Defendants' assistance, housing, negotiation, or litigation position in a way the court can credit without overclaiming causation.",
+  },
+  {
+    ...recordDefaults,
+    id: "issue-006",
+    type: "ISSUE",
+    status: "PROPOSED",
+    substatus: "OPEN",
+    issueType: "procedural",
+    party: "ours",
+    category: "Procedural",
+    title: "Whether RAFT curing June and July arrears changed the filing posture",
+    summary:
+      "Procedural issue for interpreting the second notice and later nonpayment complaint.",
+    content:
+      "The record needs to separate what RAFT paid, when it was credited, whether the first notice remained a viable procedural path, and how those facts affect the later second notice and October filing.",
+  },
+
+  // ── Arguments (level 2) ───────────────────────────────────────────────────
+  {
+    ...recordDefaults,
+    id: "arg-002",
+    type: "ARGUMENT",
+    status: "PROPOSED",
+    substatus: "NEEDS_SUPPORT",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    party: "ours",
+    category: "Discovery",
+    supersedesIds: ["arg-old-discovery-sanctions"],
+    title: "Discovery gaps make Plaintiffs' clean-record story unreliable",
+    summary:
+      "Discovery theme challenging the completeness and reliability of landlord-side records.",
+    content:
+      "Where records are selectively unavailable, the argument should focus on control, notice, missing categories, and the prejudice caused by late or incomplete production.",
+  },
+  {
+    ...recordDefaults,
+    id: "arg-old-discovery-sanctions",
+    type: "ARGUMENT",
+    status: "SUPERSESSION_PENDING",
+    substatus: "DRAFT",
+    party: "ours",
+    category: "Discovery",
+    approvedByUserId: demoUserId,
+    approvedAt: "2026-05-13T16:00:00Z",
+    title: "Discovery argument depends entirely on sanctions",
+    summary:
+      "Accepted discovery framing now challenged by a broader trial-theme proposal.",
+    content:
+      "Current strategy treats missing discovery mainly as support for sanctions or a standalone discovery motion. A newer proposal asks whether that framing is too brittle for trial because the same record gaps may matter even without a sanctions order, especially for credibility, prejudice, and missing-proof themes.",
+    createdAt: "2026-05-12T12:00:00Z",
+  },
+  {
+    ...recordDefaults,
+    id: "arg-003",
+    type: "ARGUMENT",
+    status: "SUPERSESSION_PENDING",
+    substatus: "NEEDS_SUPPORT",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    party: "ours",
+    category: "Mitigation",
+    approvedByUserId: demoUserId,
+    approvedAt: "2026-05-13T16:00:00Z",
+    title: "Filing delay supports mitigation only if causation is shown",
+    summary:
+      "Accepted mitigation framing now being compared against equitable prejudice.",
+    content:
+      "The filing-delay theory is strongest if tied to concrete mitigation pathways or assistance consequences. Without that showing, the argument risks sounding like general unfairness rather than a legally useful mitigation point.",
+    createdAt: "2026-05-12T12:00:00Z",
+  },
+  {
+    ...recordDefaults,
+    id: "arg-005",
+    type: "ARGUMENT",
+    status: "PROPOSED",
+    substatus: "NEEDS_SUPPORT",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    party: "ours",
+    category: "Evidence interpretation",
+    title:
+      "Completed maintenance entries show response activity, not condition proof",
+    summary:
+      "Counter-interpretation of landlord records that avoids denying they exist.",
+    content:
+      "The defense can concede that work orders or service entries exist while arguing that they show response activity, not necessarily durable remediation or absence of recurring conditions.",
+  },
+  {
+    ...recordDefaults,
+    id: "arg-006",
+    type: "ARGUMENT",
+    status: "PROPOSED",
+    substatus: "NEEDS_SUPPORT",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    party: "ours",
+    category: "Procedural framing",
+    title: "RAFT payment weakens a clean nonpayment-only chronology",
+    summary:
+      "Alternative argument focused on sequence rather than denying later arrears.",
+    content:
+      "The defense can argue that RAFT curing the initial arrears before any court filing complicates Plaintiffs' clean nonpayment timeline, while still acknowledging that later arrears accumulated.",
+  },
+
+  // ── Facts (level 3) ───────────────────────────────────────────────────────
+  {
+    ...recordDefaults,
+    ...humanAuthored,
+    ...acceptedByUser,
+    id: "fact-001",
+    type: "FACT",
+    substatus: "UNDISPUTED",
+    supportStatus: "SUPPORTED",
+    party: "ours",
+    category: "Habitability",
+    title: "Move-in conditions included persistent pest activity",
+    summary:
+      "Habitability fact tying early tenancy conditions to later notice and rent defenses.",
+    content:
+      "Defendants report serious pest-related conditions beginning at move-in in 2021, with repeated notice to management and inconsistent remediation.",
+    createdAt: "2026-05-13T12:00:00Z",
+  },
+  {
+    ...recordDefaults,
+    id: "fact-002",
+    type: "FACT",
+    status: "PROPOSED",
+    substatus: "NEEDS_SOURCE_REVIEW",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    party: "ours",
+    category: "Mitigation",
+    supersedesIds: ["fact-old-raft-timing"],
+    title: "Management knew delayed filing could affect mitigation pathways",
+    summary:
+      "Proposed mitigation fact based on the certified request to file promptly.",
+    content:
+      "Financial hardship and RAFT/shelter timing concerns were communicated before the nonpayment filing, creating a mitigation and causation issue.",
+  },
+  {
+    ...recordDefaults,
+    id: "fact-old-raft-timing",
+    type: "FACT",
+    status: "SUPERSESSION_PENDING",
+    substatus: "CONTEXT",
+    party: "ours",
+    category: "Mitigation",
+    approvedByUserId: demoUserId,
+    approvedAt: "2026-05-13T16:00:00Z",
+    title: "Filing delay was only background context",
+    summary:
+      "Accepted background framing currently under review by a stronger proposed fact.",
+    content:
+      "Current workspace reasoning treats the delayed filing as procedural background rather than a fact with potential downstream effects on RAFT, shelter access, arrears growth, and transition planning. A newer proposal asks the user to decide whether this framing is too narrow.",
+    createdAt: "2026-05-12T12:00:00Z",
+  },
+  {
+    ...recordDefaults,
+    id: "fact-003",
+    type: "FACT",
+    status: "PROPOSED",
+    substatus: "DISPUTED",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    party: "opposing",
+    category: "Habitability",
+    title: "Landlord records characterize pest remediation as completed",
+    summary:
+      "Disputed landlord-side fact that conflicts with tenant condition evidence.",
+    content:
+      "Plaintiffs' maintenance materials appear to mark several pest-related work orders as completed, but the tenant chronology and later condition evidence suggest the underlying infestation or recurrence may not have been resolved.",
+  },
+  {
+    ...recordDefaults,
+    ...humanAuthored,
+    ...acceptedByUser,
+    id: "fact-005",
+    type: "FACT",
+    substatus: "NEEDS_SOURCE_REVIEW",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    party: "opposing",
+    category: "Discovery",
+    title: "Discovery production does not show a complete entry-log chain",
+    summary:
+      "Missing-record fact that supports discovery pressure without overstating intent.",
+    content:
+      "The current production does not appear to include a complete chain of entry logs, access records, or internal communications for the disputed entry and maintenance periods. This supports a record-gap theory but still requires careful comparison against the actual requests and responses.",
+  },
+  {
+    ...recordDefaults,
+    ...humanAuthored,
+    ...acceptedByUser,
+    id: "fact-007",
+    type: "FACT",
+    substatus: "UNDISPUTED",
+    supportStatus: "SUPPORTED",
+    party: "ours",
+    category: "Payment history",
+    title: "Family and RAFT payments exceeded $116,000 during tenancy",
+    summary:
+      "Payment-context fact that complicates a simple nonpayment narrative.",
+    content:
+      "Matthew Sweeney's affidavit states that his family and RAFT assistance collectively paid approximately $116,290.41 in rent and arrears during the tenancy, including approximately $110,442.73 from the family and approximately $5,847.68 through RAFT.",
+  },
+  {
+    ...recordDefaults,
+    ...humanAuthored,
+    ...acceptedByUser,
+    id: "fact-008",
+    type: "FACT",
+    substatus: "CONTEXT",
+    supportStatus: "SUPPORTED",
+    party: "ours",
+    category: "Household stability",
+    title: "Child's local autism services made relocation materially harder",
+    summary:
+      "Context fact explaining why ordinary relocation assumptions may not fit the household.",
+    content:
+      "The affidavit states that the household depended on locally based Quincy services, evaluations, therapy supports, and stability for a child formally diagnosed with autism in 2024, making relocation more complicated than a standard market move.",
+  },
+  {
+    ...recordDefaults,
+    id: "fact-010",
+    type: "FACT",
+    status: "PROPOSED",
+    substatus: "NEEDS_SOURCE_REVIEW",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    party: "ours",
+    category: "RAFT",
+    title: "Initial arrears were allegedly cured by RAFT before any court filing",
+    summary:
+      "Timing fact that affects the meaning of later notices and filing classification.",
+    content:
+      "The affidavit states that RAFT assistance was approved and covered the June and July arrears in full before Faxon Commons filed a Summary Process action. The exact approval and payment dates should be checked against the RAFT record and ledger.",
+  },
+
+  // ── Timeline events (level 3) ─────────────────────────────────────────────
+  {
+    ...recordDefaults,
+    ...humanAuthored,
+    ...acceptedByUser,
+    id: "timeline-001",
+    type: "TIMELINE_EVENT",
+    substatus: "CONFIRMED",
+    eventDate: "2025-06-17",
+    party: "opposing",
+    category: "Filing",
+    title: "First Notice to Quit served",
+    summary: "Procedural anchor event for the summary process timeline.",
+    content:
+      "Plaintiffs served a nonpayment notice to quit, starting the procedural path toward summary process.",
+    createdAt: "2026-05-11T12:00:00Z",
+  },
+  {
+    ...recordDefaults,
+    id: "timeline-002",
+    type: "TIMELINE_EVENT",
+    status: "PROPOSED",
+    substatus: "APPROXIMATE",
+    eventDate: "2025-08-05",
+    party: "ours",
+    category: "Communication",
+    title: "Certified request to file promptly",
+    summary:
+      "Communication event that supports mitigation and timing arguments.",
+    content:
+      "Defendants asked Plaintiffs to file promptly because timing affected mitigation and housing-assistance options.",
+  },
+  {
+    ...recordDefaults,
+    id: "timeline-007",
+    type: "TIMELINE_EVENT",
+    status: "PROPOSED",
+    substatus: "DATE_CONFLICT",
+    eventDate: "2025-07-28",
+    party: "ours",
+    category: "RAFT",
+    title: "RAFT assistance approved after first notice expired",
+    summary:
+      "Timing event that may affect cure, filing posture, and later arrears analysis.",
+    content:
+      "The affidavit states that RAFT assistance was approved on July 28, 2025 and covered June and July arrears after the first Notice to Quit expired. The timeline file lists July 24, so the exact date should be reconciled against Exhibit B.",
+  },
+  {
+    ...recordDefaults,
+    ...humanAuthored,
+    ...acceptedByUser,
+    id: "timeline-009",
+    type: "TIMELINE_EVENT",
+    substatus: "CONFIRMED",
+    eventDate: "2025-08-19",
+    party: "opposing",
+    category: "Notice",
+    title: "Second Notice to Quit issued after RAFT resolved initial arrears",
+    summary:
+      "Procedural event creating tension between cure, delay, and later nonpayment filing.",
+    content:
+      "Faxon Commons issued a second Notice to Quit on August 19, 2025, after the affidavit says RAFT had resolved the initial June and July arrears and while additional arrears were accumulating during the filing delay.",
+  },
+  {
+    ...recordDefaults,
+    ...humanAuthored,
+    ...acceptedByUser,
+    id: "timeline-011",
+    type: "TIMELINE_EVENT",
+    substatus: "CONFIRMED",
+    eventDate: "2025-10-14",
+    party: "opposing",
+    category: "Filing",
+    title:
+      "Fault-based nonpayment complaint filed thirty-two days after agreement deadline",
+    summary:
+      "Core filing event tying delay, classification, and accumulated arrears together.",
+    content:
+      "The affidavit states that Faxon Commons filed a nonpayment Summary Process action on October 14, 2025, thirty-two days after the September 12 filing deadline in the Agreement to Vacate.",
+  },
+  {
+    ...recordDefaults,
+    ...humanAuthored,
+    ...acceptedByUser,
+    id: "timeline-013",
+    type: "TIMELINE_EVENT",
+    substatus: "CONFIRMED",
+    eventDate: "2026-04-23",
+    party: "ours",
+    category: "Discovery",
+    title: "Supplemental memorandum sought search certification and preclusion",
+    summary:
+      "Discovery-pressure event connecting missing records to requested relief.",
+    content:
+      "Defendants filed a supplemental memorandum on April 23, 2026, documenting continued discovery concerns and requesting search certification, production by a date certain, and preclusion of undisclosed evidence.",
+  },
+
+  // ── Testimony (level 3) ───────────────────────────────────────────────────
+  {
+    ...recordDefaults,
+    ...humanAuthored,
+    ...acceptedByUser,
+    id: "testimony-001",
+    type: "TESTIMONY",
+    substatus: "ANTICIPATED",
+    witnessPersonRecordId: "person-msweeney",
+    party: "ours",
+    category: "Anticipated",
+    title: "Tenant testimony should anchor lived conditions and notice",
+    summary:
+      "Anticipated testimony module for conditions, notice, hardship, and discovery prejudice.",
+    content:
+      "Matthew Sweeney can testify to move-in conditions, repeated complaints, the July 2025 entry incident, hardship communications, and discovery prejudice.",
+    createdAt: "2026-05-12T12:00:00Z",
+  },
+  {
+    ...recordDefaults,
+    id: "testimony-002",
+    type: "TESTIMONY",
+    status: "PROPOSED",
+    substatus: "PREPARED",
+    witnessPersonRecordId: "person-fc-management",
+    party: "opposing",
+    category: "Cross-exam",
+    title: "Management witness should be crossed on records under its control",
+    summary:
+      "Cross-examination module for entry logs, work orders, vendors, and classification decisions.",
+    content:
+      "A management witness should establish what systems exist, who can access them, how entries are created, whether vendor or access logs are retained, and why certain categories are missing from the current production.",
+  },
+
+  // ── Legal precedent (level 3) ─────────────────────────────────────────────
+  {
+    ...recordDefaults,
+    id: "precedent-001",
+    type: "LEGAL_PRECEDENT",
+    status: "PROPOSED",
+    substatus: "NEEDS_CITE_CHECK",
+    jurisdiction: "Massachusetts",
+    category: "Research",
+    title: "Quiet enjoyment and c. 93A authorities need final cite check",
+    summary:
+      "Research item that should not be used until citations and current-law status are verified.",
+    content:
+      "The workspace has candidate Massachusetts authority for quiet enjoyment, habitability, and unfair/deceptive conduct, but citations should be verified before filing.",
+  },
+  {
+    ...recordDefaults,
+    id: "precedent-003",
+    type: "LEGAL_PRECEDENT",
+    status: "PROPOSED",
+    substatus: "NEEDS_CITE_CHECK",
+    jurisdiction: "Massachusetts",
+    category: "Discovery research",
+    title: "Adverse-inference research is promising but not yet motion-ready",
+    summary:
+      "Research item separating trial theme from sanctions or evidentiary relief.",
+    content:
+      "Discovery-gap authority may help frame prejudice or adverse inference, but the current research should be cite-checked and matched to the actual missing categories before being used as a sanctions theory.",
+  },
+
+  // ── Tasks (level 2) ───────────────────────────────────────────────────────
+  {
+    ...recordDefaults,
+    ...humanAuthored,
+    ...acceptedByUser,
+    id: "task-001",
+    type: "TASK",
+    substatus: "OPEN",
+    priority: "high",
+    dueDate: "2026-06-01",
+    category: "Trial prep",
+    title: "Build trial exhibit map",
+    summary:
+      "High-priority preparation task for tying claims and defenses to proof.",
+    content:
+      "Create a table that maps each defense element and counterclaim element to exhibits, witnesses, and missing discovery.",
+  },
+  {
+    ...recordDefaults,
+    id: "task-002",
+    type: "TASK",
+    status: "PROPOSED",
+    substatus: "BLOCKED",
+    priority: "high",
+    category: "Discovery",
+    title: "Prepare discovery-prejudice demonstrative",
+    summary:
+      "Trial prep item for showing requested, produced, and still-missing discovery.",
+    content:
+      "Show what was requested, what was produced, what remains missing, and why each gap matters to a live claim or defense. Blocked until the supplemental production is fully reconciled against the original requests.",
+  },
+  {
+    ...recordDefaults,
+    ...humanAuthored,
+    ...acceptedByUser,
+    id: "task-006",
+    type: "TASK",
+    substatus: "OPEN",
+    priority: "high",
+    dueDate: "2026-05-25",
+    category: "Timeline integrity",
+    title: "Reconcile affidavit timeline against exhibit dates before trial use",
+    summary:
+      "Quality-control task for RAFT date, notices, agreement deadline, and docket filing.",
+    content:
+      "Compare the affidavit, case timeline, RAFT approval record, notices, certified letter receipt, Agreement to Vacate, and Summary Process docket so trial materials distinguish exact dates from asserted or reconstructed dates.",
+  },
+
+  // ── Notes (level 3) ───────────────────────────────────────────────────────
+  {
+    ...recordDefaults,
+    ...humanAuthored,
+    ...acceptedByUser,
+    id: "note-001",
+    type: "NOTE",
+    substatus: "PINNED",
+    category: "Strategy",
+    title: "Cross-exam focus: records under management control",
+    summary:
+      "Pinned strategy note for witness examination on missing management-controlled records.",
+    content:
+      "Ask concise foundation questions establishing that entry logs, work orders, pest records, and internal communications are kept by or available to management.",
+  },
+  {
+    ...recordDefaults,
+    ...humanAuthored,
+    ...acceptedByUser,
+    id: "note-003",
+    type: "NOTE",
+    substatus: "PINNED",
+    category: "Human correction",
+    title:
+      "Agent summary overstated missing communications as intentional withholding",
+    summary:
+      "Human correction note preventing an unsupported inference from becoming strategy.",
+    content:
+      "The April discovery summary should say communications remain missing or unproduced in the current packet. It should not state that Plaintiffs intentionally withheld them unless the record later supports that characterization.",
+  },
+
+  // ── Document records (level 4) ────────────────────────────────────────────
+  // The affidavit (one 18-page file) is split into four DOCUMENT records,
+  // each grounding a different part of the graph.
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "docrec-affidavit-payments",
+    type: "DOCUMENT",
+    documentId: "doc-affidavit",
+    fileName: "Affidavit of Matthew Sweeney - Draft.pdf",
+    pageRange: { start: 2, end: 4 },
+    category: "Payment history",
+    title: "Affidavit §1 — payment history and family contributions",
+    summary:
+      "Affidavit section detailing the ~$116k paid by family and RAFT during the tenancy.",
+    content:
+      "Section of the affidavit covering total rent and arrears paid during the tenancy, including approximately $110,442.73 from family and approximately $5,847.68 through RAFT assistance.",
+    createdAt: "2026-05-16T14:30:00Z",
+  },
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "docrec-affidavit-raft",
+    type: "DOCUMENT",
+    documentId: "doc-affidavit",
+    fileName: "Affidavit of Matthew Sweeney - Draft.pdf",
+    pageRange: { start: 5, end: 7 },
+    category: "RAFT",
+    title: "Affidavit §2 — RAFT approval and arrears cure",
+    summary:
+      "Affidavit section asserting RAFT cured June and July arrears before any filing.",
+    content:
+      "Section of the affidavit describing RAFT approval (asserted July 28, 2025), coverage of the June and July arrears in full, and the relationship of the cure to the first Notice to Quit.",
+    createdAt: "2026-05-16T14:30:00Z",
+  },
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "docrec-affidavit-entry",
+    type: "DOCUMENT",
+    documentId: "doc-affidavit",
+    fileName: "Affidavit of Matthew Sweeney - Draft.pdf",
+    pageRange: { start: 8, end: 9 },
+    category: "Entry",
+    title: "Affidavit §3 — July 24 entry and balcony netting removal",
+    summary:
+      "Affidavit section on the maintenance entry while the family was asleep.",
+    content:
+      "Section of the affidavit describing the July 24, 2025 maintenance entry following a broad balcony notice, removal of protective balcony netting installed for child safety, and the subsequent discussion with management.",
+    createdAt: "2026-05-16T14:30:00Z",
+  },
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "docrec-affidavit-hardship",
+    type: "DOCUMENT",
+    documentId: "doc-affidavit",
+    fileName: "Affidavit of Matthew Sweeney - Draft.pdf",
+    pageRange: { start: 10, end: 12 },
+    category: "Household stability",
+    title: "Affidavit §4 — hardship, autism services, and shelter pathway",
+    summary:
+      "Affidavit section on household hardship, local services, and the QCAP shelter pathway.",
+    content:
+      "Section of the affidavit covering financial hardship communications, the household's dependence on local autism services and supports, and statements attributed to QCAP about the no-fault pathway requirement.",
+    createdAt: "2026-05-16T14:30:00Z",
+  },
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "docrec-notice-first",
+    type: "DOCUMENT",
+    documentId: "doc-notice-first",
+    fileName: "2025-06-17 Notice to Quit.pdf",
+    category: "Notice",
+    title: "First Notice to Quit (June 17, 2025)",
+    summary: "Nonpayment notice that started the summary process sequence.",
+    content:
+      "The June 17, 2025 nonpayment Notice to Quit served by Plaintiffs. Service details still need confirmation against the docket.",
+    createdAt: "2026-05-10T12:30:00Z",
+  },
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "docrec-cert-letter",
+    type: "DOCUMENT",
+    documentId: "doc-cert-letter",
+    fileName: "2025-08-05 Certified Filing Request.pdf",
+    category: "Communication",
+    title: "Certified filing request (August 5, 2025)",
+    summary:
+      "Certified letter asking Plaintiffs to file promptly or confirm in writing.",
+    content:
+      "Certified letter in which Defendants asked Plaintiffs to file promptly because timing affected mitigation and housing-assistance options, with USPS receipt. The letter requested written confirmation if no filing would occur; no response is documented.",
+    createdAt: "2026-05-10T12:30:00Z",
+  },
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "docrec-agreement-deadline",
+    type: "DOCUMENT",
+    documentId: "doc-agreement",
+    fileName: "Agreement to Vacate and September Emails.pdf",
+    category: "Agreement to vacate",
+    title: "Agreement to Vacate — September 12 filing deadline",
+    summary:
+      "Agreement sections establishing the no-fault pathway and filing deadline.",
+    content:
+      "Portions of the Agreement to Vacate and the September 10 email chain establishing that Faxon Commons was to file a no-fault Summary Process action no later than September 12, 2025.",
+    createdAt: "2026-05-11T11:00:00Z",
+  },
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "docrec-raft-approval",
+    type: "DOCUMENT",
+    documentId: "doc-raft",
+    fileName: "RAFT Approval and Rent Ledger Packet.pdf",
+    category: "RAFT",
+    title: "RAFT approval record and rent ledger",
+    summary:
+      "RAFT approval and ledger entries for verifying cure timing and amounts.",
+    content:
+      "RAFT approval record and rent ledger pages used to verify payment amounts, cure timing, and the relationship between initial arrears and later notices. Contains a date conflict (July 24 vs July 28) that needs reconciliation.",
+    createdAt: "2026-05-11T11:00:00Z",
+  },
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "docrec-discovery-gaps",
+    type: "DOCUMENT",
+    documentId: "doc-discovery",
+    fileName: "Plaintiffs Supplemental Discovery Responses.pdf",
+    category: "Discovery",
+    title: "Supplemental discovery responses — missing categories",
+    summary:
+      "Responses showing gaps in entry logs, internal communications, and vendor records.",
+    content:
+      "The April 3, 2026 supplemental responses, focusing on the categories that remain missing or incomplete: entry logs, access records, internal communications, extermination vendor records, and eviction decision-making documents. Table-based responses were flattened by OCR and should be checked against the PDF image.",
+    createdAt: "2026-05-12T10:00:00Z",
+  },
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "docrec-maintenance-orders",
+    type: "DOCUMENT",
+    documentId: "doc-maintenance",
+    fileName: "Maintenance Portal Export - Work Orders.csv",
+    category: "Maintenance",
+    title: "Work-order export — pest-related entries",
+    summary:
+      "Pest-related work orders marked completed, with undefined completion codes.",
+    content:
+      "Pest-related work orders from the maintenance portal export. Several entries are marked completed, but completion-code definitions, vendor notes, and follow-up visits are not included in the export.",
+    createdAt: "2026-05-12T10:00:00Z",
+  },
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "docrec-photos-metadata",
+    type: "DOCUMENT",
+    documentId: "doc-photos",
+    fileName: "Apartment Condition Photos - Metadata Report.csv",
+    category: "Evidence integrity",
+    title: "Condition photo metadata report",
+    summary:
+      "Metadata review showing missing EXIF data for several condition photos.",
+    content:
+      "Metadata extraction for the condition photo packet. Several photographs have useful visual content but incomplete capture metadata, making chronology, authentication, and exhibit sequencing more dependent on testimony.",
+    createdAt: "2026-05-16T13:30:00Z",
+  },
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Graph links
+// ─────────────────────────────────────────────────────────────────────────────
+
+const recordTypeById = new Map<string, RecordType>(
+  demoRecords.map((record) => [record.id, record.type]),
+);
+
+type LinkSpec = [
+  fromId: string,
+  type: RecordLinkType,
+  toId: string,
+  status?: LinkStatus,
+  explanation?: string,
+];
+
+const linkSpecs: LinkSpec[] = [
+  // Theory 1 (adopted) grounding
+  ["theory-001", "DEPENDS_ON", "fact-001", "ACCEPTED"],
+  ["theory-001", "DEPENDS_ON", "fact-007", "ACCEPTED"],
+  ["theory-001", "DEPENDS_ON", "fact-005", "ACCEPTED"],
+  ["theory-001", "RELATED_TO", "claim-002", "ACCEPTED"],
+  ["theory-001", "CITES", "precedent-001", "PROPOSED"],
+
+  // Theory 2 (proposed equitable prejudice)
+  ["theory-002", "DEPENDS_ON", "fact-002", "PROPOSED"],
+  ["theory-002", "DEPENDS_ON", "fact-010", "PROPOSED"],
+  ["theory-002", "EVIDENCED_BY", "docrec-cert-letter", "PROPOSED"],
+  ["theory-002", "EVIDENCED_BY", "docrec-agreement-deadline", "PROPOSED"],
+  ["theory-002", "RELATED_TO", "issue-003", "PROPOSED"],
+
+  // Claims
+  ["claim-001", "EVIDENCED_BY", "docrec-notice-first", "ACCEPTED"],
+  ["claim-001", "INVOLVES", "person-fc-management", "ACCEPTED"],
+  ["claim-002", "DEPENDS_ON", "fact-001", "ACCEPTED"],
+  ["claim-002", "DEPENDS_ON", "fact-008", "ACCEPTED"],
+  ["claim-002", "EVIDENCED_BY", "docrec-maintenance-orders", "ACCEPTED"],
+
+  // Objectives
+  ["objective-001", "RELATED_TO", "theory-001", "ACCEPTED"],
+  ["objective-002", "RELATED_TO", "issue-003", "ACCEPTED"],
+  ["objective-003", "RELATED_TO", "issue-002", "PROPOSED"],
+  ["objective-003", "RELATED_TO", "arg-002", "PROPOSED"],
+
+  // Posture
+  ["posture-002", "RELATED_TO", "task-001", "ACCEPTED"],
+  ["posture-002", "RELATED_TO", "task-002", "ACCEPTED"],
+  ["posture-002", "RELATED_TO", "objective-003", "ACCEPTED"],
+
+  // Issues
+  ["issue-001", "DEPENDS_ON", "fact-001", "ACCEPTED"],
+  ["issue-001", "DEPENDS_ON", "fact-003", "ACCEPTED"],
+  ["issue-002", "DEPENDS_ON", "fact-005", "PROPOSED"],
+  ["issue-002", "EVIDENCED_BY", "docrec-discovery-gaps", "PROPOSED"],
+  ["issue-003", "DEPENDS_ON", "fact-002", "PROPOSED"],
+  ["issue-003", "DEPENDS_ON", "fact-010", "PROPOSED"],
+  ["issue-006", "DEPENDS_ON", "fact-010", "PROPOSED"],
+  ["issue-006", "EVIDENCED_BY", "docrec-raft-approval", "PROPOSED"],
+
+  // Arguments
+  ["arg-002", "DEPENDS_ON", "issue-002", "PROPOSED"],
+  ["arg-002", "DEPENDS_ON", "fact-005", "PROPOSED"],
+  ["arg-002", "EVIDENCED_BY", "docrec-discovery-gaps", "PROPOSED"],
+  ["arg-002", "INVOLVES", "person-fc-management", "PROPOSED"],
+  ["arg-002", "CITES", "precedent-003", "PROPOSED"],
+  ["arg-old-discovery-sanctions", "DEPENDS_ON", "issue-002", "ACCEPTED"],
+  ["arg-003", "DEPENDS_ON", "fact-002", "ACCEPTED"],
+  ["arg-003", "EVIDENCED_BY", "docrec-cert-letter", "ACCEPTED"],
+  ["arg-005", "DEPENDS_ON", "fact-003", "PROPOSED"],
+  ["arg-005", "EVIDENCED_BY", "docrec-maintenance-orders", "PROPOSED"],
+  ["arg-006", "DEPENDS_ON", "fact-010", "PROPOSED"],
+  ["arg-006", "EVIDENCED_BY", "docrec-raft-approval", "PROPOSED"],
+
+  // Facts → sources / people / contradictions
+  ["fact-001", "EVIDENCED_BY", "docrec-maintenance-orders", "ACCEPTED"],
+  ["fact-001", "EVIDENCED_BY", "docrec-photos-metadata", "ACCEPTED"],
+  [
+    "fact-001",
+    "CONTRADICTED_BY",
+    "fact-003",
+    "PROPOSED",
+    "Landlord completion codes conflict with tenant condition evidence.",
+  ],
+  ["fact-001", "INVOLVES", "person-msweeney", "ACCEPTED"],
+  ["fact-002", "EVIDENCED_BY", "docrec-cert-letter", "PROPOSED"],
+  ["fact-002", "EVIDENCED_BY", "docrec-affidavit-hardship", "PROPOSED"],
+  ["fact-002", "INVOLVES", "person-dferreira", "PROPOSED"],
+  ["fact-old-raft-timing", "EVIDENCED_BY", "docrec-cert-letter", "ACCEPTED"],
+  ["fact-003", "EVIDENCED_BY", "docrec-maintenance-orders", "PROPOSED"],
+  ["fact-003", "INVOLVES", "person-fc-management", "PROPOSED"],
+  ["fact-005", "EVIDENCED_BY", "docrec-discovery-gaps", "ACCEPTED"],
+  ["fact-007", "EVIDENCED_BY", "docrec-affidavit-payments", "ACCEPTED"],
+  ["fact-007", "EVIDENCED_BY", "docrec-raft-approval", "ACCEPTED"],
+  ["fact-008", "EVIDENCED_BY", "docrec-affidavit-hardship", "ACCEPTED"],
+  ["fact-008", "INVOLVES", "person-msweeney", "ACCEPTED"],
+  ["fact-010", "EVIDENCED_BY", "docrec-affidavit-raft", "PROPOSED"],
+  ["fact-010", "EVIDENCED_BY", "docrec-raft-approval", "PROPOSED"],
+
+  // Timeline events
+  ["timeline-001", "EVIDENCED_BY", "docrec-notice-first", "ACCEPTED"],
+  ["timeline-002", "EVIDENCED_BY", "docrec-cert-letter", "PROPOSED"],
+  ["timeline-002", "INVOLVES", "person-msweeney", "PROPOSED"],
+  [
+    "timeline-007",
+    "EVIDENCED_BY",
+    "docrec-raft-approval",
+    "PROPOSED",
+    "Approval date asserted as July 28; timeline file lists July 24.",
+  ],
+  ["timeline-007", "EVIDENCED_BY", "docrec-affidavit-raft", "PROPOSED"],
+  ["timeline-009", "CONTEXTUALIZED_BY", "fact-010", "ACCEPTED"],
+  ["timeline-011", "EVIDENCED_BY", "docrec-agreement-deadline", "ACCEPTED"],
+  ["timeline-011", "RELATED_TO", "issue-003", "ACCEPTED"],
+  ["timeline-013", "EVIDENCED_BY", "docrec-discovery-gaps", "ACCEPTED"],
+  ["timeline-013", "RELATED_TO", "issue-002", "ACCEPTED"],
+
+  // Testimony
+  ["testimony-001", "INVOLVES", "person-msweeney", "ACCEPTED"],
+  ["testimony-001", "DEPENDS_ON", "fact-001", "ACCEPTED"],
+  ["testimony-001", "DEPENDS_ON", "fact-008", "ACCEPTED"],
+  ["testimony-001", "EVIDENCED_BY", "docrec-affidavit-entry", "ACCEPTED"],
+  ["testimony-002", "INVOLVES", "person-fc-management", "PROPOSED"],
+  ["testimony-002", "DEPENDS_ON", "fact-005", "PROPOSED"],
+  ["testimony-002", "DEPENDS_ON", "fact-003", "PROPOSED"],
+
+  // Precedent
+  ["precedent-001", "RELATED_TO", "issue-001", "PROPOSED"],
+  ["precedent-003", "RELATED_TO", "issue-002", "PROPOSED"],
+
+  // Tasks
+  ["task-001", "RELATED_TO", "theory-001", "ACCEPTED"],
+  ["task-001", "RELATED_TO", "claim-002", "ACCEPTED"],
+  ["task-002", "DEPENDS_ON", "issue-002", "PROPOSED"],
+  ["task-002", "DEPENDS_ON", "fact-005", "PROPOSED"],
+  ["task-006", "RELATED_TO", "timeline-007", "ACCEPTED"],
+  ["task-006", "RELATED_TO", "timeline-011", "ACCEPTED"],
+
+  // Notes
+  ["note-001", "RELATED_TO", "issue-002", "ACCEPTED"],
+  ["note-001", "RELATED_TO", "arg-002", "ACCEPTED"],
+  ["note-003", "RELATED_TO", "fact-005", "ACCEPTED"],
+  ["note-003", "RELATED_TO", "arg-002", "ACCEPTED"],
+];
+
+export const demoLinks: GraphLink[] = linkSpecs.map(
+  ([fromId, type, toId, status = "ACCEPTED", explanation], index) => {
+    const fromRecordType = recordTypeById.get(fromId);
+    const toRecordType = recordTypeById.get(toId);
+
+    if (!fromRecordType || !toRecordType) {
+      throw new Error(`Demo link references unknown record: ${fromId} → ${toId}`);
+    }
+
+    return {
+      id: `link-${String(index + 1).padStart(3, "0")}`,
+      workspaceId: DEMO_WORKSPACE_ID,
+      caseId: DEMO_CASE_ID,
+      fromRecordId: fromId,
+      fromRecordType,
+      toRecordId: toId,
+      toRecordType,
+      type,
+      status,
+      explanation,
+      createdBy: "agent",
+      ...(status === "ACCEPTED"
+        ? { approvedByUserId: demoUserId, approvedAt: "2026-05-15T16:00:00Z" }
+        : {}),
+      createdAt: "2026-05-14T12:00:00Z",
+      updatedAt: "2026-05-16T12:00:00Z",
+    };
+  },
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Activity feed (UI-only demo data)
+// ─────────────────────────────────────────────────────────────────────────────
 
 export type DemoActivity = {
   id: string;
@@ -49,1490 +1300,10 @@ export type DemoActivity = {
   tone: "info" | "success" | "warning";
 };
 
-export const demoUserId = "5bdbb6c2-877a-4772-ad9e-00a10d6073b5";
-
-export const demoCase = {
-  id: "case-faxon-commons-demo",
-  title: "Faxon Commons v. Sweeney",
-  court: "Massachusetts Housing Court, Metro South Division",
-  caseNumber: "25H82SP02904",
-  client: "Matthew Sweeney",
-  posture: "Motion stage, trial preparation, discovery disputes active",
-  risk: "Plaintiffs may compress the story into nonpayment while key discovery remains missing.",
-  objective:
-    "Defeat or materially reduce possession and money claims while proving habitability, quiet enjoyment, mitigation, and c. 93A counterclaims.",
-  health: 78,
-  trialReadiness: 64,
-  proposalQueue: 14,
-  unresolvedGaps: 7,
-};
-
-export const demoRecords: DemoRecord[] = [
-  {
-    id: "fact-001",
-    type: "facts",
-    title: "Move-in conditions included persistent pest activity",
-    miniDescription:
-      "Habitability fact tying early tenancy conditions to later notice and rent defenses.",
-    content:
-      "Defendants report serious pest-related conditions beginning at move-in in 2021, with repeated notice to management and inconsistent remediation.",
-    category: "Habitability",
-    party: "defense",
-    status: "accepted",
-    typeStatus: "Undisputed fact",
-    createdBy: "Human",
-    updatedAt: "May 14, 2026",
-    date: "2021-08-01",
-    sources: ["Tenant chronology", "Maintenance portal export"],
-    linkedRecords: [
-      "issue-001",
-      "arg-001",
-      "timeline-001",
-      "fact-003",
-      "testimony-002",
-    ],
-  },
-  {
-    id: "fact-002",
-    type: "facts",
-    title: "Management knew delayed filing could affect mitigation pathways",
-    miniDescription:
-      "Proposed mitigation fact based on the certified request to file promptly.",
-    content:
-      "Financial hardship and RAFT/shelter timing concerns were communicated before the nonpayment filing, creating a mitigation and causation issue.",
-    category: "Mitigation",
-    party: "defense",
-    status: "proposed",
-    typeStatus: "Needs source review",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 15, 2026",
-    date: "2025-08-05",
-    sources: ["Certified letter dated Aug. 5, 2025"],
-    linkedRecords: [
-      "issue-003",
-      "arg-003",
-      "arg-004",
-      "timeline-006",
-      "fact-old-raft-timing",
-    ],
-    supersedes: {
-      id: "fact-old-raft-timing",
-      title: "Filing delay was only background context",
-      summary:
-        "Reframes the delay as a live mitigation and causation fact instead of a background note.",
-    },
-  },
-  {
-    id: "fact-old-raft-timing",
-    type: "facts",
-    title: "Filing delay was only background context",
-    miniDescription:
-      "Accepted background framing currently under review by a stronger proposed fact.",
-    content:
-      "Current workspace reasoning treats the delayed filing as procedural background rather than a fact with potential downstream effects on RAFT, shelter access, arrears growth, and transition planning. A newer proposal asks the user to decide whether this framing is too narrow.",
-    category: "Mitigation",
-    party: "defense",
-    status: "supersession_pending",
-    typeStatus: "Pending supersession",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 14, 2026",
-    date: "2025-08-05",
-    sources: ["Certified letter dated Aug. 5, 2025", "Hardship communications"],
-    linkedRecords: ["fact-002", "issue-003", "arg-004", "timeline-006"],
-  },
-  {
-    id: "issue-001",
-    type: "issues",
-    title: "Whether habitability conditions offset or defeat rent claim",
-    miniDescription:
-      "Legal issue connecting condition evidence to rent abatement and counterclaim value.",
-    content:
-      "The core factual and legal issue is whether prolonged pest and maintenance conditions support defenses, counterclaims, damages, or rent abatement.",
-    category: "Legal",
-    party: "defense",
-    status: "accepted",
-    typeStatus: "Open issue",
-    createdBy: "Human",
-    updatedAt: "May 13, 2026",
-    sources: ["Answer and counterclaims", "Tenant chronology"],
-    linkedRecords: ["fact-001", "arg-001"],
-  },
-  {
-    id: "issue-002",
-    type: "issues",
-    title: "Whether missing discovery supports adverse inference",
-    miniDescription:
-      "Procedural issue for deciding how missing records should shape trial presentation.",
-    content:
-      "Missing entry logs, internal communications, extermination records, and decision-making documents may justify discovery sanctions or adverse inference framing.",
-    category: "Procedural",
-    party: "defense",
-    status: "proposed",
-    typeStatus: "Reserved issue",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 15, 2026",
-    sources: ["Motion to compel", "Supplemental discovery responses"],
-    linkedRecords: ["arg-002", "task-002", "fact-005", "testimony-002"],
-  },
-  {
-    id: "arg-001",
-    type: "arguments",
-    title: "This is not a ledger-only nonpayment case",
-    miniDescription:
-      "Primary trial theory for keeping the case broader than rent accounting.",
-    content:
-      "The defense should resist a narrow rent-ledger frame and present a joined narrative of habitability, notice, management conduct, mitigation, and prejudice.",
-    category: "Theory",
-    party: "defense",
-    status: "accepted",
-    typeStatus: "Trial theory",
-    createdBy: "Human",
-    updatedAt: "May 12, 2026",
-    sources: ["Answer", "Discovery timeline", "Tenant chronology"],
-    linkedRecords: ["fact-001", "issue-001", "objective-001", "arg-004"],
-  },
-  {
-    id: "arg-002",
-    type: "arguments",
-    title: "Discovery gaps make Plaintiffs' clean-record story unreliable",
-    miniDescription:
-      "Discovery theme challenging the completeness and reliability of landlord-side records.",
-    content:
-      "Where records are selectively unavailable, the argument should focus on control, notice, missing categories, and the prejudice caused by late or incomplete production.",
-    category: "Discovery",
-    party: "defense",
-    status: "proposed",
-    typeStatus: "Needs support",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 15, 2026",
-    sources: ["Renewed motion to compel", "Meet-and-confer order"],
-    linkedRecords: [
-      "issue-002",
-      "task-002",
-      "fact-005",
-      "testimony-002",
-      "arg-old-discovery-sanctions",
-    ],
-    supersedes: {
-      id: "arg-old-discovery-sanctions",
-      title: "Discovery argument depends entirely on sanctions",
-      summary:
-        "Narrows the older framing into a trial theme that can stand even without a separate sanctions order.",
-    },
-  },
-  {
-    id: "arg-old-discovery-sanctions",
-    type: "arguments",
-    title: "Discovery argument depends entirely on sanctions",
-    miniDescription:
-      "Accepted discovery framing now challenged by a broader trial-theme proposal.",
-    content:
-      "Current strategy treats missing discovery mainly as support for sanctions or a standalone discovery motion. A newer proposal asks whether that framing is too brittle for trial because the same record gaps may matter even without a sanctions order, especially for credibility, prejudice, and missing-proof themes.",
-    category: "Discovery",
-    party: "defense",
-    status: "supersession_pending",
-    typeStatus: "Pending supersession",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 14, 2026",
-    sources: ["Renewed motion to compel", "Meet-and-confer order"],
-    linkedRecords: ["arg-002", "issue-002", "task-002", "objective-003"],
-  },
-  {
-    id: "timeline-001",
-    type: "timeline",
-    title: "Notice to quit served",
-    miniDescription:
-      "Procedural anchor event for the summary process timeline.",
-    content:
-      "Plaintiffs served a nonpayment notice to quit, starting the procedural path toward summary process.",
-    category: "Filing",
-    party: "plaintiff",
-    status: "accepted",
-    typeStatus: "Confirmed event",
-    createdBy: "Human",
-    updatedAt: "May 11, 2026",
-    date: "2025-06-17",
-    sources: ["Notice to quit"],
-    linkedRecords: ["fact-002", "issue-003"],
-  },
-  {
-    id: "timeline-002",
-    type: "timeline",
-    title: "Certified request to file promptly",
-    miniDescription:
-      "Communication event that supports mitigation and timing arguments.",
-    content:
-      "Defendants asked Plaintiffs to file promptly because timing affected mitigation and housing-assistance options.",
-    category: "Communication",
-    party: "defense",
-    status: "proposed",
-    typeStatus: "Approximate event",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 15, 2026",
-    date: "2025-08-05",
-    sources: ["Certified letter", "USPS receipt"],
-    linkedRecords: ["fact-002", "arg-003"],
-  },
-  {
-    id: "task-001",
-    type: "tasks",
-    title: "Build trial exhibit map",
-    miniDescription:
-      "High-priority preparation task for tying claims and defenses to proof.",
-    content:
-      "Create a table that maps each defense element and counterclaim element to exhibits, witnesses, and missing discovery.",
-    category: "Trial prep",
-    status: "accepted",
-    typeStatus: "Open task",
-    createdBy: "Human",
-    updatedAt: "May 15, 2026",
-    priority: "High",
-    sources: ["Case strategy"],
-    linkedRecords: ["arg-001", "issue-001", "task-003", "fact-005"],
-  },
-  {
-    id: "task-002",
-    type: "tasks",
-    title: "Prepare discovery-prejudice demonstrative",
-    miniDescription:
-      "Trial prep item for showing requested, produced, and still-missing discovery.",
-    content:
-      "Show what was requested, what was produced, what remains missing, and why each gap matters to a live claim or defense.",
-    category: "Discovery",
-    status: "proposed",
-    typeStatus: "Blocked task",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 15, 2026",
-    priority: "High",
-    sources: ["Discovery requests", "Supplemental responses"],
-    linkedRecords: ["issue-002", "arg-002", "fact-005", "testimony-002"],
-  },
-  {
-    id: "objective-001",
-    type: "objectives",
-    title: "Keep the factfinder focused on conduct, not just arrears",
-    miniDescription:
-      "Active objective that keeps case presentation aligned to landlord conduct and prejudice.",
-    content:
-      "The case strategy should repeatedly connect rent allegations to landlord conduct, conditions, timing, and evidentiary gaps.",
-    category: "Primary",
-    party: "defense",
-    status: "accepted",
-    typeStatus: "Active objective",
-    createdBy: "Human",
-    updatedAt: "May 10, 2026",
-    priority: "High",
-    sources: ["Intake objectives"],
-    linkedRecords: ["arg-001", "issue-001"],
-  },
-  {
-    id: "note-001",
-    type: "case_notes",
-    title: "Cross-exam focus: records under management control",
-    miniDescription:
-      "Pinned strategy note for witness examination on missing management-controlled records.",
-    content:
-      "Ask concise foundation questions establishing that entry logs, work orders, pest records, and internal communications are kept by or available to management.",
-    category: "Strategy",
-    status: "accepted",
-    typeStatus: "Pinned note",
-    createdBy: "Human",
-    updatedAt: "May 14, 2026",
-    sources: ["Strategy session"],
-    linkedRecords: ["issue-002", "arg-002"],
-  },
-  {
-    id: "precedent-001",
-    type: "legal_precedent",
-    title: "Quiet enjoyment and c. 93A authorities need final cite check",
-    miniDescription:
-      "Research item that should not be used until citations and current-law status are verified.",
-    content:
-      "The workspace has candidate Massachusetts authority for quiet enjoyment, habitability, and unfair/deceptive conduct, but citations should be verified before filing.",
-    category: "Research",
-    status: "proposed",
-    typeStatus: "Needs cite check",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 15, 2026",
-    sources: ["Research notes"],
-    linkedRecords: ["issue-001", "arg-001"],
-  },
-  {
-    id: "testimony-001",
-    type: "testimony",
-    title: "Tenant testimony should anchor lived conditions and notice",
-    miniDescription:
-      "Anticipated testimony module for conditions, notice, hardship, and discovery prejudice.",
-    content:
-      "Matthew Sweeney can testify to move-in conditions, repeated complaints, July 2025 entry incident, hardship communications, and discovery prejudice.",
-    category: "Anticipated",
-    party: "defense",
-    status: "accepted",
-    typeStatus: "Anticipated testimony",
-    createdBy: "Human",
-    updatedAt: "May 12, 2026",
-    sources: ["Intake", "Witness outline"],
-    linkedRecords: ["fact-001", "timeline-002"],
-  },
-  {
-    id: "posture-001",
-    type: "posture",
-    title: "Case is trial-facing with unresolved discovery pressure",
-    miniDescription:
-      "Current posture note for prioritizing trial prep over broad intake or investigation.",
-    content:
-      "The immediate posture is not intake or investigation; the system should prioritize trial prep, evidence mapping, and review of proposed discovery arguments.",
-    category: "Litigation",
-    status: "accepted",
-    typeStatus: "Current posture",
-    createdBy: "Human",
-    updatedAt: "May 15, 2026",
-    sources: ["Procedural history"],
-    linkedRecords: ["task-001", "task-002", "posture-002"],
-  },
-  {
-    id: "fact-003",
-    type: "facts",
-    title: "Landlord records characterize pest remediation as completed",
-    miniDescription:
-      "Disputed landlord-side fact that conflicts with tenant condition evidence.",
-    content:
-      "Plaintiffs' maintenance materials appear to mark several pest-related work orders as completed, but the tenant chronology and later condition evidence suggest the underlying infestation or recurrence may not have been resolved.",
-    category: "Habitability",
-    party: "plaintiff",
-    status: "proposed",
-    typeStatus: "Disputed fact",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    date: "2021-09-14",
-    sources: [
-      "Maintenance portal export",
-      "Tenant chronology",
-      "Apartment condition photos",
-    ],
-    linkedRecords: ["fact-001", "issue-001", "arg-005", "testimony-002"],
-  },
-  {
-    id: "fact-004",
-    type: "facts",
-    title: "Photo packet lacks reliable capture metadata for several images",
-    miniDescription:
-      "Evidence integrity concern affecting how condition photos should be used at trial.",
-    content:
-      "Several condition photographs in the working packet have useful visual content but incomplete capture metadata, making chronology, authentication, and exhibit sequencing more dependent on testimony and surrounding communications.",
-    category: "Evidence integrity",
-    status: "proposed",
-    typeStatus: "Needs source review",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    sources: [
-      "Apartment condition photos",
-      "Photo metadata extraction report",
-      "Tenant chronology",
-    ],
-    linkedRecords: ["issue-004", "task-004", "testimony-001", "testimony-003"],
-  },
-  {
-    id: "fact-005",
-    type: "facts",
-    title: "Discovery production does not show a complete entry-log chain",
-    miniDescription:
-      "Missing-record fact that supports discovery pressure without overstating intent.",
-    content:
-      "The current production does not appear to include a complete chain of entry logs, access records, or internal communications for the disputed entry and maintenance periods. This supports a record-gap theory but still requires careful comparison against the actual requests and responses.",
-    category: "Discovery",
-    party: "plaintiff",
-    status: "accepted",
-    typeStatus: "Needs source review",
-    createdBy: "Human",
-    updatedAt: "May 16, 2026",
-    sources: [
-      "Discovery requests",
-      "Plaintiffs supplemental discovery responses",
-      "Meet-and-confer order",
-    ],
-    linkedRecords: ["issue-002", "arg-002", "task-002", "testimony-002"],
-  },
-  {
-    id: "fact-006",
-    type: "facts",
-    title: "Extracted discovery text omits portions of the response tables",
-    miniDescription:
-      "Document extraction weakness that could distort search and agent summaries.",
-    content:
-      "The extracted text from Plaintiffs' supplemental discovery responses appears to omit or flatten portions of table-based responses, so search results and agent summaries should be checked against the PDF image before any representation is used.",
-    category: "Evidence integrity",
-    status: "proposed",
-    typeStatus: "Needs source review",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    sources: [
-      "Plaintiffs Supplemental Discovery Responses.pdf",
-      "OCR extraction log",
-    ],
-    linkedRecords: ["issue-004", "task-004", "note-003"],
-  },
-  {
-    id: "issue-003",
-    type: "issues",
-    title: "Whether filing delay caused legally meaningful prejudice",
-    miniDescription:
-      "Strategic issue separating strict mitigation from broader equitable prejudice.",
-    content:
-      "The key question is whether the timing and handling of the filing materially affected Defendants' assistance, housing, negotiation, or litigation position in a way the court can credit without overclaiming causation.",
-    category: "Strategic",
-    party: "defense",
-    status: "proposed",
-    typeStatus: "Open issue",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    sources: ["Certified filing request", "Hardship communications"],
-    linkedRecords: ["fact-002", "arg-003", "arg-004", "timeline-006"],
-  },
-  {
-    id: "issue-004",
-    type: "issues",
-    title: "Whether evidence integrity limits condition exhibit strength",
-    miniDescription:
-      "Proof issue for photo metadata gaps and incomplete extraction artifacts.",
-    content:
-      "The workspace should distinguish between evidence that is visually persuasive and evidence that is cleanly authenticated. Metadata gaps and imperfect extraction do not make the evidence unusable, but they affect foundation, sequencing, and proof weight.",
-    category: "Evidence",
-    status: "proposed",
-    typeStatus: "Reserved issue",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    sources: [
-      "Photo metadata extraction report",
-      "OCR extraction log",
-      "Apartment condition photos",
-    ],
-    linkedRecords: ["fact-004", "fact-006", "task-004", "testimony-001"],
-  },
-  {
-    id: "issue-005",
-    type: "issues",
-    title:
-      "Whether completed work orders prove remediation or only response activity",
-    miniDescription:
-      "Fact/legal bridge for interpreting landlord maintenance records.",
-    content:
-      "A completed work order may prove that management logged or attempted a response, but it does not necessarily prove durable remediation. The distinction matters for habitability, notice, and credibility.",
-    category: "Factual",
-    status: "proposed",
-    typeStatus: "Open issue",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    sources: ["Maintenance portal export", "Tenant chronology"],
-    linkedRecords: ["fact-003", "arg-005", "testimony-002", "note-002"],
-  },
-  {
-    id: "arg-003",
-    type: "arguments",
-    title:
-      "Filing delay supports a mitigation theory only if causation is shown",
-    miniDescription:
-      "Accepted mitigation framing now being compared against equitable prejudice.",
-    content:
-      "The filing-delay theory is strongest if tied to concrete mitigation pathways or assistance consequences. Without that showing, the argument risks sounding like general unfairness rather than a legally useful mitigation point.",
-    category: "Mitigation",
-    party: "defense",
-    status: "supersession_pending",
-    typeStatus: "Pending supersession",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 15, 2026",
-    sources: ["Certified filing request", "Hardship communications"],
-    linkedRecords: ["fact-002", "issue-003", "arg-004"],
-  },
-  {
-    id: "arg-004",
-    type: "arguments",
-    title:
-      "Filing delay may show equitable prejudice more cleanly than strict mitigation",
-    miniDescription:
-      "Alternative theory that may fit the record better than narrow causation.",
-    content:
-      "Rather than relying only on strict mitigation causation, the better framing may be that Plaintiffs' timing and communications created equitable prejudice by changing Defendants' practical options while preserving Plaintiffs' ability to present the matter as simple nonpayment.",
-    category: "Equitable prejudice",
-    party: "defense",
-    status: "proposed",
-    typeStatus: "Trial theory",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    sources: [
-      "Certified filing request",
-      "Hardship communications",
-      "Procedural timeline",
-    ],
-    linkedRecords: ["fact-002", "issue-003", "timeline-006", "objective-002"],
-    supersedes: {
-      id: "arg-003",
-      title:
-        "Filing delay supports a mitigation theory only if causation is shown",
-      summary:
-        "Replaces a narrow mitigation-only framing with a broader equitable-prejudice theory that may better fit the mixed record.",
-    },
-  },
-  {
-    id: "arg-005",
-    type: "arguments",
-    title:
-      "Completed maintenance entries show response activity, not condition proof",
-    miniDescription:
-      "Counter-interpretation of landlord records that avoids denying they exist.",
-    content:
-      "The defense can concede that work orders or service entries exist while arguing that they show response activity, not necessarily durable remediation or absence of recurring conditions.",
-    category: "Evidence interpretation",
-    party: "defense",
-    status: "proposed",
-    typeStatus: "Needs support",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    sources: [
-      "Maintenance portal export",
-      "Tenant chronology",
-      "Apartment condition photos",
-    ],
-    linkedRecords: ["fact-003", "issue-005", "testimony-002", "note-002"],
-  },
-  {
-    id: "timeline-003",
-    type: "timeline",
-    title: "Condition complaints appear in notes before formal filing activity",
-    miniDescription:
-      "Timeline event linking habitability notice to later procedural posture.",
-    content:
-      "Tenant notes and communications indicate condition complaints predate the formal summary process filing sequence. The exact complaint dates still need source-by-source normalization.",
-    category: "Condition notice",
-    party: "defense",
-    status: "proposed",
-    typeStatus: "Approximate event",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    date: "2021-09-01",
-    sources: ["Tenant chronology", "Maintenance portal export"],
-    linkedRecords: ["fact-001", "fact-003", "issue-001"],
-  },
-  {
-    id: "timeline-004",
-    type: "timeline",
-    title:
-      "Gap between certified request and summary process filing remains material",
-    miniDescription:
-      "Timeline-integrity concern showing the period that needs explanation.",
-    content:
-      "The timeline contains a significant gap between the certified request to file promptly and the later summary process filing. That gap matters because the parties may interpret it differently: delay, negotiation, administrative handling, or strategic timing.",
-    category: "Timeline gap",
-    status: "accepted",
-    typeStatus: "Confirmed event",
-    createdBy: "Human",
-    updatedAt: "May 16, 2026",
-    date: "2025-08-05",
-    sources: ["Certified filing request", "Summary process docket"],
-    linkedRecords: ["issue-003", "arg-004", "timeline-006"],
-  },
-  {
-    id: "timeline-005",
-    type: "timeline",
-    title: "Supplemental discovery production followed motion pressure",
-    miniDescription:
-      "Procedural event supporting discovery-pressure and prejudice themes.",
-    content:
-      "Plaintiffs' supplemental discovery responses arrived after motion practice and court pressure, which may matter for prejudice, completeness, and trial preparation timing.",
-    category: "Discovery",
-    party: "plaintiff",
-    status: "accepted",
-    typeStatus: "Confirmed event",
-    createdBy: "Human",
-    updatedAt: "May 16, 2026",
-    date: "2026-04-03",
-    sources: [
-      "Renewed motion to compel",
-      "Plaintiffs supplemental discovery responses",
-    ],
-    linkedRecords: ["issue-002", "arg-002", "task-002", "posture-002"],
-  },
-  {
-    id: "timeline-006",
-    type: "timeline",
-    title:
-      "No-fault discussions and nonpayment filing create classification tension",
-    miniDescription:
-      "Timeline event showing why the filing theory is not just a date dispute.",
-    content:
-      "The record suggests discussions around an agreement to vacate or no-fault posture before the matter was ultimately filed as nonpayment. The exact sequence and legal significance require careful human review.",
-    category: "Procedural posture",
-    status: "proposed",
-    typeStatus: "Disputed event",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    date: "2025-09-15",
-    sources: [
-      "Tenant chronology",
-      "Hardship communications",
-      "Summary process docket",
-    ],
-    linkedRecords: ["fact-002", "issue-003", "arg-004"],
-  },
-  {
-    id: "task-003",
-    type: "tasks",
-    title: "Map each legal theory to exhibits, witnesses, and missing proof",
-    miniDescription:
-      "Trial-prep task that ties legal theories to usable proof and gaps.",
-    content:
-      "Create a theory matrix for habitability, quiet enjoyment, c. 93A, mitigation/equitable prejudice, and discovery prejudice. Each row should list exhibits, witness testimony, missing records, and the risk of overstatement.",
-    category: "Trial prep",
-    status: "accepted",
-    typeStatus: "Open task",
-    createdBy: "Human",
-    updatedAt: "May 16, 2026",
-    priority: "High",
-    sources: ["Case strategy", "Answer and counterclaims"],
-    linkedRecords: ["arg-001", "arg-004", "arg-005", "task-001", "fact-005"],
-  },
-  {
-    id: "task-004",
-    type: "tasks",
-    title:
-      "Verify evidence integrity before adding condition photos to exhibit list",
-    miniDescription:
-      "Proof-quality task for metadata, extraction, and authentication concerns.",
-    content:
-      "Review image metadata, file provenance, OCR extraction limits, and witness foundation before treating condition photographs or extracted document text as clean exhibit support.",
-    category: "Evidence integrity",
-    status: "proposed",
-    typeStatus: "Blocked task",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    priority: "High",
-    sources: [
-      "Apartment condition photos",
-      "Photo metadata extraction report",
-      "OCR extraction log",
-    ],
-    linkedRecords: ["fact-004", "fact-006", "issue-004", "testimony-001"],
-  },
-  {
-    id: "task-005",
-    type: "tasks",
-    title: "Prepare management-record cross-examination packet",
-    miniDescription:
-      "Trial-prep task focused on records controlled by Plaintiffs or management.",
-    content:
-      "Build a witness packet with foundation questions for maintenance systems, access logs, extermination vendors, internal communications, and the process used to classify the eviction filing.",
-    category: "Cross-exam",
-    status: "proposed",
-    typeStatus: "Open task",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    priority: "High",
-    sources: [
-      "Discovery requests",
-      "Plaintiffs supplemental discovery responses",
-      "Tenant chronology",
-    ],
-    linkedRecords: ["testimony-002", "fact-005", "issue-002", "arg-002"],
-  },
-  {
-    id: "objective-002",
-    type: "objectives",
-    title: "Avoid overclaiming causation while preserving prejudice theme",
-    miniDescription:
-      "Strategy objective constraining how filing-delay arguments should be framed.",
-    content:
-      "The workspace should preserve the filing-delay/prejudice theme while avoiding a factual assertion that assistance or mitigation would definitely have succeeded absent stronger support.",
-    category: "Risk control",
-    party: "defense",
-    status: "accepted",
-    typeStatus: "Active objective",
-    createdBy: "Human",
-    updatedAt: "May 16, 2026",
-    priority: "High",
-    sources: ["Case strategy", "Certified filing request"],
-    linkedRecords: ["arg-003", "arg-004", "issue-003"],
-  },
-  {
-    id: "objective-003",
-    type: "objectives",
-    title: "Turn discovery gaps into a proof structure, not only a grievance",
-    miniDescription:
-      "Strategic objective for making missing records useful at trial.",
-    content:
-      "Discovery deficiencies should be connected to specific claims, defenses, witness questions, and exhibit gaps so the court sees prejudice rather than generalized frustration.",
-    category: "Trial strategy",
-    party: "defense",
-    status: "proposed",
-    typeStatus: "At-risk objective",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    priority: "High",
-    sources: ["Renewed motion to compel", "Discovery requests"],
-    linkedRecords: ["issue-002", "arg-002", "task-003", "task-005"],
-  },
-  {
-    id: "note-002",
-    type: "case_notes",
-    title:
-      "Do not treat maintenance completion codes as admissions of remediation",
-    miniDescription:
-      "Interpretation note preserving a careful distinction for trial use.",
-    content:
-      "A completion code may be useful to show management had notice and logged activity, but the record should not assume the condition was actually resolved without testimony, vendor records, or follow-up condition evidence.",
-    category: "Evidence interpretation",
-    status: "accepted",
-    typeStatus: "Pinned note",
-    createdBy: "Human",
-    updatedAt: "May 16, 2026",
-    sources: ["Maintenance portal export", "Tenant chronology"],
-    linkedRecords: ["fact-003", "issue-005", "arg-005"],
-  },
-  {
-    id: "note-003",
-    type: "case_notes",
-    title:
-      "Agent summary overstated missing communications as intentional withholding",
-    miniDescription:
-      "Human correction note preventing an unsupported inference from becoming strategy.",
-    content:
-      "The April discovery summary should say communications remain missing or unproduced in the current packet. It should not state that Plaintiffs intentionally withheld them unless the record later supports that characterization.",
-    category: "Human correction",
-    status: "accepted",
-    typeStatus: "Pinned note",
-    createdBy: "Human",
-    updatedAt: "May 16, 2026",
-    sources: ["Plaintiffs supplemental discovery responses", "Agent draft"],
-    linkedRecords: ["fact-005", "arg-002", "objective-003"],
-  },
-  {
-    id: "note-004",
-    type: "case_notes",
-    title:
-      "Potential exhibit problem: condition photos need witness sequencing",
-    miniDescription:
-      "Practical trial note connecting evidence integrity to witness preparation.",
-    content:
-      "If metadata remains incomplete, testimony should establish approximate timing, who took the photos, what each image depicts, and how the condition persisted or recurred.",
-    category: "Trial prep",
-    status: "proposed",
-    typeStatus: "Open question",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    sources: ["Apartment condition photos", "Photo metadata extraction report"],
-    linkedRecords: ["fact-004", "issue-004", "testimony-001", "task-004"],
-  },
-  {
-    id: "precedent-002",
-    type: "legal_precedent",
-    title:
-      "Massachusetts habitability authorities require careful damages framing",
-    miniDescription:
-      "Research record for abatement and counterclaim framing that needs cite verification.",
-    content:
-      "Candidate Massachusetts habitability authorities may support rent abatement or damages theories, but the workspace should verify current law, procedural posture, and whether the authority applies in summary process before relying on it.",
-    category: "Research",
-    status: "proposed",
-    typeStatus: "Needs cite check",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    sources: ["Research notes", "Answer and counterclaims"],
-    linkedRecords: ["issue-001", "arg-001", "task-003"],
-  },
-  {
-    id: "precedent-003",
-    type: "legal_precedent",
-    title: "Adverse-inference research is promising but not yet motion-ready",
-    miniDescription:
-      "Research item separating trial theme from sanctions or evidentiary relief.",
-    content:
-      "Discovery-gap authority may help frame prejudice or adverse inference, but the current research should be cite-checked and matched to the actual missing categories before being used as a sanctions theory.",
-    category: "Discovery research",
-    status: "proposed",
-    typeStatus: "Needs cite check",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    sources: ["Research notes", "Renewed motion to compel"],
-    linkedRecords: ["issue-002", "arg-002", "objective-003"],
-  },
-  {
-    id: "testimony-002",
-    type: "testimony",
-    title: "Management witness should be crossed on records under its control",
-    miniDescription:
-      "Cross-examination module for entry logs, work orders, vendors, and classification decisions.",
-    content:
-      "A management witness should establish what systems exist, who can access them, how entries are created, whether vendor or access logs are retained, and why certain categories are missing from the current production.",
-    category: "Cross-exam",
-    party: "plaintiff",
-    status: "proposed",
-    typeStatus: "Prepared testimony",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    sources: [
-      "Discovery requests",
-      "Plaintiffs supplemental discovery responses",
-      "Maintenance portal export",
-    ],
-    linkedRecords: ["fact-003", "fact-005", "issue-002", "task-005"],
-  },
-  {
-    id: "testimony-003",
-    type: "testimony",
-    title:
-      "Tenant testimony should avoid certainty where dates are reconstructed",
-    miniDescription:
-      "Witness-prep guardrail for timeline gaps and photo metadata issues.",
-    content:
-      "Where dates are reconstructed from notes, photos, or surrounding events, testimony should use careful language and explain the basis for memory instead of overstating exact dates.",
-    category: "Witness prep",
-    party: "defense",
-    status: "accepted",
-    typeStatus: "Prepared testimony",
-    createdBy: "Human",
-    updatedAt: "May 16, 2026",
-    sources: ["Tenant chronology", "Photo metadata extraction report"],
-    linkedRecords: ["fact-004", "issue-004", "timeline-003"],
-  },
-  {
-    id: "posture-002",
-    type: "posture",
-    title:
-      "Trial-facing posture is constrained by unresolved discovery and proof quality",
-    miniDescription:
-      "Current posture update linking urgency to missing records and exhibit foundation.",
-    content:
-      "The matter is trial-facing, but unresolved discovery gaps and evidence-integrity questions should shape preparation. The strongest work now is proof mapping, witness sequencing, and careful review of agent proposals before any trial use.",
-    category: "Trial posture",
-    status: "accepted",
-    typeStatus: "Current posture",
-    createdBy: "Human",
-    updatedAt: "May 16, 2026",
-    sources: [
-      "Procedural history",
-      "Plaintiffs supplemental discovery responses",
-      "Case strategy",
-    ],
-    linkedRecords: ["task-003", "task-004", "task-005", "objective-003"],
-  },
-  {
-    id: "posture-003",
-    type: "posture",
-    title: "Earlier posture treated discovery as mostly complete",
-    miniDescription:
-      "Superseded posture record replaced by newer discovery-pressure analysis.",
-    content:
-      "Earlier workspace notes treated the April supplemental response as mostly resolving discovery concerns. Later review identified remaining gaps in entry logs, internal communications, vendor records, and extraction quality.",
-    category: "Discovery posture",
-    status: "superseded",
-    typeStatus: "Stale posture",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 15, 2026",
-    sources: ["Plaintiffs supplemental discovery responses"],
-    linkedRecords: ["posture-002", "fact-005", "fact-006"],
-  },
-  {
-    id: "fact-007",
-    type: "facts",
-    title: "Family and RAFT payments exceeded $116,000 during tenancy",
-    miniDescription:
-      "Payment-context fact that complicates a simple nonpayment narrative.",
-    content:
-      "Matthew Sweeney's affidavit states that his family and RAFT assistance collectively paid approximately $116,290.41 in rent and arrears during the tenancy, including approximately $110,442.73 from the family and approximately $5,847.68 through RAFT.",
-    category: "Payment history",
-    party: "defense",
-    status: "accepted",
-    typeStatus: "Undisputed fact",
-    createdBy: "Human",
-    updatedAt: "May 16, 2026",
-    sources: [
-      "Affidavit of Matthew Sweeney",
-      "Rent ledger",
-      "RAFT approval record",
-    ],
-    linkedRecords: ["arg-001", "objective-001", "task-003"],
-  },
-  {
-    id: "fact-008",
-    type: "facts",
-    title: "Child's local autism services made relocation materially harder",
-    miniDescription:
-      "Context fact explaining why ordinary relocation assumptions may not fit the household.",
-    content:
-      "The affidavit states that the household depended on locally based Quincy services, evaluations, therapy supports, and stability for a child formally diagnosed with autism in 2024, making relocation more complicated than a standard market move.",
-    category: "Household stability",
-    party: "defense",
-    status: "accepted",
-    typeStatus: "Context fact",
-    createdBy: "Human",
-    updatedAt: "May 16, 2026",
-    sources: ["Affidavit of Matthew Sweeney", "Early Intervention history"],
-    linkedRecords: ["issue-003", "arg-004", "objective-002", "testimony-004"],
-  },
-  {
-    id: "fact-009",
-    type: "facts",
-    title:
-      "QCAP housing coordinator allegedly tied shelter pathway to no-fault process",
-    miniDescription:
-      "Assistance-pathway fact that needs corroboration before being treated as decisive.",
-    content:
-      "The affidavit states that Denise Ferreira, a QCAP Housing Coordinator, informed the family that EA Family Shelter access and related assistance depended on a no-fault Housing Court pathway and a court-ordered move-out date.",
-    category: "Housing assistance",
-    party: "defense",
-    status: "proposed",
-    typeStatus: "Needs source review",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    sources: ["Affidavit of Matthew Sweeney", "QCAP communications"],
-    linkedRecords: ["issue-003", "arg-004", "timeline-006", "testimony-004"],
-  },
-  {
-    id: "fact-010",
-    type: "facts",
-    title:
-      "Initial arrears were allegedly cured by RAFT before any court filing",
-    miniDescription:
-      "Timing fact that affects the meaning of later notices and filing classification.",
-    content:
-      "The affidavit states that RAFT assistance was approved and covered the June and July arrears in full before Faxon Commons filed a Summary Process action. The exact approval and payment dates should be checked against the RAFT record and ledger.",
-    category: "RAFT",
-    party: "defense",
-    status: "proposed",
-    typeStatus: "Needs source review",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    date: "2025-07-28",
-    sources: [
-      "RAFT approval record",
-      "Rent ledger",
-      "Affidavit of Matthew Sweeney",
-    ],
-    linkedRecords: ["timeline-007", "issue-006", "arg-006", "fact-002"],
-  },
-  {
-    id: "fact-011",
-    type: "facts",
-    title: "July 24 entry involved balcony netting used for child safety",
-    miniDescription:
-      "Entry and safety fact that links quiet enjoyment, notice, and household-stability themes.",
-    content:
-      "The affidavit states that maintenance entered the apartment after a broad balcony notice while the family was asleep and removed protective balcony netting installed for child safety. The record should verify the notice language and any maintenance records.",
-    category: "Entry",
-    party: "defense",
-    status: "proposed",
-    typeStatus: "Needs source review",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    date: "2025-07-24",
-    sources: [
-      "Affidavit of Matthew Sweeney",
-      "Balcony inspection notice",
-      "Entry/access records",
-    ],
-    linkedRecords: ["issue-007", "arg-007", "timeline-008", "testimony-004"],
-  },
-  {
-    id: "fact-012",
-    type: "facts",
-    title: "Agreement to Vacate allegedly required filing by September 12",
-    miniDescription:
-      "Contract/process fact central to the no-fault versus nonpayment timeline.",
-    content:
-      "The affidavit states that the negotiated Agreement to Vacate required Faxon Commons to file a Summary Process action no later than September 12, 2025, and that the filing did not occur by that deadline.",
-    category: "Agreement to vacate",
-    party: "defense",
-    status: "proposed",
-    typeStatus: "Needs source review",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    date: "2025-09-12",
-    sources: [
-      "Agreement to Vacate",
-      "September 10 email",
-      "Summary process docket",
-    ],
-    linkedRecords: ["timeline-010", "timeline-011", "issue-003", "arg-004"],
-  },
-  {
-    id: "issue-006",
-    type: "issues",
-    title:
-      "Whether RAFT curing June and July arrears changed the filing posture",
-    miniDescription:
-      "Procedural issue for interpreting the second notice and later nonpayment complaint.",
-    content:
-      "The record needs to separate what RAFT paid, when it was credited, whether the first notice remained a viable procedural path, and how those facts affect the later second notice and October filing.",
-    category: "Procedural",
-    party: "defense",
-    status: "proposed",
-    typeStatus: "Open issue",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    sources: [
-      "RAFT approval record",
-      "Rent ledger",
-      "First Notice to Quit",
-      "Second Notice to Quit",
-    ],
-    linkedRecords: ["fact-010", "timeline-007", "timeline-009", "arg-006"],
-  },
-  {
-    id: "issue-007",
-    type: "issues",
-    title:
-      "Whether the July 24 entry supports quiet enjoyment or notice theories",
-    miniDescription:
-      "Legal/factual issue connecting entry notice, household safety, and later management communications.",
-    content:
-      "The July 24 entry may support quiet-enjoyment or notice-related arguments, but the workspace should verify the notice, entry authority, what was removed, and whether the incident is strategically useful or secondary to the filing-delay theory.",
-    category: "Legal",
-    party: "defense",
-    status: "proposed",
-    typeStatus: "Reserved issue",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    sources: [
-      "Balcony inspection notice",
-      "Affidavit of Matthew Sweeney",
-      "Entry/access records",
-    ],
-    linkedRecords: ["fact-011", "arg-007", "timeline-008", "testimony-004"],
-  },
-  {
-    id: "issue-008",
-    type: "issues",
-    title:
-      "Whether lack of response to certified letter supports reliance or prejudice",
-    miniDescription:
-      "Strategic issue about silence after a written request for prompt filing or clarification.",
-    content:
-      "The affidavit states that the August 5 certified letter requested prompt filing or written confirmation if no filing would occur, and that no response was received. The significance depends on proof of receipt, surrounding communications, and how the delay affected practical options.",
-    category: "Strategic",
-    party: "defense",
-    status: "proposed",
-    typeStatus: "Open issue",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    sources: [
-      "Certified filing request",
-      "USPS receipt",
-      "Affidavit of Matthew Sweeney",
-    ],
-    linkedRecords: [
-      "timeline-002",
-      "arg-004",
-      "objective-002",
-      "testimony-004",
-    ],
-  },
-  {
-    id: "arg-006",
-    type: "arguments",
-    title: "RAFT payment weakens a clean nonpayment-only chronology",
-    miniDescription:
-      "Alternative argument focused on sequence rather than denying later arrears.",
-    content:
-      "The defense can argue that RAFT curing the initial arrears before any court filing complicates Plaintiffs' clean nonpayment timeline, while still acknowledging that later arrears accumulated.",
-    category: "Procedural framing",
-    party: "defense",
-    status: "proposed",
-    typeStatus: "Needs support",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    sources: ["RAFT approval record", "Rent ledger", "Summary process docket"],
-    linkedRecords: ["fact-010", "issue-006", "timeline-007", "arg-004"],
-  },
-  {
-    id: "arg-007",
-    type: "arguments",
-    title:
-      "Unauthorized-entry evidence should support context, not distract from filing prejudice",
-    miniDescription:
-      "Strategy argument limiting how the July 24 entry should be used.",
-    content:
-      "The July 24 entry may help explain why management communications and household safety mattered, but it should not consume the trial narrative unless entry records or notice defects become stronger proof points.",
-    category: "Strategy",
-    party: "defense",
-    status: "proposed",
-    typeStatus: "Trial theory",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    sources: ["Affidavit of Matthew Sweeney", "Balcony inspection notice"],
-    linkedRecords: ["fact-011", "issue-007", "testimony-004", "objective-004"],
-  },
-  {
-    id: "timeline-007",
-    type: "timeline",
-    title: "RAFT assistance approved after first notice expired",
-    miniDescription:
-      "Timing event that may affect cure, filing posture, and later arrears analysis.",
-    content:
-      "The affidavit states that RAFT assistance was approved on July 28, 2025 and covered June and July arrears after the first Notice to Quit expired. The timeline file lists July 24, so the exact date should be reconciled against Exhibit B.",
-    category: "RAFT",
-    party: "defense",
-    status: "proposed",
-    typeStatus: "Date conflict",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    date: "2025-07-28",
-    sources: [
-      "RAFT approval record",
-      "Case timeline",
-      "Affidavit of Matthew Sweeney",
-    ],
-    linkedRecords: ["fact-010", "issue-006", "arg-006"],
-  },
-  {
-    id: "timeline-008",
-    type: "timeline",
-    title: "Maintenance entered unit and removed balcony netting",
-    miniDescription:
-      "Entry event that also prompted renewed discussion about delayed filing.",
-    content:
-      "The affidavit states that on July 24, 2025, maintenance entered following a broad balcony notice, removed protective balcony netting, and the subsequent discussion with management returned to the absence of a Summary Process filing.",
-    category: "Entry",
-    party: "plaintiff",
-    status: "proposed",
-    typeStatus: "Disputed event",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    date: "2025-07-24",
-    sources: ["Affidavit of Matthew Sweeney", "Balcony inspection notice"],
-    linkedRecords: ["fact-011", "issue-007", "arg-007"],
-  },
-  {
-    id: "timeline-009",
-    type: "timeline",
-    title: "Second Notice to Quit issued after RAFT resolved initial arrears",
-    miniDescription:
-      "Procedural event creating tension between cure, delay, and later nonpayment filing.",
-    content:
-      "Faxon Commons issued a second Notice to Quit on August 19, 2025, after the affidavit says RAFT had resolved the initial June and July arrears and while additional arrears were accumulating during the filing delay.",
-    category: "Notice",
-    party: "plaintiff",
-    status: "accepted",
-    typeStatus: "Confirmed event",
-    createdBy: "Human",
-    updatedAt: "May 16, 2026",
-    date: "2025-08-19",
-    sources: [
-      "Second Notice to Quit",
-      "RAFT approval record",
-      "Affidavit of Matthew Sweeney",
-    ],
-    linkedRecords: ["fact-010", "issue-006", "arg-006", "timeline-004"],
-  },
-  {
-    id: "timeline-010",
-    type: "timeline",
-    title: "Agreement to Vacate contemplated no-fault filing by September 12",
-    miniDescription:
-      "Agreement event anchoring the later classification and missed-deadline theory.",
-    content:
-      "The affidavit states that the Agreement to Vacate contemplated a no-fault Housing Court process and required Faxon Commons to file a Summary Process action by September 12, 2025.",
-    category: "Agreement to vacate",
-    status: "proposed",
-    typeStatus: "Needs source review",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    date: "2025-09-12",
-    sources: [
-      "Agreement to Vacate",
-      "September 10 email",
-      "Affidavit of Matthew Sweeney",
-    ],
-    linkedRecords: ["fact-012", "issue-003", "arg-004", "timeline-011"],
-  },
-  {
-    id: "timeline-011",
-    type: "timeline",
-    title:
-      "Fault-based nonpayment complaint filed thirty-two days after agreement deadline",
-    miniDescription:
-      "Core filing event tying delay, classification, and accumulated arrears together.",
-    content:
-      "The affidavit states that Faxon Commons filed a nonpayment Summary Process action on October 14, 2025, thirty-two days after the September 12 filing deadline in the Agreement to Vacate.",
-    category: "Filing",
-    party: "plaintiff",
-    status: "accepted",
-    typeStatus: "Confirmed event",
-    createdBy: "Human",
-    updatedAt: "May 16, 2026",
-    date: "2025-10-14",
-    sources: [
-      "Summary process complaint",
-      "Agreement to Vacate",
-      "Summary process docket",
-    ],
-    linkedRecords: ["fact-012", "timeline-010", "arg-004", "posture-002"],
-  },
-  {
-    id: "timeline-012",
-    type: "timeline",
-    title:
-      "April 9 follow-up requested search certification after supplementation",
-    miniDescription:
-      "Discovery event showing why April 3 production did not end the dispute.",
-    content:
-      "After reviewing the April 3 supplemental responses, Defendants sent an April 9 follow-up asking Plaintiffs to confirm search scope, sources reviewed, completeness, and whether additional materials existed. The timeline states no response was received.",
-    category: "Discovery",
-    party: "defense",
-    status: "accepted",
-    typeStatus: "Confirmed event",
-    createdBy: "Human",
-    updatedAt: "May 16, 2026",
-    date: "2026-04-09",
-    sources: ["April 9 follow-up email", "Supplemental discovery responses"],
-    linkedRecords: ["fact-005", "issue-002", "task-002", "timeline-013"],
-  },
-  {
-    id: "timeline-013",
-    type: "timeline",
-    title: "Supplemental memorandum sought search certification and preclusion",
-    miniDescription:
-      "Discovery-pressure event connecting missing records to requested relief.",
-    content:
-      "Defendants filed a supplemental memorandum on April 23, 2026, documenting continued discovery concerns and requesting search certification, production by a date certain, and preclusion of undisclosed evidence.",
-    category: "Discovery",
-    party: "defense",
-    status: "accepted",
-    typeStatus: "Confirmed event",
-    createdBy: "Human",
-    updatedAt: "May 16, 2026",
-    date: "2026-04-23",
-    sources: ["Supplemental memorandum", "April 9 follow-up email"],
-    linkedRecords: ["issue-002", "arg-002", "precedent-003", "task-006"],
-  },
-  {
-    id: "task-006",
-    type: "tasks",
-    title:
-      "Reconcile affidavit timeline against exhibit dates before trial use",
-    miniDescription:
-      "Quality-control task for RAFT date, notices, agreement deadline, and docket filing.",
-    content:
-      "Compare the affidavit, case timeline, RAFT approval record, notices, certified letter receipt, Agreement to Vacate, and Summary Process docket so trial materials distinguish exact dates from asserted or reconstructed dates.",
-    category: "Timeline integrity",
-    status: "accepted",
-    typeStatus: "Open task",
-    createdBy: "Human",
-    updatedAt: "May 16, 2026",
-    priority: "High",
-    sources: ["Affidavit of Matthew Sweeney", "Case timeline", "Exhibits A-H"],
-    linkedRecords: [
-      "timeline-007",
-      "timeline-010",
-      "timeline-011",
-      "testimony-003",
-    ],
-  },
-  {
-    id: "objective-004",
-    type: "objectives",
-    title: "Keep hardship context humanizing without shifting responsibility",
-    miniDescription:
-      "Trial objective preserving nuance around employment, services, and housing barriers.",
-    content:
-      "The affidavit accepts responsibility for broader employment and financial circumstances while explaining why local services, autism-related stability, and housing-market barriers made the transition difficult. Trial framing should preserve that nuance.",
-    category: "Narrative control",
-    party: "defense",
-    status: "accepted",
-    typeStatus: "Active objective",
-    createdBy: "Human",
-    updatedAt: "May 16, 2026",
-    priority: "Medium",
-    sources: ["Affidavit of Matthew Sweeney"],
-    linkedRecords: ["fact-008", "arg-004", "testimony-004"],
-  },
-  {
-    id: "testimony-004",
-    type: "testimony",
-    title:
-      "Matthew Sweeney testimony should separate asserted reliance from legal conclusion",
-    miniDescription:
-      "Witness-prep module for no-fault reliance, shelter pathway, and family stability.",
-    content:
-      "Testimony should establish what was said by management and housing personnel, what the family understood, what actions were taken in reliance, and what changed after delay, while avoiding legal conclusions about entitlement or causation.",
-    category: "Witness prep",
-    party: "defense",
-    status: "proposed",
-    typeStatus: "Prepared testimony",
-    createdBy: "CaseOS Agent",
-    updatedAt: "May 16, 2026",
-    sources: [
-      "Affidavit of Matthew Sweeney",
-      "Certified filing request",
-      "Agreement to Vacate",
-      "QCAP communications",
-    ],
-    linkedRecords: ["fact-008", "fact-009", "fact-011", "arg-004"],
-  },
-];
-
-export const demoDocuments: DemoDocument[] = [
-  {
-    id: "doc-001",
-    fileName: "2025-06-17 Notice to Quit.pdf",
-    category: "Pleadings",
-    status: "Processed",
-    date: "Jun 17, 2025",
-    summary:
-      "Nonpayment notice used by Plaintiffs to begin summary process sequence.",
-    linkedRecords: 6,
-    gaps: ["Confirm service details", "Connect to classification timeline"],
-  },
-  {
-    id: "doc-002",
-    fileName: "2025-08-05 Certified Filing Request.pdf",
-    category: "Correspondence",
-    status: "Needs review",
-    date: "Aug 5, 2025",
-    summary:
-      "Tenant-side communication tying filing timing to mitigation and assistance options.",
-    linkedRecords: 10,
-    gaps: ["Verify receipt page", "Extract exact requested relief"],
-  },
-  {
-    id: "doc-003",
-    fileName: "Plaintiffs Supplemental Discovery Responses.pdf",
-    category: "Discovery",
-    status: "Processed",
-    date: "Apr 3, 2026",
-    summary:
-      "Late supplemental responses with remaining gaps around entry, pest, and internal decision records.",
-    linkedRecords: 14,
-    gaps: [
-      "Entry logs",
-      "Internal communications",
-      "Extermination vendor records",
-      "OCR table extraction",
-    ],
-  },
-  {
-    id: "doc-004",
-    fileName: "Tenant Chronology and Conditions Notes.md",
-    category: "Case notes",
-    status: "Uploaded",
-    date: "May 15, 2026",
-    summary:
-      "Working chronology for move-in conditions, complaints, hardship communications, and trial themes.",
-    linkedRecords: 17,
-    gaps: [
-      "Normalize dates",
-      "Attach photos",
-      "Separate exact from reconstructed dates",
-    ],
-  },
-  {
-    id: "doc-005",
-    fileName: "Maintenance Portal Export - Work Orders.csv",
-    category: "Discovery",
-    status: "Needs review",
-    date: "Apr 3, 2026",
-    summary:
-      "Work-order export that may show response activity but does not by itself prove durable remediation.",
-    linkedRecords: 8,
-    gaps: ["Completion code definitions", "Vendor notes", "Follow-up visits"],
-  },
-  {
-    id: "doc-006",
-    fileName: "Apartment Condition Photos - Metadata Report.csv",
-    category: "Evidence",
-    status: "Needs review",
-    date: "May 16, 2026",
-    summary:
-      "Metadata review for condition photos, highlighting missing capture data and authentication needs.",
-    linkedRecords: 7,
-    gaps: ["Missing EXIF data", "Witness foundation", "Photo sequence"],
-  },
-  {
-    id: "doc-007",
-    fileName: "Summary Process Docket and Filing Timeline.pdf",
-    category: "Pleadings",
-    status: "Processed",
-    date: "May 16, 2026",
-    summary:
-      "Docket and filing timeline used to compare notice, filing delay, classification, and motion pressure.",
-    linkedRecords: 9,
-    gaps: ["No-fault discussion source", "Agreement-to-vacate exhibits"],
-  },
-  {
-    id: "doc-008",
-    fileName: "OCR Extraction Log - Supplemental Responses.json",
-    category: "Discovery",
-    status: "Needs review",
-    date: "May 16, 2026",
-    summary:
-      "Extraction log showing where table-based discovery responses may need manual verification against the PDF.",
-    linkedRecords: 5,
-    gaps: ["Flattened tables", "Manual PDF comparison"],
-  },
-  {
-    id: "doc-009",
-    fileName: "Affidavit of Matthew Sweeney - Draft.pdf",
-    category: "Testimony",
-    status: "Needs review",
-    date: "May 16, 2026",
-    summary:
-      "Draft affidavit covering payment history, pest conditions, family hardship, RAFT, no-fault discussions, notices, entry, and filing-delay chronology.",
-    linkedRecords: 18,
-    gaps: [
-      "Exhibit cross-check",
-      "Date reconciliation",
-      "Avoid legal conclusions",
-    ],
-  },
-  {
-    id: "doc-010",
-    fileName: "Agreement to Vacate and September Emails.pdf",
-    category: "Correspondence",
-    status: "Needs review",
-    date: "Sep 10, 2025",
-    summary:
-      "Agreement and email chain used to evaluate no-fault filing expectations, the September 12 deadline, and later classification tension.",
-    linkedRecords: 11,
-    gaps: [
-      "Execution history",
-      "Attorney review email",
-      "Filing-deadline communications",
-    ],
-  },
-  {
-    id: "doc-011",
-    fileName: "RAFT Approval and Rent Ledger Packet.pdf",
-    category: "Evidence",
-    status: "Needs review",
-    date: "Jul 28, 2025",
-    summary:
-      "RAFT and ledger materials for verifying payment amounts, cure timing, and the relationship between initial arrears and later notices.",
-    linkedRecords: 9,
-    gaps: [
-      "Approval date conflict",
-      "Ledger credit date",
-      "June-July arrears allocation",
-    ],
-  },
-  {
-    id: "doc-012",
-    fileName: "Balcony Inspection Notice and Entry Notes.pdf",
-    category: "Evidence",
-    status: "Uploaded",
-    date: "Jul 24, 2025",
-    summary:
-      "Entry-related materials for analyzing unit-specific notice, balcony netting removal, and subsequent management communications.",
-    linkedRecords: 6,
-    gaps: [
-      "Access log",
-      "Maintenance personnel identity",
-      "Unit-specific notice",
-    ],
-  },
-];
-
 export const demoActivity: DemoActivity[] = [
   {
     id: "act-001",
-    actor: "CaseOS Agent",
+    actor: "Case Agent",
     action:
       "Proposed equitable-prejudice theory to supersede the narrower mitigation argument.",
     time: "8 minutes ago",
@@ -1548,7 +1319,7 @@ export const demoActivity: DemoActivity[] = [
   },
   {
     id: "act-003",
-    actor: "CaseOS Agent",
+    actor: "Case Agent",
     action:
       "Flagged photo metadata and OCR extraction issues before exhibit mapping.",
     time: "1 hour ago",
@@ -1556,9 +1327,9 @@ export const demoActivity: DemoActivity[] = [
   },
   {
     id: "act-004",
-    actor: "CaseOS Agent",
+    actor: "Case Agent",
     action:
-      "Linked maintenance completion codes to disputed remediation and cross-exam modules.",
+      "Split the affidavit into four document records and linked them to payment, RAFT, entry, and hardship facts.",
     time: "2 hours ago",
     tone: "info",
   },
@@ -1572,7 +1343,7 @@ export const demoActivity: DemoActivity[] = [
   },
   {
     id: "act-006",
-    actor: "CaseOS Agent",
+    actor: "Case Agent",
     action:
       "Proposed RAFT cure and second-notice issue after comparing affidavit against the timeline file.",
     time: "4 hours ago",
@@ -1588,7 +1359,7 @@ export const demoActivity: DemoActivity[] = [
   },
   {
     id: "act-008",
-    actor: "CaseOS Agent",
+    actor: "Case Agent",
     action:
       "Linked Agreement to Vacate deadline to the October nonpayment filing and equitable-prejudice theory.",
     time: "6 hours ago",
@@ -1596,13 +1367,55 @@ export const demoActivity: DemoActivity[] = [
   },
 ];
 
-export const demoViewCounts = demoRecords.reduce<
-  Partial<Record<ViewTypes, number>>
->((counts, record) => {
-  counts[record.type] = (counts[record.type] ?? 0) + 1;
-  return counts;
-}, {});
+// ─────────────────────────────────────────────────────────────────────────────
+// Demo agent chat thread (UI-only demo data)
+// ─────────────────────────────────────────────────────────────────────────────
 
-demoViewCounts.documents_index = demoDocuments.length;
-demoViewCounts.case_summary = 1;
-demoViewCounts.case_agent = 1;
+export type DemoAgentMessage = {
+  id: string;
+  role: "user" | "agent";
+  content: string;
+  // Record IDs the agent cited; rendered as clickable chips.
+  citedRecordIds?: string[];
+  time: string;
+};
+
+export const demoAgentThread: DemoAgentMessage[] = [
+  {
+    id: "msg-001",
+    role: "user",
+    content:
+      "What are the weakest points in our filing-delay theory right now?",
+    time: "Yesterday, 4:12 PM",
+  },
+  {
+    id: "msg-002",
+    role: "agent",
+    content:
+      "The filing-delay theory has three open weaknesses. First, the mitigation framing needs causation support — the certified letter shows notice, but not that assistance would have succeeded. Second, the RAFT approval date conflicts between the affidavit (July 28) and the timeline file (July 24), which must be reconciled before trial use. Third, the QCAP shelter-pathway statement is single-source and needs corroboration. I proposed an equitable-prejudice reframing that avoids the strict causation problem.",
+    citedRecordIds: ["arg-003", "timeline-007", "fact-002", "theory-002"],
+    time: "Yesterday, 4:13 PM",
+  },
+  {
+    id: "msg-003",
+    role: "user",
+    content: "What discovery is still missing that would help?",
+    time: "Yesterday, 4:18 PM",
+  },
+  {
+    id: "msg-004",
+    role: "agent",
+    content:
+      "The supplemental production still lacks entry logs, internal communications, extermination vendor records, and eviction decision-making documents. Those gaps support both the adverse-inference issue and the cross-examination module for the management witness. I drafted a blocked task for a discovery-prejudice demonstrative that becomes actionable once the production is reconciled.",
+    citedRecordIds: ["fact-005", "issue-002", "testimony-002", "task-002"],
+    time: "Yesterday, 4:19 PM",
+  },
+];
+
+// Default agent instructions shown in the agent view.
+export const demoAgentInstructions = [
+  "Draft case records as proposals first; never silently promote agent output to accepted.",
+  "Ground every strategic record in a document record or accepted fact via links.",
+  "Prefer short, reviewable proposals over long freeform analysis.",
+  "Flag missing evidence, date conflicts, and unsupported legal citations before trial use.",
+];

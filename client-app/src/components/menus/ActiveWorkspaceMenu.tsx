@@ -1,76 +1,107 @@
 import {
+  AlertCircle,
   Bot,
   Clock,
-  Target,
-  SquareCheckBig,
-  Folder,
-  FileText,
-  Scale,
-  Gavel,
-  NotebookPen,
-  Lightbulb,
-  AlertCircle,
-  Mic,
   Compass,
+  Folder,
+  Gavel,
+  Inbox,
+  Landmark,
+  LayoutDashboard,
+  Lightbulb,
+  ListChecks,
+  Mic,
+  NotebookPen,
+  Scale,
+  SquareCheckBig,
+  Target,
+  Users,
 } from "lucide-react";
 
 import type { LucideIcon } from "lucide-react";
 
-import type { ViewTypes } from "#/types/caseWorkspace";
+import { VIEW_LABELS } from "#/lib/caseRecordPresentation";
+import {
+  WORKSPACE_MENU_GROUPS,
+  type WorkspaceViewType,
+} from "#/types/caseWorkspace";
+
+const viewIcons: Record<WorkspaceViewType, LucideIcon> = {
+  agent: Bot,
+  overview: LayoutDashboard,
+  review: Inbox,
+  objectives: Target,
+  claims: Scale,
+  posture: Compass,
+  theories: Lightbulb,
+  issues: AlertCircle,
+  arguments: Gavel,
+  tasks: SquareCheckBig,
+  facts: ListChecks,
+  timeline: Clock,
+  testimony: Mic,
+  precedent: Landmark,
+  notes: NotebookPen,
+  documents: Folder,
+  people: Users,
+};
 
 interface ActiveWorkspaceMenuProps {
-  activeView: ViewTypes;
-  onSelectView: (view: ViewTypes) => void;
-  counts?: Partial<Record<ViewTypes, number>>;
+  activeView: WorkspaceViewType;
+  onSelectView: (view: WorkspaceViewType) => void;
+  counts?: Partial<Record<WorkspaceViewType, number>>;
+  // Pending proposal count; rendered as an attention badge on the review item.
+  reviewCount?: number;
 }
-
-const viewMenuItems: Array<{
-  value: ViewTypes;
-  label: string;
-  icon: LucideIcon;
-}> = [
-  { value: "case_agent", label: "Case Agent", icon: Bot },
-  { value: "case_summary", label: "Overview", icon: FileText },
-  { value: "arguments", label: "Arguments", icon: Gavel },
-  { value: "case_notes", label: "Notes", icon: NotebookPen },
-  { value: "facts", label: "Facts", icon: Lightbulb },
-  { value: "issues", label: "Issues", icon: AlertCircle },
-  { value: "legal_precedent", label: "Legal Precedent", icon: Scale },
-  { value: "objectives", label: "Objectives", icon: Target },
-  { value: "posture", label: "Posture", icon: Compass },
-  { value: "tasks", label: "Tasks", icon: SquareCheckBig },
-  { value: "testimony", label: "Testimony", icon: Mic },
-  { value: "timeline", label: "Timeline", icon: Clock },
-  { value: "documents_index", label: "Documents", icon: Folder },
-];
 
 const ActiveWorkspaceMenu = ({
   activeView,
   onSelectView,
   counts = {},
+  reviewCount = 0,
 }: ActiveWorkspaceMenuProps) => {
   return (
-    <>
-      {viewMenuItems.map(({ value, label, icon: Icon }) => (
-        <div
-          key={value}
-          className={`p-2 h-8 rounded-lg flex items-center justify-between gap-2 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100 ${
-            activeView === value ? "bg-black/10" : "hover:bg-black/10"
-          }`}
-          onClick={() => onSelectView(value)}
-        >
-          <div className="flex min-w-0 items-center gap-2">
-            <Icon className="w-4 h-4 shrink-0" />
-            <div className="truncate">{label}</div>
-          </div>
-          {counts[value] != null && (
-            <span className="rounded-full bg-black/10 px-1.5 py-0.5 text-xs text-black/60">
-              {counts[value]}
-            </span>
+    <div className="flex flex-col gap-0.5">
+      {WORKSPACE_MENU_GROUPS.map((group, groupIndex) => (
+        <div key={group.label ?? `group-${groupIndex}`}>
+          {group.label && (
+            <p className="px-2 pb-1 pt-3 text-[0.65rem] font-medium uppercase tracking-wider text-black/40">
+              {group.label}
+            </p>
           )}
+          {group.views.map((view) => {
+            const Icon = viewIcons[view];
+            const badgeCount = view === "review" ? reviewCount : counts[view];
+
+            return (
+              <div
+                key={view}
+                className={`p-2 h-8 rounded-lg flex items-center justify-between gap-2 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100 ${
+                  activeView === view ? "bg-black/10" : "hover:bg-black/10"
+                }`}
+                onClick={() => onSelectView(view)}
+              >
+                <div className="flex min-w-0 items-center gap-2">
+                  <Icon className="w-4 h-4 shrink-0" />
+                  <div className="truncate">{VIEW_LABELS[view]}</div>
+                </div>
+                {badgeCount != null && badgeCount > 0 && (
+                  <span
+                    className={`rounded-full px-1.5 py-0.5 text-xs ${
+                      view === "review"
+                        ? "bg-amber-100 text-amber-800"
+                        : "bg-black/10 text-black/60"
+                    }`}
+                  >
+                    {badgeCount}
+                  </span>
+                )}
+              </div>
+            );
+          })}
         </div>
       ))}
-    </>
+    </div>
   );
 };
 

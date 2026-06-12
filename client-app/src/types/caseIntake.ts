@@ -1,103 +1,83 @@
-export type RepresentationPracticeArea =
-  | "civil_litigation"
-  | "criminal"
-  | "family"
-  | "corporate"
-  | "personal_injury"
-  | "employment"
-  | "landlord_tenant"
-  | "probate_and_estate"
-  | "real_estate"
-  | "immigration"
-  | "bankruptcy"
-  | "juvenile"
-  | "appeals"
-  | "administrative"
-  | "intellectual_property"
-  | "tax"
-  | "other";
+import type {
+  CaseStatus,
+  ClientRole,
+  DocumentCategory,
+  DocumentProcessingStatus,
+  RepresentationPracticeArea,
+  RepresentationRole,
+} from "./caseDomain";
 
-export type ClientRole =
-  | "plaintiff"
-  | "defendant"
-  | "petitioner"
-  | "respondent"
-  | "appellant"
-  | "appellee"
-  | "claimant"
-  | "counterclaimant"
-  | "counterdefendant"
-  | "third_party_plaintiff"
-  | "third_party_defendant"
-  | "interested_party"
-  | "other";
+// Re-export so intake-adjacent code can import from one place
+export type {
+  CaseStatus,
+  ClientRole,
+  DocumentCategory,
+  DocumentProcessingStatus,
+  RepresentationPracticeArea,
+  RepresentationRole,
+};
 
-export type RepresentationRole =
-  | "lead_counsel"
-  | "co_counsel"
-  | "local_counsel"
-  | "outside_counsel"
-  | "in_house_counsel"
-  | "appellate_counsel"
-  | "defense_counsel"
-  | "prosecutor"
-  | "guardian_ad_litem"
-  | "other";
+export interface CaseIntakeDocument {
+  documentId?: string;
+  fileName: string;
+  category: DocumentCategory;
+  userDescription?: string;
+  whyThisMatters?: string;
+  llmSummary?: string;
+  status?: DocumentProcessingStatus;
+  createdBy?: "human" | "agent";
+  uploadedAt?: string; // ISO 8601
+  uploadedByUserId?: string;
+}
 
-export type DocumentCategory =
-  | "evidence"
-  | "research"
-  | "client_statement"
-  | "witness_statement"
-  | "transcript"
-  | "other";
-
-export type DocumentStatus = "uploaded" | "processed" | "error";
-
+// Raw intake form captured at case creation.
+// Processed by the agent into an initial batch of PROPOSED records and a
+// CaseContext, then kept as a permanent audit record.
+// workspaceId/caseId are optional because the form is drafted before the
+// case row exists; they are stamped on submission.
 export interface CaseIntake {
   id: string;
+  workspaceId?: string;
+  caseId?: string;
 
+  // ── Case basics ──────────────────────────────────────────────────────────
   caseName: string;
   intakeProvidedBy: string;
-  representationPracticeArea: RepresentationPracticeArea; // e.g. "Civil Litigation"
-  representationRole: RepresentationRole; // e.g. "Lead Counsel"
-  clientRole: ClientRole; // e.g. "Plaintiff"
+  representationPracticeArea: RepresentationPracticeArea;
+  representationRole: RepresentationRole;
+  clientRole: ClientRole;
+  representedPartyName?: string;
   jurisdictionOrCourt: string;
 
+  // ── Dispute ──────────────────────────────────────────────────────────────
   whatIsTheDisputeAbout: string;
   whatClaimsOrAllegationsAreInvolved: string;
   caseNumber?: string;
-  currentCaseStatus: string;
+  currentCaseStatus: CaseStatus;
 
+  // ── Timeline & urgency ───────────────────────────────────────────────────
   keyEventsSoFar: string;
   importantFilingsDeadlinesAndIncidents: string;
   anythingUrgentRightNow: string;
 
+  // ── Goals & risks ────────────────────────────────────────────────────────
   yourObjective: string;
   otherSidesLikelyObjective: string;
   desiredOutcome: string;
   biggestCurrentRisk: string;
 
+  // ── People ───────────────────────────────────────────────────────────────
   parties: string;
   attorneys: string;
   witnessesAndAnticipatedTestimony: string;
   whoMattersMostRightNow: string;
 
+  // ── Documents uploaded during intake ────────────────────────────────────
+  // These become CaseDocument rows + DOCUMENT records after processing
   documents: {
-    [documentId: string]: {
-      category: DocumentCategory;
-      fileName: string;
-      documentId: string;
-      userDescription?: string;
-      whyThisMatters?: string;
-      llmSummary?: string;
-      status?: DocumentStatus;
-
-      createdBy: "human" | "agent";
-      uploadedAt: string; // ISO string recommended
-      user_id?: string; // ID of the user who uploaded the document
-
-      version?: number; // for tracking updates to the document
-    };
+    [documentId: string]: CaseIntakeDocument;
   };
+
+  createdAt?: string;
+  updatedAt?: string;
 }

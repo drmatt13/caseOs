@@ -208,12 +208,13 @@ model User {
 
   workspaceMemberships WorkspaceMembership[]
   sentWorkspaceInvitations WorkspaceInvitation[] @relation("WorkspaceInvitationInvitedBy")
-  // createdCases         ManagedCase[]         @relation("CaseCreatedByUser")
-  // uploadedDocuments    CaseDocumentIndex[]   @relation("CaseDocumentUploadedByUser")
-  // createdRecordIndexes CaseRecordIndex[]     @relation("CaseRecordIndexCreatedByUser")
-  // updatedRecordIndexes CaseRecordIndex[]     @relation("CaseRecordIndexUpdatedByUser")
-  // createdViewIndexes   CaseViewIndex[]       @relation("CaseViewIndexCreatedByUser")
-  // manifestsCreated     CaseStateManifest[]   @relation("CaseStateManifestCreatedByUser")
+
+  // Case knowledge graph back-relations
+  createdCases      Case[]         @relation("CaseCreatedByUser")
+  createdRecords    CaseRecord[]   @relation("RecordCreatedByUser")
+  approvedRecords   CaseRecord[]   @relation("RecordApprovedByUser")
+  uploadedDocuments CaseDocument[] @relation("DocumentUploadedByUser")
+
   // actorUsageEvents     LlmUsageEvent[]       @relation("LlmUsageActorUser")
   // billedUsageEvents    LlmUsageEvent[]       @relation("LlmUsageBilledToUser")
   // stripeEvents                StripeEventLog[]
@@ -238,21 +239,13 @@ model Workspace {
 
   owner       User                  @relation("WorkspaceOwner", fields: [ownerUserId], references: [id], onDelete: Restrict)
   memberships WorkspaceMembership[]
-  // cases        ManagedCase[]
 
-  // questionable
-  // storageBucket   String                @map("storage_bucket")
-  // memberships     WorkspaceMembership[]
-  // invitations     WorkspaceInvitation[]
-  // cases           ManagedCase[]
-  // documentIndexes CaseDocumentIndex[]
-  // recordIndexes   CaseRecordIndex[]
-  // viewIndexes     CaseViewIndex[]
-  // manifests       CaseStateManifest[]
+  // Case knowledge graph back-relations
+  cases Case[]
+
   // llmUsageEvents  LlmUsageEvent[]
   // monthlyUsage    WorkspaceUsageMonthly[]
   // stripeEvents    StripeEventLog[]
-  // @@index([status])
 
   workspaceInvitations WorkspaceInvitation[]
 
@@ -580,3 +573,346 @@ model WorkspaceInvitation {
 
 //   @@map("account_tier_limits")
 // }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Case knowledge graph – enums
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum CaseActiveStatus {
+  ACTIVE   @map("active")
+  ARCHIVED @map("archived")
+  CLOSED   @map("closed")
+}
+
+enum ActorType {
+  HUMAN @map("human")
+  AGENT @map("agent")
+}
+
+enum RecordType {
+  CASE_SUMMARY    @map("case_summary")
+  PERSON          @map("person")
+  OBJECTIVE       @map("objective")
+  POSTURE         @map("posture")
+  CLAIM           @map("claim")
+  THEORY          @map("theory")
+  ISSUE           @map("issue")
+  ARGUMENT        @map("argument")
+  TASK            @map("task")
+  FACT            @map("fact")
+  TIMELINE_EVENT  @map("timeline_event")
+  TESTIMONY       @map("testimony")
+  LEGAL_PRECEDENT @map("legal_precedent")
+  NOTE            @map("note")
+  DOCUMENT        @map("document")
+}
+
+// All records start PROPOSED (agent-generated). Only a user can ACCEPT them.
+// SUPERSESSION_PENDING = accepted record with a pending replacement proposal.
+enum RecordStatus {
+  PROPOSED             @map("proposed")
+  ACCEPTED             @map("accepted")
+  REJECTED             @map("rejected")
+  SUPERSESSION_PENDING @map("supersession_pending")
+  SUPERSEDED           @map("superseded")
+}
+
+enum LinkStatus {
+  PROPOSED @map("proposed")
+  ACCEPTED @map("accepted")
+  REJECTED @map("rejected")
+}
+
+enum RecordLinkType {
+  DEPENDS_ON        @map("depends_on")
+  EVIDENCED_BY      @map("evidenced_by")
+  CONTRADICTED_BY   @map("contradicted_by")
+  EXPLAINED_BY      @map("explained_by")
+  CONTEXTUALIZED_BY @map("contextualized_by")
+  CITES             @map("cites")
+  DERIVED_FROM      @map("derived_from")
+  INVOLVES          @map("involves")
+  DUPLICATES        @map("duplicates")
+  RELATED_TO        @map("related_to")
+}
+
+enum SupportStatus {
+  SUPPORTED            @map("supported")
+  PARTIALLY_SUPPORTED  @map("partially_supported")
+  UNSUPPORTED          @map("unsupported")
+  SUPPORT_NOT_REQUIRED @map("support_not_required")
+  SUPPORT_UNKNOWN      @map("support_unknown")
+}
+
+enum DocumentCategory {
+  EVIDENCE          @map("evidence")
+  RESEARCH          @map("research")
+  PLEADING          @map("pleading")
+  MOTION            @map("motion")
+  ORDER             @map("order")
+  CONTRACT          @map("contract")
+  CORRESPONDENCE    @map("correspondence")
+  CLIENT_STATEMENT  @map("client_statement")
+  WITNESS_STATEMENT @map("witness_statement")
+  DEPOSITION        @map("deposition")
+  TRANSCRIPT        @map("transcript")
+  EXPERT_REPORT     @map("expert_report")
+  FINANCIAL         @map("financial")
+  OTHER             @map("other")
+}
+
+enum DocumentProcessingStatus {
+  UPLOADED   @map("uploaded")
+  PROCESSING @map("processing")
+  PROCESSED  @map("processed")
+  ERROR      @map("error")
+}
+
+enum ChunkOwnerType {
+  DOCUMENT    @map("document")
+  CASE_RECORD @map("case_record")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Case knowledge graph – models
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Case {
+  id              String           @id @default(uuid()) @db.Uuid
+  workspaceId     String           @map("workspace_id") @db.Uuid
+  createdByUserId String           @map("created_by_user_id") @db.Uuid
+  caseName        String           @map("case_name")
+  status          CaseActiveStatus @default(ACTIVE)
+  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  workspace     Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdByUser User           @relation("CaseCreatedByUser", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  context       CaseContext?
+  intakes       CaseIntake[]
+  records       CaseRecord[]
+  links         GraphLink[]
+  documents     CaseDocument[]
+
+  @@index([workspaceId])
+  @@index([createdByUserId])
+  @@index([status])
+  @@map("cases")
+}
+
+// High-level metadata framing the case knowledge graph.
+// One per case; updated in place (version incremented) rather than replaced.
+model CaseContext {
+  id                  String    @id @default(uuid()) @db.Uuid
+  workspaceId         String    @map("workspace_id") @db.Uuid
+  caseId              String    @unique @map("case_id") @db.Uuid
+  sourceIntakeId      String?   @unique @map("source_intake_id") @db.Uuid
+  version             Int       @default(1)
+
+  caseName            String    @map("case_name")
+  caseNumberOrDocket  String?   @map("case_number_or_docket")
+  jurisdictionOrCourt String    @map("jurisdiction_or_court")
+  practiceArea        String    @map("practice_area")
+
+  // { clientRole, representationRole, representedPartyName? }
+  representation      Json
+
+  objectiveOurs       String    @map("objective_ours") @db.Text
+  objectiveTheirs     String    @map("objective_theirs") @db.Text
+  desiredOutcome      String?   @map("desired_outcome") @db.Text
+  biggestCurrentRisk  String?   @map("biggest_current_risk") @db.Text
+
+  dispute             String    @db.Text
+  claimsOrAllegations String    @map("claims_or_allegations") @db.Text
+
+  currentPosture      String?   @map("current_posture") @db.Text
+
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  lastReviewedAt      DateTime? @map("last_reviewed_at") @db.Timestamptz(6)
+
+  case         Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  sourceIntake CaseIntake? @relation(fields: [sourceIntakeId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId])
+  @@map("case_contexts")
+}
+
+// Immutable audit record of the intake form submission.
+// Stored as JSON since it is captured once and processed into records.
+model CaseIntake {
+  id          String   @id @default(uuid()) @db.Uuid
+  workspaceId String   @map("workspace_id") @db.Uuid
+  caseId      String   @map("case_id") @db.Uuid
+  submittedBy String   @map("submitted_by") @db.Uuid
+  data        Json
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  case             Case         @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  generatedContext CaseContext?
+
+  @@index([caseId])
+  @@index([workspaceId])
+  @@map("case_intakes")
+}
+
+// A node in the case knowledge graph.
+// All records start PROPOSED; only users can accept them.
+// Type-specific fields (e.g. eventDate, priority) live in typedMeta JSON.
+// For DOCUMENT records, sourceDocumentId is the FK to the raw CaseDocument file.
+model CaseRecord {
+  id               String         @id @default(uuid()) @db.Uuid
+  workspaceId      String         @map("workspace_id") @db.Uuid
+  caseId           String         @map("case_id") @db.Uuid
+
+  type             RecordType
+  content          String         @db.Text
+  status           RecordStatus   @default(PROPOSED)
+  supportStatus    SupportStatus? @map("support_status")
+  version          Int            @default(1)
+
+  // Self-referential supersession chain
+  supersededById   String?        @map("superseded_by_id") @db.Uuid
+
+  // Type-specific structured metadata
+  typedMeta        Json?          @map("typed_meta")
+
+  // For DOCUMENT records only
+  sourceDocumentId String?        @map("source_document_id") @db.Uuid
+
+  createdBy        ActorType      @default(AGENT) @map("created_by")
+  createdByUserId  String?        @map("created_by_user_id") @db.Uuid
+  approvedByUserId String?        @map("approved_by_user_id") @db.Uuid
+  approvedAt       DateTime?      @map("approved_at") @db.Timestamptz(6)
+
+  createdAt        DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  case           Case          @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  createdByUser  User?         @relation("RecordCreatedByUser", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  approvedByUser User?         @relation("RecordApprovedByUser", fields: [approvedByUserId], references: [id], onDelete: SetNull)
+  sourceDocument CaseDocument? @relation(fields: [sourceDocumentId], references: [id], onDelete: SetNull)
+
+  supersededBy   CaseRecord?   @relation("RecordVersioning", fields: [supersededById], references: [id])
+  supersedes     CaseRecord[]  @relation("RecordVersioning")
+
+  outboundLinks  GraphLink[]   @relation("GraphLinkFrom")
+  inboundLinks   GraphLink[]   @relation("GraphLinkTo")
+  chunks         Chunk[]       @relation("RecordChunks")
+
+  @@index([caseId, type])
+  @@index([caseId, status])
+  @@index([workspaceId])
+  @@index([supersededById])
+  @@map("case_records")
+}
+
+// An edge in the knowledge graph connecting two CaseRecords.
+// Follows the same PROPOSED → ACCEPTED lifecycle as records,
+// and supports the same versioning via supersededById.
+model GraphLink {
+  id               String         @id @default(uuid()) @db.Uuid
+  workspaceId      String         @map("workspace_id") @db.Uuid
+  caseId           String         @map("case_id") @db.Uuid
+
+  fromRecordId     String         @map("from_record_id") @db.Uuid
+  fromRecordType   RecordType     @map("from_record_type")
+  toRecordId       String         @map("to_record_id") @db.Uuid
+  toRecordType     RecordType     @map("to_record_type")
+
+  type             RecordLinkType
+  status           LinkStatus     @default(PROPOSED)
+
+  supersededById   String?        @map("superseded_by_id") @db.Uuid
+
+  confidence       Float?
+  explanation      String?        @db.Text
+
+  createdBy        ActorType      @default(AGENT) @map("created_by")
+  createdByUserId  String?        @map("created_by_user_id") @db.Uuid
+  approvedByUserId String?        @map("approved_by_user_id") @db.Uuid
+  approvedAt       DateTime?      @map("approved_at") @db.Timestamptz(6)
+
+  createdAt        DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  case       Case       @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  fromRecord CaseRecord @relation("GraphLinkFrom", fields: [fromRecordId], references: [id], onDelete: Cascade)
+  toRecord   CaseRecord @relation("GraphLinkTo", fields: [toRecordId], references: [id], onDelete: Cascade)
+
+  supersededBy GraphLink?  @relation("LinkVersioning", fields: [supersededById], references: [id])
+  supersedes   GraphLink[] @relation("LinkVersioning")
+
+  @@index([caseId])
+  @@index([fromRecordId])
+  @@index([toRecordId])
+  @@index([caseId, status])
+  @@map("graph_links")
+}
+
+// A raw file uploaded to object storage (S3 / R2 / equivalent).
+// Connected to the knowledge graph through one or more DOCUMENT type CaseRecords.
+// DocumentChunk rows are derived from the raw file content (e.g. PDF pages).
+model CaseDocument {
+  id               String                   @id @default(uuid()) @db.Uuid
+  workspaceId      String                   @map("workspace_id") @db.Uuid
+  caseId           String                   @map("case_id") @db.Uuid
+
+  fileName         String                   @map("file_name")
+  storageKey       String                   @unique @map("storage_key")
+  mimeType         String?                  @map("mime_type")
+  fileSizeBytes    BigInt?                  @map("file_size_bytes")
+  category         DocumentCategory
+  description      String?                  @db.Text
+  processingStatus DocumentProcessingStatus @default(UPLOADED) @map("processing_status")
+  pageCount        Int?                     @map("page_count")
+
+  uploadedByUserId String?                  @map("uploaded_by_user_id") @db.Uuid
+  createdAt        DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime                 @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  case           Case       @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  uploadedByUser User?      @relation("DocumentUploadedByUser", fields: [uploadedByUserId], references: [id], onDelete: SetNull)
+  records        CaseRecord[]
+  chunks         Chunk[]    @relation("DocumentChunks")
+
+  @@index([caseId])
+  @@index([workspaceId])
+  @@index([processingStatus])
+  @@map("case_documents")
+}
+
+// A chunk of content indexed in the vector store.
+// Unified table for document-derived and record-derived chunks so that
+// RAG search can query across all case content in a single pass.
+//
+// ownerType = DOCUMENT    → documentId is set, ownerId = CaseDocument.id
+// ownerType = CASE_RECORD → recordId is set,   ownerId = CaseRecord.id
+//
+// RAG flow: vector search → Chunk → resolve owner → traverse GraphLinks for depth
+model Chunk {
+  id          String         @id @default(uuid()) @db.Uuid
+  workspaceId String         @map("workspace_id") @db.Uuid
+  caseId      String         @map("case_id") @db.Uuid
+
+  ownerType   ChunkOwnerType @map("owner_type")
+  documentId  String?        @map("document_id") @db.Uuid
+  recordId    String?        @map("record_id") @db.Uuid
+
+  fileName    String         @map("file_name")
+  pageNumber  Int?           @map("page_number")
+  content     String         @db.Text
+  vectorKey   String         @unique @map("vector_key")
+
+  createdAt   DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  document CaseDocument? @relation("DocumentChunks", fields: [documentId], references: [id], onDelete: Cascade)
+  record   CaseRecord?   @relation("RecordChunks", fields: [recordId], references: [id], onDelete: Cascade)
+
+  @@index([caseId])
+  @@index([documentId])
+  @@index([recordId])
+  @@map("chunks")
+}
