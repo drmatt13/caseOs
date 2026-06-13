@@ -39,7 +39,7 @@ The repo is a TypeScript monorepo that started as a local-first AWS/CDK developm
 
 Current major areas:
 
-- `client-app/`: TanStack React frontend with Cognito auth, route guards, React Query, generated GraphQL client code, case intake UI, workspace shell, and early case workspace menu.
+- `client-app/`: TanStack React frontend with Cognito auth, route guards, React Query, generated GraphQL client code, case intake UI, workspace shell, and a full-featured case workspace UI shell.
 - `packages/database/`: Prisma schema, generated Prisma client, generated Pothos types, and shared database exports.
 - `cdk-app/`: AWS CDK stacks plus Lambda functions for auth, billing, GraphQL, S3 access brokering, WebSocket routes, and an ECS/Fargate-style LangGraph service.
 - `local-api-dev-server/`: local API Gateway/Lambda emulator.
@@ -49,57 +49,58 @@ Current major areas:
 
 Important current constraints:
 
-- The Prisma schema already contains lawstruct-ai domain models for workspaces, managed cases, document indexes, record indexes, view indexes, state manifests, and LLM usage events.
+- The Prisma schema contains lawstruct-ai domain models for workspaces, managed cases, document indexes, record indexes, view indexes, state manifests, and LLM usage events — but the case-related models (`ManagedCase`, `CaseDocumentIndex`, `CaseRecordIndex`, `CaseViewIndex`, `CaseStateManifest`, `LlmUsageEvent`) are currently commented out in `packages/database/prisma/schema.prisma`. Un-comment them when the case persistence layer is ready.
 - The active GraphQL schema currently exposes only current-user and user-profile operations. Case, workspace, document, record, manifest, and view APIs are not yet exposed through GraphQL.
-- The frontend has a case intake wizard at `/cases/new` and a case route shell at `/case/$id`, but the route currently uses placeholder/demo data and does not yet load a real case workspace from the backend.
-- `client-app/src/types/caseWorkspace.ts` is a useful product-domain sketch, but it is not yet fully reconciled with Prisma enums, persisted storage, or GraphQL contracts.
+- The frontend case workspace route (`client-app/src/routes/workspaces.$workspaceId_.cases.$caseId.tsx`) is a full-featured demo UI shell backed by the demo dataset in `client-app/src/lib/caseWorkspaceDemo.ts`. It renders record views, the review queue, timeline, documents, people, the agent panel, and the overview. It does not yet load real case data from the backend.
+- The frontend domain type system is fully defined (see "Existing Product Model" below) and is the authoritative contract for the case knowledge graph domain. When adding GraphQL/backend support, reconcile Prisma field names with these types deliberately.
 - The LangGraph service exists as a Bedrock-backed demo service with simple routing/tools. It is not yet a lawstruct-ai record-generation or enrichment workflow.
 - S3/STS support exists today for profile picture upload. Case document storage and scoped document upload/download flows still need product-specific expansion.
 
 ## Existing Product Model
 
-The key frontend product sketch is `client-app/src/types/caseWorkspace.ts`.
+The frontend domain type system is split across four files in `client-app/src/types/`:
 
-It defines:
+### `caseDomain.ts` — shared domain primitives
+Defines: `RepresentationPracticeArea`, `ClientRole`, `RepresentationRole`, `CaseActiveStatus`, `CaseStatus` (procedural stage), `DocumentCategory`, `DocumentProcessingStatus`, `PersonRole`.
 
-- Legal intake types: practice area, client role, representation role, procedural status, timeline and urgency, goals and risks, people and witnesses, documents and evidence.
-- Workspace partitions through `StateObjectTypes`:
-  - `arguments`
-  - `case_notes`
-  - `facts`
-  - `issues`
-  - `legal_precedent`
-  - `objectives`
-  - `posture`
-  - `tasks`
-  - `testimony`
-  - `timeline`
-- Review lifecycle types:
-  - `LinkStatus = "proposed" | "accepted" | "rejected"`
-  - `RecordStatus = "proposed" | "accepted" | "rejected" | "superseded"`
-- Graph-like reference maps:
-  - `references`
-  - `referencedBy`
-  - `supersedes`
-  - `supersededBy`
-- Master workspace views:
-  - record-type views such as `arguments`, `facts`, `timeline`
-  - system views such as `case_agent`, `case_summary`, and `documents_index`
+### `caseIntake.ts` — intake wizard data
+Defines: `CaseIntake` (the raw form captured at case creation) and `CaseIntakeDocument`. Re-exports the domain primitives intake needs. Import intake types from here.
 
-The key persistence model is `packages/database/prisma/schema.prisma`.
+### `caseContext.ts` — case-level metadata
+Defines: `CaseContext` — the structured frame derived from intake that drives party labels, objectives, claims, and posture for the whole workspace.
 
-It currently supports:
+### `caseRecords.ts` — knowledge graph types
+The authoritative frontend contract for case records, links, documents, and chunks.
 
-- Users, billing status, account tier, and subscription metadata.
-- Workspaces with owners, memberships, invitations, storage bucket/prefix, and status.
-- Managed cases under workspaces.
-- Case documents indexed by workspace/case/category/storage key/status/summary/date/reference metadata.
-- Case records indexed by workspace/case/type/category/status/visibility/version/confidence/references/supersession metadata/search text/event date/due date.
-- Case views indexed by workspace/case/view type/storage key/version/source hash/generated actor.
-- Case state manifests that can snapshot workspace or case state.
-- LLM usage events for billing/audit tracking.
+Record taxonomy by level:
+- Level 0 (meta/orthogonal): `CASE_SUMMARY`, `PERSON`
+- Level 1 (strategic): `OBJECTIVE`, `POSTURE`, `CLAIM`
+- Level 2 (analytical): `THEORY`, `ISSUE`, `ARGUMENT`, `TASK`
+- Level 3 (evidentiary): `FACT`, `TIMELINE_EVENT`, `TESTIMONY`, `LEGAL_PRECEDENT`, `NOTE`
+- Level 4 (source bridge): `DOCUMENT`
 
-The Prisma model is already closer to the intended backend architecture than the frontend API is. The next major product work should expose and use this model safely.
+Key types:
+- `RecordStatus`: `PROPOSED | ACCEPTED | REJECTED | SUPERSESSION_PENDING | SUPERSEDED`
+- `LinkStatus`: `PROPOSED | ACCEPTED | REJECTED`
+- `SupportStatus`: `SUPPORTED | PARTIALLY_SUPPORTED | UNSUPPORTED | SUPPORT_NOT_REQUIRED | SUPPORT_UNKNOWN`
+- `RecordParty`: `ours | opposing | neutral` (resolved to case-specific labels via `CaseContext.representation.clientRole`)
+- `RecordSubstatus`: typed union of per-type substatus enums (ObjectiveSubstatus, FactSubstatus, etc.) — no arbitrary strings allowed
+- `TypedCaseRecord`: discriminated union of all 15 typed record interfaces
+- `GraphLink`: edges in the knowledge graph with the same lifecycle as records
+- `CaseDocument`: a stored file (S3); linked to the graph through DOCUMENT records
+- `Chunk`: vector search unit owned by either a CaseDocument or a CaseRecord
+
+### `caseWorkspace.ts` — view model and re-exports
+Defines: `WorkspaceViewType`, `VIEW_RECORD_TYPE` (view → RecordType map), `RECORD_TYPE_VIEW` (reverse), `WORKSPACE_MENU_GROUPS` (sidebar grouping). Also re-exports `CaseStatus`, `ClientRole`, `DocumentCategory`, `RepresentationPracticeArea`, `RepresentationRole`, `CaseIntake`, and `CaseIntakeDocument` for backward compatibility with the intake wizard.
+
+### `caseRecordPresentation.ts` — display labels and badge styles
+All UI strings and Tailwind classes keyed by domain enums: `RECORD_STATUS_LABELS`, `RECORD_STATUS_CLASSES`, `RECORD_SUBSTATUS_LABELS`, `ATTENTION_SUBSTATUSES`, `SUPPORT_STATUS_LABELS`, `RECORD_PARTY_CLASSES`, `RECORD_TYPE_LABELS`, `LINK_TYPE_LABELS`, `LINK_TYPE_INBOUND_LABELS`, `VIEW_LABELS`, `VIEW_DESCRIPTIONS`, `SINGULAR_VIEW_LABELS`, `recordPartyLabel()`.
+
+### Demo dataset
+`client-app/src/lib/caseWorkspaceDemo.ts` contains the full Faxon Commons v. Sweeney demo (Matthew's real housing case): `demoCase`, `demoCaseContext`, `demoRecords`, `demoLinks`, `demoDocuments`, `demoActivity`, `demoAgentThread`, `demoAgentInstructions`, plus constants `DEMO_CASE_ID`, `DEMO_WORKSPACE_ID`, `demoUserId`.
+
+### Persistence model
+`packages/database/prisma/schema.prisma` defines the case-related models (ManagedCase, CaseDocumentIndex, CaseRecordIndex, CaseViewIndex, CaseStateManifest, LlmUsageEvent) but they remain commented out. The active schema handles Users, Workspaces, WorkspaceMemberships, and WorkspaceInvitations. When un-commenting, reconcile Prisma field names with the frontend types above — Prisma uses SCREAMING_SNAKE_CASE enum values and snake_case column names; the frontend types use the same enum values (also SCREAMING_SNAKE_CASE for status/type fields), so the mapping is straightforward.
 
 ## Core Product Principles
 
@@ -206,20 +207,34 @@ Current naming caveat:
 
 ## Record Types
 
-Use these conceptual meanings when designing UI, schema fields, or agent prompts.
+Use these conceptual meanings when designing UI, schema fields, or agent prompts. All types share the `CaseRecord` base and add a discriminant plus type-specific fields.
 
-- Arguments: claims, defenses, counterarguments, theories, and strategic legal positions.
-- Case notes: human or agent notes, strategy thoughts, research notes, questions, and observations.
-- Facts: background, disputed, undisputed, procedural, or other factual assertions.
-- Issues: legal, factual, procedural, or strategic questions that organize the case.
-- Legal precedent: cited authority, jurisdiction, court, citation, and relevance to the case.
-- Objectives: desired outcomes, priorities, settlement goals, and risk-aware case objectives.
-- Posture: procedural status, litigation stage, discovery/settlement/appeal posture.
-- Tasks: actionable work items with status, priority, and due dates.
-- Testimony: anticipated, actual, or impeachment-related witness testimony.
-- Timeline: dated events with date confidence.
+Level 0 — meta / orthogonal:
+- Case summary: agent-synthesized overview of the full case; one per case; not filtered through normal record views.
+- Person: party, witness, attorney, or other person referenced across the case. Linked via INVOLVES edges.
 
-Each record type should share a base record contract and add typed metadata only where it improves the user experience or agent reasoning.
+Level 1 — strategic frame:
+- Objectives: desired outcomes, priorities, settlement goals, and risk-aware case objectives. Substatuses: ACTIVE, AT_RISK, ACHIEVED, ABANDONED.
+- Claims: affirmative claims, counterclaims, defenses, and allegations by either side. Substatuses: ASSERTED, ANTICIPATED, WITHDRAWN, DISMISSED.
+- Posture: current procedural and litigation posture. Substatuses: CURRENT, STALE.
+
+Level 2 — legal and analytical:
+- Theories: integrated legal/factual theories that frame how claims, facts, and arguments fit together. Substatuses: ADOPTED, EXPLORING, BACKUP, ABANDONED.
+- Issues: discrete legal, factual, procedural, or strategic questions the case must answer. Substatuses: OPEN, RESERVED, RESOLVED.
+- Arguments: positions in support of claims and theories, grounded in facts and sources. Substatuses: DRAFT, NEEDS_SUPPORT, TRIAL_READY.
+- Tasks: actionable work items with status, priority, and due dates. Substatuses: OPEN, IN_PROGRESS, BLOCKED, DONE.
+
+Level 3 — evidentiary grounding:
+- Facts: discrete factual assertions with dispute posture and source support. Substatuses: UNDISPUTED, DISPUTED, NEEDS_SOURCE_REVIEW, CONTEXT.
+- Timeline: chronological case events with date confidence. Substatuses: CONFIRMED, APPROXIMATE, DISPUTED, DATE_CONFLICT.
+- Testimony: witness testimony (anticipated or actual). Substatuses: ANTICIPATED, PREPARED, GIVEN, IMPEACHMENT.
+- Legal precedent: cited authority with citation, jurisdiction, and court. Substatuses: NEEDS_CITE_CHECK, GOOD_LAW, DISTINGUISHED, QUESTIONED, OVERRULED.
+- Notes: open-ended notes, questions, and observations. Substatuses: GENERAL, PINNED, OPEN_QUESTION, RESOLVED.
+
+Level 4 — source bridge:
+- Document: a record representing content extracted from a source file (CaseDocument). One file can produce many document records. Other records link to document records via EVIDENCED_BY.
+
+Each record type should share the `CaseRecord` base contract and add typed fields only where they improve UX or agent reasoning. Type-specific fields are stored in `typedMeta` (JSON) in the database.
 
 ## Documents
 
@@ -294,13 +309,14 @@ The frontend should present the case workspace as an operational legal dashboard
 
 Current relevant UI:
 
-- `/cases/new`: case intake wizard.
-- `/case/$id`: authenticated case route shell.
-- `ActiveWorkspaceMenu.tsx`: left menu for `case_agent`, `case_summary`, record partitions, timeline, and documents.
-- `Workspace.tsx`: workspace-level overview shell with members and workspace actions.
+- `/workspaces/new`: new workspace creation.
+- `/workspaces/:id`: workspace dashboard — members, invitations, workspace actions.
+- `/workspaces/:workspaceId/cases/new`: case intake wizard (multi-step form).
+- `/workspaces/:workspaceId/cases/:caseId`: the main case workspace shell (file: `workspaces.$workspaceId_.cases.$caseId.tsx`). Currently fully functional with demo data from `caseWorkspaceDemo.ts`.
+- `ActiveWorkspaceMenu.tsx`: left menu with groups — agent/overview/review, Strategy, Analysis, Grounding, Sources.
 - `agents/frontend-style-parity-agent.md`: visual style guide for app UI.
 
-The desired `/case/$id` experience:
+The desired `/workspaces/:workspaceId/cases/:caseId` experience:
 
 - Show the user only cases/workspaces they can access.
 - Load the real case by route id.
@@ -365,10 +381,9 @@ Use JSON for flexible relationship maps and typed metadata while the domain is s
 
 Known cleanup candidates:
 
-- `catagory` in `WorkspaceRecordBase` should eventually become `category` or align with `recordCategory`.
-- Reconcile frontend `CaseStatus` for legal procedural stage with Prisma `CaseStatus` for open/closed/archived. These are different concepts and should not share a name long term.
-- Decide whether record statuses are required or optional. The product vision suggests agent-created records should default to proposed and accepted human records should be explicit.
-- Define a stable conversion between Prisma enum names and UI string values.
+- Prisma's `CaseStatus` enum (OPEN/CLOSED/ARCHIVED) and the frontend's `CaseStatus` type (procedural stage: pre_filing, filed, discovery, etc.) are different concepts sharing a name. When un-commenting case models, rename one — Prisma's operational lifecycle enum could become `CaseActiveStatus` to match `caseDomain.ts`.
+- The Prisma case record model uses JSON for `typedMeta` (type-specific fields). As usage stabilizes, promote the most-filtered substatus fields to real columns.
+- Verify that Prisma `CaseRecordType` enum values map cleanly to the frontend `RecordType` type — both use SCREAMING_SNAKE_CASE; confirm alignment before writing the GraphQL layer.
 
 ## MVP Direction
 
@@ -376,19 +391,19 @@ A practical MVP should prove the loop from intake to structured records to human
 
 Recommended MVP slice:
 
-1. Authenticated user can create or select a workspace.
-2. User can complete case intake and create a `ManagedCase`.
-3. The system creates an initial case workspace state from intake.
+1. ✅ Authenticated user can create or select a workspace.
+2. ✅ User can complete case intake and submit a `CaseIntake` form (intake wizard exists; case creation is pending backend wiring).
+3. The system creates an initial case workspace state from intake (Prisma models must be un-commented first).
 4. Initial records are stored as proposed `CaseRecordIndex` entries, grouped by record type.
-5. `/case/$id` loads real case data and shows the workspace menu.
-6. At least facts, issues, arguments, timeline, and documents have usable views.
-7. User can manually create a record.
-8. User can accept/reject/edit/supersede a proposed record.
+5. `/workspaces/:workspaceId/cases/:caseId` loads real case data and shows the workspace menu (UI shell + demo data exists; backend wiring is the blocker).
+6. ✅ All record-type views are implemented in the demo UI shell — facts, issues, arguments, timeline, documents, and all others.
+7. User can manually create a record (UI flow needed).
+8. User can accept/reject/edit/supersede a proposed record (review queue UI exists in demo; mutations needed).
 9. User can upload a document and see a document index row.
 10. Agent can summarize the document or intake and propose records/links.
 11. A case summary or record-type markdown view can be generated and displayed.
 
-Avoid spending the first MVP pass on every possible record type if it slows the core loop. Facts, issues, arguments, timeline, and documents are enough to demonstrate the thesis.
+The demo UI shell already demonstrates the full workspace experience. The next priority is wiring the real backend: un-comment Prisma models, add GraphQL mutations for case/record CRUD, and replace demo data with live queries.
 
 ## Implementation Checklist
 

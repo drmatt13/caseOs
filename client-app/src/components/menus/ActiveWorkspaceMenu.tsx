@@ -46,12 +46,35 @@ const viewIcons: Record<WorkspaceViewType, LucideIcon> = {
   people: Users,
 };
 
+// Per-view counts split by lifecycle so each item can show how many records are
+// authoritative (accepted) vs awaiting review (proposed).
+export interface ViewCount {
+  accepted: number;
+  proposed: number;
+}
+
 interface ActiveWorkspaceMenuProps {
   activeView: WorkspaceViewType;
   onSelectView: (view: WorkspaceViewType) => void;
-  counts?: Partial<Record<WorkspaceViewType, number>>;
-  // Pending proposal count; rendered as an attention badge on the review item.
+  counts?: Partial<Record<WorkspaceViewType, ViewCount>>;
+  // Pending proposal count; rendered as the (blue) review badge.
   reviewCount?: number;
+}
+
+// Gray = accepted/authoritative, blue = proposed/awaiting review.
+function CountBadge({ count, tone }: { count: number; tone: "gray" | "blue" }) {
+  if (count <= 0) return null;
+  return (
+    <span
+      className={`rounded-full px-1.5 py-0.5 text-xs font-mono border ${
+        tone === "blue"
+          ? "bg-blue-200/75 text-blue-800 border-blue-300"
+          : "bg-black/10 text-black/60 border-black/10"
+      }`}
+    >
+      {count}
+    </span>
+  );
 }
 
 const ActiveWorkspaceMenu = ({
@@ -71,7 +94,7 @@ const ActiveWorkspaceMenu = ({
           )}
           {group.views.map((view) => {
             const Icon = viewIcons[view];
-            const badgeCount = view === "review" ? reviewCount : counts[view];
+            const count = counts[view];
 
             return (
               <div
@@ -85,17 +108,17 @@ const ActiveWorkspaceMenu = ({
                   <Icon className="w-4 h-4 shrink-0" />
                   <div className="truncate">{VIEW_LABELS[view]}</div>
                 </div>
-                {badgeCount != null && badgeCount > 0 && (
-                  <span
-                    className={`rounded-full px-1.5 py-0.5 text-xs ${
-                      view === "review"
-                        ? "bg-amber-100 text-amber-800"
-                        : "bg-black/10 text-black/60"
-                    }`}
-                  >
-                    {badgeCount}
-                  </span>
-                )}
+                <div className="flex shrink-0 items-center gap-1">
+                  {view === "review" ? (
+                    // Review queue only surfaces what's awaiting review (blue).
+                    <CountBadge count={reviewCount} tone="blue" />
+                  ) : (
+                    <>
+                      <CountBadge count={count?.proposed ?? 0} tone="blue" />
+                      <CountBadge count={count?.accepted ?? 0} tone="gray" />
+                    </>
+                  )}
+                </div>
               </div>
             );
           })}

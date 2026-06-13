@@ -5,9 +5,17 @@
 // Demonstrates every part of the domain model:
 //  - records at every level of RECORD_LEVEL (objective → document)
 //  - PROPOSED / ACCEPTED / SUPERSESSION_PENDING / SUPERSEDED lifecycles
-//  - a completed supersession (posture-003 → posture-002) and two pending ones
-//  - one source file (the affidavit) split into several DOCUMENT records
+//  - completed supersessions (posture-003 → posture-002, fact-old-entry-vague
+//    → fact-014, docrec-discovery-gaps-v0 → docrec-discovery-gaps) and pending
+//    ones
+//  - every multi-page source file split into several DOCUMENT records, each a
+//    section/exhibit (e.g. the affidavit → seven §-records), with some still
+//    PROPOSED (newly extracted, awaiting review)
 //  - PERSON records referenced through INVOLVES links
+//
+// Link statuses are normalized at build time: an ACCEPTED link can only exist
+// between two authoritative endpoints, so accepted records never surface a link
+// into a proposed record.
 
 import type { CaseContext } from "#/types/caseContext";
 import type {
@@ -15,6 +23,7 @@ import type {
   GraphLink,
   LinkStatus,
   RecordLinkType,
+  RecordStatus,
   RecordType,
   TypedCaseRecord,
 } from "#/types/caseRecords";
@@ -100,14 +109,13 @@ export const demoDocuments: CaseDocument[] = [
   {
     ...documentDefaults,
     id: "doc-notice-first",
-    fileName: "2025-06-17 Notice to Quit.pdf",
-    storageKey: `cases/${DEMO_CASE_ID}/documents/2025-06-17-notice-to-quit.pdf`,
-    mimeType: "application/pdf",
+    fileName: "2025-06-17 Notice to Quit - Posted Copy.jpg",
+    storageKey: `cases/${DEMO_CASE_ID}/documents/2025-06-17-notice-to-quit-posted.jpg`,
+    mimeType: "image/jpeg",
     category: "pleading",
     description:
-      "Nonpayment notice used by Plaintiffs to begin the summary process sequence.",
+      "Photograph of the posted nonpayment Notice to Quit that began the summary process sequence.",
     processingStatus: "processed",
-    pageCount: 2,
     createdAt: "2026-05-10T12:00:00Z",
     updatedAt: "2026-05-10T12:20:00Z",
   },
@@ -183,13 +191,13 @@ export const demoDocuments: CaseDocument[] = [
   {
     ...documentDefaults,
     id: "doc-photos",
-    fileName: "Apartment Condition Photos - Metadata Report.csv",
-    storageKey: `cases/${DEMO_CASE_ID}/documents/condition-photos-metadata.csv`,
-    mimeType: "text/csv",
+    fileName: "Kitchen Condition Photo - Pest Damage.jpg",
+    storageKey: `cases/${DEMO_CASE_ID}/documents/kitchen-condition-pest-damage.jpg`,
+    mimeType: "image/jpeg",
     category: "evidence",
     description:
-      "Metadata review for condition photos, highlighting missing capture data and authentication needs.",
-    processingStatus: "processing",
+      "Photograph of kitchen pest damage. Strong visual content but missing capture metadata, so authentication leans on testimony.",
+    processingStatus: "processed",
     createdAt: "2026-05-16T13:00:00Z",
     updatedAt: "2026-05-16T13:05:00Z",
   },
@@ -1014,12 +1022,12 @@ export const demoRecords: TypedCaseRecord[] = [
     id: "docrec-notice-first",
     type: "DOCUMENT",
     documentId: "doc-notice-first",
-    fileName: "2025-06-17 Notice to Quit.pdf",
+    fileName: "2025-06-17 Notice to Quit - Posted Copy.jpg",
     category: "Notice",
     title: "First Notice to Quit (June 17, 2025)",
     summary: "Nonpayment notice that started the summary process sequence.",
     content:
-      "The June 17, 2025 nonpayment Notice to Quit served by Plaintiffs. Service details still need confirmation against the docket.",
+      "The June 17, 2025 nonpayment Notice to Quit, captured as a photograph of the posted copy. Service details still need confirmation against the docket.",
     createdAt: "2026-05-10T12:30:00Z",
   },
   {
@@ -1103,14 +1111,491 @@ export const demoRecords: TypedCaseRecord[] = [
     id: "docrec-photos-metadata",
     type: "DOCUMENT",
     documentId: "doc-photos",
-    fileName: "Apartment Condition Photos - Metadata Report.csv",
-    category: "Evidence integrity",
-    title: "Condition photo metadata report",
+    fileName: "Kitchen Condition Photo - Pest Damage.jpg",
+    category: "Habitability",
+    title: "Kitchen condition photo — visible pest damage",
     summary:
-      "Metadata review showing missing EXIF data for several condition photos.",
+      "What the kitchen photo depicts: pest damage relevant to the habitability claim.",
     content:
-      "Metadata extraction for the condition photo packet. Several photographs have useful visual content but incomplete capture metadata, making chronology, authentication, and exhibit sequencing more dependent on testimony.",
+      "The photograph depicts pest-related damage in the kitchen consistent with the tenant's habitability account. Capture metadata is incomplete, so chronology and authentication will depend on testimony.",
     createdAt: "2026-05-16T13:30:00Z",
+  },
+
+  // ── Additional document records (level 4) ────────────────────────────────
+  // Every multi-page file is split into several DOCUMENT records, each a
+  // distinct section/exhibit grounding a different part of the graph. A few are
+  // PROPOSED (newly extracted, awaiting review) and one is SUPERSEDED (replaced
+  // by a cleaner re-extraction) to exercise the document lifecycle.
+
+  // Affidavit — sections 5–7 (pages 13–18)
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "docrec-affidavit-notices",
+    type: "DOCUMENT",
+    documentId: "doc-affidavit",
+    fileName: "Affidavit of Matthew Sweeney - Draft.pdf",
+    pageRange: { start: 13, end: 14 },
+    category: "Notice",
+    title: "Affidavit §5 — notice chronology and second Notice to Quit",
+    summary:
+      "Affidavit section narrating the first notice, RAFT cure, and second notice sequence.",
+    content:
+      "Section of the affidavit describing the June 17 first Notice to Quit, the RAFT cure of the June and July arrears, and the August 19 second Notice to Quit issued while additional arrears accumulated during the filing delay.",
+    createdAt: "2026-05-16T14:30:00Z",
+  },
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "docrec-affidavit-filing-delay",
+    type: "DOCUMENT",
+    documentId: "doc-affidavit",
+    fileName: "Affidavit of Matthew Sweeney - Draft.pdf",
+    pageRange: { start: 15, end: 16 },
+    category: "Filing delay",
+    title: "Affidavit §6 — filing delay and the thirty-two-day gap",
+    summary:
+      "Affidavit section on the gap between the September 12 deadline and the October 14 filing.",
+    content:
+      "Section of the affidavit describing the Agreement to Vacate's September 12 filing deadline, the thirty-two-day delay before the October 14 nonpayment complaint, and the asserted effect of that delay on assistance and arrears.",
+    createdAt: "2026-05-16T14:30:00Z",
+  },
+  {
+    ...recordDefaults,
+    id: "docrec-affidavit-conditions",
+    type: "DOCUMENT",
+    status: "PROPOSED",
+    documentId: "doc-affidavit",
+    fileName: "Affidavit of Matthew Sweeney - Draft.pdf",
+    pageRange: { start: 17, end: 18 },
+    category: "Habitability",
+    title: "Affidavit §7 — ongoing conditions and recurrence",
+    summary:
+      "Newly extracted affidavit section on recurring pest conditions; awaiting review.",
+    content:
+      "Section of the affidavit describing continued and recurring pest activity after work orders were marked completed. Freshly extracted and proposed; the recurrence dates should be checked against the maintenance export and condition photos.",
+  },
+
+  // First Notice to Quit — service page (proposed extraction)
+  {
+    ...recordDefaults,
+    id: "docrec-notice-first-service",
+    type: "DOCUMENT",
+    status: "PROPOSED",
+    documentId: "doc-notice-first",
+    fileName: "2025-06-17 Notice to Quit - Posted Copy.jpg",
+    category: "Service",
+    title: "Posted notice — visible posting location and date",
+    summary:
+      "Proposed record capturing what the photo shows about how and where the notice was posted.",
+    content:
+      "The photograph shows the Notice to Quit posted at the unit on June 17, 2025. Method and exact date of service still need confirmation against the docket before this can support any procedural argument.",
+  },
+
+  // Certified filing request — USPS receipt
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "docrec-cert-receipt",
+    type: "DOCUMENT",
+    documentId: "doc-cert-letter",
+    fileName: "2025-08-05 Certified Filing Request.pdf",
+    pageRange: { start: 3, end: 4 },
+    category: "Service",
+    title: "Certified filing request — USPS receipt and green card",
+    summary:
+      "Mailing proof tying the certified request to a verifiable delivery date.",
+    content:
+      "The USPS certified-mail receipt and return green card for the August 5 filing request, establishing a verifiable mailing and delivery date for the request that Plaintiffs file promptly.",
+    createdAt: "2026-05-10T12:30:00Z",
+  },
+
+  // Agreement to Vacate — additional sections
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "docrec-agreement-nofault-terms",
+    type: "DOCUMENT",
+    documentId: "doc-agreement",
+    fileName: "Agreement to Vacate and September Emails.pdf",
+    category: "Agreement to vacate",
+    title: "Agreement to Vacate — no-fault classification terms",
+    summary:
+      "Agreement terms specifying a no-fault Summary Process classification.",
+    content:
+      "The clauses of the Agreement to Vacate specifying that any filing would proceed as a no-fault Summary Process action, relevant to the later tension with the fault-based nonpayment complaint actually filed.",
+    createdAt: "2026-05-11T11:00:00Z",
+  },
+  {
+    ...recordDefaults,
+    id: "docrec-agreement-sept-emails",
+    type: "DOCUMENT",
+    status: "PROPOSED",
+    documentId: "doc-agreement",
+    fileName: "Agreement to Vacate and September Emails.pdf",
+    category: "Communication",
+    title: "September email chain — filing expectations",
+    summary:
+      "Proposed extraction of the September 10 emails confirming the filing deadline.",
+    content:
+      "The September 10 email chain in which the parties discuss the expected filing and the September 12 deadline. Proposed for review; the sender/recipient identities should be matched to the parties before use.",
+  },
+
+  // RAFT packet — additional sections
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "docrec-raft-ledger",
+    type: "DOCUMENT",
+    documentId: "doc-raft",
+    fileName: "RAFT Approval and Rent Ledger Packet.pdf",
+    pageRange: { start: 1, end: 6 },
+    category: "Payment history",
+    title: "Rent ledger — monthly balances and credits",
+    summary:
+      "Ledger pages showing month-by-month balances, charges, and credits.",
+    content:
+      "Rent ledger pages laying out the monthly charges, payments, and running balance through the tenancy, used to corroborate the ~$116k paid and to locate when each arrears period began and was credited.",
+    createdAt: "2026-05-11T11:00:00Z",
+  },
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "docrec-raft-cure-detail",
+    type: "DOCUMENT",
+    documentId: "doc-raft",
+    fileName: "RAFT Approval and Rent Ledger Packet.pdf",
+    pageRange: { start: 7, end: 9 },
+    category: "RAFT",
+    title: "RAFT cure — June and July arrears applied",
+    summary:
+      "Approval and disbursement pages showing the cure of the initial arrears.",
+    content:
+      "The RAFT approval and disbursement pages showing the June and July arrears being paid in full, used to evaluate whether the initial arrears were cured before any court filing.",
+    createdAt: "2026-05-11T11:00:00Z",
+  },
+  {
+    ...recordDefaults,
+    id: "docrec-raft-payment-breakdown",
+    type: "DOCUMENT",
+    status: "PROPOSED",
+    documentId: "doc-raft",
+    fileName: "RAFT Approval and Rent Ledger Packet.pdf",
+    pageRange: { start: 10, end: 12 },
+    category: "Payment history",
+    title: "RAFT payment breakdown — family vs. assistance",
+    summary:
+      "Proposed extraction separating family payments from RAFT assistance.",
+    content:
+      "A proposed breakdown distinguishing the approximately $110,442.73 paid by family from the approximately $5,847.68 paid through RAFT. The arithmetic should be reconciled against the ledger before trial use.",
+  },
+
+  // Supplemental discovery responses — one record per missing category
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "docrec-discovery-entry-logs",
+    type: "DOCUMENT",
+    documentId: "doc-discovery",
+    fileName: "Plaintiffs Supplemental Discovery Responses.pdf",
+    pageRange: { start: 4, end: 9 },
+    category: "Discovery",
+    title: "Supplemental responses — entry-log gap",
+    summary: "Section showing the absence of a complete entry-log chain.",
+    content:
+      "The portion of the supplemental responses addressing access and entry logs, where the production does not include a complete chain for the disputed entry and maintenance periods.",
+    createdAt: "2026-05-12T10:00:00Z",
+  },
+  {
+    ...recordDefaults,
+    id: "docrec-discovery-internal-comms",
+    type: "DOCUMENT",
+    status: "PROPOSED",
+    documentId: "doc-discovery",
+    fileName: "Plaintiffs Supplemental Discovery Responses.pdf",
+    pageRange: { start: 10, end: 17 },
+    category: "Discovery",
+    title: "Supplemental responses — internal communications gap",
+    summary:
+      "Proposed record isolating the missing internal-communications category.",
+    content:
+      "The portion of the supplemental responses addressing internal communications, where management-side messages about the conditions, entry, and filing decision remain unproduced. Proposed; should not be characterized as intentional withholding without further support.",
+  },
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "docrec-discovery-vendor-records",
+    type: "DOCUMENT",
+    documentId: "doc-discovery",
+    fileName: "Plaintiffs Supplemental Discovery Responses.pdf",
+    pageRange: { start: 18, end: 24 },
+    category: "Discovery",
+    title: "Supplemental responses — extermination vendor records gap",
+    summary: "Section showing missing third-party extermination vendor records.",
+    content:
+      "The portion of the supplemental responses addressing pest-control vendor records, where third-party extermination invoices and visit reports are absent from the production.",
+    createdAt: "2026-05-12T10:00:00Z",
+  },
+  {
+    ...recordDefaults,
+    id: "docrec-discovery-decision-docs",
+    type: "DOCUMENT",
+    status: "PROPOSED",
+    documentId: "doc-discovery",
+    fileName: "Plaintiffs Supplemental Discovery Responses.pdf",
+    pageRange: { start: 25, end: 31 },
+    category: "Discovery",
+    title: "Supplemental responses — eviction decision documents gap",
+    summary:
+      "Proposed record on the missing internal decision-making documents.",
+    content:
+      "The portion of the supplemental responses addressing how the eviction was classified and decided, where internal decision-making documents and approvals are not included. Proposed pending comparison against the original requests.",
+  },
+  {
+    ...recordDefaults,
+    id: "docrec-discovery-gaps-v0",
+    type: "DOCUMENT",
+    status: "SUPERSEDED",
+    supersededById: "docrec-discovery-gaps",
+    documentId: "doc-discovery",
+    fileName: "Plaintiffs Supplemental Discovery Responses.pdf",
+    category: "Discovery",
+    title: "Supplemental responses — first-pass extraction (OCR)",
+    summary:
+      "Earlier OCR extraction replaced after the table responses were re-read.",
+    content:
+      "The first-pass OCR extraction of the supplemental responses. Its table-based answers were flattened and partly garbled, so it was superseded by a cleaner extraction checked against the PDF image.",
+    createdAt: "2026-05-12T09:30:00Z",
+    updatedAt: "2026-05-12T10:00:00Z",
+  },
+
+  // Maintenance export — completion-code analysis (proposed)
+  {
+    ...recordDefaults,
+    id: "docrec-maintenance-completion-codes",
+    type: "DOCUMENT",
+    status: "PROPOSED",
+    documentId: "doc-maintenance",
+    fileName: "Maintenance Portal Export - Work Orders.csv",
+    category: "Maintenance",
+    title: "Work-order export — completion-code ambiguity",
+    summary:
+      "Proposed analysis of undefined completion codes on pest work orders.",
+    content:
+      "A proposed record focusing on the completion codes used to mark pest work orders done. The codes are undefined in the export, so 'completed' may mean a visit occurred rather than that the condition was durably resolved.",
+  },
+
+  // ── Narrow-scope document records ─────────────────────────────────────────
+  // Tight, single-point extractions so a fact or testimony can cite exactly the
+  // sentence/figure it relies on, instead of a broad multi-page section.
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "docrec-affidavit-116k-figure",
+    type: "DOCUMENT",
+    documentId: "doc-affidavit",
+    fileName: "Affidavit of Matthew Sweeney - Draft.pdf",
+    pageRange: { start: 3, end: 3 },
+    category: "Payment history",
+    title: "Affidavit ¶8 — the $116,290.41 total figure",
+    summary: "The single paragraph stating the exact total paid during tenancy.",
+    content:
+      "The affidavit paragraph stating that family and RAFT assistance paid approximately $116,290.41 in total — roughly $110,442.73 from family and $5,847.68 through RAFT.",
+    createdAt: "2026-05-16T14:30:00Z",
+  },
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "docrec-affidavit-raft-date",
+    type: "DOCUMENT",
+    documentId: "doc-affidavit",
+    fileName: "Affidavit of Matthew Sweeney - Draft.pdf",
+    pageRange: { start: 6, end: 6 },
+    category: "RAFT",
+    title: "Affidavit ¶12 — asserted RAFT approval date (July 28)",
+    summary: "The sentence asserting the July 28, 2025 RAFT approval date.",
+    content:
+      "The affidavit sentence asserting RAFT approval on July 28, 2025 — the date that conflicts with the July 24 entry in the timeline file and must be reconciled.",
+    createdAt: "2026-05-16T14:30:00Z",
+  },
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "docrec-affidavit-netting",
+    type: "DOCUMENT",
+    documentId: "doc-affidavit",
+    fileName: "Affidavit of Matthew Sweeney - Draft.pdf",
+    pageRange: { start: 8, end: 8 },
+    category: "Entry",
+    title: "Affidavit ¶17 — balcony netting installed for child safety",
+    summary:
+      "The sentence describing why the removed balcony netting was installed.",
+    content:
+      "The affidavit sentence stating the balcony netting was installed specifically to protect a child with documented safety needs, framing the July 24 removal as more than incidental.",
+    createdAt: "2026-05-16T14:30:00Z",
+  },
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "docrec-affidavit-entry-asleep",
+    type: "DOCUMENT",
+    documentId: "doc-affidavit",
+    fileName: "Affidavit of Matthew Sweeney - Draft.pdf",
+    pageRange: { start: 9, end: 9 },
+    category: "Entry",
+    title: "Affidavit ¶18 — entry occurred while the family was asleep",
+    summary: "The sentence describing the timing of the July 24 entry.",
+    content:
+      "The affidavit sentence stating that the July 24 maintenance entry happened in the early morning while the family was asleep, following a broad balcony notice.",
+    createdAt: "2026-05-16T14:30:00Z",
+  },
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "docrec-affidavit-autism-dx",
+    type: "DOCUMENT",
+    documentId: "doc-affidavit",
+    fileName: "Affidavit of Matthew Sweeney - Draft.pdf",
+    pageRange: { start: 10, end: 10 },
+    category: "Household stability",
+    title: "Affidavit ¶22 — child's 2024 autism diagnosis",
+    summary:
+      "The sentence establishing the formal 2024 autism diagnosis and local supports.",
+    content:
+      "The affidavit sentence stating a child was formally diagnosed with autism in 2024 and depended on locally based Quincy services and supports, bearing on relocation difficulty.",
+    createdAt: "2026-05-16T14:30:00Z",
+  },
+  {
+    ...recordDefaults,
+    id: "docrec-affidavit-qcap-statement",
+    type: "DOCUMENT",
+    status: "PROPOSED",
+    documentId: "doc-affidavit",
+    fileName: "Affidavit of Matthew Sweeney - Draft.pdf",
+    pageRange: { start: 11, end: 11 },
+    category: "Household stability",
+    title: "Affidavit ¶24 — QCAP no-fault pathway statement",
+    summary:
+      "Single-source sentence attributing the no-fault pathway requirement to QCAP.",
+    content:
+      "The affidavit sentence attributing to QCAP that EA Family Shelter access depended on a no-fault Housing Court pathway and a court-ordered move-out date. Single-source; corroboration is the reason this stays proposed.",
+  },
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "docrec-raft-approval-letter",
+    type: "DOCUMENT",
+    documentId: "doc-raft",
+    fileName: "RAFT Approval and Rent Ledger Packet.pdf",
+    pageRange: { start: 8, end: 8 },
+    category: "RAFT",
+    title: "RAFT approval letter — dated approval line",
+    summary: "The approval line carrying the official RAFT decision date.",
+    content:
+      "The single RAFT approval-letter line carrying the program's official approval date, used to reconcile the July 24 vs. July 28 conflict against the affidavit.",
+    createdAt: "2026-05-11T11:00:00Z",
+  },
+
+  // ── Additional substantive records (accepted / proposed / superseded) ─────
+  {
+    ...recordDefaults,
+    ...humanAuthored,
+    ...acceptedByUser,
+    id: "fact-012",
+    type: "FACT",
+    substatus: "DISPUTED",
+    supportStatus: "SUPPORTED",
+    party: "ours",
+    category: "Entry",
+    title: "Maintenance entered the unit on July 24 and removed balcony netting",
+    summary:
+      "Entry fact grounding the quiet-enjoyment and unauthorized-entry theory.",
+    content:
+      "The affidavit states that on July 24, 2025 maintenance entered the unit following a broad balcony notice while the family was asleep and removed protective balcony netting installed for child safety, prompting a same-day discussion with management.",
+    createdAt: "2026-05-13T12:00:00Z",
+  },
+  {
+    ...recordDefaults,
+    id: "fact-013",
+    type: "FACT",
+    status: "PROPOSED",
+    substatus: "NEEDS_SOURCE_REVIEW",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    party: "ours",
+    category: "Procedural framing",
+    title: "Second notice issued after the initial arrears were already cured",
+    summary:
+      "Proposed sequencing fact connecting the cure to the August 19 second notice.",
+    content:
+      "After RAFT cured the June and July arrears, Faxon Commons issued a second Notice to Quit on August 19, 2025. The proposal asks whether issuing the second notice post-cure undercuts a clean nonpayment chronology.",
+  },
+  {
+    ...recordDefaults,
+    ...humanAuthored,
+    ...acceptedByUser,
+    id: "fact-014",
+    type: "FACT",
+    substatus: "CONTEXT",
+    supportStatus: "SUPPORTED",
+    version: 2,
+    supersedesIds: ["fact-old-entry-vague"],
+    party: "ours",
+    category: "Entry",
+    title: "Balcony netting protected a child with documented safety needs",
+    summary:
+      "Refined entry-context fact tying the removed netting to a specific safety purpose.",
+    content:
+      "The netting removed during the July 24 entry had been installed specifically to protect a child with documented safety needs, sharpening the earlier, vaguer description of 'protective netting' into a concrete quiet-enjoyment and conduct point.",
+    createdAt: "2026-05-15T12:00:00Z",
+  },
+  {
+    ...recordDefaults,
+    id: "fact-old-entry-vague",
+    type: "FACT",
+    status: "SUPERSEDED",
+    substatus: "CONTEXT",
+    supersededById: "fact-014",
+    party: "ours",
+    category: "Entry",
+    title: "Entry removed 'some protective netting'",
+    summary:
+      "Superseded, vaguer description of the netting removed during the entry.",
+    content:
+      "An earlier draft described the July 24 entry as removing 'some protective netting' without specifying its purpose. Replaced by a more precise statement tying the netting to a child's documented safety needs.",
+    createdAt: "2026-05-13T12:00:00Z",
+    updatedAt: "2026-05-15T12:00:00Z",
+  },
+  {
+    ...recordDefaults,
+    ...humanAuthored,
+    ...acceptedByUser,
+    id: "arg-007",
+    type: "ARGUMENT",
+    substatus: "TRIAL_READY",
+    supportStatus: "SUPPORTED",
+    party: "ours",
+    category: "Habitability",
+    title: "Persistent conditions support rent abatement regardless of the ledger",
+    summary:
+      "Accepted habitability argument linking conditions to abatement of the rent claim.",
+    content:
+      "Even taking the ledger at face value, persistent habitability conditions support rent abatement and counterclaim value, so the rent total cannot be evaluated in isolation from the condition evidence.",
+    createdAt: "2026-05-14T12:00:00Z",
+  },
+  {
+    ...recordDefaults,
+    id: "testimony-003",
+    type: "TESTIMONY",
+    status: "PROPOSED",
+    substatus: "ANTICIPATED",
+    witnessPersonRecordId: "person-dferreira",
+    party: "neutral",
+    category: "Anticipated",
+    title: "Case worker testimony could corroborate the shelter-pathway reliance",
+    summary:
+      "Proposed testimony module for the QCAP coordinator's no-fault pathway statements.",
+    content:
+      "Denise Ferreira may corroborate that EA Family Shelter access was tied to a no-fault Housing Court pathway and a court-ordered move-out date, supporting the reliance and prejudice theory. Availability and willingness to testify still need confirmation.",
   },
 ];
 
@@ -1121,6 +1606,17 @@ export const demoRecords: TypedCaseRecord[] = [
 const recordTypeById = new Map<string, RecordType>(
   demoRecords.map((record) => [record.id, record.type]),
 );
+
+const recordStatusById = new Map<string, RecordStatus>(
+  demoRecords.map((record) => [record.id, record.status]),
+);
+
+// A record is authoritative once accepted (including while a replacement is
+// pending). An accepted link must not point at a non-authoritative record, so
+// any ACCEPTED spec touching a proposed/superseded endpoint is normalized down
+// to PROPOSED at construction time — keeping the demo graph internally honest.
+const isAuthoritativeStatus = (status?: RecordStatus) =>
+  status === "ACCEPTED" || status === "SUPERSESSION_PENDING";
 
 type LinkSpec = [
   fromId: string,
@@ -1186,6 +1682,16 @@ const linkSpecs: LinkSpec[] = [
   ["arg-005", "EVIDENCED_BY", "docrec-maintenance-orders", "PROPOSED"],
   ["arg-006", "DEPENDS_ON", "fact-010", "PROPOSED"],
   ["arg-006", "EVIDENCED_BY", "docrec-raft-approval", "PROPOSED"],
+  // Conflict demo: this proposed argument leans on fact-old-raft-timing, which
+  // is itself mid-supersession (fact-002 would replace it). arg-006 therefore
+  // can't be accepted until it is re-evaluated against fact-002.
+  [
+    "arg-006",
+    "CONTEXTUALIZED_BY",
+    "fact-old-raft-timing",
+    "PROPOSED",
+    "Relies on the filing-delay framing currently under supersession review.",
+  ],
 
   // Facts → sources / people / contradictions
   ["fact-001", "EVIDENCED_BY", "docrec-maintenance-orders", "ACCEPTED"],
@@ -1256,6 +1762,71 @@ const linkSpecs: LinkSpec[] = [
   ["note-001", "RELATED_TO", "arg-002", "ACCEPTED"],
   ["note-003", "RELATED_TO", "fact-005", "ACCEPTED"],
   ["note-003", "RELATED_TO", "arg-002", "ACCEPTED"],
+
+  // ── New records: grounding for the expanded document set ──────────────────
+  // Entry fact + its sources / witness
+  ["fact-012", "EVIDENCED_BY", "docrec-affidavit-entry", "ACCEPTED"],
+  ["fact-012", "INVOLVES", "person-msweeney", "ACCEPTED"],
+  ["fact-014", "EVIDENCED_BY", "docrec-affidavit-entry", "ACCEPTED"],
+  ["fact-014", "INVOLVES", "person-msweeney", "ACCEPTED"],
+  ["claim-002", "DEPENDS_ON", "fact-012", "ACCEPTED"],
+  ["testimony-001", "DEPENDS_ON", "fact-012", "ACCEPTED"],
+
+  // Habitability argument (accepted) grounding
+  ["arg-007", "DEPENDS_ON", "fact-001", "ACCEPTED"],
+  ["arg-007", "RELATED_TO", "issue-001", "ACCEPTED"],
+  ["arg-007", "EVIDENCED_BY", "docrec-maintenance-orders", "ACCEPTED"],
+
+  // Affidavit notice/filing-delay sections ground accepted timeline events
+  ["timeline-009", "EVIDENCED_BY", "docrec-affidavit-notices", "ACCEPTED"],
+  ["timeline-011", "EVIDENCED_BY", "docrec-affidavit-filing-delay", "ACCEPTED"],
+
+  // Payment fact grounded by the rent ledger section
+  ["fact-007", "EVIDENCED_BY", "docrec-raft-ledger", "ACCEPTED"],
+  ["fact-010", "EVIDENCED_BY", "docrec-raft-cure-detail", "PROPOSED"],
+
+  // Missing-record fact grounded by the per-category discovery sections
+  ["fact-005", "EVIDENCED_BY", "docrec-discovery-entry-logs", "ACCEPTED"],
+  ["fact-005", "EVIDENCED_BY", "docrec-discovery-vendor-records", "ACCEPTED"],
+  ["issue-002", "EVIDENCED_BY", "docrec-discovery-internal-comms", "PROPOSED"],
+  ["issue-002", "EVIDENCED_BY", "docrec-discovery-decision-docs", "PROPOSED"],
+
+  // Proposed records (sequencing, conditions, completion codes)
+  ["fact-013", "EVIDENCED_BY", "docrec-affidavit-notices", "PROPOSED"],
+  ["fact-013", "DEPENDS_ON", "fact-010", "PROPOSED"],
+  ["fact-003", "EVIDENCED_BY", "docrec-maintenance-completion-codes", "PROPOSED"],
+  ["fact-003", "CONTEXTUALIZED_BY", "docrec-affidavit-conditions", "PROPOSED"],
+  ["claim-001", "EVIDENCED_BY", "docrec-notice-first-service", "PROPOSED"],
+  ["theory-002", "EVIDENCED_BY", "docrec-agreement-sept-emails", "PROPOSED"],
+  ["arg-006", "EVIDENCED_BY", "docrec-raft-payment-breakdown", "PROPOSED"],
+  ["timeline-011", "EVIDENCED_BY", "docrec-agreement-nofault-terms", "ACCEPTED"],
+
+  // Proposed corroborating-witness testimony
+  ["testimony-003", "INVOLVES", "person-dferreira", "PROPOSED"],
+  ["testimony-003", "DEPENDS_ON", "fact-002", "PROPOSED"],
+  ["testimony-003", "EVIDENCED_BY", "docrec-affidavit-hardship", "PROPOSED"],
+
+  // ── Facts cite narrow, single-point document records ──────────────────────
+  ["fact-007", "EVIDENCED_BY", "docrec-affidavit-116k-figure", "ACCEPTED"],
+  ["fact-008", "EVIDENCED_BY", "docrec-affidavit-autism-dx", "ACCEPTED"],
+  ["fact-012", "EVIDENCED_BY", "docrec-affidavit-netting", "ACCEPTED"],
+  ["fact-012", "EVIDENCED_BY", "docrec-affidavit-entry-asleep", "ACCEPTED"],
+  ["fact-014", "EVIDENCED_BY", "docrec-affidavit-netting", "ACCEPTED"],
+  ["fact-002", "EVIDENCED_BY", "docrec-affidavit-qcap-statement", "PROPOSED"],
+  ["fact-010", "EVIDENCED_BY", "docrec-affidavit-raft-date", "PROPOSED"],
+  ["fact-010", "EVIDENCED_BY", "docrec-raft-approval-letter", "PROPOSED"],
+  ["timeline-007", "EVIDENCED_BY", "docrec-affidavit-raft-date", "PROPOSED"],
+  ["timeline-007", "EVIDENCED_BY", "docrec-raft-approval-letter", "PROPOSED"],
+
+  // ── Historical links retained on superseded records ───────────────────────
+  // Specified as ACCEPTED (they were real when authored); the builder normalizes
+  // them to PROPOSED because an endpoint is now retired, so they stay hidden on
+  // the live records and surface only inside the superseded record's inspector.
+  ["posture-003", "RELATED_TO", "objective-001", "ACCEPTED"],
+  ["posture-003", "RELATED_TO", "task-001", "ACCEPTED"],
+  ["fact-old-entry-vague", "EVIDENCED_BY", "docrec-affidavit-entry", "ACCEPTED"],
+  ["fact-old-entry-vague", "INVOLVES", "person-msweeney", "ACCEPTED"],
+  ["fact-005", "EVIDENCED_BY", "docrec-discovery-gaps-v0", "ACCEPTED"],
 ];
 
 export const demoLinks: GraphLink[] = linkSpecs.map(
@@ -1267,6 +1838,13 @@ export const demoLinks: GraphLink[] = linkSpecs.map(
       throw new Error(`Demo link references unknown record: ${fromId} → ${toId}`);
     }
 
+    const endpointsAuthoritative =
+      isAuthoritativeStatus(recordStatusById.get(fromId)) &&
+      isAuthoritativeStatus(recordStatusById.get(toId));
+    // A link can only be ACCEPTED if both endpoints are authoritative.
+    const normalizedStatus: LinkStatus =
+      status === "ACCEPTED" && !endpointsAuthoritative ? "PROPOSED" : status;
+
     return {
       id: `link-${String(index + 1).padStart(3, "0")}`,
       workspaceId: DEMO_WORKSPACE_ID,
@@ -1276,10 +1854,10 @@ export const demoLinks: GraphLink[] = linkSpecs.map(
       toRecordId: toId,
       toRecordType,
       type,
-      status,
+      status: normalizedStatus,
       explanation,
       createdBy: "agent",
-      ...(status === "ACCEPTED"
+      ...(normalizedStatus === "ACCEPTED"
         ? { approvedByUserId: demoUserId, approvedAt: "2026-05-15T16:00:00Z" }
         : {}),
       createdAt: "2026-05-14T12:00:00Z",

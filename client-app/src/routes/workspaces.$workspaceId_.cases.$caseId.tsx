@@ -12,8 +12,12 @@ import {
   FileText,
   Filter,
   GitBranch,
+  Image as ImageIcon,
   Link2,
+  Lock,
   PencilLine,
+  Repeat,
+  RotateCcw,
   Search,
   Settings,
   ShieldCheck,
@@ -27,7 +31,9 @@ import {
 import AppLayout from "#/components/layouts/AppLayout";
 import NavigationPanel from "#/components/layouts/NavigationPanel";
 import ContentShell from "#/components/layouts/ContentShell";
-import ActiveWorkspaceMenu from "#/components/menus/ActiveWorkspaceMenu";
+import ActiveWorkspaceMenu, {
+  type ViewCount,
+} from "#/components/menus/ActiveWorkspaceMenu";
 import UserPanel from "#/components/UserPanel";
 import PageLoading from "#/components/PageLoading";
 import Button from "#/components/Button";
@@ -40,6 +46,7 @@ import GetUserError from "#/components/errors/GetUserError";
 import type {
   CaseDocument,
   GraphLink,
+  LinkStatus,
   RecordStatus,
   TimelineEventRecord,
   TypedCaseRecord,
@@ -55,6 +62,7 @@ import {
   LINK_TYPE_INBOUND_LABELS,
   LINK_TYPE_LABELS,
   RECORD_PARTY_CLASSES,
+  RECORD_STATUS_CARD_CLASSES,
   RECORD_STATUS_CLASSES,
   RECORD_STATUS_LABELS,
   RECORD_SUBSTATUS_LABELS,
@@ -108,6 +116,46 @@ function formatDate(iso?: string) {
   });
 }
 
+function isImageDocument(document: CaseDocument) {
+  return Boolean(document.mimeType?.startsWith("image/"));
+}
+
+// Where in the source file a document record draws from. Images don't paginate,
+// so they read as a region rather than a page range.
+function documentScopeLabel(
+  record: Extract<TypedCaseRecord, { type: "DOCUMENT" }>,
+  document: CaseDocument,
+) {
+  if (record.pageRange) {
+    const { start, end } = record.pageRange;
+    const pages = start === end ? `Page ${start}` : `Pages ${start}–${end}`;
+    return document.pageCount ? `${pages} of ${document.pageCount}` : pages;
+  }
+  if (isImageDocument(document)) return "Image region";
+  return document.pageCount ? `Whole file (${document.pageCount} pp.)` : "Whole file";
+}
+
+// Placeholder affordance to open the underlying file/image. Wired to nothing
+// yet — the real viewer will stream the stored object.
+function DocumentViewButton({ document }: { document: CaseDocument }) {
+  const image = isImageDocument(document);
+  return (
+    <button
+      type="button"
+      className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-black/10 bg-black/[0.03] px-2.5 py-1.5 text-xs text-black/70 transition-colors hover:bg-black/10"
+      title={image ? "View image" : "Open document"}
+      onClick={(event) => event.stopPropagation()}
+    >
+      {image ? (
+        <ImageIcon className="h-3.5 w-3.5" />
+      ) : (
+        <FileText className="h-3.5 w-3.5" />
+      )}
+      {image ? "View image" : "Open document"}
+    </button>
+  );
+}
+
 function recordMatchesSearch(record: TypedCaseRecord, searchValue: string) {
   const normalizedSearch = searchValue.trim().toLowerCase();
   if (normalizedSearch.length === 0) return true;
@@ -131,6 +179,21 @@ function recordMatchesSearch(record: TypedCaseRecord, searchValue: string) {
 // Workspace data hook: records + graph lookups + simulated lifecycle state
 // ─────────────────────────────────────────────────────────────────────────────
 
+// A record is "live" / authoritative once accepted — including while a
+// replacement proposal is pending against it.
+function isAuthoritative(status: RecordStatus) {
+  return status === "ACCEPTED" || status === "SUPERSESSION_PENDING";
+}
+
+// A link a proposed record points at whose target is mid-supersession. Accepting
+// the proposal as-is would wire it to a record that is about to be retired, so
+// the proposal is blocked until the user re-evaluates against the replacement.
+export type SupersessionConflict = {
+  link: GraphLink;
+  target: TypedCaseRecord; // the record being superseded (current link target)
+  replacement: TypedCaseRecord; // the proposed record that would supersede it
+};
+
 function useWorkspaceGraph() {
   const [localNotes, setLocalNotes] = useState<TypedCaseRecord[]>([]);
   const [deletedRecordIds, setDeletedRecordIds] = useState<string[]>([]);
@@ -139,13 +202,25 @@ function useWorkspaceGraph() {
   >({});
   // Records whose supersession completed in this session (proposal accepted).
   const [supersededIds, setSupersededIds] = useState<string[]>([]);
+  // Bridging links created when a proposal is re-evaluated against a pending
+  // supersession (proposed record → the replacement proposal).
+  const [addedLinks, setAddedLinks] = useState<GraphLink[]>([]);
+  // Proposals the user has re-evaluated against pending supersessions; clears
+  // their acceptance block even if analysis decided no new link was needed.
+  const [reevaluatedRecordIds, setReevaluatedRecordIds] = useState<string[]>(
+    [],
+  );
+  // Proposed records created in this session from an accepted record (revisions
+  // that would supersede their source). These flow through the normal review
+  // queue and supersession lifecycle.
+  const [addedRecords, setAddedRecords] = useState<TypedCaseRecord[]>([]);
 
   const records = useMemo(
     () =>
-      [...localNotes, ...demoRecords].filter(
+      [...addedRecords, ...localNotes, ...demoRecords].filter(
         (record) => !deletedRecordIds.includes(record.id),
       ),
-    [localNotes, deletedRecordIds],
+    [addedRecords, localNotes, deletedRecordIds],
   );
 
   const recordsById = useMemo(
@@ -157,7 +232,7 @@ function useWorkspaceGraph() {
     const outbound = new Map<string, GraphLink[]>();
     const inbound = new Map<string, GraphLink[]>();
 
-    for (const link of demoLinks) {
+    for (const link of [...demoLinks, ...addedLinks]) {
       if (
         deletedRecordIds.includes(link.fromRecordId) ||
         deletedRecordIds.includes(link.toRecordId)
@@ -175,14 +250,7 @@ function useWorkspaceGraph() {
     }
 
     return { outboundLinks: outbound, inboundLinks: inbound };
-  }, [deletedRecordIds]);
-
-  const effectiveStatus = (record: TypedCaseRecord): RecordStatus => {
-    const decision = proposalDecisions[record.id];
-    if (decision) return decision.status === "accepted" ? "ACCEPTED" : "REJECTED";
-    if (supersededIds.includes(record.id)) return "SUPERSEDED";
-    return record.status;
-  };
+  }, [deletedRecordIds, addedLinks]);
 
   // Proposed records that supersede another record, keyed by the target id.
   const pendingSupersessionByTargetId = useMemo(() => {
@@ -201,6 +269,45 @@ function useWorkspaceGraph() {
     return map;
   }, [records, proposalDecisions]);
 
+  const effectiveStatus = (record: TypedCaseRecord): RecordStatus => {
+    const decision = proposalDecisions[record.id];
+    if (decision)
+      return decision.status === "accepted" ? "ACCEPTED" : "REJECTED";
+    if (supersededIds.includes(record.id)) return "SUPERSEDED";
+    // An accepted record reads as "supersession proposed" only while a live
+    // replacement proposal targets it; if that proposal is decided away, it
+    // reverts to plain accepted.
+    if (
+      record.status === "ACCEPTED" ||
+      record.status === "SUPERSESSION_PENDING"
+    ) {
+      return pendingSupersessionByTargetId.has(record.id)
+        ? "SUPERSESSION_PENDING"
+        : "ACCEPTED";
+    }
+    return record.status;
+  };
+
+  // A link is authoritative only while BOTH of its endpoints are authoritative.
+  // This single rule does two jobs:
+  //   • promotes a proposal's links on acceptance — links to already-accepted
+  //     records flip immediately, links to still-proposed records stay proposed
+  //     until those are accepted in turn; and
+  //   • demotes an "accepted" link whose endpoint is (or becomes) proposed or
+  //     superseded — so an accepted record never displays a link pointing into a
+  //     proposed record.
+  const effectiveLinkStatus = (link: GraphLink): LinkStatus => {
+    if (link.status === "REJECTED") return "REJECTED";
+    const from = recordsById.get(link.fromRecordId);
+    const to = recordsById.get(link.toRecordId);
+    return from &&
+      to &&
+      isAuthoritative(effectiveStatus(from)) &&
+      isAuthoritative(effectiveStatus(to))
+      ? "ACCEPTED"
+      : "PROPOSED";
+  };
+
   const proposedRecords = useMemo(
     () =>
       records.filter(
@@ -209,6 +316,65 @@ function useWorkspaceGraph() {
       ),
     [records, proposalDecisions],
   );
+
+  // For each undecided proposal, the outbound links that point at a record with
+  // a pending replacement and don't yet bridge to that replacement.
+  const supersessionConflictsByRecordId = useMemo(() => {
+    const map = new Map<string, SupersessionConflict[]>();
+    for (const record of proposedRecords) {
+      if (reevaluatedRecordIds.includes(record.id)) continue;
+      const outbound = outboundLinks.get(record.id) ?? [];
+      const conflicts: SupersessionConflict[] = [];
+      for (const link of outbound) {
+        const replacement = pendingSupersessionByTargetId.get(link.toRecordId);
+        if (!replacement || replacement.id === record.id) continue;
+        const alreadyBridged = outbound.some(
+          (other) => other.toRecordId === replacement.id,
+        );
+        if (alreadyBridged) continue;
+        const target = recordsById.get(link.toRecordId);
+        if (!target) continue;
+        conflicts.push({ link, target, replacement });
+      }
+      if (conflicts.length > 0) map.set(record.id, conflicts);
+    }
+    return map;
+  }, [
+    proposedRecords,
+    reevaluatedRecordIds,
+    outboundLinks,
+    pendingSupersessionByTargetId,
+    recordsById,
+  ]);
+
+  const canAcceptProposal = (recordId: string) =>
+    !supersessionConflictsByRecordId.has(recordId);
+
+  // Resolve a proposal's supersession conflicts: propose a mirrored link from it
+  // to each replacement proposal, then clear its acceptance block.
+  const reevaluateRecord = (recordId: string) => {
+    const conflicts = supersessionConflictsByRecordId.get(recordId) ?? [];
+    const now = new Date().toISOString();
+    const bridges: GraphLink[] = conflicts.map((conflict, index) => ({
+      id: `link-bridge-${recordId}-${conflict.replacement.id}-${index}`,
+      workspaceId: DEMO_WORKSPACE_ID,
+      caseId: DEMO_CASE_ID,
+      fromRecordId: recordId,
+      fromRecordType: conflict.link.fromRecordType,
+      toRecordId: conflict.replacement.id,
+      toRecordType: conflict.replacement.type,
+      type: conflict.link.type,
+      status: "PROPOSED",
+      explanation: `Re-evaluated: bridges to the proposal replacing "${conflict.target.title}".`,
+      createdBy: "agent",
+      createdAt: now,
+      updatedAt: now,
+    }));
+    if (bridges.length > 0) setAddedLinks((links) => [...links, ...bridges]);
+    setReevaluatedRecordIds((ids) =>
+      ids.includes(recordId) ? ids : [...ids, recordId],
+    );
+  };
 
   const decideProposal = (recordId: string, decision: ProposalDecision) => {
     setProposalDecisions((decisions) => ({
@@ -225,6 +391,34 @@ function useWorkspaceGraph() {
         ]);
       }
     }
+  };
+
+  // Propose a revised version of an accepted record. The draft becomes a new
+  // PROPOSED record that would supersede its source — the primary path for a
+  // human to turn an accepted record into a fresh proposal. It carries the
+  // source's type and type-specific fields, lands in the review queue, and (via
+  // supersedesIds) flips the source to "supersession proposed".
+  const proposeRevision = (recordId: string, draft: string) => {
+    const source = recordsById.get(recordId);
+    const trimmed = draft.trim();
+    if (!source || !trimmed) return;
+    const now = new Date().toISOString();
+    const revision = {
+      ...source,
+      id: `proposal-${recordId}-${Date.now()}`,
+      status: "PROPOSED",
+      version: source.version + 1,
+      supersedesIds: [source.id],
+      supersededById: undefined,
+      approvedByUserId: undefined,
+      approvedAt: undefined,
+      createdBy: "human",
+      createdByUserId: demoUserId,
+      content: trimmed,
+      createdAt: now,
+      updatedAt: now,
+    } as TypedCaseRecord;
+    setAddedRecords((existing) => [revision, ...existing]);
   };
 
   const deleteRecord = (recordId: string) => {
@@ -272,10 +466,15 @@ function useWorkspaceGraph() {
     outboundLinks,
     inboundLinks,
     effectiveStatus,
+    effectiveLinkStatus,
     pendingSupersessionByTargetId,
+    supersessionConflictsByRecordId,
+    canAcceptProposal,
+    reevaluateRecord,
     proposedRecords,
     proposalDecisions,
     decideProposal,
+    proposeRevision,
     deleteRecord,
     createNote,
   };
@@ -306,7 +505,10 @@ function RouteComponent() {
   const [activeView, setActiveView] = useState<WorkspaceViewType>("overview");
   const [globalSearch, setGlobalSearch] = useState("");
   const [panelSearch, setPanelSearch] = useState("");
-  const [selectedStatuses, setSelectedStatuses] = useState<RecordStatus[]>([]);
+  // Superseded records are hidden by default so the views show only live work.
+  const [selectedStatuses, setSelectedStatuses] = useState<RecordStatus[]>(
+    DEFAULT_VISIBLE_STATUSES,
+  );
   // Graph traversal: a stack of record ids opened in the inspector drawer.
   const [inspectorStack, setInspectorStack] = useState<string[]>([]);
 
@@ -323,13 +525,20 @@ function RouteComponent() {
   };
 
   const viewCounts = useMemo(() => {
-    const counts: Partial<Record<WorkspaceViewType, number>> = {};
+    const counts: Partial<Record<WorkspaceViewType, ViewCount>> = {};
     for (const record of graph.records) {
       const view = RECORD_TYPE_VIEW[record.type];
-      counts[view] = (counts[view] ?? 0) + 1;
+      const status = graph.effectiveStatus(record);
+      const entry = counts[view] ?? { accepted: 0, proposed: 0 };
+      if (status === "PROPOSED") entry.proposed += 1;
+      else if (status === "ACCEPTED" || status === "SUPERSESSION_PENDING")
+        entry.accepted += 1;
+      counts[view] = entry;
     }
-    counts.documents = demoDocuments.length;
+    counts.documents = { accepted: demoDocuments.length, proposed: 0 };
     return counts;
+    // graph.effectiveStatus is recreated each render; records is the real input.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [graph.records]);
 
   const globalSearchResults = useMemo(
@@ -452,17 +661,17 @@ function RouteComponent() {
             />
           )}
         </div>
-
-        {inspectorStack.length > 0 && (
-          <RecordInspector
-            stack={inspectorStack}
-            graph={graph}
-            onOpenRecord={openRecord}
-            onBack={() => setInspectorStack((stack) => stack.slice(0, -1))}
-            onClose={() => setInspectorStack([])}
-          />
-        )}
       </ContentShell>
+
+      {/* Hosted outside ContentShell: a backdrop-blur ancestor would otherwise
+          trap this fixed overlay's containing block. Mirrors AppModal. */}
+      <RecordInspector
+        stack={inspectorStack}
+        graph={graph}
+        onOpenRecord={openRecord}
+        onBack={() => setInspectorStack((stack) => stack.slice(0, -1))}
+        onClose={() => setInspectorStack([])}
+      />
     </AppLayout>
   );
 }
@@ -511,50 +720,115 @@ function PartyBadge({ record }: { record: TypedCaseRecord }) {
 }
 
 // Clickable reference to another record — the core graph-traversal affordance.
+// When `isCycle` is set the target is already open higher in the inspector path,
+// so it is grayed and flagged to signal a potential circular dependency.
 function RecordChip({
   record,
   onOpenRecord,
+  isCycle = false,
 }: {
   record: TypedCaseRecord;
   onOpenRecord: (recordId: string) => void;
+  isCycle?: boolean;
 }) {
   return (
     <button
       type="button"
-      className="group flex w-full min-w-0 items-center gap-2 rounded-lg border border-black/10 bg-white/80 px-2.5 py-1.5 text-left text-sm transition-colors hover:border-black/25 hover:bg-white"
+      title={
+        isCycle
+          ? "Already open in this path — following it again would loop"
+          : undefined
+      }
+      className={`group flex w-full min-w-0 items-center gap-2 rounded-lg border px-2.5 py-1.5 text-left text-sm transition-colors ${
+        isCycle
+          ? "border-black/10 bg-black/[0.03] opacity-70 cursor-not-allowed"
+          : "border-black/10 bg-white/80 hover:border-black/25 hover:bg-white"
+      }`}
       onClick={(event) => {
         event.stopPropagation();
         onOpenRecord(record.id);
       }}
+      disabled={isCycle}
     >
       <span className="shrink-0 rounded border border-black/10 bg-black/[0.03] px-1.5 py-0.5 text-[0.65rem] uppercase tracking-wide text-black/50">
         {RECORD_TYPE_LABELS[record.type]}
       </span>
-      <span className="truncate text-black/75 group-hover:text-black">
+      <span
+        className={`truncate ${
+          isCycle ? "text-black/45" : "text-black/75 group-hover:text-black"
+        }`}
+      >
         {record.title}
       </span>
-      <ChevronRight className="ml-auto h-3.5 w-3.5 shrink-0 text-black/30 group-hover:text-black/60" />
+      {isCycle && (
+        <span className="ml-auto inline-flex shrink-0 items-center gap-1 rounded border border-black/10 bg-black/[0.04] px-1 py-0.5 text-[0.6rem] uppercase tracking-wide text-black/45">
+          <Repeat className="h-3 w-3" />
+          In path
+        </span>
+      )}
+      <ChevronRight
+        className={`h-3.5 w-3.5 shrink-0 text-black/30 group-hover:text-black/60 ${
+          isCycle ? "" : "ml-auto"
+        }`}
+      />
     </button>
   );
 }
 
 // Outbound + inbound graph links for a record, grouped by link type.
+//
+// What's shown depends on the record being viewed:
+//   • A proposed record is a brand-new node, so every link it carries is part of
+//     the same proposal. We show them all, unlabeled — calling each one
+//     "proposed" would be noise — but never one pointing at a retired record.
+//   • An accepted record shows only its authoritative (accepted) links; links
+//     that are still proposed belong to a review flow elsewhere, not the
+//     settled graph.
+//   • A superseded record keeps its historical links for provenance. They show
+//     only here, at the record's own level — the authoritative-endpoint rule
+//     keeps them out of accepted records and proposals.
+// `visitedIds` are records already open higher in the inspector path; their
+// chips are grayed to flag circular references.
 function RecordLinksPanel({
   record,
   graph,
   onOpenRecord,
+  visitedIds,
 }: {
   record: TypedCaseRecord;
   graph: WorkspaceGraph;
   onOpenRecord: (recordId: string) => void;
+  visitedIds?: Set<string>;
 }) {
-  const outbound = graph.outboundLinks.get(record.id) ?? [];
-  const inbound = graph.inboundLinks.get(record.id) ?? [];
+  const viewStatus = graph.effectiveStatus(record);
+  const recordIsProposed = viewStatus === "PROPOSED";
+  const recordIsSuperseded = viewStatus === "SUPERSEDED";
+
+  const otherEndpointId = (link: GraphLink) =>
+    link.fromRecordId === record.id ? link.toRecordId : link.fromRecordId;
+
+  const visibleLink = (link: GraphLink) => {
+    if (recordIsSuperseded) return true;
+    if (recordIsProposed) {
+      const other = graph.recordsById.get(otherEndpointId(link));
+      return !other || graph.effectiveStatus(other) !== "SUPERSEDED";
+    }
+    return graph.effectiveLinkStatus(link) === "ACCEPTED";
+  };
+
+  const outbound = (graph.outboundLinks.get(record.id) ?? []).filter(
+    visibleLink,
+  );
+  const inbound = (graph.inboundLinks.get(record.id) ?? []).filter(visibleLink);
 
   if (outbound.length === 0 && inbound.length === 0) {
     return (
       <div className="rounded-lg border border-black/10 bg-black/[0.025] p-3 text-sm text-black/40">
-        No linked records yet.
+        {recordIsProposed
+          ? "This proposal introduces no linked records yet."
+          : recordIsSuperseded
+            ? "This record had no links."
+            : "No accepted links yet."}
       </div>
     );
   }
@@ -563,7 +837,10 @@ function RecordLinksPanel({
     links: GraphLink[],
     direction: "outbound" | "inbound",
   ) => {
-    const groups = new Map<string, { record: TypedCaseRecord; link: GraphLink }[]>();
+    const groups = new Map<
+      string,
+      { record: TypedCaseRecord; link: GraphLink }[]
+    >();
     for (const link of links) {
       const targetId =
         direction === "outbound" ? link.toRecordId : link.fromRecordId;
@@ -573,7 +850,10 @@ function RecordLinksPanel({
         direction === "outbound"
           ? LINK_TYPE_LABELS[link.type]
           : LINK_TYPE_INBOUND_LABELS[link.type];
-      groups.set(label, [...(groups.get(label) ?? []), { record: target, link }]);
+      groups.set(label, [
+        ...(groups.get(label) ?? []),
+        { record: target, link },
+      ]);
     }
     return groups;
   };
@@ -588,13 +868,17 @@ function RecordLinksPanel({
         <div className="flex flex-col gap-1.5">
           {entries.map(({ record: target, link }) => (
             <div key={link.id} className="min-w-0">
-              <RecordChip record={target} onOpenRecord={onOpenRecord} />
-              {link.status === "PROPOSED" && (
-                <p className="mt-0.5 pl-1 text-xs text-blue-800/70">
-                  Proposed link
-                  {link.explanation ? ` — ${link.explanation}` : ""}
-                </p>
-              )}
+              <RecordChip
+                record={target}
+                onOpenRecord={onOpenRecord}
+                isCycle={visitedIds?.has(target.id)}
+              />
+              {(recordIsProposed || recordIsSuperseded) &&
+                link.explanation && (
+                  <p className="mt-0.5 pl-1 text-xs text-black/45">
+                    {link.explanation}
+                  </p>
+                )}
             </div>
           ))}
         </div>
@@ -603,6 +887,12 @@ function RecordLinksPanel({
 
   return (
     <div className="flex flex-col gap-3">
+      {recordIsSuperseded && (
+        <p className="rounded-lg border border-black/10 bg-black/[0.025] px-2.5 py-1.5 text-xs leading-5 text-black/45">
+          Historical links, retained for provenance. They are hidden from
+          accepted records and proposals.
+        </p>
+      )}
       {outbound.length > 0 && renderGroups(groupLinks(outbound, "outbound"))}
       {inbound.length > 0 && renderGroups(groupLinks(inbound, "inbound"))}
     </div>
@@ -655,7 +945,7 @@ function SupersessionPendingNotice({
   onOpenRecord: (recordId: string) => void;
 }) {
   return (
-    <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+    <div className="mb-3 rounded-lg border border-amber-300 bg-amber-100/35 px-3 py-2 text-sm text-amber-900">
       <div className="flex items-center gap-1.5 font-medium">
         <GitBranch className="h-3.5 w-3.5" />
         <span>Locked while a replacement proposal is pending</span>
@@ -670,8 +960,65 @@ function SupersessionPendingNotice({
   );
 }
 
+// Shown on a proposal that links to a record which is itself being superseded.
+// Accepting it as-is would point it at a record about to be retired, so the
+// proposal is blocked until the user re-evaluates it against the replacement.
+function SupersessionConflictNotice({
+  conflicts,
+  onReevaluate,
+  onOpenRecord,
+}: {
+  conflicts: SupersessionConflict[];
+  onReevaluate: () => void;
+  onOpenRecord: (recordId: string) => void;
+}) {
+  return (
+    <div className="mb-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+      <div className="flex items-center gap-1.5 font-medium">
+        <Lock className="h-3.5 w-3.5" />
+        <span>Blocked: a record this proposal links to is being replaced</span>
+      </div>
+      <p className="mt-1.5 leading-5 text-amber-900/80">
+        Before this can be accepted, re-evaluate it against the pending
+        replacement{conflicts.length > 1 ? "s" : ""} so its links don't point at
+        a record about to be retired.
+      </p>
+      <div className="mt-2 flex flex-col gap-2">
+        {conflicts.map((conflict) => (
+          <div key={conflict.link.id} className="flex flex-col gap-1">
+            <span className="text-xs text-amber-900/70">
+              Currently links to
+            </span>
+            <RecordChip record={conflict.target} onOpenRecord={onOpenRecord} />
+            <span className="text-xs text-amber-900/70">
+              Replacement proposal
+            </span>
+            <RecordChip
+              record={conflict.replacement}
+              onOpenRecord={onOpenRecord}
+            />
+          </div>
+        ))}
+      </div>
+      <div className="mt-2.5 flex justify-end">
+        <button
+          type="button"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-white px-2.5 py-1.5 text-sm text-amber-900 transition-colors hover:bg-amber-100"
+          onClick={onReevaluate}
+        >
+          <Repeat className="h-3.5 w-3.5" />
+          Re-evaluate links
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
-// Record inspector drawer (graph traversal)
+// Record inspector modal (graph traversal)
+// Hosted outside ContentShell and styled to match AppModal / EditUserModal:
+// a centered card over a blur + tint backdrop, kept mounted so it can animate
+// open and closed.
 // ─────────────────────────────────────────────────────────────────────────────
 
 function RecordInspector({
@@ -687,20 +1034,125 @@ function RecordInspector({
   onBack: () => void;
   onClose: () => void;
 }) {
+  const open = stack.length > 0;
   const recordId = stack[stack.length - 1];
-  const record = graph.recordsById.get(recordId);
+
+  // Keep the last opened record on screen through the close animation,
+  // mirroring AppModal's prevModal/visibleModal handling.
+  const [displayRecordId, setDisplayRecordId] = useState<string | undefined>(
+    recordId,
+  );
 
   useEffect(() => {
+    if (recordId) setDisplayRecordId(recordId);
+  }, [recordId]);
+
+  useEffect(() => {
+    if (!open) return;
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  }, [open, onClose]);
 
-  if (!record) return null;
+  const record = displayRecordId
+    ? graph.recordsById.get(displayRecordId)
+    : undefined;
 
+  return (
+    <div
+      className={`fixed inset-0 z-10000 flex items-start justify-center overflow-hidden ${
+        open ? "pointer-events-auto" : "pointer-events-none"
+      }`}
+    >
+      {/* blur layer */}
+      <div
+        className={`absolute inset-0 transition-[backdrop-filter] ${
+          open
+            ? "duration-200 ease-out backdrop-blur-xs"
+            : "duration-300 ease-in backdrop-blur-0"
+        }`}
+      />
+
+      {/* tint layer */}
+      <div
+        className={`absolute inset-0 bg-black/10 transition-opacity ${
+          open
+            ? "duration-200 ease-out opacity-100"
+            : "duration-300 ease-in opacity-0"
+        }`}
+        onClick={onClose}
+      />
+
+      <div
+        className={`relative top-12 z-20 flex h-max max-h-[calc(100vh-6rem)] w-2xl max-w-[calc(100vw-3rem)] flex-col overflow-hidden rounded-xl border border-black/15 bg-white/90 text-md shadow-md backdrop-blur-sm transition-all ${
+          open
+            ? "duration-100 ease-out scale-100 opacity-100 translate-0"
+            : "duration-150 ease-in scale-95 opacity-0 translate-y-8"
+        }`}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="flex shrink-0 items-center gap-2 border-b border-black/10 px-4 py-3">
+          {stack.length > 1 ? (
+            <button
+              type="button"
+              className="inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-sm text-black/65 transition-colors hover:bg-black/10"
+              onClick={onBack}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Back
+            </button>
+          ) : (
+            <span className="text-sm text-black/45">Record inspector</span>
+          )}
+          {stack.length > 1 && (
+            <span className="text-xs text-black/40">
+              {stack.length} records deep
+            </span>
+          )}
+          <button
+            type="button"
+            aria-label="Close record inspector"
+            className="ml-auto rounded-lg p-1.5 text-black/65 transition-colors duration-150 ease-in hover:bg-black/15 hover:duration-100 hover:ease-out"
+            onClick={onClose}
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        {record && (
+          <RecordInspectorBody
+            key={record.id}
+            record={record}
+            graph={graph}
+            onOpenRecord={onOpenRecord}
+            onClose={onClose}
+            // Ancestors already open in this path — used to flag cycles.
+            visitedIds={new Set(stack.slice(0, -1))}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function RecordInspectorBody({
+  record,
+  graph,
+  onOpenRecord,
+  onClose,
+  visitedIds,
+}: {
+  record: TypedCaseRecord;
+  graph: WorkspaceGraph;
+  onOpenRecord: (recordId: string) => void;
+  onClose: () => void;
+  visitedIds: Set<string>;
+}) {
   const status = graph.effectiveStatus(record);
+  const conflicts = graph.supersessionConflictsByRecordId.get(record.id);
   const sourceDocument =
     record.type === "DOCUMENT"
       ? demoDocuments.find((document) => document.id === record.documentId)
@@ -720,197 +1172,185 @@ function RecordInspector({
   const pendingProposal = graph.pendingSupersessionByTargetId.get(record.id);
 
   return (
-    <>
-      <div
-        className="fixed inset-0 z-30 bg-black/20 backdrop-blur-[1px]"
-        onClick={onClose}
-      />
-      <aside className="fixed inset-y-0 right-0 z-40 flex w-full max-w-xl flex-col border-l border-black/15 bg-[#faf9f7] shadow-xl">
-        <div className="flex items-center gap-2 border-b border-black/10 px-4 py-3">
-          {stack.length > 1 ? (
-            <button
-              type="button"
-              className="inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-sm text-black/65 transition-colors hover:bg-black/10"
-              onClick={onBack}
+    <div className="flex-1 overflow-y-auto p-4">
+      <div className="mb-2 flex flex-wrap items-center gap-2">
+        <span className="rounded border border-black/10 bg-black/[0.03] px-1.5 py-0.5 text-[0.65rem] uppercase tracking-wide text-black/50">
+          {RECORD_TYPE_LABELS[record.type]}
+        </span>
+        <StatusBadge status={status} />
+        <SubstatusBadge record={record} />
+        <PartyBadge record={record} />
+      </div>
+
+      <h2 className="font-serif text-xl leading-snug">{record.title}</h2>
+      {record.summary && (
+        <p className="mt-1 text-sm text-black/60">{record.summary}</p>
+      )}
+
+      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-black/50">
+        {record.category && <span>Category: {record.category}</span>}
+        {record.supportStatus && (
+          <span>Support: {SUPPORT_STATUS_LABELS[record.supportStatus]}</span>
+        )}
+        <span>Version {record.version}</span>
+        <span>
+          {record.createdBy === "agent" ? "Agent" : "Human"} ·{" "}
+          {formatDate(record.createdAt)}
+        </span>
+        {record.approvedAt && (
+          <span>Approved {formatDate(record.approvedAt)}</span>
+        )}
+      </div>
+
+      {record.type === "PERSON" && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {record.roles.map((role) => (
+            <span
+              key={role}
+              className="rounded-full border border-black/10 bg-white/80 px-2 py-0.5 text-xs capitalize text-black/60"
             >
-              <ChevronLeft className="h-4 w-4" />
-              Back
-            </button>
-          ) : (
-            <span className="text-sm text-black/45">Record inspector</span>
+              {role.replaceAll("_", " ").toLowerCase()}
+            </span>
+          ))}
+          {record.organization && (
+            <span className="rounded-full border border-black/10 bg-white/80 px-2 py-0.5 text-xs text-black/60">
+              {record.organization}
+            </span>
           )}
-          <span className="ml-auto text-xs text-black/40">
-            {stack.length > 1 ? `${stack.length} records deep` : ""}
-          </span>
-          <button
-            type="button"
-            className="rounded-lg p-1.5 text-black/65 transition-colors hover:bg-black/10"
-            onClick={onClose}
-          >
-            <X className="h-4 w-4" />
-          </button>
         </div>
+      )}
 
-        <div className="flex-1 overflow-y-auto p-4">
-          <div className="mb-2 flex flex-wrap items-center gap-2">
-            <span className="rounded border border-black/10 bg-black/[0.03] px-1.5 py-0.5 text-[0.65rem] uppercase tracking-wide text-black/50">
-              {RECORD_TYPE_LABELS[record.type]}
-            </span>
-            <StatusBadge status={status} />
-            <SubstatusBadge record={record} />
-            <PartyBadge record={record} />
-          </div>
+      {record.type === "TIMELINE_EVENT" && (
+        <p className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-black/10 bg-white/70 px-2.5 py-1.5 text-sm text-black/70">
+          <CalendarDays className="h-4 w-4" />
+          {formatDate(record.eventDate)}
+        </p>
+      )}
 
-          <h2 className="font-serif text-xl leading-snug">{record.title}</h2>
-          {record.summary && (
-            <p className="mt-1 text-sm text-black/60">{record.summary}</p>
-          )}
-
-          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-black/50">
-            {record.category && <span>Category: {record.category}</span>}
-            {record.supportStatus && (
-              <span>Support: {SUPPORT_STATUS_LABELS[record.supportStatus]}</span>
-            )}
-            <span>Version {record.version}</span>
-            <span>
-              {record.createdBy === "agent" ? "Agent" : "Human"} ·{" "}
-              {formatDate(record.createdAt)}
-            </span>
-            {record.approvedAt && (
-              <span>Approved {formatDate(record.approvedAt)}</span>
-            )}
-          </div>
-
-          {record.type === "PERSON" && (
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {record.roles.map((role) => (
-                <span
-                  key={role}
-                  className="rounded-full border border-black/10 bg-white/80 px-2 py-0.5 text-xs capitalize text-black/60"
-                >
-                  {role.replaceAll("_", " ").toLowerCase()}
-                </span>
-              ))}
-              {record.organization && (
-                <span className="rounded-full border border-black/10 bg-white/80 px-2 py-0.5 text-xs text-black/60">
-                  {record.organization}
-                </span>
-              )}
-            </div>
-          )}
-
-          {record.type === "TIMELINE_EVENT" && (
-            <p className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-black/10 bg-white/70 px-2.5 py-1.5 text-sm text-black/70">
-              <CalendarDays className="h-4 w-4" />
-              {formatDate(record.eventDate)}
-            </p>
-          )}
-
-          {record.type === "DOCUMENT" && sourceDocument && (
-            <div className="mt-3 rounded-lg border border-black/10 bg-white/70 p-3">
-              <div className="flex items-center gap-2 text-sm text-black/70">
+      {record.type === "DOCUMENT" && sourceDocument && (
+        <div className="mt-3 rounded-lg border border-black/10 bg-white/70 p-3">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex min-w-0 items-center gap-2 text-sm text-black/70">
+              {isImageDocument(sourceDocument) ? (
+                <ImageIcon className="h-4 w-4 shrink-0" />
+              ) : (
                 <FileText className="h-4 w-4 shrink-0" />
-                <span className="truncate">{sourceDocument.fileName}</span>
-              </div>
-              <p className="mt-1 text-xs text-black/50">
-                {record.pageRange
-                  ? `Pages ${record.pageRange.start}–${record.pageRange.end}`
-                  : "Whole file"}
-                {sourceDocument.pageCount
-                  ? ` of ${sourceDocument.pageCount}`
-                  : ""}{" "}
-                · {sourceDocument.processingStatus}
-              </p>
-              {siblingDocumentRecords.length > 0 && (
-                <div className="mt-3">
-                  <p className="mb-1.5 text-xs text-black/55">
-                    Other records from this file
-                  </p>
-                  <div className="flex flex-col gap-1.5">
-                    {siblingDocumentRecords.map((sibling) => (
-                      <RecordChip
-                        key={sibling.id}
-                        record={sibling}
-                        onOpenRecord={onOpenRecord}
-                      />
-                    ))}
-                  </div>
-                </div>
               )}
+              <span className="truncate">{sourceDocument.fileName}</span>
             </div>
-          )}
-
-          <p className="mt-4 text-md leading-6 text-black/80">
-            {record.content}
+            <DocumentViewButton document={sourceDocument} />
+          </div>
+          <p className="mt-1 text-xs text-black/50">
+            {documentScopeLabel(record, sourceDocument)} ·{" "}
+            {sourceDocument.processingStatus}
           </p>
-
-          {(supersededBy || record.supersedesIds?.length || pendingProposal) && (
-            <div className="mt-4">
-              <p className="mb-1.5 flex items-center gap-1.5 text-xs text-black/55">
-                <GitBranch className="h-3.5 w-3.5" />
-                Version history
+          {siblingDocumentRecords.length > 0 && (
+            <div className="mt-3">
+              <p className="mb-1.5 text-xs text-black/55">
+                Other records from this file ({siblingDocumentRecords.length})
               </p>
               <div className="flex flex-col gap-1.5">
-                {supersededBy && (
-                  <div>
-                    <p className="mb-1 text-xs text-black/45">Superseded by</p>
-                    <RecordChip
-                      record={supersededBy}
-                      onOpenRecord={onOpenRecord}
-                    />
-                  </div>
-                )}
-                {pendingProposal && (
-                  <div>
-                    <p className="mb-1 text-xs text-amber-800/80">
-                      Pending replacement proposal
-                    </p>
-                    <RecordChip
-                      record={pendingProposal}
-                      onOpenRecord={onOpenRecord}
-                    />
-                  </div>
-                )}
-                {(record.supersedesIds ?? [])
-                  .map((id) => graph.recordsById.get(id))
-                  .filter((target): target is TypedCaseRecord =>
-                    Boolean(target),
-                  )
-                  .map((target) => (
-                    <div key={target.id}>
-                      <p className="mb-1 text-xs text-black/45">Supersedes</p>
-                      <RecordChip
-                        record={target}
-                        onOpenRecord={onOpenRecord}
-                      />
-                    </div>
-                  ))}
+                {siblingDocumentRecords.map((sibling) => (
+                  <RecordChip
+                    key={sibling.id}
+                    record={sibling}
+                    onOpenRecord={onOpenRecord}
+                    isCycle={visitedIds.has(sibling.id)}
+                  />
+                ))}
               </div>
             </div>
           )}
-
-          <div className="mt-4">
-            <p className="mb-1.5 text-xs text-black/55">Knowledge graph</p>
-            <RecordLinksPanel
-              record={record}
-              graph={graph}
-              onOpenRecord={onOpenRecord}
-            />
-          </div>
-
-          {status === "PROPOSED" && (
-            <ProposalActions
-              record={record}
-              onDelete={(id) => {
-                graph.deleteRecord(id);
-                onClose();
-              }}
-              onDecision={graph.decideProposal}
-            />
-          )}
         </div>
-      </aside>
-    </>
+      )}
+
+      <p className="mt-4 text-md leading-6 text-black/80">{record.content}</p>
+
+      {status === "PROPOSED" && conflicts && (
+        <div className="mt-4">
+          <SupersessionConflictNotice
+            conflicts={conflicts}
+            onReevaluate={() => graph.reevaluateRecord(record.id)}
+            onOpenRecord={onOpenRecord}
+          />
+        </div>
+      )}
+
+      {(supersededBy || record.supersedesIds?.length || pendingProposal) && (
+        <div className="mt-4">
+          <p className="mb-1.5 flex items-center gap-1.5 text-xs text-black/55">
+            <GitBranch className="h-3.5 w-3.5" />
+            Version history
+          </p>
+          <div className="flex flex-col gap-1.5">
+            {supersededBy && (
+              <div>
+                <p className="mb-1 text-xs text-black/45">Superseded by</p>
+                <RecordChip
+                  record={supersededBy}
+                  onOpenRecord={onOpenRecord}
+                  isCycle={visitedIds.has(supersededBy.id)}
+                />
+              </div>
+            )}
+            {pendingProposal && (
+              <div>
+                <p className="mb-1 text-xs text-amber-800/80">
+                  Pending replacement proposal
+                </p>
+                <RecordChip
+                  record={pendingProposal}
+                  onOpenRecord={onOpenRecord}
+                  isCycle={visitedIds.has(pendingProposal.id)}
+                />
+              </div>
+            )}
+            {(record.supersedesIds ?? [])
+              .map((id) => graph.recordsById.get(id))
+              .filter((target): target is TypedCaseRecord => Boolean(target))
+              .map((target) => (
+                <div key={target.id}>
+                  <p className="mb-1 text-xs text-black/45">Supersedes</p>
+                  <RecordChip
+                    record={target}
+                    onOpenRecord={onOpenRecord}
+                    isCycle={visitedIds.has(target.id)}
+                  />
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+
+      <div className="mt-4">
+        <p className="mb-1.5 text-xs text-black/55">Knowledge graph</p>
+        <RecordLinksPanel
+          record={record}
+          graph={graph}
+          onOpenRecord={onOpenRecord}
+          visitedIds={visitedIds}
+        />
+      </div>
+
+      {status === "PROPOSED" && (
+        <ProposalActions
+          record={record}
+          canAccept={graph.canAcceptProposal(record.id)}
+          onDelete={(id) => {
+            graph.deleteRecord(id);
+            onClose();
+          }}
+          onDecision={graph.decideProposal}
+        />
+      )}
+
+      {status === "ACCEPTED" && (
+        <AcceptedRecordActions
+          record={record}
+          onPropose={graph.proposeRevision}
+        />
+      )}
+    </div>
   );
 }
 
@@ -931,9 +1371,12 @@ function RecordCard({
   const status = graph.effectiveStatus(record);
   const decision = graph.proposalDecisions[record.id];
   const pendingProposal = graph.pendingSupersessionByTargetId.get(record.id);
+  const conflicts = graph.supersessionConflictsByRecordId.get(record.id);
 
   return (
-    <article className="rounded-xl border border-black/10 bg-white/60 shadow-sm">
+    <article
+      className={`rounded-xl border shadow-sm ${RECORD_STATUS_CARD_CLASSES[status]}`}
+    >
       <div
         role="button"
         tabIndex={0}
@@ -1001,6 +1444,13 @@ function RecordCard({
               onOpenRecord={onOpenRecord}
             />
           )}
+          {status === "PROPOSED" && conflicts && (
+            <SupersessionConflictNotice
+              conflicts={conflicts}
+              onReevaluate={() => graph.reevaluateRecord(record.id)}
+              onOpenRecord={onOpenRecord}
+            />
+          )}
           <p className="text-md leading-6 text-black/75">{record.content}</p>
           <div className="mt-4">
             <RecordLinksPanel
@@ -1009,7 +1459,13 @@ function RecordCard({
               onOpenRecord={onOpenRecord}
             />
           </div>
-          <div className="mt-3 flex justify-end">
+          {status === "ACCEPTED" && (
+            <AcceptedRecordActions
+              record={record}
+              onPropose={graph.proposeRevision}
+            />
+          )}
+          <div className="mt-3 flex items-center justify-end gap-2">
             <button
               type="button"
               className="inline-flex items-center gap-1.5 rounded-lg border border-black/10 bg-white/80 px-2.5 py-1.5 text-sm text-black/65 transition-colors hover:bg-black/10"
@@ -1022,6 +1478,7 @@ function RecordCard({
           {record.status === "PROPOSED" && !decision && (
             <ProposalActions
               record={record}
+              canAccept={graph.canAcceptProposal(record.id)}
               onDelete={graph.deleteRecord}
               onDecision={graph.decideProposal}
             />
@@ -1039,10 +1496,13 @@ function RecordCard({
 
 function ProposalActions({
   record,
+  canAccept = true,
   onDelete,
   onDecision,
 }: {
   record: TypedCaseRecord;
+  // False when a pending supersession conflict must be re-evaluated first.
+  canAccept?: boolean;
   onDelete: (recordId: string) => void;
   onDecision: (recordId: string, decision: ProposalDecision) => void;
 }) {
@@ -1056,7 +1516,13 @@ function ProposalActions({
     <div className="mt-4 rounded-lg border border-black/10 bg-white/70 p-3">
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <button
-          className="inline-flex items-center gap-1.5 rounded-lg border border-green-200 bg-green-50 px-2.5 py-1.5 text-green-800 transition-colors hover:bg-green-100"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-green-200 bg-green-50 px-2.5 py-1.5 text-green-800 transition-colors hover:bg-green-100 disabled:cursor-not-allowed disabled:border-black/10 disabled:bg-black/[0.03] disabled:text-black/35"
+          disabled={!canAccept}
+          title={
+            canAccept
+              ? undefined
+              : "Re-evaluate the pending supersession before accepting"
+          }
           onClick={() => onDecision(record.id, { status: "accepted" })}
           type="button"
         >
@@ -1142,13 +1608,83 @@ function ProposalActions({
               </span>
             )}
             <button
-              className="rounded-lg border border-blue-200 bg-white px-3 py-1.5 text-sm text-blue-800 transition-colors hover:bg-black/10 disabled:cursor-not-allowed disabled:text-blue-300"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-black/10 bg-black/[0.03] px-2.5 py-1.5 text-sm text-black/70 transition-colors hover:bg-black/10 disabled:cursor-not-allowed disabled:text-black/30"
               disabled={!editSuggestion.trim()}
               onClick={() => setEditSubmitted(true)}
               type="button"
             >
+              <Sparkles className="h-3.5 w-3.5" />
               Send suggestion
             </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Action surface for accepted (authoritative) records: propose a revision. An
+// accepted record can't be edited in place — instead the user drafts a new
+// version that becomes a PROPOSED record superseding this one, routed through
+// the normal review queue. This is the primary way humans turn an accepted
+// record back into a proposal.
+function AcceptedRecordActions({
+  record,
+  onPropose,
+}: {
+  record: TypedCaseRecord;
+  onPropose: (recordId: string, draft: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState(record.content);
+
+  return (
+    <div
+      className="mt-3 rounded-lg border border-black/10 bg-white/70 p-3"
+      onClick={(event) => event.stopPropagation()}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-1.5 text-sm text-black/65">
+          <GitBranch className="h-4 w-4" />
+          <span>Propose a revision</span>
+        </div>
+        <button
+          type="button"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-black/10 bg-black/[0.03] px-2.5 py-1.5 text-sm text-black/70 transition-colors hover:bg-black/10"
+          onClick={() => {
+            setDraft(record.content);
+            setOpen((value) => !value);
+          }}
+        >
+          <PencilLine className="h-3.5 w-3.5" />
+          {open ? "Cancel" : "Propose revision"}
+        </button>
+      </div>
+
+      {open && (
+        <div className="mt-3">
+          <TextAreaField
+            label="Revised content"
+            placeholder="Edit the content. Submitting creates a proposed record that would supersede this one and sends it to the review queue."
+            value={draft}
+            onChange={(event) => setDraft(event.target.value)}
+            rows={4}
+            minRows={4}
+          />
+          <div className="mt-2 flex items-center justify-between gap-3">
+            <span className="text-xs text-black/45">
+              Goes to the review queue as a supersession proposal.
+            </span>
+            <Button
+              style="secondary"
+              text="Submit proposal"
+              icon="sparkles"
+              disabled={!draft.trim() || draft.trim() === record.content.trim()}
+              onClick={() => {
+                onPropose(record.id, draft);
+                setOpen(false);
+              }}
+            />
           </div>
         </div>
       )}
@@ -1238,7 +1774,10 @@ function RecordSettingsMenu({
                 type="button"
                 className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-black/70 transition-colors hover:bg-black/10"
                 onClick={(event) =>
-                  handleMenuAction(event, `Edit mode queued for this ${itemLabel}.`)
+                  handleMenuAction(
+                    event,
+                    `Edit mode queued for this ${itemLabel}.`,
+                  )
                 }
               >
                 <PencilLine className="h-3.5 w-3.5" />
@@ -1316,6 +1855,12 @@ const FILTERABLE_STATUSES: RecordStatus[] = [
   "SUPERSEDED",
 ];
 
+// Default view hides superseded records so the lists show only live work; the
+// reset control returns to exactly this set.
+const DEFAULT_VISIBLE_STATUSES: RecordStatus[] = FILTERABLE_STATUSES.filter(
+  (status) => status !== "SUPERSEDED",
+);
+
 function StatusFilter({
   selectedStatuses,
   onSelectStatuses,
@@ -1323,12 +1868,7 @@ function StatusFilter({
   selectedStatuses: RecordStatus[];
   onSelectStatuses: (statuses: RecordStatus[]) => void;
 }) {
-  const toggleStatus = (status: "all" | RecordStatus) => {
-    if (status === "all") {
-      onSelectStatuses([]);
-      return;
-    }
-
+  const toggleStatus = (status: RecordStatus) => {
     onSelectStatuses(
       selectedStatuses.includes(status)
         ? selectedStatuses.filter((selected) => selected !== status)
@@ -1339,11 +1879,17 @@ function StatusFilter({
   return (
     <div className="flex flex-wrap items-center gap-2 text-sm">
       <Filter className="h-4 w-4 text-black/50" />
-      {(["all", ...FILTERABLE_STATUSES] as const).map((status) => {
-        const selected =
-          status === "all"
-            ? selectedStatuses.length === 0
-            : selectedStatuses.includes(status);
+      <button
+        type="button"
+        title="Reset filters (hide superseded)"
+        aria-label="Reset status filters"
+        className="inline-flex items-center justify-center rounded-full border p-1.5 transition-colors border-black/10 bg-white/60 text-black/40 hover:bg-black/5 hover:text-black/50"
+        onClick={() => onSelectStatuses(DEFAULT_VISIBLE_STATUSES)}
+      >
+        <RotateCcw className="h-3.5 w-3.5" />
+      </button>
+      {FILTERABLE_STATUSES.map((status) => {
+        const selected = selectedStatuses.includes(status);
 
         return (
           <button
@@ -1356,7 +1902,7 @@ function StatusFilter({
             onClick={() => toggleStatus(status)}
             type="button"
           >
-            {status === "all" ? "All" : RECORD_STATUS_LABELS[status]}
+            {RECORD_STATUS_LABELS[status]}
           </button>
         );
       })}
@@ -1660,8 +2206,7 @@ function RecordsView({
   const filteredRecords = graph.records.filter((record) => {
     if (record.type !== recordType) return false;
     const status = graph.effectiveStatus(record);
-    const matchesStatus =
-      selectedStatuses.length === 0 || selectedStatuses.includes(status);
+    const matchesStatus = selectedStatuses.includes(status);
     return matchesStatus && recordMatchesSearch(record, panelSearch);
   });
 
@@ -1846,14 +2391,21 @@ function DocumentCard({
     <article className="rounded-xl border border-black/10 bg-white/60 p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">
-          <FileText className="h-5 w-5 shrink-0 text-black/55" />
+          {isImageDocument(document) ? (
+            <ImageIcon className="h-5 w-5 shrink-0 text-black/55" />
+          ) : (
+            <FileText className="h-5 w-5 shrink-0 text-black/55" />
+          )}
           <h3 className="truncate text-md font-semibold">
             {document.fileName}
           </h3>
         </div>
-        <span className="shrink-0 rounded-full border border-black/10 bg-white/80 px-2 py-0.5 text-xs capitalize text-black/60">
-          {document.processingStatus}
-        </span>
+        <div className="flex shrink-0 items-center gap-2">
+          <span className="rounded-full border border-black/10 bg-white/80 px-2 py-0.5 text-xs capitalize text-black/60">
+            {document.processingStatus}
+          </span>
+          <DocumentViewButton document={document} />
+        </div>
       </div>
       <p className="mt-1 text-sm text-black/55">
         <span className="capitalize">

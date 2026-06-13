@@ -20,11 +20,11 @@ Start with the global style/theme file, then inspect the closest matching surfac
 - Workspace menu: `client-app/src/components/menus/ActiveWorkspaceMenu.tsx`
 - Case intake fields: `client-app/src/components/features/case-intake/fields.tsx`
 - Case intake wizard menu: `client-app/src/components/menus/CreateCaseMenu.tsx`
-- Dense case workspace UI: `client-app/src/routes/case/$id.tsx`
+- Dense case workspace UI: `client-app/src/routes/workspaces.$workspaceId_.cases.$caseId.tsx`
 - Auth preview cards: `client-app/src/components/menus/LoginLeftMenu.tsx`
 - Subscription tier cards: `client-app/src/components/modals/modify-subscription/SelectTierStep.tsx`
 
-For app workflow surfaces, prefer `/case/$id` over legacy `Workspace.tsx` as the stronger current reference for cards, chips, search, empty states, record rows, nested panels, and review actions.
+For app workflow surfaces, prefer `workspaces.$workspaceId_.cases.$caseId.tsx` over `Workspace.tsx` as the stronger current reference for cards, chips, search, empty states, record rows, nested panels, and review actions.
 
 ## Global CSS And Theme
 
@@ -100,7 +100,7 @@ For auth routes:
 Route families:
 
 - Home and create-case routes should use `AppLayout`, `NavigationPanel`, `ContentShell`, `UserPanel`, shared `Button`, and neutral menu rows.
-- `/case/$id` is the main reference for dense case workspace UI: record cards, status chips, search inputs, empty states, timeline rows, proposal/review panels, and nested mini-panels.
+- `/workspaces/:workspaceId/cases/:caseId` is the main reference for dense case workspace UI: record cards, status chips, search inputs, empty states, timeline rows, proposal/review panels, and nested mini-panels.
 - Auth routes should keep compact `LoginLayout` forms, `w-84` cards, blue inline links, and the `LoginLeftMenu` preview-card language.
 
 ## Typography
@@ -282,7 +282,7 @@ Settings popup standard:
 
 ## Feature-Specific Patterns
 
-Dense case workspace (`/case/$id`):
+Dense case workspace (`workspaces.$workspaceId_.cases.$caseId.tsx`):
 
 - Record cards use `rounded-xl border border-black/10 bg-white/60 shadow-sm`.
 - Summary cards use `rounded-xl border border-black/10 bg-white/55 p-4`.

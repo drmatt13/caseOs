@@ -21,16 +21,28 @@ export const RECORD_STATUS_LABELS: Record<RecordStatus, string> = {
   PROPOSED: "Proposed",
   ACCEPTED: "Accepted",
   REJECTED: "Rejected",
-  SUPERSESSION_PENDING: "Supersession pending",
+  SUPERSESSION_PENDING: "Supersession proposed",
   SUPERSEDED: "Superseded",
 };
 
+// Badge styling (the small status pill).
 export const RECORD_STATUS_CLASSES: Record<RecordStatus, string> = {
   ACCEPTED: "border-green-200 bg-green-50 text-green-800",
   PROPOSED: "border-blue-200 bg-blue-50 text-blue-800",
   REJECTED: "border-red-200 bg-red-50 text-red-800",
-  SUPERSESSION_PENDING: "border-amber-200 bg-amber-50 text-amber-800",
+  SUPERSESSION_PENDING: "border-amber-300 bg-amber-100/35 text-amber-800",
   SUPERSEDED: "border-black/10 bg-black/5 text-black/55",
+};
+
+// Card surface tint keyed by status so a record's lifecycle reads at a glance:
+//   proposed → light blue, supersession proposed → yellow, superseded → gray,
+//   accepted / rejected → the default translucent white surface.
+export const RECORD_STATUS_CARD_CLASSES: Record<RecordStatus, string> = {
+  ACCEPTED: "border-black/10 bg-white/60",
+  PROPOSED: "border-blue-200 bg-blue-50/75",
+  REJECTED: "border-black/10 bg-white/55",
+  SUPERSESSION_PENDING: "border-red-200 bg-red-50/80",
+  SUPERSEDED: "border-black/10 bg-black/[0.04]",
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -259,8 +271,7 @@ export const VIEW_DESCRIPTIONS: Partial<Record<WorkspaceViewType, string>> = {
     "Witness modules — anticipated testimony, preparation guardrails, and cross-examination themes.",
   precedent:
     "Authorities with cite-check status, jurisdiction, and links to the issues they govern.",
-  notes:
-    "Working thoughts, questions, corrections, and strategy observations.",
+  notes: "Working thoughts, questions, corrections, and strategy observations.",
   documents:
     "Source files and the document records extracted from them. Other records ground themselves here.",
   people:
