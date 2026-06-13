@@ -69,7 +69,7 @@ function CountBadge({ count, tone }: { count: number; tone: "gray" | "blue" }) {
       className={`rounded-full px-1.5 py-0.5 text-xs font-mono border ${
         tone === "blue"
           ? "bg-blue-200/75 text-blue-800 border-blue-300"
-          : "bg-black/10 text-black/60 border-black/10"
+          : "bg-black/10 text-black/70 border-black/15"
       }`}
     >
       {count}
@@ -88,7 +88,7 @@ const ActiveWorkspaceMenu = ({
       {WORKSPACE_MENU_GROUPS.map((group, groupIndex) => (
         <div key={group.label ?? `group-${groupIndex}`}>
           {group.label && (
-            <p className="px-2 pb-1 pt-3 text-[0.65rem] font-medium uppercase tracking-wider text-black/40">
+            <p className="px-2 pb-1 pt-3 text-[0.65rem] font-medium uppercase tracking-wider text-black/55">
               {group.label}
             </p>
           )}
@@ -100,7 +100,7 @@ const ActiveWorkspaceMenu = ({
               <div
                 key={view}
                 className={`p-2 h-8 rounded-lg flex items-center justify-between gap-2 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100 ${
-                  activeView === view ? "bg-black/10" : "hover:bg-black/10"
+                  activeView === view ? "bg-black/14 font-medium" : "hover:bg-black/10"
                 }`}
                 onClick={() => onSelectView(view)}
               >

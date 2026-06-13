@@ -142,7 +142,7 @@ function DocumentViewButton({ document }: { document: CaseDocument }) {
   return (
     <button
       type="button"
-      className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-black/10 bg-black/[0.03] px-2.5 py-1.5 text-xs text-black/70 transition-colors hover:bg-black/10"
+      className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-black/15 bg-black/[0.03] px-2.5 py-1.5 text-xs text-black/70 transition-colors hover:bg-black/10"
       title={image ? "View image" : "Open document"}
       onClick={(event) => event.stopPropagation()}
     >
@@ -576,7 +576,7 @@ function RouteComponent() {
         <label className="relative block">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-black/50" />
           <input
-            className="w-full rounded-lg border border-black/15 lg:border-black/10 bg-white/25 lg:bg-black/3 py-2.5 pl-8 pr-2 text-sm placeholder:text-black/55 text-black/75 outline-none transition focus:border-black/30 focus:bg-white/50 lg:focus:bg-white/70"
+            className="w-full rounded-lg border border-black/22 lg:border-black/15 bg-white/25 lg:bg-black/3 py-2.5 pl-8 pr-2 text-sm placeholder:text-black/65 text-black/75 outline-none transition focus:border-black/30 focus:bg-white/50 lg:focus:bg-white/75"
             placeholder="Search workspace"
             value={globalSearch}
             onChange={(event) => setGlobalSearch(event.target.value)}
@@ -592,10 +592,10 @@ function RouteComponent() {
 
       <ContentShell>
         <div className="flex min-w-0 flex-col gap-4">
-          <header className="flex flex-wrap items-start justify-between gap-3 border-b border-black/10 pb-4">
+          <header className="flex flex-wrap items-start justify-between gap-3 border-b border-black/15 pb-4">
             <div className="min-w-0">
               <div className="mb-2 flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-black/10 bg-white/70 px-2.5 py-1 text-xs text-black/65">
+                <span className="rounded-full border border-black/15 bg-white/75 px-2.5 py-1 text-xs text-black/65">
                   {demoCase.caseNumber}
                 </span>
                 {pendingProposalCount > 0 && (
@@ -611,7 +611,7 @@ function RouteComponent() {
               <h1 className="truncate text-2xl font-semibold">
                 {demoCase.title}
               </h1>
-              <p className="mt-1 text-sm text-black/60">
+              <p className="mt-1 text-sm text-black/70">
                 {demoCaseContext.jurisdictionOrCourt} ·{" "}
                 {recordPartyLabel("ours", clientRole)} side · Case id: {caseId}
               </p>
@@ -699,7 +699,7 @@ function SubstatusBadge({ record }: { record: TypedCaseRecord }) {
       className={`rounded-full border px-2 py-0.5 text-xs ${
         needsAttention
           ? "border-amber-200 bg-amber-50 text-amber-800"
-          : "border-black/10 bg-black/[0.03] text-black/60"
+          : "border-black/15 bg-black/[0.03] text-black/70"
       }`}
     >
       {RECORD_SUBSTATUS_LABELS[record.substatus]}
@@ -741,8 +741,8 @@ function RecordChip({
       }
       className={`group flex w-full min-w-0 items-center gap-2 rounded-lg border px-2.5 py-1.5 text-left text-sm transition-colors ${
         isCycle
-          ? "border-black/10 bg-black/[0.03] opacity-70 cursor-not-allowed"
-          : "border-black/10 bg-white/80 hover:border-black/25 hover:bg-white"
+          ? "border-black/15 bg-black/[0.03] opacity-70 cursor-not-allowed"
+          : "border-black/15 bg-white/80 hover:border-black/25 hover:bg-white"
       }`}
       onClick={(event) => {
         event.stopPropagation();
@@ -750,24 +750,24 @@ function RecordChip({
       }}
       disabled={isCycle}
     >
-      <span className="shrink-0 rounded border border-black/10 bg-black/[0.03] px-1.5 py-0.5 text-[0.65rem] uppercase tracking-wide text-black/50">
+      <span className="shrink-0 rounded border border-black/15 bg-black/[0.03] px-1.5 py-0.5 text-[0.65rem] uppercase tracking-wide text-black/50">
         {RECORD_TYPE_LABELS[record.type]}
       </span>
       <span
         className={`truncate ${
-          isCycle ? "text-black/45" : "text-black/75 group-hover:text-black"
+          isCycle ? "text-black/55" : "text-black/75 group-hover:text-black"
         }`}
       >
         {record.title}
       </span>
       {isCycle && (
-        <span className="ml-auto inline-flex shrink-0 items-center gap-1 rounded border border-black/10 bg-black/[0.04] px-1 py-0.5 text-[0.6rem] uppercase tracking-wide text-black/45">
+        <span className="ml-auto inline-flex shrink-0 items-center gap-1 rounded border border-black/15 bg-black/[0.04] px-1 py-0.5 text-[0.6rem] uppercase tracking-wide text-black/55">
           <Repeat className="h-3 w-3" />
           In path
         </span>
       )}
       <ChevronRight
-        className={`h-3.5 w-3.5 shrink-0 text-black/30 group-hover:text-black/60 ${
+        className={`h-3.5 w-3.5 shrink-0 text-black/30 group-hover:text-black/70 ${
           isCycle ? "" : "ml-auto"
         }`}
       />
@@ -823,7 +823,7 @@ function RecordLinksPanel({
 
   if (outbound.length === 0 && inbound.length === 0) {
     return (
-      <div className="rounded-lg border border-black/10 bg-black/[0.025] p-3 text-sm text-black/40">
+      <div className="rounded-lg border border-black/15 bg-black/[0.025] p-3 text-sm text-black/50">
         {recordIsProposed
           ? "This proposal introduces no linked records yet."
           : recordIsSuperseded
@@ -861,7 +861,7 @@ function RecordLinksPanel({
   const renderGroups = (groups: ReturnType<typeof groupLinks>) =>
     [...groups.entries()].map(([label, entries]) => (
       <div key={label} className="min-w-0">
-        <p className="mb-1.5 flex items-center gap-1.5 text-xs text-black/55">
+        <p className="mb-1.5 flex items-center gap-1.5 text-xs text-black/65">
           <Link2 className="h-3.5 w-3.5" />
           {label}
         </p>
@@ -875,7 +875,7 @@ function RecordLinksPanel({
               />
               {(recordIsProposed || recordIsSuperseded) &&
                 link.explanation && (
-                  <p className="mt-0.5 pl-1 text-xs text-black/45">
+                  <p className="mt-0.5 pl-1 text-xs text-black/55">
                     {link.explanation}
                   </p>
                 )}
@@ -888,7 +888,7 @@ function RecordLinksPanel({
   return (
     <div className="flex flex-col gap-3">
       {recordIsSuperseded && (
-        <p className="rounded-lg border border-black/10 bg-black/[0.025] px-2.5 py-1.5 text-xs leading-5 text-black/45">
+        <p className="rounded-lg border border-black/15 bg-black/[0.025] px-2.5 py-1.5 text-xs leading-5 text-black/55">
           Historical links, retained for provenance. They are hidden from
           accepted records and proposals.
         </p>
@@ -1087,14 +1087,14 @@ function RecordInspector({
       />
 
       <div
-        className={`relative top-12 z-20 flex h-max max-h-[calc(100vh-6rem)] w-2xl max-w-[calc(100vw-3rem)] flex-col overflow-hidden rounded-xl border border-black/15 bg-white/90 text-md shadow-md backdrop-blur-sm transition-all ${
+        className={`relative top-12 z-20 flex h-max max-h-[calc(100vh-6rem)] w-2xl max-w-[calc(100vw-3rem)] flex-col overflow-hidden rounded-xl border border-black/22 bg-white/90 text-md shadow-md backdrop-blur-sm transition-all ${
           open
             ? "duration-100 ease-out scale-100 opacity-100 translate-0"
             : "duration-150 ease-in scale-95 opacity-0 translate-y-8"
         }`}
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="flex shrink-0 items-center gap-2 border-b border-black/10 px-4 py-3">
+        <div className="flex shrink-0 items-center gap-2 border-b border-black/15 px-4 py-3">
           {stack.length > 1 ? (
             <button
               type="button"
@@ -1105,10 +1105,10 @@ function RecordInspector({
               Back
             </button>
           ) : (
-            <span className="text-sm text-black/45">Record inspector</span>
+            <span className="text-sm text-black/55">Record inspector</span>
           )}
           {stack.length > 1 && (
-            <span className="text-xs text-black/40">
+            <span className="text-xs text-black/50">
               {stack.length} records deep
             </span>
           )}
@@ -1174,7 +1174,7 @@ function RecordInspectorBody({
   return (
     <div className="flex-1 overflow-y-auto p-4">
       <div className="mb-2 flex flex-wrap items-center gap-2">
-        <span className="rounded border border-black/10 bg-black/[0.03] px-1.5 py-0.5 text-[0.65rem] uppercase tracking-wide text-black/50">
+        <span className="rounded border border-black/15 bg-black/[0.03] px-1.5 py-0.5 text-[0.65rem] uppercase tracking-wide text-black/50">
           {RECORD_TYPE_LABELS[record.type]}
         </span>
         <StatusBadge status={status} />
@@ -1184,7 +1184,7 @@ function RecordInspectorBody({
 
       <h2 className="font-serif text-xl leading-snug">{record.title}</h2>
       {record.summary && (
-        <p className="mt-1 text-sm text-black/60">{record.summary}</p>
+        <p className="mt-1 text-sm text-black/70">{record.summary}</p>
       )}
 
       <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-black/50">
@@ -1207,13 +1207,13 @@ function RecordInspectorBody({
           {record.roles.map((role) => (
             <span
               key={role}
-              className="rounded-full border border-black/10 bg-white/80 px-2 py-0.5 text-xs capitalize text-black/60"
+              className="rounded-full border border-black/15 bg-white/80 px-2 py-0.5 text-xs capitalize text-black/70"
             >
               {role.replaceAll("_", " ").toLowerCase()}
             </span>
           ))}
           {record.organization && (
-            <span className="rounded-full border border-black/10 bg-white/80 px-2 py-0.5 text-xs text-black/60">
+            <span className="rounded-full border border-black/15 bg-white/80 px-2 py-0.5 text-xs text-black/70">
               {record.organization}
             </span>
           )}
@@ -1221,14 +1221,14 @@ function RecordInspectorBody({
       )}
 
       {record.type === "TIMELINE_EVENT" && (
-        <p className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-black/10 bg-white/70 px-2.5 py-1.5 text-sm text-black/70">
+        <p className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-black/15 bg-white/75 px-2.5 py-1.5 text-sm text-black/70">
           <CalendarDays className="h-4 w-4" />
           {formatDate(record.eventDate)}
         </p>
       )}
 
       {record.type === "DOCUMENT" && sourceDocument && (
-        <div className="mt-3 rounded-lg border border-black/10 bg-white/70 p-3">
+        <div className="mt-3 rounded-lg border border-black/15 bg-white/75 p-3">
           <div className="flex items-center justify-between gap-2">
             <div className="flex min-w-0 items-center gap-2 text-sm text-black/70">
               {isImageDocument(sourceDocument) ? (
@@ -1246,7 +1246,7 @@ function RecordInspectorBody({
           </p>
           {siblingDocumentRecords.length > 0 && (
             <div className="mt-3">
-              <p className="mb-1.5 text-xs text-black/55">
+              <p className="mb-1.5 text-xs text-black/65">
                 Other records from this file ({siblingDocumentRecords.length})
               </p>
               <div className="flex flex-col gap-1.5">
@@ -1278,14 +1278,14 @@ function RecordInspectorBody({
 
       {(supersededBy || record.supersedesIds?.length || pendingProposal) && (
         <div className="mt-4">
-          <p className="mb-1.5 flex items-center gap-1.5 text-xs text-black/55">
+          <p className="mb-1.5 flex items-center gap-1.5 text-xs text-black/65">
             <GitBranch className="h-3.5 w-3.5" />
             Version history
           </p>
           <div className="flex flex-col gap-1.5">
             {supersededBy && (
               <div>
-                <p className="mb-1 text-xs text-black/45">Superseded by</p>
+                <p className="mb-1 text-xs text-black/55">Superseded by</p>
                 <RecordChip
                   record={supersededBy}
                   onOpenRecord={onOpenRecord}
@@ -1310,7 +1310,7 @@ function RecordInspectorBody({
               .filter((target): target is TypedCaseRecord => Boolean(target))
               .map((target) => (
                 <div key={target.id}>
-                  <p className="mb-1 text-xs text-black/45">Supersedes</p>
+                  <p className="mb-1 text-xs text-black/55">Supersedes</p>
                   <RecordChip
                     record={target}
                     onOpenRecord={onOpenRecord}
@@ -1323,7 +1323,7 @@ function RecordInspectorBody({
       )}
 
       <div className="mt-4">
-        <p className="mb-1.5 text-xs text-black/55">Knowledge graph</p>
+        <p className="mb-1.5 text-xs text-black/65">Knowledge graph</p>
         <RecordLinksPanel
           record={record}
           graph={graph}
@@ -1399,7 +1399,7 @@ function RecordCard({
             <StatusBadge status={status} />
             <SubstatusBadge record={record} />
             {record.category && (
-              <span className="rounded-full border border-black/10 bg-white/80 px-2 py-0.5 text-xs text-black/55">
+              <span className="rounded-full border border-black/15 bg-white/80 px-2 py-0.5 text-xs text-black/65">
                 {record.category}
               </span>
             )}
@@ -1415,12 +1415,12 @@ function RecordCard({
           </div>
           <h3 className="text-md font-semibold">{record.title}</h3>
           {record.summary && (
-            <p className="mt-1 line-clamp-2 text-sm leading-5 text-black/60">
+            <p className="mt-1 line-clamp-2 text-sm leading-5 text-black/70">
               {record.summary}
             </p>
           )}
         </div>
-        <span className="absolute bottom-3 right-3 rounded-lg p-1 text-black/45">
+        <span className="absolute bottom-3 right-3 rounded-lg p-1 text-black/55">
           {expanded ? (
             <ChevronDown className="h-4 w-4" />
           ) : (
@@ -1430,7 +1430,7 @@ function RecordCard({
       </div>
 
       {expanded && (
-        <div className="border-t border-black/10 px-4 pb-4 pt-3">
+        <div className="border-t border-black/15 px-4 pb-4 pt-3">
           {record.status === "PROPOSED" && !decision && (
             <SupersessionNotice
               record={record}
@@ -1468,7 +1468,7 @@ function RecordCard({
           <div className="mt-3 flex items-center justify-end gap-2">
             <button
               type="button"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-black/10 bg-white/80 px-2.5 py-1.5 text-sm text-black/65 transition-colors hover:bg-black/10"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-black/15 bg-white/80 px-2.5 py-1.5 text-sm text-black/65 transition-colors hover:bg-black/10"
               onClick={() => onOpenRecord(record.id)}
             >
               Open in inspector
@@ -1513,10 +1513,10 @@ function ProposalActions({
   const [editSubmitted, setEditSubmitted] = useState(false);
 
   return (
-    <div className="mt-4 rounded-lg border border-black/10 bg-white/70 p-3">
+    <div className="mt-4 rounded-lg border border-black/15 bg-white/75 p-3">
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <button
-          className="inline-flex items-center gap-1.5 rounded-lg border border-green-200 bg-green-50 px-2.5 py-1.5 text-green-800 transition-colors hover:bg-green-100 disabled:cursor-not-allowed disabled:border-black/10 disabled:bg-black/[0.03] disabled:text-black/35"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-green-200 bg-green-50 px-2.5 py-1.5 text-green-800 transition-colors hover:bg-green-100 disabled:cursor-not-allowed disabled:border-black/15 disabled:bg-black/[0.03] disabled:text-black/35"
           disabled={!canAccept}
           title={
             canAccept
@@ -1538,7 +1538,7 @@ function ProposalActions({
           Reject proposal
         </button>
         <button
-          className="inline-flex items-center gap-1.5 rounded-lg border border-black/10 bg-white px-2.5 py-1.5 text-black/70 transition-colors hover:bg-black/10"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-black/15 bg-white px-2.5 py-1.5 text-black/70 transition-colors hover:bg-black/10"
           onClick={() => onDelete(record.id)}
           type="button"
         >
@@ -1546,7 +1546,7 @@ function ProposalActions({
           Delete proposal
         </button>
         <button
-          className="inline-flex items-center gap-1.5 rounded-lg border border-black/10 bg-black/[0.03] px-2.5 py-1.5 text-black/70 transition-colors hover:bg-black/10"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-black/15 bg-black/[0.03] px-2.5 py-1.5 text-black/70 transition-colors hover:bg-black/10"
           onClick={() => setSuggestingEdits((value) => !value)}
           title="Suggest edits with AI"
           type="button"
@@ -1608,7 +1608,7 @@ function ProposalActions({
               </span>
             )}
             <button
-              className="inline-flex items-center gap-1.5 rounded-lg border border-black/10 bg-black/[0.03] px-2.5 py-1.5 text-sm text-black/70 transition-colors hover:bg-black/10 disabled:cursor-not-allowed disabled:text-black/30"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-black/15 bg-black/[0.03] px-2.5 py-1.5 text-sm text-black/70 transition-colors hover:bg-black/10 disabled:cursor-not-allowed disabled:text-black/30"
               disabled={!editSuggestion.trim()}
               onClick={() => setEditSubmitted(true)}
               type="button"
@@ -1640,7 +1640,7 @@ function AcceptedRecordActions({
 
   return (
     <div
-      className="mt-3 rounded-lg border border-black/10 bg-white/70 p-3"
+      className="mt-3 rounded-lg border border-black/15 bg-white/75 p-3"
       onClick={(event) => event.stopPropagation()}
     >
       <div className="flex items-center justify-between gap-3">
@@ -1650,7 +1650,7 @@ function AcceptedRecordActions({
         </div>
         <button
           type="button"
-          className="inline-flex items-center gap-1.5 rounded-lg border border-black/10 bg-black/[0.03] px-2.5 py-1.5 text-sm text-black/70 transition-colors hover:bg-black/10"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-black/15 bg-black/[0.03] px-2.5 py-1.5 text-sm text-black/70 transition-colors hover:bg-black/10"
           onClick={() => {
             setDraft(record.content);
             setOpen((value) => !value);
@@ -1672,7 +1672,7 @@ function AcceptedRecordActions({
             minRows={4}
           />
           <div className="mt-2 flex items-center justify-between gap-3">
-            <span className="text-xs text-black/45">
+            <span className="text-xs text-black/55">
               Goes to the review queue as a supersession proposal.
             </span>
             <Button
@@ -1761,7 +1761,7 @@ function RecordSettingsMenu({
       </button>
       {open && (
         <div
-          className="absolute right-0 top-8 z-20 min-w-52 rounded-xl border border-black/15 bg-white/90 p-1.5 text-sm shadow-md backdrop-blur-sm"
+          className="absolute right-0 top-8 z-20 min-w-52 rounded-xl border border-black/22 bg-white/90 p-1.5 text-sm shadow-md backdrop-blur-sm"
           onClick={(event) => event.stopPropagation()}
         >
           {isSuperseded ? (
@@ -1811,7 +1811,7 @@ function RecordSettingsMenu({
             </>
           )}
           {menuNote && !isSuperseded && (
-            <p className="mt-1 border-t border-black/10 px-2.5 py-2 text-xs leading-4 text-black/50">
+            <p className="mt-1 border-t border-black/15 px-2.5 py-2 text-xs leading-4 text-black/50">
               {menuNote}
             </p>
           )}
@@ -1836,9 +1836,9 @@ function WorkPanelSearch({
 }) {
   return (
     <label className="relative block">
-      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-black/40" />
+      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-black/50" />
       <input
-        className="w-full rounded-lg border border-black/10 bg-white/65 py-2.5 pl-9 pr-3 text-md text-black/75 outline-none transition focus:border-black/30 focus:bg-white"
+        className="w-full rounded-lg border border-black/15 bg-white/65 py-2.5 pl-9 pr-3 text-md text-black/75 outline-none transition focus:border-black/30 focus:bg-white"
         placeholder={placeholder}
         value={value}
         onChange={(event) => onChange(event.target.value)}
@@ -1883,7 +1883,7 @@ function StatusFilter({
         type="button"
         title="Reset filters (hide superseded)"
         aria-label="Reset status filters"
-        className="inline-flex items-center justify-center rounded-full border p-1.5 transition-colors border-black/10 bg-white/60 text-black/40 hover:bg-black/5 hover:text-black/50"
+        className="inline-flex items-center justify-center rounded-full border p-1.5 transition-colors border-black/15 bg-white/70 text-black/50 hover:bg-black/5 hover:text-black/50"
         onClick={() => onSelectStatuses(DEFAULT_VISIBLE_STATUSES)}
       >
         <RotateCcw className="h-3.5 w-3.5" />
@@ -1897,7 +1897,7 @@ function StatusFilter({
             className={`rounded-full border px-2.5 py-1 transition-colors ${
               selected
                 ? "border-black/30 bg-black/10"
-                : "border-black/10 bg-white/60 hover:bg-black/5"
+                : "border-black/15 bg-white/70 hover:bg-black/5"
             }`}
             onClick={() => toggleStatus(status)}
             type="button"
@@ -1932,13 +1932,13 @@ function GlobalSearchView({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="font-serif text-lg">Workspace Search</h2>
-          <p className="mt-1 text-sm text-black/60">
+          <p className="mt-1 text-sm text-black/70">
             Searching all case records for "{query.trim()}".
           </p>
         </div>
         <button
           type="button"
-          className="rounded-lg border border-black/10 bg-white/70 px-3 py-1.5 text-sm text-black/65 transition-colors hover:bg-black/10"
+          className="rounded-lg border border-black/15 bg-white/75 px-3 py-1.5 text-sm text-black/65 transition-colors hover:bg-black/10"
           onClick={onClearSearch}
         >
           Clear search
@@ -1952,7 +1952,7 @@ function GlobalSearchView({
           records.map((record) => (
             <div key={record.id} className="flex flex-col gap-2">
               <div className="flex items-center gap-2 text-xs text-black/50">
-                <span className="rounded-full border border-black/10 bg-white/70 px-2 py-0.5">
+                <span className="rounded-full border border-black/15 bg-white/75 px-2 py-0.5">
                   {RECORD_TYPE_LABELS[record.type]}
                 </span>
                 <span>{formatDate(record.updatedAt)}</span>
@@ -1972,7 +1972,7 @@ function GlobalSearchView({
 
 function EmptyState({ message }: { message: string }) {
   return (
-    <div className="rounded-xl border border-dashed border-black/15 bg-white/40 p-8 text-center text-md text-black/55">
+    <div className="rounded-xl border border-dashed border-black/25 bg-white/50 p-8 text-center text-md text-black/65">
       {message}
     </div>
   );
@@ -2003,11 +2003,11 @@ function OverviewView({
   return (
     <div className="flex min-w-0 flex-col gap-4">
       <section className="flex flex-col gap-3">
-        <div className="rounded-xl border border-black/10 bg-white/55 p-4">
+        <div className="rounded-xl border border-black/15 bg-white/65 p-4">
           <div className="mb-3 flex items-start justify-between gap-3">
             <div>
               <h2 className="font-serif text-lg">Strategic Snapshot</h2>
-              <p className="mt-1 text-sm text-black/60">
+              <p className="mt-1 text-sm text-black/70">
                 {demoCaseContext.currentPosture}
               </p>
             </div>
@@ -2030,7 +2030,7 @@ function OverviewView({
         </div>
 
         <div className="grid gap-3 md:grid-cols-2">
-          <div className="rounded-xl border border-black/10 bg-black/[0.03] p-4">
+          <div className="rounded-xl border border-black/15 bg-black/[0.03] p-4">
             <div className="flex items-center gap-2">
               <CircleAlert className="h-4 w-4 text-amber-700" />
               <h2 className="font-serif text-lg">Main Risk</h2>
@@ -2039,9 +2039,9 @@ function OverviewView({
               {demoCaseContext.objectives.biggestCurrentRisk}
             </p>
           </div>
-          <div className="rounded-xl border border-black/10 bg-black/[0.03] p-4">
+          <div className="rounded-xl border border-black/15 bg-black/[0.03] p-4">
             <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-black/55" />
+              <Users className="h-4 w-4 text-black/65" />
               <h2 className="font-serif text-lg">Their Objective</h2>
             </div>
             <p className="mt-2 text-md leading-6 text-black/75">
@@ -2062,7 +2062,7 @@ function OverviewView({
                 Open review queue
               </button>
             </div>
-            <p className="mt-1 text-sm text-black/55">
+            <p className="mt-1 text-sm text-black/65">
               Records flagged for source review, missing support, date
               conflicts, or pending supersession.
             </p>
@@ -2078,7 +2078,7 @@ function OverviewView({
           </div>
         )}
 
-        <div className="rounded-xl border border-black/10 bg-white/55 p-4">
+        <div className="rounded-xl border border-black/15 bg-white/65 p-4">
           <h2 className="font-serif text-lg">High-Priority Work</h2>
           <div className="mt-3 flex flex-col gap-1.5">
             {highPriorityRecords.map((record) => (
@@ -2093,15 +2093,15 @@ function OverviewView({
       </section>
 
       <aside className="flex flex-col gap-3">
-        <div className="rounded-xl border border-black/10 bg-white/55 p-4">
+        <div className="rounded-xl border border-black/15 bg-white/65 p-4">
           <h2 className="font-serif text-lg">Workspace Activity</h2>
           <div className="mt-3 flex flex-col gap-2">
             {demoActivity.map((item) => (
               <div
                 key={item.id}
-                className="rounded-lg border border-black/10 bg-white/70 p-3"
+                className="rounded-lg border border-black/15 bg-white/75 p-3"
               >
-                <div className="flex items-center justify-between gap-2 text-xs text-black/55">
+                <div className="flex items-center justify-between gap-2 text-xs text-black/65">
                   <span>{item.actor}</span>
                   <span>{item.time}</span>
                 </div>
@@ -2135,7 +2135,7 @@ function ReviewView({
     <div className="flex flex-col gap-4">
       <div>
         <h2 className="font-serif text-lg">{VIEW_LABELS.review}</h2>
-        <p className="mt-1 text-sm text-black/60">{VIEW_DESCRIPTIONS.review}</p>
+        <p className="mt-1 text-sm text-black/70">{VIEW_DESCRIPTIONS.review}</p>
       </div>
 
       {graph.proposedRecords.length === 0 && (
@@ -2214,7 +2214,7 @@ function RecordsView({
     <div className="flex flex-col gap-3">
       <div>
         <h2 className="font-serif text-lg">{VIEW_LABELS[activeView]}</h2>
-        <p className="mt-1 text-sm text-black/60">
+        <p className="mt-1 text-sm text-black/70">
           {VIEW_DESCRIPTIONS[activeView]}
         </p>
       </div>
@@ -2289,7 +2289,7 @@ function TimelineView({
     <div className="flex flex-col gap-3">
       <div>
         <h2 className="font-serif text-lg">{VIEW_LABELS.timeline}</h2>
-        <p className="mt-1 text-sm text-black/60">
+        <p className="mt-1 text-sm text-black/70">
           {VIEW_DESCRIPTIONS.timeline}
         </p>
       </div>
@@ -2310,14 +2310,14 @@ function TimelineView({
       />
 
       <div className="relative flex flex-col gap-2 pl-5">
-        <div className="absolute left-[.55rem] top-2 bottom-2 w-px bg-black/10" />
+        <div className="absolute left-[.55rem] top-2 bottom-2 w-px bg-black/20" />
         {events.length === 0 ? (
           <EmptyState message="No timeline events match the current filters." />
         ) : (
           events.map((record) => (
             <article key={record.id} className="relative">
-              <div className="absolute -left-[1.05rem] top-5 h-2.5 w-2.5 rounded-full border border-white bg-black/35" />
-              <div className="mb-1 flex items-center gap-1.5 pl-1 text-xs text-black/55">
+              <div className="absolute -left-[1.05rem] top-5 h-2.5 w-2.5 rounded-full border border-white bg-black/45" />
+              <div className="mb-1 flex items-center gap-1.5 pl-1 text-xs text-black/65">
                 <CalendarDays className="h-3.5 w-3.5" />
                 {formatDate(record.eventDate)}
               </div>
@@ -2358,7 +2358,7 @@ function DocumentsView({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="font-serif text-lg">{VIEW_LABELS.documents}</h2>
-          <p className="mt-1 text-sm text-black/60">
+          <p className="mt-1 text-sm text-black/70">
             {VIEW_DESCRIPTIONS.documents}
           </p>
         </div>
@@ -2388,26 +2388,26 @@ function DocumentCard({
   onOpenRecord: (recordId: string) => void;
 }) {
   return (
-    <article className="rounded-xl border border-black/10 bg-white/60 p-4">
+    <article className="rounded-xl border border-black/15 bg-white/70 p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">
           {isImageDocument(document) ? (
-            <ImageIcon className="h-5 w-5 shrink-0 text-black/55" />
+            <ImageIcon className="h-5 w-5 shrink-0 text-black/65" />
           ) : (
-            <FileText className="h-5 w-5 shrink-0 text-black/55" />
+            <FileText className="h-5 w-5 shrink-0 text-black/65" />
           )}
           <h3 className="truncate text-md font-semibold">
             {document.fileName}
           </h3>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <span className="rounded-full border border-black/10 bg-white/80 px-2 py-0.5 text-xs capitalize text-black/60">
+          <span className="rounded-full border border-black/15 bg-white/80 px-2 py-0.5 text-xs capitalize text-black/70">
             {document.processingStatus}
           </span>
           <DocumentViewButton document={document} />
         </div>
       </div>
-      <p className="mt-1 text-sm text-black/55">
+      <p className="mt-1 text-sm text-black/65">
         <span className="capitalize">
           {document.category.replaceAll("_", " ")}
         </span>
@@ -2420,11 +2420,11 @@ function DocumentCard({
         </p>
       )}
       <div className="mt-3">
-        <p className="mb-1.5 text-xs text-black/55">
+        <p className="mb-1.5 text-xs text-black/65">
           Document records extracted from this file ({documentRecords.length})
         </p>
         {documentRecords.length === 0 ? (
-          <p className="text-sm text-black/40">
+          <p className="text-sm text-black/50">
             No document records yet — processing will propose them.
           </p>
         ) : (
@@ -2457,7 +2457,7 @@ function PeopleView({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="font-serif text-lg">{VIEW_LABELS.people}</h2>
-          <p className="mt-1 text-sm text-black/60">
+          <p className="mt-1 text-sm text-black/70">
             {VIEW_DESCRIPTIONS.people}
           </p>
         </div>
@@ -2473,7 +2473,7 @@ function PeopleView({
           return (
             <article
               key={person.id}
-              className="rounded-xl border border-black/10 bg-white/60 p-4"
+              className="rounded-xl border border-black/15 bg-white/70 p-4"
             >
               <div className="flex items-start justify-between gap-2">
                 <h3 className="text-md font-semibold">{person.name}</h3>
@@ -2483,13 +2483,13 @@ function PeopleView({
                 {person.roles.map((role) => (
                   <span
                     key={role}
-                    className="rounded-full border border-black/10 bg-white/80 px-2 py-0.5 text-xs capitalize text-black/60"
+                    className="rounded-full border border-black/15 bg-white/80 px-2 py-0.5 text-xs capitalize text-black/70"
                   >
                     {role.replaceAll("_", " ").toLowerCase()}
                   </span>
                 ))}
                 {person.organization && (
-                  <span className="rounded-full border border-black/10 bg-black/[0.03] px-2 py-0.5 text-xs text-black/60">
+                  <span className="rounded-full border border-black/15 bg-black/[0.03] px-2 py-0.5 text-xs text-black/70">
                     {person.organization}
                   </span>
                 )}
@@ -2504,7 +2504,7 @@ function PeopleView({
                 </span>
                 <button
                   type="button"
-                  className="inline-flex items-center gap-1 rounded-lg border border-black/10 bg-white/80 px-2.5 py-1.5 text-sm text-black/65 transition-colors hover:bg-black/10"
+                  className="inline-flex items-center gap-1 rounded-lg border border-black/15 bg-white/80 px-2.5 py-1.5 text-sm text-black/65 transition-colors hover:bg-black/10"
                   onClick={() => onOpenRecord(person.id)}
                 >
                   Open
@@ -2527,8 +2527,8 @@ function CaseNoteComposer({
   const [draft, setDraft] = useState("");
 
   return (
-    <div className="rounded-xl border border-black/10 bg-white/60 p-3">
-      <div className="mb-2 flex items-center gap-2 text-sm text-black/60">
+    <div className="rounded-xl border border-black/15 bg-white/70 p-3">
+      <div className="mb-2 flex items-center gap-2 text-sm text-black/70">
         <PencilLine className="h-4 w-4" />
         <span>New case note</span>
       </div>
@@ -2582,14 +2582,14 @@ function AgentView({
             <Bot className="h-5 w-5" />
             Case Agent
           </h2>
-          <p className="mt-1 text-sm text-black/60">
+          <p className="mt-1 text-sm text-black/70">
             Grounded in the case knowledge graph. Every answer cites records you
             can open, and every change arrives as a reviewable proposal.
           </p>
         </div>
         <button
           type="button"
-          className="rounded-lg border border-black/10 bg-white/70 px-3 py-1.5 text-sm text-black/65 transition-colors hover:bg-black/10"
+          className="rounded-lg border border-black/15 bg-white/75 px-3 py-1.5 text-sm text-black/65 transition-colors hover:bg-black/10"
           onClick={() => setShowInstructions((value) => !value)}
         >
           {showInstructions ? "Hide instructions" : "Agent instructions"}
@@ -2597,7 +2597,7 @@ function AgentView({
       </div>
 
       {showInstructions && (
-        <section className="rounded-xl border border-black/10 bg-black/[0.03] p-4">
+        <section className="rounded-xl border border-black/15 bg-black/[0.03] p-4">
           <h3 className="text-sm font-medium text-black/70">
             Standing instructions
           </h3>
@@ -2606,15 +2606,15 @@ function AgentView({
               (instruction) => (
                 <div
                   key={instruction}
-                  className="flex gap-2 rounded-lg border border-black/10 bg-white/70 p-3 text-sm text-black/75"
+                  className="flex gap-2 rounded-lg border border-black/15 bg-white/75 p-3 text-sm text-black/75"
                 >
-                  <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-black/45" />
+                  <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-black/55" />
                   <span>{instruction}</span>
                 </div>
               ),
             )}
           </div>
-          <div className="mt-3 rounded-lg border border-black/10 bg-white/70 p-3">
+          <div className="mt-3 rounded-lg border border-black/15 bg-white/75 p-3">
             <TextAreaField
               label="Propose an instruction change"
               placeholder="Example: When reviewing discovery, prioritize missing records controlled by property management."
@@ -2642,7 +2642,7 @@ function AgentView({
         </section>
       )}
 
-      <section className="flex flex-col gap-3 rounded-xl border border-black/10 bg-white/55 p-4">
+      <section className="flex flex-col gap-3 rounded-xl border border-black/15 bg-white/65 p-4">
         {demoAgentThread.map((message) => (
           <div
             key={message.id}
@@ -2653,11 +2653,11 @@ function AgentView({
             <div
               className={`max-w-[85%] rounded-xl border p-3 ${
                 message.role === "user"
-                  ? "border-black/10 bg-black/[0.05]"
-                  : "border-black/10 bg-white/85"
+                  ? "border-black/15 bg-black/[0.05]"
+                  : "border-black/15 bg-white/85"
               }`}
             >
-              <div className="mb-1 flex items-center gap-1.5 text-xs text-black/45">
+              <div className="mb-1 flex items-center gap-1.5 text-xs text-black/55">
                 {message.role === "agent" && <Bot className="h-3.5 w-3.5" />}
                 <span>{message.role === "agent" ? "Case Agent" : "You"}</span>
                 <span>· {message.time}</span>
@@ -2666,7 +2666,7 @@ function AgentView({
                 {message.content}
               </p>
               {message.citedRecordIds && message.citedRecordIds.length > 0 && (
-                <div className="mt-3 border-t border-black/10 pt-2">
+                <div className="mt-3 border-t border-black/15 pt-2">
                   <p className="mb-1.5 text-xs text-black/50">
                     Grounded in {message.citedRecordIds.length} records
                   </p>
@@ -2690,7 +2690,7 @@ function AgentView({
           </div>
         ))}
 
-        <div className="mt-2 rounded-lg border border-black/10 bg-white/75 p-3">
+        <div className="mt-2 rounded-lg border border-black/15 bg-white/75 p-3">
           <TextAreaField
             label="Ask the case agent"
             placeholder="Ask the agent to summarize discovery gaps, compare arguments, or propose new records from a document..."
@@ -2700,7 +2700,7 @@ function AgentView({
             minRows={3}
           />
           <div className="mt-2 flex items-center justify-between gap-3">
-            <span className="text-xs text-black/45">
+            <span className="text-xs text-black/55">
               Responses cite records; proposed changes go to the review queue.
             </span>
             <Button
@@ -2722,8 +2722,8 @@ function AgentView({
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-black/10 bg-white/70 p-3">
-      <p className="text-xs text-black/55">{label}</p>
+    <div className="rounded-lg border border-black/15 bg-white/75 p-3">
+      <p className="text-xs text-black/65">{label}</p>
       <p className="mt-1 text-xl font-semibold">{value}</p>
     </div>
   );

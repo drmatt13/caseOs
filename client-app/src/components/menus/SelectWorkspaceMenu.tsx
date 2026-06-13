@@ -16,9 +16,9 @@ const SelectWorkspaceMenu = ({
 
   return (
     <>
-      <div className="text-sm flex pl-1.5 h-6 items-center">
-        <p className="truncate underline">Select Workspace</p>
-      </div>
+      <p className="px-2 pb-1 pt-2 text-[0.65rem] font-medium uppercase tracking-wider text-black/55">
+        Workspaces
+      </p>
       {canCreateWorkspace ? (
         <Link to="/workspaces/new">
           <div className="text-sm h-8 p-2 rounded-lg hover:bg-black/10 cursor-pointer flex items-center gap-1.5 text-black transition-colors ease-in duration-150 hover:ease-out hover:duration-100">

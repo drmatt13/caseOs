@@ -10,7 +10,7 @@ const headerActionClassName =
 const ContentHeaderBar = ({
   showWorkspaceSettings = false,
 }: ContentHeaderBarProps) => (
-  <div className="flex flex-row justify-between text-sm px-4 sm:px-0 border-b border-black/15 pb-3">
+  <div className="flex flex-row justify-between text-sm px-4 sm:px-0 border-b border-black/20 pb-3">
     <div className="flex gap-1.5">
       <button type="button" className={headerActionClassName}>
         <Mail className="w-3.5 h-3.5" />

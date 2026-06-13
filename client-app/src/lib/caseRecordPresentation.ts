@@ -27,21 +27,21 @@ export const RECORD_STATUS_LABELS: Record<RecordStatus, string> = {
 
 // Badge styling (the small status pill).
 export const RECORD_STATUS_CLASSES: Record<RecordStatus, string> = {
-  ACCEPTED: "border-green-200 bg-green-50 text-green-800",
-  PROPOSED: "border-blue-200 bg-blue-50 text-blue-800",
-  REJECTED: "border-red-200 bg-red-50 text-red-800",
-  SUPERSESSION_PENDING: "border-amber-300 bg-amber-100/35 text-amber-800",
-  SUPERSEDED: "border-black/10 bg-black/5 text-black/55",
+  ACCEPTED: "border-green-300 bg-green-100 text-green-800",
+  PROPOSED: "border-blue-300 bg-blue-100 text-blue-800",
+  REJECTED: "border-red-300 bg-red-100 text-red-800",
+  SUPERSESSION_PENDING: "border-amber-300 bg-amber-100 text-amber-900",
+  SUPERSEDED: "border-black/15 bg-black/[0.06] text-black/55",
 };
 
 // Card surface tint keyed by status so a record's lifecycle reads at a glance:
 //   proposed → light blue, supersession proposed → yellow, superseded → gray,
 //   accepted / rejected → the default translucent white surface.
 export const RECORD_STATUS_CARD_CLASSES: Record<RecordStatus, string> = {
-  ACCEPTED: "border-black/10 bg-white/60",
-  PROPOSED: "border-blue-200 bg-blue-50/75",
-  REJECTED: "border-black/10 bg-white/55",
-  SUPERSESSION_PENDING: "border-red-200 bg-red-50/80",
+  ACCEPTED: "border-black/15 bg-white/70",
+  PROPOSED: "border-blue-200 bg-blue-50",
+  REJECTED: "border-red-100 bg-red-50/50",
+  SUPERSESSION_PENDING: "border-amber-200 bg-amber-50",
   SUPERSEDED: "border-black/10 bg-black/[0.04]",
 };
 
@@ -132,9 +132,9 @@ export const SUPPORT_STATUS_LABELS: Record<SupportStatus, string> = {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const RECORD_PARTY_CLASSES: Record<RecordParty, string> = {
-  ours: "border-sky-200 bg-sky-50 text-sky-800",
-  opposing: "border-rose-200 bg-rose-50 text-rose-800",
-  neutral: "border-black/10 bg-white/80 text-black/55",
+  ours: "border-sky-200 bg-sky-100 text-sky-800",
+  opposing: "border-rose-200 bg-rose-100 text-rose-800",
+  neutral: "border-black/15 bg-white/85 text-black/65",
 };
 
 const OUR_SIDE_LABELS: Partial<Record<ClientRole, string>> = {

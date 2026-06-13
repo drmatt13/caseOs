@@ -92,7 +92,7 @@ const SettingsPopup = () => {
       <div
         ref={refs.setFloating}
         style={floatingStyles}
-        className="relative text-sm pr-3 pl-3 pt-8 pb-3 z-50 flex flex-col gap-1.5 rounded-2xl border border-black/15 bg-white/80 shadow-md backdrop-blur-sm"
+        className="relative text-sm pr-3 pl-3 pt-8 pb-3 z-50 flex flex-col gap-1.5 rounded-2xl border border-black/22 bg-white/85 shadow-md backdrop-blur-sm"
         {...getFloatingProps()}
       >
         <button

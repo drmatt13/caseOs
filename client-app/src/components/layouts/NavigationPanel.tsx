@@ -357,7 +357,7 @@ const NavigationPanel = ({ children }: NavigationPanelProps) => {
       <div
         ref={panelRef}
         style={windowWidthCategory === "large" ? panelStyle : undefined}
-        className="sticky top-0 z-10 max-h-dvh lg:top-7 h-dvh lg:h-max lg:rounded-2xl pl-2 lg:pl-0 lg:border lg:border-black/15 lg:shadow-md lg:overflow-hidden"
+        className="sticky top-0 z-10 max-h-dvh lg:top-7 h-dvh lg:h-max lg:rounded-2xl pl-2 lg:pl-0 lg:border lg:border-black/22 lg:shadow-md lg:overflow-hidden"
       >
         {menuOpen && (
           <div className="pointer-events-none absolute right-0 translate-x-full w-[200vw] h-full" />

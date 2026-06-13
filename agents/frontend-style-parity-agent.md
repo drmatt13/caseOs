@@ -119,29 +119,39 @@ Do not "correct" `text-md` to `text-sm` unless you are intentionally moving cont
 
 ## Color And Border Standards
 
+**Border hierarchy (outermost → innermost):**
+
+- App shell panels (nav, ContentShell): `border-black/22` — strong structural frame
+- Primary content cards (RecordCard, DocumentCard, PeopleCard, overview sections): `border-black/15`
+- Nested/sub-panels (activity rows, agent thread bubbles, inline panels): `border-black/15`
+- Micro chips and inner badge borders: `border-black/15`
+- Separator dividers: `border-black/15` or `border-black/20` on major rows
+- Dashed empty-state borders: `border-black/25` — needs extra weight for dotted strokes
+
 Prefer these reusable ingredients:
 
-- Default border: `border border-black/15`
-- Softer nested border: `border border-black/10`
 - Default hover fill: `hover:bg-black/10`
 - Compact icon hover fill: `hover:bg-black/15`
-- Selected menu item: `bg-black/10`
-- Muted text: `text-gray-600`, `text-gray-500`, `text-black/55`, `text-black/60`, `text-black/65`, `text-black/75`
+- Selected menu item: `bg-black/[0.14]` with `font-medium` — slightly stronger than hover
+- Muted text: `text-gray-600`, `text-gray-500`, `text-black/65`, `text-black/70`, `text-black/75`
+- Secondary supporting text: `text-black/65`
+- Metadata/muted labels: `text-black/55`
+- Ultra-muted (section group headers, depth indicators): `text-black/50`
 - Disabled text: `text-gray-400`
-- Subtle white nested panels: `bg-white/55`, `bg-white/60`, `bg-white/65`, `bg-white/70`, `bg-white/75`, `bg-white/80`
-- Subtle black nested panels: `bg-black/3`, `bg-black/6`, `bg-black/[0.025]`, `bg-black/[0.03]`, `bg-black/5`, `bg-black/10`
+- Subtle white nested panels: `bg-white/65`, `bg-white/70`, `bg-white/75`, `bg-white/80`, `bg-white/85`
+- Subtle black nested panels: `bg-black/4`, `bg-black/5`, `bg-black/6`, `bg-black/8`, `bg-black/10`
 - Auth/simple route inputs: `bg-gray-100`
-- Modal inputs: `bg-white/70`
+- Modal inputs: `bg-white/75`
 - Intake fields and textareas: `bg-white`
 
 Status colors:
 
-- Success alerts/chips: `border-green-200 bg-green-50 text-green-800`
-- Error alerts/chips: `border-red-200 bg-red-50 text-red-800` or `text-red-700`
-- Warning alerts/chips: `border-amber-200 bg-amber-50 text-amber-800`
-- Info alerts/chips: `border-blue-200 bg-blue-50 text-blue-800`
-- Case party chips may use rose/sky variants: `border-rose-200 bg-rose-50 text-rose-800`, `border-sky-200 bg-sky-50 text-sky-800`.
-- Superseded/metadata chips use black-alpha borders/fills such as `border-black/10 bg-black/5 text-black/55`, `bg-black/[0.03]`, or `bg-white/80`.
+- Success alerts/chips: `border-green-300 bg-green-100 text-green-800`
+- Error alerts/chips: `border-red-300 bg-red-100 text-red-800` or `text-red-700`
+- Warning alerts/chips: `border-amber-300 bg-amber-100 text-amber-900`
+- Info alerts/chips: `border-blue-300 bg-blue-100 text-blue-800`
+- Case party chips: `border-rose-200 bg-rose-100 text-rose-800`, `border-sky-200 bg-sky-100 text-sky-800`.
+- Superseded/metadata chips: `border-black/15 bg-black/6 text-black/55`.
 
 ## Spacing And Radius
 
@@ -284,15 +294,15 @@ Settings popup standard:
 
 Dense case workspace (`workspaces.$workspaceId_.cases.$caseId.tsx`):
 
-- Record cards use `rounded-xl border border-black/10 bg-white/60 shadow-sm`.
-- Summary cards use `rounded-xl border border-black/10 bg-white/55 p-4`.
-- Work-panel search inputs use leading lucide icons and compact rounded fields: `rounded-lg border border-black/10 bg-white/65 py-2.5 pl-9 pr-3 text-md`.
-- Left-rail search uses `rounded-lg border border-black/15 lg:border-black/10 bg-white/25 lg:bg-black/3 py-2.5 pl-8 pr-2 text-sm`.
-- Empty states use `rounded-xl border border-dashed border-black/15 bg-white/40 p-8 text-center text-sm text-black/55`.
-- Timeline rows use a black-alpha vertical line, small dot markers, `rounded-lg border border-black/10 bg-white/65 p-3`, and compact metadata chips.
-- Proposal/review panels use neutral shells with status-colored actions: green accept, red reject/delete, black-alpha suggest/edit, and blue nested suggestion panels.
-- Nested helper panels use `rounded-lg border border-black/10 bg-white/70 p-3`, `bg-white/75`, or `bg-black/[0.025]` for quieter supporting context.
-- Record text uses `text-md` for titles/body and `text-sm` for mini descriptions.
+- Record cards use `rounded-xl border border-black/15 bg-white/70 shadow-sm` (accepted) or status-tinted surfaces for proposed/superseded.
+- Summary cards use `rounded-xl border border-black/15 bg-white/65 p-4`.
+- Work-panel search inputs use leading lucide icons and compact rounded fields: `rounded-lg border border-black/15 bg-white/70 py-2.5 pl-9 pr-3 text-md`.
+- Left-rail search uses `rounded-lg border border-black/22 lg:border-black/15 bg-white/25 lg:bg-black/3 py-2.5 pl-8 pr-2 text-sm`.
+- Empty states use `rounded-xl border border-dashed border-black/25 bg-white/50 p-8 text-center text-md text-black/65`.
+- Timeline rows use a `bg-black/20` vertical line, `bg-black/45` dot markers, `rounded-lg border border-black/15 bg-white/70 p-3`, and compact metadata chips.
+- Proposal/review panels use neutral shells (`border-black/15 bg-white/75`) with status-colored actions: green accept, red reject/delete, black-alpha suggest/edit, and blue nested suggestion panels.
+- Nested helper panels use `rounded-lg border border-black/15 bg-white/75 p-3` or `bg-white/80` for quieter supporting context.
+- Record text uses `text-md` for titles/body (`text-black/80`), `text-sm text-black/70` for secondary, and `text-xs text-black/55` for metadata.
 
 Case intake:
 
@@ -351,8 +361,11 @@ When adding a new frontend feature:
 - Do not use `text-sm` as body text just because it would be body-sized in default Tailwind; in this app `text-sm` is compact secondary text.
 - Do not use heavy shadows, saturated backgrounds, or large marketing-style sections inside app workflows.
 - Do not create one-off buttons when the shared `Button` supports the action.
-- Do not use hard black borders where `border-black/10` or `border-black/15` is enough.
+- Do not use hard black borders where `border-black/15` or `border-black/22` is enough.
+- Do not reach for `border-black/10` for primary card borders — those should be `border-black/15` so they read against the translucent glass shell.
 - Do not make app workflow cards visually louder than the translucent shell.
 - Do not add decorative gradients or large hero sections to operational screens.
 - Do not ignore the existing difference between app panels, auth cards, modals, popup menus, case workspace cards, and intake forms.
+- Do not use status chip fills like `bg-green-50` or `bg-blue-50` — prefer the bolder `bg-green-100` / `bg-blue-100` equivalents so chips are legible against the glass background.
+- Do not use muted text below `text-black/50` for anything a user must read; reserve lower opacities only for purely decorative or disabled states.
 - Do not copy disabled/comment-like class fragments such as slash-prefixed leftovers unless you have verified they are intentional and active.

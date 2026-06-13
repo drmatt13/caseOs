@@ -237,7 +237,7 @@ function RouteComponent() {
                 />
               )}
             </div>
-            <p className="justify-self-center text-md text-black/55">
+            <p className="justify-self-center text-md text-black/65">
               {`Step ${workspaceState.step} of ${CREATE_WORKSPACE_TOTAL_STEPS}`}
             </p>
             <div className="justify-self-end">

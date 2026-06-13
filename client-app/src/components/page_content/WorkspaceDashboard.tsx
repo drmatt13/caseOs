@@ -54,14 +54,14 @@ const WorkspaceDashboard = ({ workspace }: WorkspaceProps) => {
               key={caseItem.id}
               to="/workspaces/$workspaceId/cases/$caseId"
               params={{ workspaceId: workspace.id, caseId: caseItem.id }}
-              className="group flex min-h-14 items-center gap-3 rounded-xl px-3 transition-colors ease-in duration-150 hover:bg-black/10 hover:ease-out hover:duration-100"
+              className="group flex min-h-14 items-center gap-3 rounded-xl border border-black/10 px-3 mb-0.5 transition-colors ease-in duration-150 hover:bg-black/10 hover:ease-out hover:duration-100"
             >
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black/5 text-black/70">
                 <BriefcaseBusiness className="h-4 w-4" />
               </div>
               <div className="min-w-0">
                 <p className="truncate text-md font-medium">{caseItem.name}</p>
-                <p className="truncate text-sm text-black/55">
+                <p className="truncate text-sm text-black/65">
                   Default workspace case
                 </p>
               </div>

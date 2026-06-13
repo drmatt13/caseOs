@@ -76,17 +76,17 @@ const BestFitWorkspace = ({ workspaces }: BestFitWorkspaceProps) => {
         </p>
       </div>
 
-      <div className="rounded-lg border border-black/10 bg-black/5 p-4">
+      <div className="rounded-lg border border-black/15 bg-black/6 p-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0">
             <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-white/60">
               <Sparkles className="h-5 w-5 text-black/70" />
             </div>
-            <p className="text-sm font-medium text-black/55">Best fit</p>
+            <p className="text-sm font-medium text-black/65">Best fit</p>
             <p className="mt-1 truncate text-lg font-bold">
               {bestFitWorkspace.name}
             </p>
-            <p className="mt-1 text-sm text-black/55">
+            <p className="mt-1 text-sm text-black/65">
               {formatUpdatedAt(bestFitWorkspace.updatedAt)}
             </p>
           </div>
@@ -107,10 +107,10 @@ const BestFitWorkspace = ({ workspaces }: BestFitWorkspaceProps) => {
             key={workspace.id}
             to="/workspaces/$workspaceId"
             params={{ workspaceId: workspace.id }}
-            className="rounded-lg bg-black/5 p-3 transition-colors ease-in duration-150 hover:bg-black/10 hover:ease-out hover:duration-100"
+            className="rounded-lg bg-black/6 p-3 transition-colors ease-in duration-150 hover:bg-black/10 hover:ease-out hover:duration-100"
           >
             <p className="truncate text-sm font-medium">{workspace.name}</p>
-            <p className="mt-1 text-sm text-black/55">
+            <p className="mt-1 text-sm text-black/65">
               {formatUpdatedAt(workspace.updatedAt)}
             </p>
           </Link>
@@ -145,7 +145,7 @@ const WorkspaceOverview = ({
         <BestFitWorkspace workspaces={workspaces} />
       ) : (
         <div className="flex flex-col items-center justify-center lg:px-6 pt-6 pb-2 text-center">
-          <div className="mb-4 flex aspect-square items-center justify-center rounded-full border border-black/10 bg-black/6 p-4">
+          <div className="mb-4 flex aspect-square items-center justify-center rounded-full border border-black/15 bg-black/8 p-4">
             <BriefcaseBusiness className="h-7 w-7 text-black/75" />
           </div>
 
@@ -155,34 +155,34 @@ const WorkspaceOverview = ({
           </p>
 
           <div className="mt-7 grid w-full max-w-xl gap-2 text-left sm:grid-cols-3">
-            <div className="flex items-start gap-2 rounded-lg bg-black/5 p-3">
+            <div className="flex items-start gap-2 rounded-lg bg-black/6 p-3">
               <Users className="mt-0.5 h-4 w-4 shrink-0 text-black/65" />
               <div>
                 <p className="text-sm font-medium">Build a team space</p>
-                <p className="mt-1 text-sm leading-5 text-black/55">
+                <p className="mt-1 text-sm leading-5 text-black/65">
                   {canCreateWorkspace
                     ? "Start with a shared space for your team, matters, and operating context."
                     : "Create a workspace when your subscription includes workspace access."}
                 </p>
               </div>
             </div>
-            <div className="flex items-start gap-2 rounded-lg bg-black/5 p-3">
+            <div className="flex items-start gap-2 rounded-lg bg-black/6 p-3">
               <FileText className="mt-0.5 h-4 w-4 shrink-0 text-black/65" />
               <div>
                 <p className="text-sm font-medium">Join from invites</p>
-                <p className="mt-1 text-sm leading-5 text-black/55">
+                <p className="mt-1 text-sm leading-5 text-black/65">
                   Accepted invites give you access without creating your own
                   workspace.
                 </p>
               </div>
             </div>
-            <div className="flex items-start gap-2 rounded-lg bg-black/5 p-3">
+            <div className="flex items-start gap-2 rounded-lg bg-black/6 p-3">
               <Scale className="mt-0.5 h-4 w-4 shrink-0 text-black/65" />
               <div>
                 <p className="text-sm font-medium">
                   Keep case context together
                 </p>
-                <p className="mt-1 text-sm leading-5 text-black/55">
+                <p className="mt-1 text-sm leading-5 text-black/65">
                   Workspaces keep case work, people, and decisions in one place.
                 </p>
               </div>
