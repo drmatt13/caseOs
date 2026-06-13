@@ -46,6 +46,49 @@ export const RECORD_STATUS_CARD_CLASSES: Record<RecordStatus, string> = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Display status (presentation only)
+// ─────────────────────────────────────────────────────────────────────────────
+
+// A PROPOSED record that would supersede an existing one reads as its own
+// "Proposed Supersession" state — one identity, no compound "supersedes" tag on
+// a blue proposal. This is purely cosmetic: the underlying lifecycle is still
+// PROPOSED, so counts, filters, and the review/accept path never see it.
+//
+// Accepted is the authoritative default and wears NO badge — its absence is the
+// signal (handled in StatusBadge / RecordChip), which frees green to mark an
+// *elevated* proposal. The Proposed Supersession identity is split across two
+// channels: a green badge (the elevated-proposal signal) over a purple record
+// surface (its own card tint), so it never reads as a plain blue proposal.
+//   • Proposed             → blue badge   / blue surface
+//   • Proposed Supersession → green badge  / purple surface
+//   • Supersession proposed → amber badge  / amber surface
+export type RecordDisplayStatus = RecordStatus | "PROPOSED_SUPERSESSION";
+
+export const RECORD_DISPLAY_STATUS_LABELS: Record<RecordDisplayStatus, string> =
+  {
+    ...RECORD_STATUS_LABELS,
+    PROPOSED_SUPERSESSION: "Proposed Supersession",
+  };
+
+// Badge palette. ACCEPTED keeps a class for type completeness but renders no
+// badge, so green is unambiguous as the "elevated proposal" color.
+export const RECORD_DISPLAY_STATUS_CLASSES: Record<RecordDisplayStatus, string> =
+  {
+    ...RECORD_STATUS_CLASSES,
+    PROPOSED_SUPERSESSION: "border-green-300 bg-green-100 text-green-800",
+  };
+
+// Card surface tint. Proposed Supersession gets a purple surface beneath its
+// green badge — the two channels together make it unmistakable.
+export const RECORD_DISPLAY_STATUS_CARD_CLASSES: Record<
+  RecordDisplayStatus,
+  string
+> = {
+  ...RECORD_STATUS_CARD_CLASSES,
+  PROPOSED_SUPERSESSION: "border-violet-200 bg-violet-50",
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Per-type substatus
 // ─────────────────────────────────────────────────────────────────────────────
 

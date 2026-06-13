@@ -1,4 +1,12 @@
-import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type MouseEvent,
+} from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowLeft,
@@ -9,6 +17,7 @@ import {
   ChevronLeft,
   ChevronRight,
   CircleAlert,
+  CornerDownRight,
   FileText,
   Filter,
   GitBranch,
@@ -61,9 +70,10 @@ import {
   ATTENTION_SUBSTATUSES,
   LINK_TYPE_INBOUND_LABELS,
   LINK_TYPE_LABELS,
+  RECORD_DISPLAY_STATUS_CARD_CLASSES,
+  RECORD_DISPLAY_STATUS_CLASSES,
+  RECORD_DISPLAY_STATUS_LABELS,
   RECORD_PARTY_CLASSES,
-  RECORD_STATUS_CARD_CLASSES,
-  RECORD_STATUS_CLASSES,
   RECORD_STATUS_LABELS,
   RECORD_SUBSTATUS_LABELS,
   RECORD_TYPE_LABELS,
@@ -71,6 +81,7 @@ import {
   SUPPORT_STATUS_LABELS,
   VIEW_DESCRIPTIONS,
   VIEW_LABELS,
+  type RecordDisplayStatus,
   recordPartyLabel,
 } from "#/lib/caseRecordPresentation";
 import {
@@ -103,6 +114,15 @@ type ProposalDecision = {
   reason?: string;
 };
 
+// "Show proposed links" is a workspace-wide view preference, not per-record:
+// once turned on it should persist as you open record after record in the
+// inspector (each inspected record remounts its own RecordLinksPanel). Holding
+// it in context keeps the toggle sticky across cards and the inspector alike.
+const ShowProposedLinksContext = createContext<{
+  show: boolean;
+  setShow: (value: boolean) => void;
+}>({ show: false, setShow: () => {} });
+
 const clientRole = demoCaseContext.representation.clientRole;
 
 function formatDate(iso?: string) {
@@ -132,7 +152,9 @@ function documentScopeLabel(
     return document.pageCount ? `${pages} of ${document.pageCount}` : pages;
   }
   if (isImageDocument(document)) return "Image region";
-  return document.pageCount ? `Whole file (${document.pageCount} pp.)` : "Whole file";
+  return document.pageCount
+    ? `Whole file (${document.pageCount} pp.)`
+    : "Whole file";
 }
 
 // Placeholder affordance to open the underlying file/image. Wired to nothing
@@ -168,7 +190,11 @@ function recordMatchesSearch(record: TypedCaseRecord, searchValue: string) {
     record.category ?? "",
     record.substatus ? RECORD_SUBSTATUS_LABELS[record.substatus] : "",
     record.party ? recordPartyLabel(record.party, clientRole) : "",
-    RECORD_STATUS_LABELS[record.status],
+    // A proposed record that supersedes reads as "Proposed Supersession"; index
+    // that label so the term finds it (raw status alone would only say Proposed).
+    record.status === "PROPOSED" && record.supersedesIds?.length
+      ? RECORD_DISPLAY_STATUS_LABELS.PROPOSED_SUPERSESSION
+      : RECORD_STATUS_LABELS[record.status],
   ]
     .join(" ")
     .toLowerCase()
@@ -185,15 +211,6 @@ function isAuthoritative(status: RecordStatus) {
   return status === "ACCEPTED" || status === "SUPERSESSION_PENDING";
 }
 
-// A link a proposed record points at whose target is mid-supersession. Accepting
-// the proposal as-is would wire it to a record that is about to be retired, so
-// the proposal is blocked until the user re-evaluates against the replacement.
-export type SupersessionConflict = {
-  link: GraphLink;
-  target: TypedCaseRecord; // the record being superseded (current link target)
-  replacement: TypedCaseRecord; // the proposed record that would supersede it
-};
-
 function useWorkspaceGraph() {
   const [localNotes, setLocalNotes] = useState<TypedCaseRecord[]>([]);
   const [deletedRecordIds, setDeletedRecordIds] = useState<string[]>([]);
@@ -202,14 +219,6 @@ function useWorkspaceGraph() {
   >({});
   // Records whose supersession completed in this session (proposal accepted).
   const [supersededIds, setSupersededIds] = useState<string[]>([]);
-  // Bridging links created when a proposal is re-evaluated against a pending
-  // supersession (proposed record → the replacement proposal).
-  const [addedLinks, setAddedLinks] = useState<GraphLink[]>([]);
-  // Proposals the user has re-evaluated against pending supersessions; clears
-  // their acceptance block even if analysis decided no new link was needed.
-  const [reevaluatedRecordIds, setReevaluatedRecordIds] = useState<string[]>(
-    [],
-  );
   // Proposed records created in this session from an accepted record (revisions
   // that would supersede their source). These flow through the normal review
   // queue and supersession lifecycle.
@@ -232,7 +241,7 @@ function useWorkspaceGraph() {
     const outbound = new Map<string, GraphLink[]>();
     const inbound = new Map<string, GraphLink[]>();
 
-    for (const link of [...demoLinks, ...addedLinks]) {
+    for (const link of demoLinks) {
       if (
         deletedRecordIds.includes(link.fromRecordId) ||
         deletedRecordIds.includes(link.toRecordId)
@@ -250,7 +259,7 @@ function useWorkspaceGraph() {
     }
 
     return { outboundLinks: outbound, inboundLinks: inbound };
-  }, [deletedRecordIds, addedLinks]);
+  }, [deletedRecordIds]);
 
   // Proposed records that supersede another record, keyed by the target id.
   const pendingSupersessionByTargetId = useMemo(() => {
@@ -316,65 +325,6 @@ function useWorkspaceGraph() {
       ),
     [records, proposalDecisions],
   );
-
-  // For each undecided proposal, the outbound links that point at a record with
-  // a pending replacement and don't yet bridge to that replacement.
-  const supersessionConflictsByRecordId = useMemo(() => {
-    const map = new Map<string, SupersessionConflict[]>();
-    for (const record of proposedRecords) {
-      if (reevaluatedRecordIds.includes(record.id)) continue;
-      const outbound = outboundLinks.get(record.id) ?? [];
-      const conflicts: SupersessionConflict[] = [];
-      for (const link of outbound) {
-        const replacement = pendingSupersessionByTargetId.get(link.toRecordId);
-        if (!replacement || replacement.id === record.id) continue;
-        const alreadyBridged = outbound.some(
-          (other) => other.toRecordId === replacement.id,
-        );
-        if (alreadyBridged) continue;
-        const target = recordsById.get(link.toRecordId);
-        if (!target) continue;
-        conflicts.push({ link, target, replacement });
-      }
-      if (conflicts.length > 0) map.set(record.id, conflicts);
-    }
-    return map;
-  }, [
-    proposedRecords,
-    reevaluatedRecordIds,
-    outboundLinks,
-    pendingSupersessionByTargetId,
-    recordsById,
-  ]);
-
-  const canAcceptProposal = (recordId: string) =>
-    !supersessionConflictsByRecordId.has(recordId);
-
-  // Resolve a proposal's supersession conflicts: propose a mirrored link from it
-  // to each replacement proposal, then clear its acceptance block.
-  const reevaluateRecord = (recordId: string) => {
-    const conflicts = supersessionConflictsByRecordId.get(recordId) ?? [];
-    const now = new Date().toISOString();
-    const bridges: GraphLink[] = conflicts.map((conflict, index) => ({
-      id: `link-bridge-${recordId}-${conflict.replacement.id}-${index}`,
-      workspaceId: DEMO_WORKSPACE_ID,
-      caseId: DEMO_CASE_ID,
-      fromRecordId: recordId,
-      fromRecordType: conflict.link.fromRecordType,
-      toRecordId: conflict.replacement.id,
-      toRecordType: conflict.replacement.type,
-      type: conflict.link.type,
-      status: "PROPOSED",
-      explanation: `Re-evaluated: bridges to the proposal replacing "${conflict.target.title}".`,
-      createdBy: "agent",
-      createdAt: now,
-      updatedAt: now,
-    }));
-    if (bridges.length > 0) setAddedLinks((links) => [...links, ...bridges]);
-    setReevaluatedRecordIds((ids) =>
-      ids.includes(recordId) ? ids : [...ids, recordId],
-    );
-  };
 
   const decideProposal = (recordId: string, decision: ProposalDecision) => {
     setProposalDecisions((decisions) => ({
@@ -468,9 +418,6 @@ function useWorkspaceGraph() {
     effectiveStatus,
     effectiveLinkStatus,
     pendingSupersessionByTargetId,
-    supersessionConflictsByRecordId,
-    canAcceptProposal,
-    reevaluateRecord,
     proposedRecords,
     proposalDecisions,
     decideProposal,
@@ -511,6 +458,12 @@ function RouteComponent() {
   );
   // Graph traversal: a stack of record ids opened in the inspector drawer.
   const [inspectorStack, setInspectorStack] = useState<string[]>([]);
+  // Sticky "show proposed links" preference, shared with every RecordLinksPanel.
+  const [showProposedLinks, setShowProposedLinks] = useState(false);
+  const showProposedLinksValue = useMemo(
+    () => ({ show: showProposedLinks, setShow: setShowProposedLinks }),
+    [showProposedLinks],
+  );
 
   const openRecord = (recordId: string) => {
     setInspectorStack((stack) =>
@@ -535,7 +488,20 @@ function RouteComponent() {
         entry.accepted += 1;
       counts[view] = entry;
     }
-    counts.documents = { accepted: demoDocuments.length, proposed: 0 };
+    // Documents are a special case: the gray badge counts source files (the
+    // authoritative documents the tab lists), but each file can also yield
+    // DOCUMENT case records that flow through the proposed→accepted lifecycle.
+    // The loop above already tallied those into counts.documents; keep its
+    // proposed count so extracted records still awaiting review surface in the
+    // blue badge rather than being hidden behind the file count.
+    const documentRecordCounts = counts.documents ?? {
+      accepted: 0,
+      proposed: 0,
+    };
+    counts.documents = {
+      accepted: demoDocuments.length,
+      proposed: documentRecordCounts.proposed,
+    };
     return counts;
     // graph.effectiveStatus is recreated each render; records is the real input.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -562,117 +528,120 @@ function RouteComponent() {
   const pendingProposalCount = graph.proposedRecords.length;
 
   return (
-    <AppLayout>
-      <NavigationPanel>
-        <UserPanel user={user} settings={true} showTier={true} />
-        <div className="text-sm flex gap-1.5 items-center">
-          <Link to="/workspaces/$workspaceId" params={{ workspaceId }}>
-            <div className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
-              <ArrowLeft className="w-3 h-3" />
-            </div>
-          </Link>
-          <p className="truncate">{demoCase.title}</p>
-        </div>
-        <label className="relative block">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-black/50" />
-          <input
-            className="w-full rounded-lg border border-black/22 lg:border-black/15 bg-white/25 lg:bg-black/3 py-2.5 pl-8 pr-2 text-sm placeholder:text-black/65 text-black/75 outline-none transition focus:border-black/30 focus:bg-white/50 lg:focus:bg-white/75"
-            placeholder="Search workspace"
-            value={globalSearch}
-            onChange={(event) => setGlobalSearch(event.target.value)}
-          />
-        </label>
-        <ActiveWorkspaceMenu
-          activeView={activeView}
-          onSelectView={handleSelectView}
-          counts={viewCounts}
-          reviewCount={pendingProposalCount}
-        />
-      </NavigationPanel>
-
-      <ContentShell>
-        <div className="flex min-w-0 flex-col gap-4">
-          <header className="flex flex-wrap items-start justify-between gap-3 border-b border-black/15 pb-4">
-            <div className="min-w-0">
-              <div className="mb-2 flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-black/15 bg-white/75 px-2.5 py-1 text-xs text-black/65">
-                  {demoCase.caseNumber}
-                </span>
-                {pendingProposalCount > 0 && (
-                  <button
-                    type="button"
-                    className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs text-amber-800 transition-colors hover:border-amber-300 hover:bg-amber-100"
-                    onClick={() => handleSelectView("review")}
-                  >
-                    {pendingProposalCount} proposals need review
-                  </button>
-                )}
+    <ShowProposedLinksContext.Provider value={showProposedLinksValue}>
+      <AppLayout>
+        <NavigationPanel>
+          <UserPanel user={user} settings={true} showTier={true} />
+          <div className="text-sm flex gap-1.5 items-center">
+            <Link to="/workspaces/$workspaceId" params={{ workspaceId }}>
+              <div className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
+                <ArrowLeft className="w-3 h-3" />
               </div>
-              <h1 className="truncate text-2xl font-semibold">
-                {demoCase.title}
-              </h1>
-              <p className="mt-1 text-sm text-black/70">
-                {demoCaseContext.jurisdictionOrCourt} ·{" "}
-                {recordPartyLabel("ours", clientRole)} side · Case id: {caseId}
-              </p>
-            </div>
-          </header>
+            </Link>
+            <p className="truncate">{demoCase.title}</p>
+          </div>
+          <label className="relative block">
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-black/50" />
+            <input
+              className="w-full rounded-lg border border-black/22 lg:border-black/15 bg-white/25 lg:bg-black/3 py-2.5 pl-8 pr-2 text-sm placeholder:text-black/65 text-black/75 outline-none transition focus:border-black/30 focus:bg-white/50 lg:focus:bg-white/75"
+              placeholder="Search workspace"
+              value={globalSearch}
+              onChange={(event) => setGlobalSearch(event.target.value)}
+            />
+          </label>
+          <ActiveWorkspaceMenu
+            activeView={activeView}
+            onSelectView={handleSelectView}
+            counts={viewCounts}
+            reviewCount={pendingProposalCount}
+          />
+        </NavigationPanel>
 
-          {globalSearch.trim().length > 0 ? (
-            <GlobalSearchView
-              query={globalSearch}
-              records={globalSearchResults}
-              graph={graph}
-              onClearSearch={() => setGlobalSearch("")}
-              onOpenRecord={openRecord}
-            />
-          ) : activeView === "overview" ? (
-            <OverviewView
-              graph={graph}
-              onOpenRecord={openRecord}
-              onSelectView={handleSelectView}
-            />
-          ) : activeView === "agent" ? (
-            <AgentView graph={graph} onOpenRecord={openRecord} />
-          ) : activeView === "review" ? (
-            <ReviewView graph={graph} onOpenRecord={openRecord} />
-          ) : activeView === "documents" ? (
-            <DocumentsView graph={graph} onOpenRecord={openRecord} />
-          ) : activeView === "people" ? (
-            <PeopleView graph={graph} onOpenRecord={openRecord} />
-          ) : activeView === "timeline" ? (
-            <TimelineView
-              graph={graph}
-              panelSearch={panelSearch}
-              setPanelSearch={setPanelSearch}
-              selectedStatuses={selectedStatuses}
-              setSelectedStatuses={setSelectedStatuses}
-              onOpenRecord={openRecord}
-            />
-          ) : (
-            <RecordsView
-              activeView={activeView as RecordViewType}
-              graph={graph}
-              panelSearch={panelSearch}
-              setPanelSearch={setPanelSearch}
-              selectedStatuses={selectedStatuses}
-              setSelectedStatuses={setSelectedStatuses}
-              onOpenRecord={openRecord}
-            />
-          )}
-        </div>
-      </ContentShell>
+        <ContentShell>
+          <div className="flex min-w-0 flex-col gap-4">
+            <header className="flex flex-wrap items-start justify-between gap-3 border-b border-black/15 pb-4">
+              <div className="min-w-0">
+                <div className="mb-2 flex flex-wrap items-center gap-2">
+                  <span className="rounded-full border border-black/15 bg-white/75 px-2.5 py-1 text-xs text-black/65">
+                    {demoCase.caseNumber}
+                  </span>
+                  {pendingProposalCount > 0 && (
+                    <button
+                      type="button"
+                      className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs text-amber-800 transition-colors hover:border-amber-300 hover:bg-amber-100"
+                      onClick={() => handleSelectView("review")}
+                    >
+                      {pendingProposalCount} proposals need review
+                    </button>
+                  )}
+                </div>
+                <h1 className="truncate text-2xl font-semibold">
+                  {demoCase.title}
+                </h1>
+                <p className="mt-1 text-sm text-black/70">
+                  {demoCaseContext.jurisdictionOrCourt} ·{" "}
+                  {recordPartyLabel("ours", clientRole)} side · Case id:{" "}
+                  {caseId}
+                </p>
+              </div>
+            </header>
 
-      {/* Hosted outside ContentShell: a backdrop-blur ancestor would otherwise
+            {globalSearch.trim().length > 0 ? (
+              <GlobalSearchView
+                query={globalSearch}
+                records={globalSearchResults}
+                graph={graph}
+                onClearSearch={() => setGlobalSearch("")}
+                onOpenRecord={openRecord}
+              />
+            ) : activeView === "overview" ? (
+              <OverviewView
+                graph={graph}
+                onOpenRecord={openRecord}
+                onSelectView={handleSelectView}
+              />
+            ) : activeView === "agent" ? (
+              <AgentView graph={graph} onOpenRecord={openRecord} />
+            ) : activeView === "review" ? (
+              <ReviewView graph={graph} onOpenRecord={openRecord} />
+            ) : activeView === "documents" ? (
+              <DocumentsView graph={graph} onOpenRecord={openRecord} />
+            ) : activeView === "people" ? (
+              <PeopleView graph={graph} onOpenRecord={openRecord} />
+            ) : activeView === "timeline" ? (
+              <TimelineView
+                graph={graph}
+                panelSearch={panelSearch}
+                setPanelSearch={setPanelSearch}
+                selectedStatuses={selectedStatuses}
+                setSelectedStatuses={setSelectedStatuses}
+                onOpenRecord={openRecord}
+              />
+            ) : (
+              <RecordsView
+                activeView={activeView as RecordViewType}
+                graph={graph}
+                panelSearch={panelSearch}
+                setPanelSearch={setPanelSearch}
+                selectedStatuses={selectedStatuses}
+                setSelectedStatuses={setSelectedStatuses}
+                onOpenRecord={openRecord}
+              />
+            )}
+          </div>
+        </ContentShell>
+
+        {/* Hosted outside ContentShell: a backdrop-blur ancestor would otherwise
           trap this fixed overlay's containing block. Mirrors AppModal. */}
-      <RecordInspector
-        stack={inspectorStack}
-        graph={graph}
-        onOpenRecord={openRecord}
-        onBack={() => setInspectorStack((stack) => stack.slice(0, -1))}
-        onClose={() => setInspectorStack([])}
-      />
-    </AppLayout>
+        <RecordInspector
+          stack={inspectorStack}
+          graph={graph}
+          onOpenRecord={openRecord}
+          onBack={() => setInspectorStack((stack) => stack.slice(0, -1))}
+          onClose={() => setInspectorStack([])}
+        />
+      </AppLayout>
+    </ShowProposedLinksContext.Provider>
   );
 }
 
@@ -680,12 +649,16 @@ function RouteComponent() {
 // Shared badges & chips
 // ─────────────────────────────────────────────────────────────────────────────
 
-function StatusBadge({ status }: { status: RecordStatus }) {
+function StatusBadge({ status }: { status: RecordDisplayStatus }) {
+  // Accepted is the authoritative default — it wears no badge. Its absence,
+  // alongside Proposed / Proposed Supersession / Supersession proposed, is the
+  // signal. Only unsettled states are labeled.
+  if (status === "ACCEPTED") return null;
   return (
     <span
-      className={`rounded-full border px-2 py-0.5 text-xs ${RECORD_STATUS_CLASSES[status]}`}
+      className={`rounded-full border px-2 py-0.5 text-xs ${RECORD_DISPLAY_STATUS_CLASSES[status]}`}
     >
-      {RECORD_STATUS_LABELS[status]}
+      {RECORD_DISPLAY_STATUS_LABELS[status]}
     </span>
   );
 }
@@ -719,18 +692,53 @@ function PartyBadge({ record }: { record: TypedCaseRecord }) {
   );
 }
 
+// Resolve a record to its display status — the lifecycle status, except a
+// proposal that would supersede an existing record reads as its own "Proposed
+// Supersession" state (green badge, purple surface). The single source of truth
+// for every status badge, card tint, and inspector wash, so links, cards, and
+// the inspector never diverge.
+function recordDisplayStatus(
+  record: TypedCaseRecord,
+  graph: WorkspaceGraph,
+): RecordDisplayStatus {
+  const status = graph.effectiveStatus(record);
+  return status === "PROPOSED" && record.supersedesIds?.length
+    ? "PROPOSED_SUPERSESSION"
+    : status;
+}
+
 // Clickable reference to another record — the core graph-traversal affordance.
-// When `isCycle` is set the target is already open higher in the inspector path,
-// so it is grayed and flagged to signal a potential circular dependency.
+// The chip stays neutral white; lifecycle is carried entirely by the colored
+// status pill on the right, so a list of links reads as one calm column with
+// the standing of each target legible at a glance. The left tag is the record
+// type (gray, tight radius); the right pill is the lifecycle status (colored,
+// full radius). When `isCycle` is set the target is already open higher in the
+// inspector path, so the chip is grayed and flagged for a circular dependency.
 function RecordChip({
   record,
+  graph,
   onOpenRecord,
   isCycle = false,
+  pairedSupersession = false,
 }: {
   record: TypedCaseRecord;
+  graph: WorkspaceGraph;
   onOpenRecord: (recordId: string) => void;
   isCycle?: boolean;
+  // True only where the superseded counterpart is shown right alongside (the
+  // "replaced by" pairing). On a lone chip a Proposed Supersession reads as a
+  // plain blue "Proposed" link — without its counterpart the supersession
+  // framing is just noise.
+  pairedSupersession?: boolean;
 }) {
+  let displayStatus = recordDisplayStatus(record, graph);
+  if (displayStatus === "PROPOSED_SUPERSESSION" && !pairedSupersession) {
+    displayStatus = "PROPOSED";
+  }
+  // Accepted links wear no pill (their calm absence reads as "settled"); the
+  // chevron then takes the right edge. Cycle chips always show their "In path".
+  const showPill = isCycle || displayStatus !== "ACCEPTED";
+
   return (
     <button
       type="button"
@@ -750,6 +758,7 @@ function RecordChip({
       }}
       disabled={isCycle}
     >
+      {/* Left tag: record type — tight radius, gray, reads as a category. */}
       <span className="shrink-0 rounded border border-black/15 bg-black/[0.03] px-1.5 py-0.5 text-[0.65rem] uppercase tracking-wide text-black/50">
         {RECORD_TYPE_LABELS[record.type]}
       </span>
@@ -760,15 +769,23 @@ function RecordChip({
       >
         {record.title}
       </span>
-      {isCycle && (
-        <span className="ml-auto inline-flex shrink-0 items-center gap-1 rounded border border-black/15 bg-black/[0.04] px-1 py-0.5 text-[0.6rem] uppercase tracking-wide text-black/55">
+      {/* Right pill: lifecycle — full radius + color, matching StatusBadge.
+          Accepted shows none; its absence is the "settled" signal. */}
+      {isCycle ? (
+        <span className="ml-auto inline-flex shrink-0 items-center gap-1 rounded-full border border-black/15 bg-black/[0.04] px-2 py-0.5 text-xs text-black/55">
           <Repeat className="h-3 w-3" />
           In path
         </span>
-      )}
+      ) : showPill ? (
+        <span
+          className={`ml-auto shrink-0 rounded-full border px-2 py-0.5 text-xs ${RECORD_DISPLAY_STATUS_CLASSES[displayStatus]}`}
+        >
+          {RECORD_DISPLAY_STATUS_LABELS[displayStatus]}
+        </span>
+      ) : null}
       <ChevronRight
         className={`h-3.5 w-3.5 shrink-0 text-black/30 group-hover:text-black/70 ${
-          isCycle ? "" : "ml-auto"
+          showPill ? "" : "ml-auto"
         }`}
       />
     </button>
@@ -778,15 +795,15 @@ function RecordChip({
 // Outbound + inbound graph links for a record, grouped by link type.
 //
 // What's shown depends on the record being viewed:
-//   • A proposed record is a brand-new node, so every link it carries is part of
-//     the same proposal. We show them all, unlabeled — calling each one
-//     "proposed" would be noise — but never one pointing at a retired record.
-//   • An accepted record shows only its authoritative (accepted) links; links
-//     that are still proposed belong to a review flow elsewhere, not the
-//     settled graph.
-//   • A superseded record keeps its historical links for provenance. They show
-//     only here, at the record's own level — the authoritative-endpoint rule
-//     keeps them out of accepted records and proposals.
+//   • A proposed record carries every link as part of the same proposal — shown
+//     in full, but never one pointing at a retired record.
+//   • An accepted record shows only its authoritative links by default; a
+//     checkbox opts into also seeing its proposed links (to records in review).
+//   • A superseded record keeps its historical links for provenance.
+// When a link's target is mid-supersession, the proposal that would replace it
+// is shown inline beneath it ("replaced by", offset on a connector rail) so the
+// two coexist — accepting the replacement retires the target, which then drops
+// out of view on its own.
 // `visitedIds` are records already open higher in the inspector path; their
 // chips are grayed to flag circular references.
 function RecordLinksPanel({
@@ -803,35 +820,64 @@ function RecordLinksPanel({
   const viewStatus = graph.effectiveStatus(record);
   const recordIsProposed = viewStatus === "PROPOSED";
   const recordIsSuperseded = viewStatus === "SUPERSEDED";
+  const recordIsAccepted = !recordIsProposed && !recordIsSuperseded;
+
+  // Accepted records show only authoritative links by default; this reveals the
+  // proposed ones (links to records still in review). Proposals always show
+  // theirs, so the toggle is offered only on accepted records. The preference
+  // lives in context so it stays put as you move between records (notably in the
+  // inspector, where each record remounts its own panel).
+  const { show: showProposedLinks, setShow: setShowProposedLinks } = useContext(
+    ShowProposedLinksContext,
+  );
 
   const otherEndpointId = (link: GraphLink) =>
     link.fromRecordId === record.id ? link.toRecordId : link.fromRecordId;
 
+  // A proposed link is worth showing while its other endpoint isn't retired.
+  const proposedLinkVisible = (link: GraphLink) => {
+    const other = graph.recordsById.get(otherEndpointId(link));
+    return !other || graph.effectiveStatus(other) !== "SUPERSEDED";
+  };
+
   const visibleLink = (link: GraphLink) => {
     if (recordIsSuperseded) return true;
-    if (recordIsProposed) {
-      const other = graph.recordsById.get(otherEndpointId(link));
-      return !other || graph.effectiveStatus(other) !== "SUPERSEDED";
-    }
-    return graph.effectiveLinkStatus(link) === "ACCEPTED";
+    if (recordIsProposed) return proposedLinkVisible(link);
+    // Accepted: authoritative links always; proposed links only when opted in.
+    if (graph.effectiveLinkStatus(link) === "ACCEPTED") return true;
+    return showProposedLinks && proposedLinkVisible(link);
   };
+
+  const allLinks = [
+    ...(graph.outboundLinks.get(record.id) ?? []),
+    ...(graph.inboundLinks.get(record.id) ?? []),
+  ];
+  // Whether the checkbox would reveal anything (proposed links currently hidden).
+  const hasProposedLinks =
+    recordIsAccepted &&
+    allLinks.some(
+      (link) =>
+        graph.effectiveLinkStatus(link) !== "ACCEPTED" &&
+        proposedLinkVisible(link),
+    );
 
   const outbound = (graph.outboundLinks.get(record.id) ?? []).filter(
     visibleLink,
   );
   const inbound = (graph.inboundLinks.get(record.id) ?? []).filter(visibleLink);
+  const hasVisibleLinks = outbound.length > 0 || inbound.length > 0;
 
-  if (outbound.length === 0 && inbound.length === 0) {
-    return (
-      <div className="rounded-lg border border-black/15 bg-black/[0.025] p-3 text-sm text-black/50">
-        {recordIsProposed
-          ? "This proposal introduces no linked records yet."
-          : recordIsSuperseded
-            ? "This record had no links."
-            : "No accepted links yet."}
-      </div>
-    );
-  }
+  // Every record on screen in this view: the viewed record plus each visible
+  // link endpoint (in-path ones included — they are still rendered). A Proposed
+  // Supersession reads as such only while its superseded counterpart is also on
+  // screen here; alone it's just a plain proposal. This is presence-based, so a
+  // counterpart flagged "in path" still keeps the pairing green.
+  const presentIds = new Set<string>([record.id]);
+  for (const link of outbound) presentIds.add(link.toRecordId);
+  for (const link of inbound) presentIds.add(link.fromRecordId);
+  const isPairedSupersession = (candidate: TypedCaseRecord) =>
+    recordDisplayStatus(candidate, graph) === "PROPOSED_SUPERSESSION" &&
+    (candidate.supersedesIds ?? []).some((id) => presentIds.has(id));
 
   const groupLinks = (
     links: GraphLink[],
@@ -866,35 +912,84 @@ function RecordLinksPanel({
           {label}
         </p>
         <div className="flex flex-col gap-1.5">
-          {entries.map(({ record: target, link }) => (
-            <div key={link.id} className="min-w-0">
-              <RecordChip
-                record={target}
-                onOpenRecord={onOpenRecord}
-                isCycle={visitedIds?.has(target.id)}
-              />
-              {(recordIsProposed || recordIsSuperseded) &&
-                link.explanation && (
-                  <p className="mt-0.5 pl-1 text-xs text-black/55">
-                    {link.explanation}
-                  </p>
+          {entries.map(({ record: target, link }) => {
+            // If this link's target is mid-supersession, show the proposal that
+            // would replace it inline — both coexist until the replacement is
+            // accepted, at which point the target retires and drops out.
+            const replacement = graph.pendingSupersessionByTargetId.get(
+              target.id,
+            );
+            return (
+              <div key={link.id} className="min-w-0">
+                <RecordChip
+                  record={target}
+                  graph={graph}
+                  onOpenRecord={onOpenRecord}
+                  isCycle={visitedIds?.has(target.id)}
+                  pairedSupersession={isPairedSupersession(target)}
+                />
+                {(recordIsProposed || recordIsSuperseded) &&
+                  link.explanation && (
+                    <p className="mt-0.5 pl-1 text-xs text-black/55">
+                      {link.explanation}
+                    </p>
+                  )}
+                {replacement && replacement.id !== record.id && (
+                  <div className="ml-3 mt-1 flex flex-col gap-1 border-l border-black/15 pl-3">
+                    <span className="flex items-center gap-1 text-[0.7rem] uppercase tracking-wide text-black/40">
+                      <CornerDownRight className="h-3 w-3" />
+                      replaced by
+                    </span>
+                    <RecordChip
+                      record={replacement}
+                      graph={graph}
+                      onOpenRecord={onOpenRecord}
+                      isCycle={visitedIds?.has(replacement.id)}
+                      pairedSupersession={isPairedSupersession(replacement)}
+                    />
+                  </div>
                 )}
-            </div>
-          ))}
+              </div>
+            );
+          })}
         </div>
       </div>
     ));
 
   return (
     <div className="flex flex-col gap-3">
+      {recordIsAccepted && hasProposedLinks && (
+        <label className="flex w-fit cursor-pointer select-none items-center gap-2 text-xs text-black/60">
+          <input
+            type="checkbox"
+            className="h-3.5 w-3.5 accent-[#282828]"
+            checked={showProposedLinks}
+            onChange={(event) => setShowProposedLinks(event.target.checked)}
+          />
+          Show proposed links to records in review
+        </label>
+      )}
       {recordIsSuperseded && (
         <p className="rounded-lg border border-black/15 bg-black/[0.025] px-2.5 py-1.5 text-xs leading-5 text-black/55">
           Historical links, retained for provenance. They are hidden from
           accepted records and proposals.
         </p>
       )}
-      {outbound.length > 0 && renderGroups(groupLinks(outbound, "outbound"))}
-      {inbound.length > 0 && renderGroups(groupLinks(inbound, "inbound"))}
+      {!hasVisibleLinks ? (
+        <div className="rounded-lg border border-black/15 bg-black/[0.025] p-3 text-sm text-black/50">
+          {recordIsProposed
+            ? "This proposal introduces no linked records yet."
+            : recordIsSuperseded
+              ? "This record had no links."
+              : "No accepted links yet."}
+        </div>
+      ) : (
+        <>
+          {outbound.length > 0 &&
+            renderGroups(groupLinks(outbound, "outbound"))}
+          {inbound.length > 0 && renderGroups(groupLinks(inbound, "inbound"))}
+        </>
+      )}
     </div>
   );
 }
@@ -903,10 +998,12 @@ function SupersessionNotice({
   record,
   graph,
   onOpenRecord,
+  visitedIds,
 }: {
   record: TypedCaseRecord;
   graph: WorkspaceGraph;
   onOpenRecord: (recordId: string) => void;
+  visitedIds?: Set<string>;
 }) {
   const targets = (record.supersedesIds ?? [])
     .map((id) => graph.recordsById.get(id))
@@ -915,21 +1012,23 @@ function SupersessionNotice({
   if (targets.length === 0) return null;
 
   return (
-    <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+    <div className="mb-3 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-900">
       <div className="flex items-center gap-1.5 font-medium">
         <GitBranch className="h-3.5 w-3.5" />
-        <span>This proposal would supersede:</span>
+        <span>This proposed record would supersede:</span>
       </div>
       <div className="mt-2 flex flex-col gap-1.5">
         {targets.map((target) => (
           <RecordChip
             key={target.id}
             record={target}
+            graph={graph}
             onOpenRecord={onOpenRecord}
+            isCycle={visitedIds?.has(target.id)}
           />
         ))}
       </div>
-      <p className="mt-2 leading-5 text-amber-900/80">
+      <p className="mt-2 leading-5 text-green-900/80">
         Accepting it retires the records above and removes their chunks from
         retrieval.
       </p>
@@ -939,77 +1038,36 @@ function SupersessionNotice({
 
 function SupersessionPendingNotice({
   proposal,
+  graph,
   onOpenRecord,
+  visitedIds,
 }: {
   proposal: TypedCaseRecord;
+  graph: WorkspaceGraph;
   onOpenRecord: (recordId: string) => void;
+  visitedIds?: Set<string>;
 }) {
+  // The record this sits on is itself amber (supersession-pending). The lock is
+  // the blocking constraint, so the container reads red; the replacement chip
+  // carries its own lifecycle pill (the proposal on its way in to replace this).
   return (
-    <div className="mb-3 rounded-lg border border-amber-300 bg-amber-100/35 px-3 py-2 text-sm text-amber-900">
-      <div className="flex items-center gap-1.5 font-medium">
-        <GitBranch className="h-3.5 w-3.5" />
-        <span>Locked while a replacement proposal is pending</span>
-      </div>
-      <div className="mt-2">
-        <RecordChip record={proposal} onOpenRecord={onOpenRecord} />
-      </div>
-      <p className="mt-2 leading-5 text-amber-900/80">
-        Review the proposal before editing, deleting, or rewriting this record.
-      </p>
-    </div>
-  );
-}
-
-// Shown on a proposal that links to a record which is itself being superseded.
-// Accepting it as-is would point it at a record about to be retired, so the
-// proposal is blocked until the user re-evaluates it against the replacement.
-function SupersessionConflictNotice({
-  conflicts,
-  onReevaluate,
-  onOpenRecord,
-}: {
-  conflicts: SupersessionConflict[];
-  onReevaluate: () => void;
-  onOpenRecord: (recordId: string) => void;
-}) {
-  return (
-    <div className="mb-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+    <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-900">
       <div className="flex items-center gap-1.5 font-medium">
         <Lock className="h-3.5 w-3.5" />
-        <span>Blocked: a record this proposal links to is being replaced</span>
+        <span>Record locked while a replacement proposal is pending</span>
       </div>
-      <p className="mt-1.5 leading-5 text-amber-900/80">
-        Before this can be accepted, re-evaluate it against the pending
-        replacement{conflicts.length > 1 ? "s" : ""} so its links don't point at
-        a record about to be retired.
+      <div className="mt-2">
+        <RecordChip
+          record={proposal}
+          graph={graph}
+          onOpenRecord={onOpenRecord}
+          isCycle={visitedIds?.has(proposal.id)}
+          pairedSupersession
+        />
+      </div>
+      <p className="mt-2 leading-5 text-red-900/80">
+        Review the proposal before editing, deleting, or rewriting this record.
       </p>
-      <div className="mt-2 flex flex-col gap-2">
-        {conflicts.map((conflict) => (
-          <div key={conflict.link.id} className="flex flex-col gap-1">
-            <span className="text-xs text-amber-900/70">
-              Currently links to
-            </span>
-            <RecordChip record={conflict.target} onOpenRecord={onOpenRecord} />
-            <span className="text-xs text-amber-900/70">
-              Replacement proposal
-            </span>
-            <RecordChip
-              record={conflict.replacement}
-              onOpenRecord={onOpenRecord}
-            />
-          </div>
-        ))}
-      </div>
-      <div className="mt-2.5 flex justify-end">
-        <button
-          type="button"
-          className="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-white px-2.5 py-1.5 text-sm text-amber-900 transition-colors hover:bg-amber-100"
-          onClick={onReevaluate}
-        >
-          <Repeat className="h-3.5 w-3.5" />
-          Re-evaluate links
-        </button>
-      </div>
     </div>
   );
 }
@@ -1152,7 +1210,7 @@ function RecordInspectorBody({
   visitedIds: Set<string>;
 }) {
   const status = graph.effectiveStatus(record);
-  const conflicts = graph.supersessionConflictsByRecordId.get(record.id);
+  const displayStatus = recordDisplayStatus(record, graph);
   const sourceDocument =
     record.type === "DOCUMENT"
       ? demoDocuments.find((document) => document.id === record.documentId)
@@ -1177,7 +1235,7 @@ function RecordInspectorBody({
         <span className="rounded border border-black/15 bg-black/[0.03] px-1.5 py-0.5 text-[0.65rem] uppercase tracking-wide text-black/50">
           {RECORD_TYPE_LABELS[record.type]}
         </span>
-        <StatusBadge status={status} />
+        <StatusBadge status={displayStatus} />
         <SubstatusBadge record={record} />
         <PartyBadge record={record} />
       </div>
@@ -1254,6 +1312,7 @@ function RecordInspectorBody({
                   <RecordChip
                     key={sibling.id}
                     record={sibling}
+                    graph={graph}
                     onOpenRecord={onOpenRecord}
                     isCycle={visitedIds.has(sibling.id)}
                   />
@@ -1266,17 +1325,36 @@ function RecordInspectorBody({
 
       <p className="mt-4 text-md leading-6 text-black/80">{record.content}</p>
 
-      {status === "PROPOSED" && conflicts && (
+      {/* Supersession state mirrors the case-record card so the inspector reads
+          the same way: the amber "would supersede" and red "locked, pending
+          replacement" containers travel with the record into the drawer. */}
+      {status === "PROPOSED" && record.supersedesIds?.length && (
         <div className="mt-4">
-          <SupersessionConflictNotice
-            conflicts={conflicts}
-            onReevaluate={() => graph.reevaluateRecord(record.id)}
+          <SupersessionNotice
+            record={record}
+            graph={graph}
             onOpenRecord={onOpenRecord}
+            visitedIds={visitedIds}
           />
         </div>
       )}
 
-      {(supersededBy || record.supersedesIds?.length || pendingProposal) && (
+      {pendingProposal && (
+        <div className="mt-4">
+          <SupersessionPendingNotice
+            proposal={pendingProposal}
+            graph={graph}
+            onOpenRecord={onOpenRecord}
+            visitedIds={visitedIds}
+          />
+        </div>
+      )}
+
+      {/* Provenance the notices above don't cover: what replaced a retired
+          record, and (for already-settled records) what this one retired.
+          A live proposal's "supersedes" is shown by the amber notice instead. */}
+      {(supersededBy ||
+        (status !== "PROPOSED" && record.supersedesIds?.length)) && (
         <div className="mt-4">
           <p className="mb-1.5 flex items-center gap-1.5 text-xs text-black/65">
             <GitBranch className="h-3.5 w-3.5" />
@@ -1288,36 +1366,27 @@ function RecordInspectorBody({
                 <p className="mb-1 text-xs text-black/55">Superseded by</p>
                 <RecordChip
                   record={supersededBy}
+                  graph={graph}
                   onOpenRecord={onOpenRecord}
                   isCycle={visitedIds.has(supersededBy.id)}
                 />
               </div>
             )}
-            {pendingProposal && (
-              <div>
-                <p className="mb-1 text-xs text-amber-800/80">
-                  Pending replacement proposal
-                </p>
-                <RecordChip
-                  record={pendingProposal}
-                  onOpenRecord={onOpenRecord}
-                  isCycle={visitedIds.has(pendingProposal.id)}
-                />
-              </div>
-            )}
-            {(record.supersedesIds ?? [])
-              .map((id) => graph.recordsById.get(id))
-              .filter((target): target is TypedCaseRecord => Boolean(target))
-              .map((target) => (
-                <div key={target.id}>
-                  <p className="mb-1 text-xs text-black/55">Supersedes</p>
-                  <RecordChip
-                    record={target}
-                    onOpenRecord={onOpenRecord}
-                    isCycle={visitedIds.has(target.id)}
-                  />
-                </div>
-              ))}
+            {status !== "PROPOSED" &&
+              (record.supersedesIds ?? [])
+                .map((id) => graph.recordsById.get(id))
+                .filter((target): target is TypedCaseRecord => Boolean(target))
+                .map((target) => (
+                  <div key={target.id}>
+                    <p className="mb-1 text-xs text-black/55">Supersedes</p>
+                    <RecordChip
+                      record={target}
+                      graph={graph}
+                      onOpenRecord={onOpenRecord}
+                      isCycle={visitedIds.has(target.id)}
+                    />
+                  </div>
+                ))}
           </div>
         </div>
       )}
@@ -1335,7 +1404,6 @@ function RecordInspectorBody({
       {status === "PROPOSED" && (
         <ProposalActions
           record={record}
-          canAccept={graph.canAcceptProposal(record.id)}
           onDelete={(id) => {
             graph.deleteRecord(id);
             onClose();
@@ -1369,13 +1437,15 @@ function RecordCard({
 }) {
   const [expanded, setExpanded] = useState(false);
   const status = graph.effectiveStatus(record);
+  // Display status splits PROPOSED into plain "Proposed" vs "Proposed
+  // Supersession" (green badge, purple card); raw `status` still drives logic.
+  const displayStatus = recordDisplayStatus(record, graph);
   const decision = graph.proposalDecisions[record.id];
   const pendingProposal = graph.pendingSupersessionByTargetId.get(record.id);
-  const conflicts = graph.supersessionConflictsByRecordId.get(record.id);
 
   return (
     <article
-      className={`rounded-xl border shadow-sm ${RECORD_STATUS_CARD_CLASSES[status]}`}
+      className={`rounded-xl border shadow-sm ${RECORD_DISPLAY_STATUS_CARD_CLASSES[displayStatus]}`}
     >
       <div
         role="button"
@@ -1396,7 +1466,9 @@ function RecordCard({
         )}
         <div className="min-w-0">
           <div className="mb-2 flex flex-wrap items-center gap-2">
-            <StatusBadge status={status} />
+            {/* The green "Proposed Supersession" status now carries the
+                supersedes signal on its own — no separate badge needed. */}
+            <StatusBadge status={displayStatus} />
             <SubstatusBadge record={record} />
             {record.category && (
               <span className="rounded-full border border-black/15 bg-white/80 px-2 py-0.5 text-xs text-black/65">
@@ -1404,14 +1476,6 @@ function RecordCard({
               </span>
             )}
             <PartyBadge record={record} />
-            {record.status === "PROPOSED" &&
-              !decision &&
-              record.supersedesIds?.length && (
-                <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs text-amber-800">
-                  <GitBranch className="h-3 w-3" />
-                  Supersedes existing
-                </span>
-              )}
           </div>
           <h3 className="text-md font-semibold">{record.title}</h3>
           {record.summary && (
@@ -1441,13 +1505,7 @@ function RecordCard({
           {pendingProposal && (
             <SupersessionPendingNotice
               proposal={pendingProposal}
-              onOpenRecord={onOpenRecord}
-            />
-          )}
-          {status === "PROPOSED" && conflicts && (
-            <SupersessionConflictNotice
-              conflicts={conflicts}
-              onReevaluate={() => graph.reevaluateRecord(record.id)}
+              graph={graph}
               onOpenRecord={onOpenRecord}
             />
           )}
@@ -1478,7 +1536,6 @@ function RecordCard({
           {record.status === "PROPOSED" && !decision && (
             <ProposalActions
               record={record}
-              canAccept={graph.canAcceptProposal(record.id)}
               onDelete={graph.deleteRecord}
               onDecision={graph.decideProposal}
             />
@@ -1496,13 +1553,10 @@ function RecordCard({
 
 function ProposalActions({
   record,
-  canAccept = true,
   onDelete,
   onDecision,
 }: {
   record: TypedCaseRecord;
-  // False when a pending supersession conflict must be re-evaluated first.
-  canAccept?: boolean;
   onDelete: (recordId: string) => void;
   onDecision: (recordId: string, decision: ProposalDecision) => void;
 }) {
@@ -1516,13 +1570,7 @@ function ProposalActions({
     <div className="mt-4 rounded-lg border border-black/15 bg-white/75 p-3">
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <button
-          className="inline-flex items-center gap-1.5 rounded-lg border border-green-200 bg-green-50 px-2.5 py-1.5 text-green-800 transition-colors hover:bg-green-100 disabled:cursor-not-allowed disabled:border-black/15 disabled:bg-black/[0.03] disabled:text-black/35"
-          disabled={!canAccept}
-          title={
-            canAccept
-              ? undefined
-              : "Re-evaluate the pending supersession before accepting"
-          }
+          className="inline-flex items-center gap-1.5 rounded-lg border border-green-200 bg-green-50 px-2.5 py-1.5 text-green-800 transition-colors hover:bg-green-100"
           onClick={() => onDecision(record.id, { status: "accepted" })}
           type="button"
         >
@@ -2071,6 +2119,7 @@ function OverviewView({
                 <RecordChip
                   key={record.id}
                   record={record}
+                  graph={graph}
                   onOpenRecord={onOpenRecord}
                 />
               ))}
@@ -2085,6 +2134,7 @@ function OverviewView({
               <RecordChip
                 key={record.id}
                 record={record}
+                graph={graph}
                 onOpenRecord={onOpenRecord}
               />
             ))}
@@ -2370,6 +2420,7 @@ function DocumentsView({
             key={document.id}
             document={document}
             documentRecords={documentRecordsByDocumentId.get(document.id) ?? []}
+            graph={graph}
             onOpenRecord={onOpenRecord}
           />
         ))}
@@ -2381,10 +2432,12 @@ function DocumentsView({
 function DocumentCard({
   document,
   documentRecords,
+  graph,
   onOpenRecord,
 }: {
   document: CaseDocument;
   documentRecords: TypedCaseRecord[];
+  graph: WorkspaceGraph;
   onOpenRecord: (recordId: string) => void;
 }) {
   return (
@@ -2433,6 +2486,7 @@ function DocumentCard({
               <RecordChip
                 key={record.id}
                 record={record}
+                graph={graph}
                 onOpenRecord={onOpenRecord}
               />
             ))}
@@ -2477,7 +2531,7 @@ function PeopleView({
             >
               <div className="flex items-start justify-between gap-2">
                 <h3 className="text-md font-semibold">{person.name}</h3>
-                <StatusBadge status={graph.effectiveStatus(person)} />
+                <StatusBadge status={recordDisplayStatus(person, graph)} />
               </div>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {person.roles.map((role) => (
@@ -2680,6 +2734,7 @@ function AgentView({
                         <RecordChip
                           key={record.id}
                           record={record}
+                          graph={graph}
                           onOpenRecord={onOpenRecord}
                         />
                       ))}
