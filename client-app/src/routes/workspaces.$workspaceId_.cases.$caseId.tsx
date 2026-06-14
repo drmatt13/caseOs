@@ -114,10 +114,9 @@ type ProposalDecision = {
   reason?: string;
 };
 
-// "Show proposed links" is a workspace-wide view preference, not per-record:
-// once turned on it should persist as you open record after record in the
-// inspector (each inspected record remounts its own RecordLinksPanel). Holding
-// it in context keeps the toggle sticky across cards and the inspector alike.
+// "Show proposed links" is an inspector view preference, not per-record: once
+// turned on it should persist as you open record after record in the inspector
+// (each inspected record remounts its own RecordLinksPanel).
 const ShowProposedLinksContext = createContext<{
   show: boolean;
   setShow: (value: boolean) => void;
@@ -458,7 +457,8 @@ function RouteComponent() {
   );
   // Graph traversal: a stack of record ids opened in the inspector drawer.
   const [inspectorStack, setInspectorStack] = useState<string[]>([]);
-  // Sticky "show proposed links" preference, shared with every RecordLinksPanel.
+  // Sticky inspector preference for accepted records as graph traversal moves
+  // from one inspected record to the next.
   const [showProposedLinks, setShowProposedLinks] = useState(false);
   const showProposedLinksValue = useMemo(
     () => ({ show: showProposedLinks, setShow: setShowProposedLinks }),
@@ -720,6 +720,7 @@ function RecordChip({
   onOpenRecord,
   isCycle = false,
   pairedSupersession = false,
+  showSupersessionPending = false,
 }: {
   record: TypedCaseRecord;
   graph: WorkspaceGraph;
@@ -730,14 +731,23 @@ function RecordChip({
   // plain blue "Proposed" link — without its counterpart the supersession
   // framing is just noise.
   pairedSupersession?: boolean;
+  // True inside SupersessionNotice ("This proposal would supersede:") —
+  // the only context where "Supersession proposed" badge belongs on a link.
+  showSupersessionPending?: boolean;
 }) {
   let displayStatus = recordDisplayStatus(record, graph);
   if (displayStatus === "PROPOSED_SUPERSESSION" && !pairedSupersession) {
     displayStatus = "PROPOSED";
   }
-  // Accepted links wear no pill (their calm absence reads as "settled"); the
-  // chevron then takes the right edge. Cycle chips always show their "In path".
-  const showPill = isCycle || displayStatus !== "ACCEPTED";
+  // Accepted links wear no pill (their calm absence reads as "settled").
+  // Supersession-pending links are also pill-free in general link lists — the
+  // amber badge belongs only inside "This proposal would supersede:" where the
+  // relationship is already framed by the container.
+  // Cycle chips always show their "In path".
+  const showPill =
+    isCycle ||
+    (displayStatus !== "ACCEPTED" &&
+      (displayStatus !== "SUPERSESSION_PENDING" || showSupersessionPending));
 
   return (
     <button
@@ -797,8 +807,10 @@ function RecordChip({
 // What's shown depends on the record being viewed:
 //   • A proposed record carries every link as part of the same proposal — shown
 //     in full, but never one pointing at a retired record.
-//   • An accepted record shows only its authoritative links by default; a
-//     checkbox opts into also seeing its proposed links (to records in review).
+//   • A plain accepted record shows only its authoritative links by default; in
+//     the inspector, a checkbox opts into proposed links to records in review.
+//   • A supersession-pending record shows review links in full because the
+//     record itself is already in an unsettled lifecycle state.
 //   • A superseded record keeps its historical links for provenance.
 // When a link's target is mid-supersession, the proposal that would replace it
 // is shown inline beneath it ("replaced by", offset on a connector rail) so the
@@ -811,25 +823,26 @@ function RecordLinksPanel({
   graph,
   onOpenRecord,
   visitedIds,
+  allowProposedLinksToggle = false,
 }: {
   record: TypedCaseRecord;
   graph: WorkspaceGraph;
   onOpenRecord: (recordId: string) => void;
   visitedIds?: Set<string>;
+  allowProposedLinksToggle?: boolean;
 }) {
   const viewStatus = graph.effectiveStatus(record);
   const recordIsProposed = viewStatus === "PROPOSED";
+  const recordIsAccepted = viewStatus === "ACCEPTED";
+  const recordIsSupersessionPending = viewStatus === "SUPERSESSION_PENDING";
   const recordIsSuperseded = viewStatus === "SUPERSEDED";
-  const recordIsAccepted = !recordIsProposed && !recordIsSuperseded;
 
-  // Accepted records show only authoritative links by default; this reveals the
-  // proposed ones (links to records still in review). Proposals always show
-  // theirs, so the toggle is offered only on accepted records. The preference
-  // lives in context so it stays put as you move between records (notably in the
-  // inspector, where each record remounts its own panel).
   const { show: showProposedLinks, setShow: setShowProposedLinks } = useContext(
     ShowProposedLinksContext,
   );
+  const canToggleProposedLinks = allowProposedLinksToggle && recordIsAccepted;
+  const shouldShowProposedLinks =
+    canToggleProposedLinks && showProposedLinks;
 
   const otherEndpointId = (link: GraphLink) =>
     link.fromRecordId === record.id ? link.toRecordId : link.fromRecordId;
@@ -842,10 +855,13 @@ function RecordLinksPanel({
 
   const visibleLink = (link: GraphLink) => {
     if (recordIsSuperseded) return true;
-    if (recordIsProposed) return proposedLinkVisible(link);
-    // Accepted: authoritative links always; proposed links only when opted in.
+    if (recordIsProposed || recordIsSupersessionPending) {
+      return proposedLinkVisible(link);
+    }
+    // Plain accepted: authoritative links always; proposed links only when the
+    // inspector toggle is available and opted in.
     if (graph.effectiveLinkStatus(link) === "ACCEPTED") return true;
-    return showProposedLinks && proposedLinkVisible(link);
+    return shouldShowProposedLinks && proposedLinkVisible(link);
   };
 
   const allLinks = [
@@ -854,7 +870,7 @@ function RecordLinksPanel({
   ];
   // Whether the checkbox would reveal anything (proposed links currently hidden).
   const hasProposedLinks =
-    recordIsAccepted &&
+    canToggleProposedLinks &&
     allLinks.some(
       (link) =>
         graph.effectiveLinkStatus(link) !== "ACCEPTED" &&
@@ -866,18 +882,6 @@ function RecordLinksPanel({
   );
   const inbound = (graph.inboundLinks.get(record.id) ?? []).filter(visibleLink);
   const hasVisibleLinks = outbound.length > 0 || inbound.length > 0;
-
-  // Every record on screen in this view: the viewed record plus each visible
-  // link endpoint (in-path ones included — they are still rendered). A Proposed
-  // Supersession reads as such only while its superseded counterpart is also on
-  // screen here; alone it's just a plain proposal. This is presence-based, so a
-  // counterpart flagged "in path" still keeps the pairing green.
-  const presentIds = new Set<string>([record.id]);
-  for (const link of outbound) presentIds.add(link.toRecordId);
-  for (const link of inbound) presentIds.add(link.fromRecordId);
-  const isPairedSupersession = (candidate: TypedCaseRecord) =>
-    recordDisplayStatus(candidate, graph) === "PROPOSED_SUPERSESSION" &&
-    (candidate.supersedesIds ?? []).some((id) => presentIds.has(id));
 
   const groupLinks = (
     links: GraphLink[],
@@ -926,7 +930,6 @@ function RecordLinksPanel({
                   graph={graph}
                   onOpenRecord={onOpenRecord}
                   isCycle={visitedIds?.has(target.id)}
-                  pairedSupersession={isPairedSupersession(target)}
                 />
                 {(recordIsProposed || recordIsSuperseded) &&
                   link.explanation && (
@@ -945,7 +948,7 @@ function RecordLinksPanel({
                       graph={graph}
                       onOpenRecord={onOpenRecord}
                       isCycle={visitedIds?.has(replacement.id)}
-                      pairedSupersession={isPairedSupersession(replacement)}
+                      pairedSupersession
                     />
                   </div>
                 )}
@@ -1025,6 +1028,7 @@ function SupersessionNotice({
             graph={graph}
             onOpenRecord={onOpenRecord}
             isCycle={visitedIds?.has(target.id)}
+            showSupersessionPending
           />
         ))}
       </div>
@@ -1398,6 +1402,7 @@ function RecordInspectorBody({
           graph={graph}
           onOpenRecord={onOpenRecord}
           visitedIds={visitedIds}
+          allowProposedLinksToggle
         />
       </div>
 
