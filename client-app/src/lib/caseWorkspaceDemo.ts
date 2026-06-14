@@ -1626,6 +1626,10 @@ type LinkSpec = [
   explanation?: string,
 ];
 
+// Links are authored in their CANONICAL direction (fromRecord → type →
+// toRecord). For evidence/contradiction/context the source is the grounding
+// record (e.g. a DOCUMENT EVIDENCES a FACT); the inverse label ("Evidenced by")
+// is derived in the UI when the target record is viewed.
 const linkSpecs: LinkSpec[] = [
   // Theory 1 (adopted) grounding
   ["theory-001", "DEPENDS_ON", "fact-001", "ACCEPTED"],
@@ -1637,16 +1641,16 @@ const linkSpecs: LinkSpec[] = [
   // Theory 2 (proposed equitable prejudice)
   ["theory-002", "DEPENDS_ON", "fact-002", "PROPOSED"],
   ["theory-002", "DEPENDS_ON", "fact-010", "PROPOSED"],
-  ["theory-002", "EVIDENCED_BY", "docrec-cert-letter", "PROPOSED"],
-  ["theory-002", "EVIDENCED_BY", "docrec-agreement-deadline", "PROPOSED"],
+  ["docrec-cert-letter", "EVIDENCES", "theory-002", "PROPOSED"],
+  ["docrec-agreement-deadline", "EVIDENCES", "theory-002", "PROPOSED"],
   ["theory-002", "RELATED_TO", "issue-003", "PROPOSED"],
 
   // Claims
-  ["claim-001", "EVIDENCED_BY", "docrec-notice-first", "ACCEPTED"],
+  ["docrec-notice-first", "EVIDENCES", "claim-001", "ACCEPTED"],
   ["claim-001", "INVOLVES", "person-fc-management", "ACCEPTED"],
   ["claim-002", "DEPENDS_ON", "fact-001", "ACCEPTED"],
   ["claim-002", "DEPENDS_ON", "fact-008", "ACCEPTED"],
-  ["claim-002", "EVIDENCED_BY", "docrec-maintenance-orders", "ACCEPTED"],
+  ["docrec-maintenance-orders", "EVIDENCES", "claim-002", "ACCEPTED"],
 
   // Objectives
   ["objective-001", "RELATED_TO", "theory-001", "ACCEPTED"],
@@ -1663,84 +1667,84 @@ const linkSpecs: LinkSpec[] = [
   ["issue-001", "DEPENDS_ON", "fact-001", "ACCEPTED"],
   ["issue-001", "DEPENDS_ON", "fact-003", "ACCEPTED"],
   ["issue-002", "DEPENDS_ON", "fact-005", "PROPOSED"],
-  ["issue-002", "EVIDENCED_BY", "docrec-discovery-gaps", "PROPOSED"],
+  ["docrec-discovery-gaps", "EVIDENCES", "issue-002", "PROPOSED"],
   ["issue-003", "DEPENDS_ON", "fact-002", "PROPOSED"],
   ["issue-003", "DEPENDS_ON", "fact-010", "PROPOSED"],
   ["issue-006", "DEPENDS_ON", "fact-010", "PROPOSED"],
-  ["issue-006", "EVIDENCED_BY", "docrec-raft-approval", "PROPOSED"],
+  ["docrec-raft-approval", "EVIDENCES", "issue-006", "PROPOSED"],
 
   // Arguments
   ["arg-002", "DEPENDS_ON", "issue-002", "PROPOSED"],
   ["arg-002", "DEPENDS_ON", "fact-005", "PROPOSED"],
-  ["arg-002", "EVIDENCED_BY", "docrec-discovery-gaps", "PROPOSED"],
+  ["docrec-discovery-gaps", "EVIDENCES", "arg-002", "PROPOSED"],
   ["arg-002", "INVOLVES", "person-fc-management", "PROPOSED"],
   ["arg-002", "CITES", "precedent-003", "PROPOSED"],
   ["arg-old-discovery-sanctions", "DEPENDS_ON", "issue-002", "ACCEPTED"],
   ["arg-003", "DEPENDS_ON", "fact-002", "ACCEPTED"],
-  ["arg-003", "EVIDENCED_BY", "docrec-cert-letter", "ACCEPTED"],
+  ["docrec-cert-letter", "EVIDENCES", "arg-003", "ACCEPTED"],
   ["arg-005", "DEPENDS_ON", "fact-003", "PROPOSED"],
-  ["arg-005", "EVIDENCED_BY", "docrec-maintenance-orders", "PROPOSED"],
+  ["docrec-maintenance-orders", "EVIDENCES", "arg-005", "PROPOSED"],
   ["arg-006", "DEPENDS_ON", "fact-010", "PROPOSED"],
-  ["arg-006", "EVIDENCED_BY", "docrec-raft-approval", "PROPOSED"],
+  ["docrec-raft-approval", "EVIDENCES", "arg-006", "PROPOSED"],
   // Conflict demo: this proposed argument leans on fact-old-raft-timing, which
   // is itself mid-replacement (fact-002 would replace it). arg-006 therefore
   // can't be accepted until it is re-evaluated against fact-002.
   [
-    "arg-006",
-    "CONTEXTUALIZED_BY",
     "fact-old-raft-timing",
+    "CONTEXTUALIZES",
+    "arg-006",
     "PROPOSED",
     "Relies on the filing-delay framing currently under replacement review.",
   ],
 
   // Facts → sources / people / contradictions
-  ["fact-001", "EVIDENCED_BY", "docrec-maintenance-orders", "ACCEPTED"],
-  ["fact-001", "EVIDENCED_BY", "docrec-photos-metadata", "ACCEPTED"],
+  ["docrec-maintenance-orders", "EVIDENCES", "fact-001", "ACCEPTED"],
+  ["docrec-photos-metadata", "EVIDENCES", "fact-001", "ACCEPTED"],
   [
-    "fact-001",
-    "CONTRADICTED_BY",
     "fact-003",
+    "CONTRADICTS",
+    "fact-001",
     "PROPOSED",
     "Landlord completion codes conflict with tenant condition evidence.",
   ],
   ["fact-001", "INVOLVES", "person-msweeney", "ACCEPTED"],
-  ["fact-002", "EVIDENCED_BY", "docrec-cert-letter", "PROPOSED"],
-  ["fact-002", "EVIDENCED_BY", "docrec-affidavit-hardship", "PROPOSED"],
+  ["docrec-cert-letter", "EVIDENCES", "fact-002", "PROPOSED"],
+  ["docrec-affidavit-hardship", "EVIDENCES", "fact-002", "PROPOSED"],
   ["fact-002", "INVOLVES", "person-dferreira", "PROPOSED"],
-  ["fact-old-raft-timing", "EVIDENCED_BY", "docrec-cert-letter", "ACCEPTED"],
-  ["fact-003", "EVIDENCED_BY", "docrec-maintenance-orders", "PROPOSED"],
+  ["docrec-cert-letter", "EVIDENCES", "fact-old-raft-timing", "ACCEPTED"],
+  ["docrec-maintenance-orders", "EVIDENCES", "fact-003", "PROPOSED"],
   ["fact-003", "INVOLVES", "person-fc-management", "PROPOSED"],
-  ["fact-005", "EVIDENCED_BY", "docrec-discovery-gaps", "ACCEPTED"],
-  ["fact-007", "EVIDENCED_BY", "docrec-affidavit-payments", "ACCEPTED"],
-  ["fact-007", "EVIDENCED_BY", "docrec-raft-approval", "ACCEPTED"],
-  ["fact-008", "EVIDENCED_BY", "docrec-affidavit-hardship", "ACCEPTED"],
+  ["docrec-discovery-gaps", "EVIDENCES", "fact-005", "ACCEPTED"],
+  ["docrec-affidavit-payments", "EVIDENCES", "fact-007", "ACCEPTED"],
+  ["docrec-raft-approval", "EVIDENCES", "fact-007", "ACCEPTED"],
+  ["docrec-affidavit-hardship", "EVIDENCES", "fact-008", "ACCEPTED"],
   ["fact-008", "INVOLVES", "person-msweeney", "ACCEPTED"],
-  ["fact-010", "EVIDENCED_BY", "docrec-affidavit-raft", "PROPOSED"],
-  ["fact-010", "EVIDENCED_BY", "docrec-raft-approval", "PROPOSED"],
+  ["docrec-affidavit-raft", "EVIDENCES", "fact-010", "PROPOSED"],
+  ["docrec-raft-approval", "EVIDENCES", "fact-010", "PROPOSED"],
 
   // Timeline events
-  ["timeline-001", "EVIDENCED_BY", "docrec-notice-first", "ACCEPTED"],
-  ["timeline-002", "EVIDENCED_BY", "docrec-cert-letter", "PROPOSED"],
+  ["docrec-notice-first", "EVIDENCES", "timeline-001", "ACCEPTED"],
+  ["docrec-cert-letter", "EVIDENCES", "timeline-002", "PROPOSED"],
   ["timeline-002", "INVOLVES", "person-msweeney", "PROPOSED"],
   [
-    "timeline-007",
-    "EVIDENCED_BY",
     "docrec-raft-approval",
+    "EVIDENCES",
+    "timeline-007",
     "PROPOSED",
     "Approval date asserted as July 28; timeline file lists July 24.",
   ],
-  ["timeline-007", "EVIDENCED_BY", "docrec-affidavit-raft", "PROPOSED"],
-  ["timeline-009", "CONTEXTUALIZED_BY", "fact-010", "ACCEPTED"],
-  ["timeline-011", "EVIDENCED_BY", "docrec-agreement-deadline", "ACCEPTED"],
+  ["docrec-affidavit-raft", "EVIDENCES", "timeline-007", "PROPOSED"],
+  ["fact-010", "CONTEXTUALIZES", "timeline-009", "ACCEPTED"],
+  ["docrec-agreement-deadline", "EVIDENCES", "timeline-011", "ACCEPTED"],
   ["timeline-011", "RELATED_TO", "issue-003", "ACCEPTED"],
-  ["timeline-013", "EVIDENCED_BY", "docrec-discovery-gaps", "ACCEPTED"],
+  ["docrec-discovery-gaps", "EVIDENCES", "timeline-013", "ACCEPTED"],
   ["timeline-013", "RELATED_TO", "issue-002", "ACCEPTED"],
 
   // Testimony
   ["testimony-001", "INVOLVES", "person-msweeney", "ACCEPTED"],
   ["testimony-001", "DEPENDS_ON", "fact-001", "ACCEPTED"],
   ["testimony-001", "DEPENDS_ON", "fact-008", "ACCEPTED"],
-  ["testimony-001", "EVIDENCED_BY", "docrec-affidavit-entry", "ACCEPTED"],
+  ["docrec-affidavit-entry", "EVIDENCES", "testimony-001", "ACCEPTED"],
   ["testimony-002", "INVOLVES", "person-fc-management", "PROPOSED"],
   ["testimony-002", "DEPENDS_ON", "fact-005", "PROPOSED"],
   ["testimony-002", "DEPENDS_ON", "fact-003", "PROPOSED"],
@@ -1765,9 +1769,9 @@ const linkSpecs: LinkSpec[] = [
 
   // ── New records: grounding for the expanded document set ──────────────────
   // Entry fact + its sources / witness
-  ["fact-012", "EVIDENCED_BY", "docrec-affidavit-entry", "ACCEPTED"],
+  ["docrec-affidavit-entry", "EVIDENCES", "fact-012", "ACCEPTED"],
   ["fact-012", "INVOLVES", "person-msweeney", "ACCEPTED"],
-  ["fact-014", "EVIDENCED_BY", "docrec-affidavit-entry", "ACCEPTED"],
+  ["docrec-affidavit-entry", "EVIDENCES", "fact-014", "ACCEPTED"],
   ["fact-014", "INVOLVES", "person-msweeney", "ACCEPTED"],
   ["claim-002", "DEPENDS_ON", "fact-012", "ACCEPTED"],
   ["testimony-001", "DEPENDS_ON", "fact-012", "ACCEPTED"],
@@ -1775,48 +1779,48 @@ const linkSpecs: LinkSpec[] = [
   // Habitability argument (accepted) grounding
   ["arg-007", "DEPENDS_ON", "fact-001", "ACCEPTED"],
   ["arg-007", "RELATED_TO", "issue-001", "ACCEPTED"],
-  ["arg-007", "EVIDENCED_BY", "docrec-maintenance-orders", "ACCEPTED"],
+  ["docrec-maintenance-orders", "EVIDENCES", "arg-007", "ACCEPTED"],
 
   // Affidavit notice/filing-delay sections ground accepted timeline events
-  ["timeline-009", "EVIDENCED_BY", "docrec-affidavit-notices", "ACCEPTED"],
-  ["timeline-011", "EVIDENCED_BY", "docrec-affidavit-filing-delay", "ACCEPTED"],
+  ["docrec-affidavit-notices", "EVIDENCES", "timeline-009", "ACCEPTED"],
+  ["docrec-affidavit-filing-delay", "EVIDENCES", "timeline-011", "ACCEPTED"],
 
   // Payment fact grounded by the rent ledger section
-  ["fact-007", "EVIDENCED_BY", "docrec-raft-ledger", "ACCEPTED"],
-  ["fact-010", "EVIDENCED_BY", "docrec-raft-cure-detail", "PROPOSED"],
+  ["docrec-raft-ledger", "EVIDENCES", "fact-007", "ACCEPTED"],
+  ["docrec-raft-cure-detail", "EVIDENCES", "fact-010", "PROPOSED"],
 
   // Missing-record fact grounded by the per-category discovery sections
-  ["fact-005", "EVIDENCED_BY", "docrec-discovery-entry-logs", "ACCEPTED"],
-  ["fact-005", "EVIDENCED_BY", "docrec-discovery-vendor-records", "ACCEPTED"],
-  ["issue-002", "EVIDENCED_BY", "docrec-discovery-internal-comms", "PROPOSED"],
-  ["issue-002", "EVIDENCED_BY", "docrec-discovery-decision-docs", "PROPOSED"],
+  ["docrec-discovery-entry-logs", "EVIDENCES", "fact-005", "ACCEPTED"],
+  ["docrec-discovery-vendor-records", "EVIDENCES", "fact-005", "ACCEPTED"],
+  ["docrec-discovery-internal-comms", "EVIDENCES", "issue-002", "PROPOSED"],
+  ["docrec-discovery-decision-docs", "EVIDENCES", "issue-002", "PROPOSED"],
 
   // Proposed records (sequencing, conditions, completion codes)
-  ["fact-013", "EVIDENCED_BY", "docrec-affidavit-notices", "PROPOSED"],
+  ["docrec-affidavit-notices", "EVIDENCES", "fact-013", "PROPOSED"],
   ["fact-013", "DEPENDS_ON", "fact-010", "PROPOSED"],
-  ["fact-003", "EVIDENCED_BY", "docrec-maintenance-completion-codes", "PROPOSED"],
-  ["fact-003", "CONTEXTUALIZED_BY", "docrec-affidavit-conditions", "PROPOSED"],
-  ["claim-001", "EVIDENCED_BY", "docrec-notice-first-service", "PROPOSED"],
-  ["theory-002", "EVIDENCED_BY", "docrec-agreement-sept-emails", "PROPOSED"],
-  ["arg-006", "EVIDENCED_BY", "docrec-raft-payment-breakdown", "PROPOSED"],
-  ["timeline-011", "EVIDENCED_BY", "docrec-agreement-nofault-terms", "ACCEPTED"],
+  ["docrec-maintenance-completion-codes", "EVIDENCES", "fact-003", "PROPOSED"],
+  ["docrec-affidavit-conditions", "CONTEXTUALIZES", "fact-003", "PROPOSED"],
+  ["docrec-notice-first-service", "EVIDENCES", "claim-001", "PROPOSED"],
+  ["docrec-agreement-sept-emails", "EVIDENCES", "theory-002", "PROPOSED"],
+  ["docrec-raft-payment-breakdown", "EVIDENCES", "arg-006", "PROPOSED"],
+  ["docrec-agreement-nofault-terms", "EVIDENCES", "timeline-011", "ACCEPTED"],
 
   // Proposed corroborating-witness testimony
   ["testimony-003", "INVOLVES", "person-dferreira", "PROPOSED"],
   ["testimony-003", "DEPENDS_ON", "fact-002", "PROPOSED"],
-  ["testimony-003", "EVIDENCED_BY", "docrec-affidavit-hardship", "PROPOSED"],
+  ["docrec-affidavit-hardship", "EVIDENCES", "testimony-003", "PROPOSED"],
 
   // ── Facts cite narrow, single-point document records ──────────────────────
-  ["fact-007", "EVIDENCED_BY", "docrec-affidavit-116k-figure", "ACCEPTED"],
-  ["fact-008", "EVIDENCED_BY", "docrec-affidavit-autism-dx", "ACCEPTED"],
-  ["fact-012", "EVIDENCED_BY", "docrec-affidavit-netting", "ACCEPTED"],
-  ["fact-012", "EVIDENCED_BY", "docrec-affidavit-entry-asleep", "ACCEPTED"],
-  ["fact-014", "EVIDENCED_BY", "docrec-affidavit-netting", "ACCEPTED"],
-  ["fact-002", "EVIDENCED_BY", "docrec-affidavit-qcap-statement", "PROPOSED"],
-  ["fact-010", "EVIDENCED_BY", "docrec-affidavit-raft-date", "PROPOSED"],
-  ["fact-010", "EVIDENCED_BY", "docrec-raft-approval-letter", "PROPOSED"],
-  ["timeline-007", "EVIDENCED_BY", "docrec-affidavit-raft-date", "PROPOSED"],
-  ["timeline-007", "EVIDENCED_BY", "docrec-raft-approval-letter", "PROPOSED"],
+  ["docrec-affidavit-116k-figure", "EVIDENCES", "fact-007", "ACCEPTED"],
+  ["docrec-affidavit-autism-dx", "EVIDENCES", "fact-008", "ACCEPTED"],
+  ["docrec-affidavit-netting", "EVIDENCES", "fact-012", "ACCEPTED"],
+  ["docrec-affidavit-entry-asleep", "EVIDENCES", "fact-012", "ACCEPTED"],
+  ["docrec-affidavit-netting", "EVIDENCES", "fact-014", "ACCEPTED"],
+  ["docrec-affidavit-qcap-statement", "EVIDENCES", "fact-002", "PROPOSED"],
+  ["docrec-affidavit-raft-date", "EVIDENCES", "fact-010", "PROPOSED"],
+  ["docrec-raft-approval-letter", "EVIDENCES", "fact-010", "PROPOSED"],
+  ["docrec-affidavit-raft-date", "EVIDENCES", "timeline-007", "PROPOSED"],
+  ["docrec-raft-approval-letter", "EVIDENCES", "timeline-007", "PROPOSED"],
 
   // ── Historical links retained on replaced records ───────────────────────
   // Specified as ACCEPTED (they were real when authored); the builder normalizes
@@ -1824,9 +1828,9 @@ const linkSpecs: LinkSpec[] = [
   // the live records and surface only inside the replaced record's inspector.
   ["posture-003", "RELATED_TO", "objective-001", "ACCEPTED"],
   ["posture-003", "RELATED_TO", "task-001", "ACCEPTED"],
-  ["fact-old-entry-vague", "EVIDENCED_BY", "docrec-affidavit-entry", "ACCEPTED"],
+  ["docrec-affidavit-entry", "EVIDENCES", "fact-old-entry-vague", "ACCEPTED"],
   ["fact-old-entry-vague", "INVOLVES", "person-msweeney", "ACCEPTED"],
-  ["fact-005", "EVIDENCED_BY", "docrec-discovery-gaps-v0", "ACCEPTED"],
+  ["docrec-discovery-gaps-v0", "EVIDENCES", "fact-005", "ACCEPTED"],
 ];
 
 export const demoLinks: GraphLink[] = linkSpecs.map(

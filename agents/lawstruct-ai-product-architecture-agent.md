@@ -232,7 +232,7 @@ Level 3 — evidentiary grounding:
 - Notes: open-ended notes, questions, and observations. Substatuses: GENERAL, PINNED, OPEN_QUESTION, RESOLVED.
 
 Level 4 — source bridge:
-- Document: a record representing content extracted from a source file (CaseDocument). One file can produce many document records. Other records link to document records via EVIDENCED_BY.
+- Document: a record representing content extracted from a source file (CaseDocument). One file can produce many document records. Document records link to the records they ground via EVIDENCES (canonical direction: DOCUMENT EVIDENCES FACT); the inverse "Evidenced by" label is derived in the UI.
 
 Each record type should share the `CaseRecord` base contract and add typed fields only where they improve UX or agent reasoning. Type-specific fields are stored in `typedMeta` (JSON) in the database.
 

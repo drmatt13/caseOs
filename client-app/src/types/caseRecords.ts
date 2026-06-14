@@ -149,18 +149,27 @@ export type RecordSubstatus =
 
 // Semantic edge types in the knowledge graph.
 // Direction: fromRecord → type → toRecord
-// Typical flow: higher-level records depend on / are evidenced by lower-level ones.
+//
+// Links are stored in a single CANONICAL direction. The inverse relationship is
+// never stored as its own type; the UI derives the inverse label when a record
+// is viewed as the target (e.g. DOCUMENT EVIDENCES FACT displays as "Evidences"
+// on the document and "Evidenced by" on the fact). See
+// caseRecordPresentation.LINK_TYPE_LABEL_PAIRS for the label mapping.
 export type RecordLinkType =
   | "DEPENDS_ON"         // fromRecord relies on toRecord (follows RECORD_LEVEL flow)
-  | "EVIDENCED_BY"       // fromRecord is grounded by toRecord (usually a DOCUMENT record)
-  | "CONTRADICTED_BY"    // toRecord contradicts fromRecord
-  | "EXPLAINED_BY"       // toRecord explains fromRecord
-  | "CONTEXTUALIZED_BY"  // toRecord provides broader context for fromRecord
-  | "CITES"              // fromRecord cites toRecord (e.g. a LEGAL_PRECEDENT)
+  | "SUPPORTS"           // fromRecord strengthens / supports toRecord
+  | "EVIDENCES"          // fromRecord provides evidence for toRecord (usually from a DOCUMENT record)
+  | "CONTRADICTS"        // fromRecord directly conflicts with toRecord
+  | "ATTACKS"            // fromRecord undermines credibility/reliability/validity of toRecord
+  | "EXPLAINS"           // fromRecord clarifies or explains toRecord
+  | "CONTEXTUALIZES"     // fromRecord provides surrounding context for toRecord
+  | "CITES"              // fromRecord explicitly cites toRecord (e.g. a LEGAL_PRECEDENT)
   | "DERIVED_FROM"       // fromRecord was synthesized from toRecord
+  | "REQUIRES"           // fromRecord requires toRecord before it is valid or actionable
+  | "LEADS_TO"           // fromRecord causes or leads to toRecord
   | "INVOLVES"           // fromRecord involves toRecord (always a PERSON record)
   | "DUPLICATES"         // fromRecord is a potential duplicate of toRecord (flag for review)
-  | "RELATED_TO";        // general relationship when no specific type applies
+  | "RELATED_TO";        // fallback relationship when no specific type applies
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Base record interface
@@ -293,7 +302,8 @@ export interface PersonRecord extends CaseRecord {
 
 // DOCUMENT – special record type; bridges CaseDocument (raw file) and the graph.
 // A single source file can have many DocumentRecords (e.g. one per key section
-// of a 40-page PDF). Other records link to DocumentRecords via EVIDENCED_BY.
+// of a 40-page PDF). DocumentRecords link to the records they ground via
+// EVIDENCES (canonical direction: DOCUMENT EVIDENCES FACT).
 // content = description / extracted summary of what this record captures.
 export interface DocumentRecord extends CaseRecord {
   type: "DOCUMENT";
@@ -437,7 +447,7 @@ export interface CaseDocument {
 // RAG flow:
 //   1. Vector search across all chunks
 //   2. For DOCUMENT chunks: resolve CaseDocument → linked DocumentRecords
-//      → traverse inbound EVIDENCED_BY links to find FACT/ARGUMENT/etc. records
+//      → traverse outbound EVIDENCES links to find FACT/ARGUMENT/etc. records
 //   3. For CASE_RECORD chunks: resolve the record directly
 //   4. Traverse additional links as needed for depth
 

@@ -841,8 +841,7 @@ function RecordLinksPanel({
     ShowProposedLinksContext,
   );
   const canToggleProposedLinks = allowProposedLinksToggle && recordIsAccepted;
-  const shouldShowProposedLinks =
-    canToggleProposedLinks && showProposedLinks;
+  const shouldShowProposedLinks = canToggleProposedLinks && showProposedLinks;
 
   const otherEndpointId = (link: GraphLink) =>
     link.fromRecordId === record.id ? link.toRecordId : link.fromRecordId;
@@ -931,12 +930,11 @@ function RecordLinksPanel({
                   onOpenRecord={onOpenRecord}
                   isCycle={visitedIds?.has(target.id)}
                 />
-                {(recordIsProposed || recordIsReplaced) &&
-                  link.explanation && (
-                    <p className="mt-0.5 pl-1 text-xs text-black/55">
-                      {link.explanation}
-                    </p>
-                  )}
+                {(recordIsProposed || recordIsReplaced) && link.explanation && (
+                  <p className="mt-0.5 pl-1 text-xs text-black/55">
+                    {link.explanation}
+                  </p>
+                )}
                 {replacement && replacement.id !== record.id && (
                   <div className="ml-3 mt-1 flex flex-col gap-1 border-l border-black/15 pl-3">
                     <span className="flex items-center gap-1 text-[0.7rem] uppercase tracking-wide text-black/40">
@@ -1015,7 +1013,7 @@ function ReplacementNotice({
   if (targets.length === 0) return null;
 
   return (
-    <div className="mb-3 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-900">
+    <div className="mb-3 rounded-lg border border-green-300 bg-green-100 px-3 py-2 text-sm text-green-900">
       <div className="flex items-center gap-1.5 font-medium">
         <GitBranch className="h-3.5 w-3.5" />
         <span>This proposed record would replace:</span>

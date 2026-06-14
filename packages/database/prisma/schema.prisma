@@ -623,14 +623,21 @@ enum LinkStatus {
   REJECTED @map("rejected")
 }
 
+// Canonical, single-direction edge types. Links are stored in one direction
+// (fromRecord → type → toRecord); the inverse label is derived in the UI when
+// viewing the target record (see caseRecordPresentation.LINK_TYPE_LABEL_PAIRS).
 enum RecordLinkType {
   DEPENDS_ON        @map("depends_on")
-  EVIDENCED_BY      @map("evidenced_by")
-  CONTRADICTED_BY   @map("contradicted_by")
-  EXPLAINED_BY      @map("explained_by")
-  CONTEXTUALIZED_BY @map("contextualized_by")
+  SUPPORTS          @map("supports")
+  EVIDENCES         @map("evidences")
+  CONTRADICTS       @map("contradicts")
+  ATTACKS           @map("attacks")
+  EXPLAINS          @map("explains")
+  CONTEXTUALIZES    @map("contextualizes")
   CITES             @map("cites")
   DERIVED_FROM      @map("derived_from")
+  REQUIRES          @map("requires")
+  LEADS_TO          @map("leads_to")
   INVOLVES          @map("involves")
   DUPLICATES        @map("duplicates")
   RELATED_TO        @map("related_to")

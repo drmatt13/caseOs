@@ -72,11 +72,13 @@ export const RECORD_DISPLAY_STATUS_LABELS: Record<RecordDisplayStatus, string> =
 
 // Badge palette. ACCEPTED keeps a class for type completeness but renders no
 // badge, so green is unambiguous as the "elevated proposal" color.
-export const RECORD_DISPLAY_STATUS_CLASSES: Record<RecordDisplayStatus, string> =
-  {
-    ...RECORD_STATUS_CLASSES,
-    PROPOSED_REPLACEMENT: "border-green-300 bg-green-100 text-green-800",
-  };
+export const RECORD_DISPLAY_STATUS_CLASSES: Record<
+  RecordDisplayStatus,
+  string
+> = {
+  ...RECORD_STATUS_CLASSES,
+  PROPOSED_REPLACEMENT: "border-amber-300 bg-amber-100 text-amber-900",
+};
 
 // Card surface tint. Proposed Replacement gets a purple surface beneath its
 // green badge — the two channels together make it unmistakable.
@@ -85,7 +87,7 @@ export const RECORD_DISPLAY_STATUS_CARD_CLASSES: Record<
   string
 > = {
   ...RECORD_STATUS_CARD_CLASSES,
-  PROPOSED_REPLACEMENT: "border-violet-200 bg-violet-50",
+  PROPOSED_REPLACEMENT: "border-violet-200 bg-indigo-50",
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -237,33 +239,59 @@ export const RECORD_TYPE_LABELS: Record<RecordType, string> = {
 // Graph links
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Outbound phrasing: "<record> depends on <target>"
-export const LINK_TYPE_LABELS: Record<RecordLinkType, string> = {
-  DEPENDS_ON: "Depends on",
-  EVIDENCED_BY: "Evidenced by",
-  CONTRADICTED_BY: "Contradicted by",
-  EXPLAINED_BY: "Explained by",
-  CONTEXTUALIZED_BY: "Context from",
-  CITES: "Cites",
-  DERIVED_FROM: "Derived from",
-  INVOLVES: "Involves",
-  DUPLICATES: "Possible duplicate of",
-  RELATED_TO: "Related to",
+// Links are stored in a single canonical direction (fromRecord → type →
+// toRecord). Each type has a forward label (shown on the source record) and an
+// inverse label (shown on the target record). The inverse is never stored as
+// its own link type — it is derived here. This is the single source of truth
+// for relationship phrasing.
+export const LINK_TYPE_LABEL_PAIRS: Record<
+  RecordLinkType,
+  { forward: string; inverse: string }
+> = {
+  DEPENDS_ON: { forward: "Depends on", inverse: "Dependency of" },
+  SUPPORTS: { forward: "Supports", inverse: "Supported by" },
+  EVIDENCES: { forward: "Evidences", inverse: "Evidenced by" },
+  CONTRADICTS: { forward: "Contradicts", inverse: "Contradicted by" },
+  ATTACKS: { forward: "Attacks", inverse: "Attacked by" },
+  EXPLAINS: { forward: "Explains", inverse: "Explained by" },
+  CONTEXTUALIZES: { forward: "Contextualizes", inverse: "Contextualized by" },
+  CITES: { forward: "Cites", inverse: "Cited by" },
+  DERIVED_FROM: { forward: "Derived from", inverse: "Source for" },
+  REQUIRES: { forward: "Requires", inverse: "Required by" },
+  LEADS_TO: { forward: "Leads to", inverse: "Led by" },
+  INVOLVES: { forward: "Involves", inverse: "Involved in" },
+  DUPLICATES: { forward: "Duplicates", inverse: "Duplicated by" },
+  RELATED_TO: { forward: "Related to", inverse: "Related to" },
 };
 
-// Inbound phrasing: "<source> depends on <record>" → shown on the record as:
-export const LINK_TYPE_INBOUND_LABELS: Record<RecordLinkType, string> = {
-  DEPENDS_ON: "Supports",
-  EVIDENCED_BY: "Evidence for",
-  CONTRADICTED_BY: "Contradicts",
-  EXPLAINED_BY: "Explains",
-  CONTEXTUALIZED_BY: "Context for",
-  CITES: "Cited by",
-  DERIVED_FROM: "Source of",
-  INVOLVES: "Involved in",
-  DUPLICATES: "Possibly duplicated by",
-  RELATED_TO: "Related to",
-};
+// Returns the label for a link as seen from one endpoint:
+//   "outbound" → viewing the source record (forward phrasing)
+//   "inbound"  → viewing the target record (inverse phrasing)
+export function linkTypeLabel(
+  type: RecordLinkType,
+  direction: "outbound" | "inbound",
+): string {
+  const pair = LINK_TYPE_LABEL_PAIRS[type];
+  return direction === "outbound" ? pair.forward : pair.inverse;
+}
+
+// Outbound phrasing: shown on the source record ("<record> evidences <target>").
+export const LINK_TYPE_LABELS: Record<RecordLinkType, string> =
+  Object.fromEntries(
+    (Object.keys(LINK_TYPE_LABEL_PAIRS) as RecordLinkType[]).map((type) => [
+      type,
+      LINK_TYPE_LABEL_PAIRS[type].forward,
+    ]),
+  ) as Record<RecordLinkType, string>;
+
+// Inbound phrasing: shown on the target record ("<source> evidences <record>").
+export const LINK_TYPE_INBOUND_LABELS: Record<RecordLinkType, string> =
+  Object.fromEntries(
+    (Object.keys(LINK_TYPE_LABEL_PAIRS) as RecordLinkType[]).map((type) => [
+      type,
+      LINK_TYPE_LABEL_PAIRS[type].inverse,
+    ]),
+  ) as Record<RecordLinkType, string>;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Workspace views

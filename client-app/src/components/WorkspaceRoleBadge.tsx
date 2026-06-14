@@ -20,7 +20,10 @@ const roleBadgeColors: Record<WorkspaceRoleBadgeRole, string> = {
     "border-black/10 bg-black/5 text-black/65 group-hover:bg-gray-200/82.5 group-hover:text-black/60 group-hover:border-black/20",
 };
 
-const WorkspaceRoleBadge = ({ role, className = "" }: WorkspaceRoleBadgeProps) => (
+const WorkspaceRoleBadge = ({
+  role,
+  className = "",
+}: WorkspaceRoleBadgeProps) => (
   <div
     className={`${roleBadgeColors[role]} border inline-flex w-fit shrink-0 items-center px-2 py-0.5 rounded-full text-xs transition-colors ease-in duration-150 group-hover:ease-out group-hover:duration-100 ${className}`}
   >
