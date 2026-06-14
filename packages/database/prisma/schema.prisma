@@ -122,8 +122,8 @@ enum BillingInterval {
 //   PROPOSED             @map("proposed")
 //   ACCEPTED             @map("accepted")
 //   REJECTED             @map("rejected")
-//   SUPERSESSION_PENDING @map("supersession_pending")
-//   SUPERSEDED           @map("superseded")
+//   PENDING_REPLACEMENT  @map("supersession_pending")
+//   REPLACED             @map("superseded")
 // }
 
 // enum RecordParty {
@@ -384,8 +384,8 @@ model WorkspaceInvitation {
 //   typedMeta           Json?            @map("typed_meta")
 //   references          Json?
 //   referencedBy        Json?            @map("referenced_by")
-//   supersedes          Json?
-//   supersededBy        Json?            @map("superseded_by")
+//   replaces           Json?
+//   replacedBy         Json?            @map("superseded_by")
 //   searchText          String?          @map("search_text")
 //   eventDate           DateTime?        @map("event_date") @db.Timestamptz(6)
 //   dueDate             DateTime?        @map("due_date") @db.Timestamptz(6)
@@ -608,13 +608,13 @@ enum RecordType {
 }
 
 // All records start PROPOSED (agent-generated). Only a user can ACCEPT them.
-// SUPERSESSION_PENDING = accepted record with a pending replacement proposal.
+// PENDING_REPLACEMENT = accepted record with a pending replacement proposal.
 enum RecordStatus {
   PROPOSED             @map("proposed")
   ACCEPTED             @map("accepted")
   REJECTED             @map("rejected")
-  SUPERSESSION_PENDING @map("supersession_pending")
-  SUPERSEDED           @map("superseded")
+  PENDING_REPLACEMENT  @map("supersession_pending")
+  REPLACED             @map("superseded")
 }
 
 enum LinkStatus {
@@ -772,8 +772,8 @@ model CaseRecord {
   supportStatus    SupportStatus? @map("support_status")
   version          Int            @default(1)
 
-  // Self-referential supersession chain
-  supersededById   String?        @map("superseded_by_id") @db.Uuid
+  // Self-referential replacement chain
+  replacedById     String?        @map("superseded_by_id") @db.Uuid
 
   // Type-specific structured metadata
   typedMeta        Json?          @map("typed_meta")
@@ -794,8 +794,8 @@ model CaseRecord {
   approvedByUser User?         @relation("RecordApprovedByUser", fields: [approvedByUserId], references: [id], onDelete: SetNull)
   sourceDocument CaseDocument? @relation(fields: [sourceDocumentId], references: [id], onDelete: SetNull)
 
-  supersededBy   CaseRecord?   @relation("RecordVersioning", fields: [supersededById], references: [id])
-  supersedes     CaseRecord[]  @relation("RecordVersioning")
+  replacedBy     CaseRecord?   @relation("RecordVersioning", fields: [replacedById], references: [id])
+  replaces       CaseRecord[]  @relation("RecordVersioning")
 
   outboundLinks  GraphLink[]   @relation("GraphLinkFrom")
   inboundLinks   GraphLink[]   @relation("GraphLinkTo")
@@ -804,13 +804,13 @@ model CaseRecord {
   @@index([caseId, type])
   @@index([caseId, status])
   @@index([workspaceId])
-  @@index([supersededById])
+  @@index([replacedById])
   @@map("case_records")
 }
 
 // An edge in the knowledge graph connecting two CaseRecords.
 // Follows the same PROPOSED → ACCEPTED lifecycle as records,
-// and supports the same versioning via supersededById.
+// and supports the same versioning via replacedById.
 model GraphLink {
   id               String         @id @default(uuid()) @db.Uuid
   workspaceId      String         @map("workspace_id") @db.Uuid
@@ -824,7 +824,7 @@ model GraphLink {
   type             RecordLinkType
   status           LinkStatus     @default(PROPOSED)
 
-  supersededById   String?        @map("superseded_by_id") @db.Uuid
+  replacedById     String?        @map("superseded_by_id") @db.Uuid
 
   confidence       Float?
   explanation      String?        @db.Text
@@ -841,8 +841,8 @@ model GraphLink {
   fromRecord CaseRecord @relation("GraphLinkFrom", fields: [fromRecordId], references: [id], onDelete: Cascade)
   toRecord   CaseRecord @relation("GraphLinkTo", fields: [toRecordId], references: [id], onDelete: Cascade)
 
-  supersededBy GraphLink?  @relation("LinkVersioning", fields: [supersededById], references: [id])
-  supersedes   GraphLink[] @relation("LinkVersioning")
+  replacedBy   GraphLink?  @relation("LinkVersioning", fields: [replacedById], references: [id])
+  replaces     GraphLink[] @relation("LinkVersioning")
 
   @@index([caseId])
   @@index([fromRecordId])

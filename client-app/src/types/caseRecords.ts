@@ -1,7 +1,7 @@
 // Source-grounded case knowledge graph.
 // All records begin as PROPOSED (agent-generated) and must be explicitly
 // ACCEPTED by a user before they are considered authoritative.
-// Records and links both support versioning via supersession.
+// Records and links both support versioning via replacement.
 
 import type { CaseContext } from "./caseContext";
 import type {
@@ -73,14 +73,14 @@ export const RECORD_LEVEL: Record<RecordType, number> = {
 // Lifecycle of a single record:
 //   PROPOSED → ACCEPTED (user approves)
 //   PROPOSED → REJECTED (user rejects)
-//   ACCEPTED → SUPERSESSION_PENDING (a proposed replacement exists)
-//   SUPERSESSION_PENDING → SUPERSEDED (replacement approved; old record retired)
+//   ACCEPTED → PENDING_REPLACEMENT (a proposed replacement exists)
+//   PENDING_REPLACEMENT → REPLACED (replacement approved; old record retired)
 export type RecordStatus =
   | "PROPOSED"
   | "ACCEPTED"
   | "REJECTED"
-  | "SUPERSESSION_PENDING"
-  | "SUPERSEDED";
+  | "PENDING_REPLACEMENT"
+  | "REPLACED";
 
 export type LinkStatus = "PROPOSED" | "ACCEPTED" | "REJECTED";
 
@@ -188,10 +188,10 @@ export interface CaseRecord {
   substatus?: RecordSubstatus;
   supportStatus?: SupportStatus;
 
-  // Versioning – follows the supersession lifecycle
+  // Versioning – follows the replacement lifecycle
   version: number;
-  supersededById?: string;  // ID of the record that replaces this one
-  supersedesIds?: string[]; // IDs of older records this one replaces
+  replacedById?: string;  // ID of the record that replaces this one
+  replacesIds?: string[]; // IDs of older records this one replaces
 
   // Authorship & approval
   createdBy: "human" | "agent";
@@ -387,9 +387,9 @@ export interface GraphLink {
   type: RecordLinkType;
   status: LinkStatus;
 
-  // Versioning – mirrors record supersession pattern
-  supersededById?: string;
-  supersedesIds?: string[];
+  // Versioning – mirrors record replacement pattern
+  replacedById?: string;
+  replacesIds?: string[];
 
   confidence?: number; // 0–1, agent confidence in this connection
   explanation?: string;

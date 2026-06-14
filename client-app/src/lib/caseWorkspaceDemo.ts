@@ -4,8 +4,8 @@
 //
 // Demonstrates every part of the domain model:
 //  - records at every level of RECORD_LEVEL (objective → document)
-//  - PROPOSED / ACCEPTED / SUPERSESSION_PENDING / SUPERSEDED lifecycles
-//  - completed supersessions (posture-003 → posture-002, fact-old-entry-vague
+//  - PROPOSED / ACCEPTED / PENDING_REPLACEMENT / REPLACED lifecycles
+//  - completed replacements (posture-003 → posture-002, fact-old-entry-vague
 //    → fact-014, docrec-discovery-gaps-v0 → docrec-discovery-gaps) and pending
 //    ones
 //  - every multi-page source file split into several DOCUMENT records, each a
@@ -361,7 +361,7 @@ export const demoRecords: TypedCaseRecord[] = [
       "Defendants assert breach of the implied warranty of habitability, interference with quiet enjoyment, unauthorized entry, failure to mitigate damages, and violations of G.L. c. 93A.",
   },
 
-  // ── Posture (level 1, completed supersession pair) ───────────────────────
+  // ── Posture (level 1, completed replacement pair) ───────────────────────
   {
     ...recordDefaults,
     ...humanAuthored,
@@ -371,7 +371,7 @@ export const demoRecords: TypedCaseRecord[] = [
     substatus: "CURRENT",
     category: "Trial posture",
     version: 2,
-    supersedesIds: ["posture-003"],
+    replacesIds: ["posture-003"],
     title:
       "Trial-facing posture constrained by unresolved discovery and proof quality",
     summary:
@@ -383,13 +383,13 @@ export const demoRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "posture-003",
     type: "POSTURE",
-    status: "SUPERSEDED",
+    status: "REPLACED",
     substatus: "STALE",
     category: "Discovery posture",
-    supersededById: "posture-002",
+    replacedById: "posture-002",
     title: "Earlier posture treated discovery as mostly complete",
     summary:
-      "Superseded posture replaced by newer discovery-pressure analysis.",
+      "Earlier posture replaced by newer discovery-pressure analysis.",
     content:
       "Earlier workspace notes treated the April supplemental response as mostly resolving discovery concerns. Later review identified remaining gaps in entry logs, internal communications, vendor records, and extraction quality.",
     createdAt: "2026-05-12T12:00:00Z",
@@ -422,7 +422,7 @@ export const demoRecords: TypedCaseRecord[] = [
     substatus: "EXPLORING",
     party: "ours",
     category: "Equitable prejudice",
-    supersedesIds: ["arg-003"],
+    replacesIds: ["arg-003"],
     title:
       "Filing delay shows equitable prejudice more cleanly than strict mitigation",
     summary:
@@ -505,7 +505,7 @@ export const demoRecords: TypedCaseRecord[] = [
     supportStatus: "PARTIALLY_SUPPORTED",
     party: "ours",
     category: "Discovery",
-    supersedesIds: ["arg-old-discovery-sanctions"],
+    replacesIds: ["arg-old-discovery-sanctions"],
     title: "Discovery gaps make Plaintiffs' clean-record story unreliable",
     summary:
       "Discovery theme challenging the completeness and reliability of landlord-side records.",
@@ -516,7 +516,7 @@ export const demoRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "arg-old-discovery-sanctions",
     type: "ARGUMENT",
-    status: "SUPERSESSION_PENDING",
+    status: "PENDING_REPLACEMENT",
     substatus: "DRAFT",
     party: "ours",
     category: "Discovery",
@@ -533,7 +533,7 @@ export const demoRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "arg-003",
     type: "ARGUMENT",
-    status: "SUPERSESSION_PENDING",
+    status: "PENDING_REPLACEMENT",
     substatus: "NEEDS_SUPPORT",
     supportStatus: "PARTIALLY_SUPPORTED",
     party: "ours",
@@ -606,7 +606,7 @@ export const demoRecords: TypedCaseRecord[] = [
     supportStatus: "PARTIALLY_SUPPORTED",
     party: "ours",
     category: "Mitigation",
-    supersedesIds: ["fact-old-raft-timing"],
+    replacesIds: ["fact-old-raft-timing"],
     title: "Management knew delayed filing could affect mitigation pathways",
     summary:
       "Proposed mitigation fact based on the certified request to file promptly.",
@@ -617,7 +617,7 @@ export const demoRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "fact-old-raft-timing",
     type: "FACT",
-    status: "SUPERSESSION_PENDING",
+    status: "PENDING_REPLACEMENT",
     substatus: "CONTEXT",
     party: "ours",
     category: "Mitigation",
@@ -1124,8 +1124,8 @@ export const demoRecords: TypedCaseRecord[] = [
   // ── Additional document records (level 4) ────────────────────────────────
   // Every multi-page file is split into several DOCUMENT records, each a
   // distinct section/exhibit grounding a different part of the graph. A few are
-  // PROPOSED (newly extracted, awaiting review) and one is SUPERSEDED (replaced
-  // by a cleaner re-extraction) to exercise the document lifecycle.
+  // PROPOSED (newly extracted, awaiting review) and one has REPLACED status
+  // after a cleaner re-extraction to exercise the document lifecycle.
 
   // Affidavit — sections 5–7 (pages 13–18)
   {
@@ -1355,8 +1355,8 @@ export const demoRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "docrec-discovery-gaps-v0",
     type: "DOCUMENT",
-    status: "SUPERSEDED",
-    supersededById: "docrec-discovery-gaps",
+    status: "REPLACED",
+    replacedById: "docrec-discovery-gaps",
     documentId: "doc-discovery",
     fileName: "Plaintiffs Supplemental Discovery Responses.pdf",
     category: "Discovery",
@@ -1364,7 +1364,7 @@ export const demoRecords: TypedCaseRecord[] = [
     summary:
       "Earlier OCR extraction replaced after the table responses were re-read.",
     content:
-      "The first-pass OCR extraction of the supplemental responses. Its table-based answers were flattened and partly garbled, so it was superseded by a cleaner extraction checked against the PDF image.",
+      "The first-pass OCR extraction of the supplemental responses. Its table-based answers were flattened and partly garbled, so it was replaced by a cleaner extraction checked against the PDF image.",
     createdAt: "2026-05-12T09:30:00Z",
     updatedAt: "2026-05-12T10:00:00Z",
   },
@@ -1496,7 +1496,7 @@ export const demoRecords: TypedCaseRecord[] = [
     createdAt: "2026-05-11T11:00:00Z",
   },
 
-  // ── Additional substantive records (accepted / proposed / superseded) ─────
+  // ── Additional substantive records (accepted / proposed / replaced) ─────
   {
     ...recordDefaults,
     ...humanAuthored,
@@ -1538,7 +1538,7 @@ export const demoRecords: TypedCaseRecord[] = [
     substatus: "CONTEXT",
     supportStatus: "SUPPORTED",
     version: 2,
-    supersedesIds: ["fact-old-entry-vague"],
+    replacesIds: ["fact-old-entry-vague"],
     party: "ours",
     category: "Entry",
     title: "Balcony netting protected a child with documented safety needs",
@@ -1552,16 +1552,16 @@ export const demoRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "fact-old-entry-vague",
     type: "FACT",
-    status: "SUPERSEDED",
+    status: "REPLACED",
     substatus: "CONTEXT",
-    supersededById: "fact-014",
+    replacedById: "fact-014",
     party: "ours",
     category: "Entry",
     title: "Entry removed 'some protective netting'",
     summary:
-      "Superseded, vaguer description of the netting removed during the entry.",
+      "Earlier, vaguer description of the netting removed during the entry.",
     content:
-      "An earlier draft described the July 24 entry as removing 'some protective netting' without specifying its purpose. Replaced by a more precise statement tying the netting to a child's documented safety needs.",
+      "An earlier draft described the July 24 entry as removing 'some protective netting' without specifying its purpose. It was replaced by a more precise statement tying the netting to a child's documented safety needs.",
     createdAt: "2026-05-13T12:00:00Z",
     updatedAt: "2026-05-15T12:00:00Z",
   },
@@ -1613,10 +1613,10 @@ const recordStatusById = new Map<string, RecordStatus>(
 
 // A record is authoritative once accepted (including while a replacement is
 // pending). An accepted link must not point at a non-authoritative record, so
-// any ACCEPTED spec touching a proposed/superseded endpoint is normalized down
+// any ACCEPTED spec touching a proposed/replaced endpoint is normalized down
 // to PROPOSED at construction time — keeping the demo graph internally honest.
 const isAuthoritativeStatus = (status?: RecordStatus) =>
-  status === "ACCEPTED" || status === "SUPERSESSION_PENDING";
+  status === "ACCEPTED" || status === "PENDING_REPLACEMENT";
 
 type LinkSpec = [
   fromId: string,
@@ -1683,14 +1683,14 @@ const linkSpecs: LinkSpec[] = [
   ["arg-006", "DEPENDS_ON", "fact-010", "PROPOSED"],
   ["arg-006", "EVIDENCED_BY", "docrec-raft-approval", "PROPOSED"],
   // Conflict demo: this proposed argument leans on fact-old-raft-timing, which
-  // is itself mid-supersession (fact-002 would replace it). arg-006 therefore
+  // is itself mid-replacement (fact-002 would replace it). arg-006 therefore
   // can't be accepted until it is re-evaluated against fact-002.
   [
     "arg-006",
     "CONTEXTUALIZED_BY",
     "fact-old-raft-timing",
     "PROPOSED",
-    "Relies on the filing-delay framing currently under supersession review.",
+    "Relies on the filing-delay framing currently under replacement review.",
   ],
 
   // Facts → sources / people / contradictions
@@ -1818,10 +1818,10 @@ const linkSpecs: LinkSpec[] = [
   ["timeline-007", "EVIDENCED_BY", "docrec-affidavit-raft-date", "PROPOSED"],
   ["timeline-007", "EVIDENCED_BY", "docrec-raft-approval-letter", "PROPOSED"],
 
-  // ── Historical links retained on superseded records ───────────────────────
+  // ── Historical links retained on replaced records ───────────────────────
   // Specified as ACCEPTED (they were real when authored); the builder normalizes
   // them to PROPOSED because an endpoint is now retired, so they stay hidden on
-  // the live records and surface only inside the superseded record's inspector.
+  // the live records and surface only inside the replaced record's inspector.
   ["posture-003", "RELATED_TO", "objective-001", "ACCEPTED"],
   ["posture-003", "RELATED_TO", "task-001", "ACCEPTED"],
   ["fact-old-entry-vague", "EVIDENCED_BY", "docrec-affidavit-entry", "ACCEPTED"],
@@ -1883,7 +1883,7 @@ export const demoActivity: DemoActivity[] = [
     id: "act-001",
     actor: "Case Agent",
     action:
-      "Proposed equitable-prejudice theory to supersede the narrower mitigation argument.",
+      "Proposed equitable-prejudice theory to replace the narrower mitigation argument.",
     time: "8 minutes ago",
     tone: "info",
   },

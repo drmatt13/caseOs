@@ -189,10 +189,10 @@ function recordMatchesSearch(record: TypedCaseRecord, searchValue: string) {
     record.category ?? "",
     record.substatus ? RECORD_SUBSTATUS_LABELS[record.substatus] : "",
     record.party ? recordPartyLabel(record.party, clientRole) : "",
-    // A proposed record that supersedes reads as "Proposed Supersession"; index
+    // A proposed record that replaces reads as "Proposed Replacement"; index
     // that label so the term finds it (raw status alone would only say Proposed).
-    record.status === "PROPOSED" && record.supersedesIds?.length
-      ? RECORD_DISPLAY_STATUS_LABELS.PROPOSED_SUPERSESSION
+    record.status === "PROPOSED" && record.replacesIds?.length
+      ? RECORD_DISPLAY_STATUS_LABELS.PROPOSED_REPLACEMENT
       : RECORD_STATUS_LABELS[record.status],
   ]
     .join(" ")
@@ -207,7 +207,7 @@ function recordMatchesSearch(record: TypedCaseRecord, searchValue: string) {
 // A record is "live" / authoritative once accepted — including while a
 // replacement proposal is pending against it.
 function isAuthoritative(status: RecordStatus) {
-  return status === "ACCEPTED" || status === "SUPERSESSION_PENDING";
+  return status === "ACCEPTED" || status === "PENDING_REPLACEMENT";
 }
 
 function useWorkspaceGraph() {
@@ -216,11 +216,11 @@ function useWorkspaceGraph() {
   const [proposalDecisions, setProposalDecisions] = useState<
     Record<string, ProposalDecision>
   >({});
-  // Records whose supersession completed in this session (proposal accepted).
-  const [supersededIds, setSupersededIds] = useState<string[]>([]);
+  // Records whose replacement completed in this session (proposal accepted).
+  const [replacedIds, setReplacedIds] = useState<string[]>([]);
   // Proposed records created in this session from an accepted record (revisions
-  // that would supersede their source). These flow through the normal review
-  // queue and supersession lifecycle.
+  // that would replace their source). These flow through the normal review
+  // queue and replacement lifecycle.
   const [addedRecords, setAddedRecords] = useState<TypedCaseRecord[]>([]);
 
   const records = useMemo(
@@ -260,16 +260,16 @@ function useWorkspaceGraph() {
     return { outboundLinks: outbound, inboundLinks: inbound };
   }, [deletedRecordIds]);
 
-  // Proposed records that supersede another record, keyed by the target id.
-  const pendingSupersessionByTargetId = useMemo(() => {
+  // Proposed records that replace another record, keyed by the target id.
+  const pendingReplacementByTargetId = useMemo(() => {
     const map = new Map<string, TypedCaseRecord>();
     for (const record of records) {
       if (
         record.status === "PROPOSED" &&
         !proposalDecisions[record.id] &&
-        record.supersedesIds
+        record.replacesIds
       ) {
-        for (const targetId of record.supersedesIds) {
+        for (const targetId of record.replacesIds) {
           map.set(targetId, record);
         }
       }
@@ -281,16 +281,16 @@ function useWorkspaceGraph() {
     const decision = proposalDecisions[record.id];
     if (decision)
       return decision.status === "accepted" ? "ACCEPTED" : "REJECTED";
-    if (supersededIds.includes(record.id)) return "SUPERSEDED";
-    // An accepted record reads as "supersession proposed" only while a live
+    if (replacedIds.includes(record.id)) return "REPLACED";
+    // An accepted record reads as "Pending Replacement" only while a live
     // replacement proposal targets it; if that proposal is decided away, it
     // reverts to plain accepted.
     if (
       record.status === "ACCEPTED" ||
-      record.status === "SUPERSESSION_PENDING"
+      record.status === "PENDING_REPLACEMENT"
     ) {
-      return pendingSupersessionByTargetId.has(record.id)
-        ? "SUPERSESSION_PENDING"
+      return pendingReplacementByTargetId.has(record.id)
+        ? "PENDING_REPLACEMENT"
         : "ACCEPTED";
     }
     return record.status;
@@ -302,7 +302,7 @@ function useWorkspaceGraph() {
   //     records flip immediately, links to still-proposed records stay proposed
   //     until those are accepted in turn; and
   //   • demotes an "accepted" link whose endpoint is (or becomes) proposed or
-  //     superseded — so an accepted record never displays a link pointing into a
+  //     replaced — so an accepted record never displays a link pointing into a
   //     proposed record.
   const effectiveLinkStatus = (link: GraphLink): LinkStatus => {
     if (link.status === "REJECTED") return "REJECTED";
@@ -330,23 +330,23 @@ function useWorkspaceGraph() {
       ...decisions,
       [recordId]: decision,
     }));
-    // Accepting a superseding proposal retires its targets.
+    // Accepting a replacement proposal retires its targets.
     if (decision.status === "accepted") {
       const record = recordsById.get(recordId);
-      if (record?.supersedesIds?.length) {
-        setSupersededIds((ids) => [
+      if (record?.replacesIds?.length) {
+        setReplacedIds((ids) => [
           ...ids,
-          ...record.supersedesIds!.filter((id) => !ids.includes(id)),
+          ...record.replacesIds!.filter((id) => !ids.includes(id)),
         ]);
       }
     }
   };
 
   // Propose a revised version of an accepted record. The draft becomes a new
-  // PROPOSED record that would supersede its source — the primary path for a
+  // PROPOSED record that would replace its source — the primary path for a
   // human to turn an accepted record into a fresh proposal. It carries the
   // source's type and type-specific fields, lands in the review queue, and (via
-  // supersedesIds) flips the source to "supersession proposed".
+  // replacesIds) flips the source to "Pending Replacement".
   const proposeRevision = (recordId: string, draft: string) => {
     const source = recordsById.get(recordId);
     const trimmed = draft.trim();
@@ -357,8 +357,8 @@ function useWorkspaceGraph() {
       id: `proposal-${recordId}-${Date.now()}`,
       status: "PROPOSED",
       version: source.version + 1,
-      supersedesIds: [source.id],
-      supersededById: undefined,
+      replacesIds: [source.id],
+      replacedById: undefined,
       approvedByUserId: undefined,
       approvedAt: undefined,
       createdBy: "human",
@@ -416,7 +416,7 @@ function useWorkspaceGraph() {
     inboundLinks,
     effectiveStatus,
     effectiveLinkStatus,
-    pendingSupersessionByTargetId,
+    pendingReplacementByTargetId,
     proposedRecords,
     proposalDecisions,
     decideProposal,
@@ -451,7 +451,7 @@ function RouteComponent() {
   const [activeView, setActiveView] = useState<WorkspaceViewType>("overview");
   const [globalSearch, setGlobalSearch] = useState("");
   const [panelSearch, setPanelSearch] = useState("");
-  // Superseded records are hidden by default so the views show only live work.
+  // Replaced records are hidden by default so the views show only live work.
   const [selectedStatuses, setSelectedStatuses] = useState<RecordStatus[]>(
     DEFAULT_VISIBLE_STATUSES,
   );
@@ -484,7 +484,7 @@ function RouteComponent() {
       const status = graph.effectiveStatus(record);
       const entry = counts[view] ?? { accepted: 0, proposed: 0 };
       if (status === "PROPOSED") entry.proposed += 1;
-      else if (status === "ACCEPTED" || status === "SUPERSESSION_PENDING")
+      else if (status === "ACCEPTED" || status === "PENDING_REPLACEMENT")
         entry.accepted += 1;
       counts[view] = entry;
     }
@@ -651,7 +651,7 @@ function RouteComponent() {
 
 function StatusBadge({ status }: { status: RecordDisplayStatus }) {
   // Accepted is the authoritative default — it wears no badge. Its absence,
-  // alongside Proposed / Proposed Supersession / Supersession proposed, is the
+  // alongside Proposed / Proposed Replacement / Pending Replacement, is the
   // signal. Only unsettled states are labeled.
   if (status === "ACCEPTED") return null;
   return (
@@ -693,8 +693,8 @@ function PartyBadge({ record }: { record: TypedCaseRecord }) {
 }
 
 // Resolve a record to its display status — the lifecycle status, except a
-// proposal that would supersede an existing record reads as its own "Proposed
-// Supersession" state (green badge, purple surface). The single source of truth
+// proposal that would replace an existing record reads as its own "Proposed
+// Replacement" state (green badge, purple surface). The single source of truth
 // for every status badge, card tint, and inspector wash, so links, cards, and
 // the inspector never diverge.
 function recordDisplayStatus(
@@ -702,8 +702,8 @@ function recordDisplayStatus(
   graph: WorkspaceGraph,
 ): RecordDisplayStatus {
   const status = graph.effectiveStatus(record);
-  return status === "PROPOSED" && record.supersedesIds?.length
-    ? "PROPOSED_SUPERSESSION"
+  return status === "PROPOSED" && record.replacesIds?.length
+    ? "PROPOSED_REPLACEMENT"
     : status;
 }
 
@@ -719,35 +719,35 @@ function RecordChip({
   graph,
   onOpenRecord,
   isCycle = false,
-  pairedSupersession = false,
-  showSupersessionPending = false,
+  pairedReplacement = false,
+  showPendingReplacement = false,
 }: {
   record: TypedCaseRecord;
   graph: WorkspaceGraph;
   onOpenRecord: (recordId: string) => void;
   isCycle?: boolean;
-  // True only where the superseded counterpart is shown right alongside (the
-  // "replaced by" pairing). On a lone chip a Proposed Supersession reads as a
-  // plain blue "Proposed" link — without its counterpart the supersession
+  // True only where the replaced counterpart is shown right alongside (the
+  // "replaced by" pairing). On a lone chip a Proposed Replacement reads as a
+  // plain blue "Proposed" link — without its counterpart the replacement
   // framing is just noise.
-  pairedSupersession?: boolean;
-  // True inside SupersessionNotice ("This proposal would supersede:") —
-  // the only context where "Supersession proposed" badge belongs on a link.
-  showSupersessionPending?: boolean;
+  pairedReplacement?: boolean;
+  // True inside ReplacementNotice ("This proposal would replace:") —
+  // the only context where "Pending Replacement" badge belongs on a link.
+  showPendingReplacement?: boolean;
 }) {
   let displayStatus = recordDisplayStatus(record, graph);
-  if (displayStatus === "PROPOSED_SUPERSESSION" && !pairedSupersession) {
+  if (displayStatus === "PROPOSED_REPLACEMENT" && !pairedReplacement) {
     displayStatus = "PROPOSED";
   }
   // Accepted links wear no pill (their calm absence reads as "settled").
-  // Supersession-pending links are also pill-free in general link lists — the
-  // amber badge belongs only inside "This proposal would supersede:" where the
+  // Pending-replacement links are also pill-free in general link lists — the
+  // amber badge belongs only inside "This proposal would replace:" where the
   // relationship is already framed by the container.
   // Cycle chips always show their "In path".
   const showPill =
     isCycle ||
     (displayStatus !== "ACCEPTED" &&
-      (displayStatus !== "SUPERSESSION_PENDING" || showSupersessionPending));
+      (displayStatus !== "PENDING_REPLACEMENT" || showPendingReplacement));
 
   return (
     <button
@@ -809,10 +809,10 @@ function RecordChip({
 //     in full, but never one pointing at a retired record.
 //   • A plain accepted record shows only its authoritative links by default; in
 //     the inspector, a checkbox opts into proposed links to records in review.
-//   • A supersession-pending record shows review links in full because the
+//   • A pending-replacement record shows review links in full because the
 //     record itself is already in an unsettled lifecycle state.
-//   • A superseded record keeps its historical links for provenance.
-// When a link's target is mid-supersession, the proposal that would replace it
+//   • A replaced record keeps its historical links for provenance.
+// When a link's target is mid-replacement, the proposal that would replace it
 // is shown inline beneath it ("replaced by", offset on a connector rail) so the
 // two coexist — accepting the replacement retires the target, which then drops
 // out of view on its own.
@@ -834,8 +834,8 @@ function RecordLinksPanel({
   const viewStatus = graph.effectiveStatus(record);
   const recordIsProposed = viewStatus === "PROPOSED";
   const recordIsAccepted = viewStatus === "ACCEPTED";
-  const recordIsSupersessionPending = viewStatus === "SUPERSESSION_PENDING";
-  const recordIsSuperseded = viewStatus === "SUPERSEDED";
+  const recordIsPendingReplacement = viewStatus === "PENDING_REPLACEMENT";
+  const recordIsReplaced = viewStatus === "REPLACED";
 
   const { show: showProposedLinks, setShow: setShowProposedLinks } = useContext(
     ShowProposedLinksContext,
@@ -850,12 +850,12 @@ function RecordLinksPanel({
   // A proposed link is worth showing while its other endpoint isn't retired.
   const proposedLinkVisible = (link: GraphLink) => {
     const other = graph.recordsById.get(otherEndpointId(link));
-    return !other || graph.effectiveStatus(other) !== "SUPERSEDED";
+    return !other || graph.effectiveStatus(other) !== "REPLACED";
   };
 
   const visibleLink = (link: GraphLink) => {
-    if (recordIsSuperseded) return true;
-    if (recordIsProposed || recordIsSupersessionPending) {
+    if (recordIsReplaced) return true;
+    if (recordIsProposed || recordIsPendingReplacement) {
       return proposedLinkVisible(link);
     }
     // Plain accepted: authoritative links always; proposed links only when the
@@ -917,10 +917,10 @@ function RecordLinksPanel({
         </p>
         <div className="flex flex-col gap-1.5">
           {entries.map(({ record: target, link }) => {
-            // If this link's target is mid-supersession, show the proposal that
+            // If this link's target is mid-replacement, show the proposal that
             // would replace it inline — both coexist until the replacement is
             // accepted, at which point the target retires and drops out.
-            const replacement = graph.pendingSupersessionByTargetId.get(
+            const replacement = graph.pendingReplacementByTargetId.get(
               target.id,
             );
             return (
@@ -931,7 +931,7 @@ function RecordLinksPanel({
                   onOpenRecord={onOpenRecord}
                   isCycle={visitedIds?.has(target.id)}
                 />
-                {(recordIsProposed || recordIsSuperseded) &&
+                {(recordIsProposed || recordIsReplaced) &&
                   link.explanation && (
                     <p className="mt-0.5 pl-1 text-xs text-black/55">
                       {link.explanation}
@@ -948,7 +948,7 @@ function RecordLinksPanel({
                       graph={graph}
                       onOpenRecord={onOpenRecord}
                       isCycle={visitedIds?.has(replacement.id)}
-                      pairedSupersession
+                      pairedReplacement
                     />
                   </div>
                 )}
@@ -972,7 +972,7 @@ function RecordLinksPanel({
           Show proposed links to records in review
         </label>
       )}
-      {recordIsSuperseded && (
+      {recordIsReplaced && (
         <p className="rounded-lg border border-black/15 bg-black/[0.025] px-2.5 py-1.5 text-xs leading-5 text-black/55">
           Historical links, retained for provenance. They are hidden from
           accepted records and proposals.
@@ -982,7 +982,7 @@ function RecordLinksPanel({
         <div className="rounded-lg border border-black/15 bg-black/[0.025] p-3 text-sm text-black/50">
           {recordIsProposed
             ? "This proposal introduces no linked records yet."
-            : recordIsSuperseded
+            : recordIsReplaced
               ? "This record had no links."
               : "No accepted links yet."}
         </div>
@@ -997,7 +997,7 @@ function RecordLinksPanel({
   );
 }
 
-function SupersessionNotice({
+function ReplacementNotice({
   record,
   graph,
   onOpenRecord,
@@ -1008,7 +1008,7 @@ function SupersessionNotice({
   onOpenRecord: (recordId: string) => void;
   visitedIds?: Set<string>;
 }) {
-  const targets = (record.supersedesIds ?? [])
+  const targets = (record.replacesIds ?? [])
     .map((id) => graph.recordsById.get(id))
     .filter((target): target is TypedCaseRecord => Boolean(target));
 
@@ -1018,7 +1018,7 @@ function SupersessionNotice({
     <div className="mb-3 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-900">
       <div className="flex items-center gap-1.5 font-medium">
         <GitBranch className="h-3.5 w-3.5" />
-        <span>This proposed record would supersede:</span>
+        <span>This proposed record would replace:</span>
       </div>
       <div className="mt-2 flex flex-col gap-1.5">
         {targets.map((target) => (
@@ -1028,7 +1028,7 @@ function SupersessionNotice({
             graph={graph}
             onOpenRecord={onOpenRecord}
             isCycle={visitedIds?.has(target.id)}
-            showSupersessionPending
+            showPendingReplacement
           />
         ))}
       </div>
@@ -1040,7 +1040,7 @@ function SupersessionNotice({
   );
 }
 
-function SupersessionPendingNotice({
+function PendingReplacementNotice({
   proposal,
   graph,
   onOpenRecord,
@@ -1051,7 +1051,7 @@ function SupersessionPendingNotice({
   onOpenRecord: (recordId: string) => void;
   visitedIds?: Set<string>;
 }) {
-  // The record this sits on is itself amber (supersession-pending). The lock is
+  // The record this sits on is itself amber (pending replacement). The lock is
   // the blocking constraint, so the container reads red; the replacement chip
   // carries its own lifecycle pill (the proposal on its way in to replace this).
   return (
@@ -1066,7 +1066,7 @@ function SupersessionPendingNotice({
           graph={graph}
           onOpenRecord={onOpenRecord}
           isCycle={visitedIds?.has(proposal.id)}
-          pairedSupersession
+          pairedReplacement
         />
       </div>
       <p className="mt-2 leading-5 text-red-900/80">
@@ -1228,10 +1228,10 @@ function RecordInspectorBody({
             candidate.id !== record.id,
         )
       : [];
-  const supersededBy = record.supersededById
-    ? graph.recordsById.get(record.supersededById)
+  const replacedBy = record.replacedById
+    ? graph.recordsById.get(record.replacedById)
     : undefined;
-  const pendingProposal = graph.pendingSupersessionByTargetId.get(record.id);
+  const pendingProposal = graph.pendingReplacementByTargetId.get(record.id);
 
   return (
     <div className="flex-1 overflow-y-auto p-4">
@@ -1329,12 +1329,12 @@ function RecordInspectorBody({
 
       <p className="mt-4 text-md leading-6 text-black/80">{record.content}</p>
 
-      {/* Supersession state mirrors the case-record card so the inspector reads
-          the same way: the amber "would supersede" and red "locked, pending
+      {/* Replacement state mirrors the case-record card so the inspector reads
+          the same way: the amber "would replace" and red "locked, pending
           replacement" containers travel with the record into the drawer. */}
-      {status === "PROPOSED" && record.supersedesIds?.length && (
+      {status === "PROPOSED" && record.replacesIds?.length && (
         <div className="mt-4">
-          <SupersessionNotice
+          <ReplacementNotice
             record={record}
             graph={graph}
             onOpenRecord={onOpenRecord}
@@ -1345,7 +1345,7 @@ function RecordInspectorBody({
 
       {pendingProposal && (
         <div className="mt-4">
-          <SupersessionPendingNotice
+          <PendingReplacementNotice
             proposal={pendingProposal}
             graph={graph}
             onOpenRecord={onOpenRecord}
@@ -1356,33 +1356,33 @@ function RecordInspectorBody({
 
       {/* Provenance the notices above don't cover: what replaced a retired
           record, and (for already-settled records) what this one retired.
-          A live proposal's "supersedes" is shown by the amber notice instead. */}
-      {(supersededBy ||
-        (status !== "PROPOSED" && record.supersedesIds?.length)) && (
+          A live proposal's "replaces" is shown by the amber notice instead. */}
+      {(replacedBy ||
+        (status !== "PROPOSED" && record.replacesIds?.length)) && (
         <div className="mt-4">
           <p className="mb-1.5 flex items-center gap-1.5 text-xs text-black/65">
             <GitBranch className="h-3.5 w-3.5" />
             Version history
           </p>
           <div className="flex flex-col gap-1.5">
-            {supersededBy && (
+            {replacedBy && (
               <div>
-                <p className="mb-1 text-xs text-black/55">Superseded by</p>
+                <p className="mb-1 text-xs text-black/55">Replaced by</p>
                 <RecordChip
-                  record={supersededBy}
+                  record={replacedBy}
                   graph={graph}
                   onOpenRecord={onOpenRecord}
-                  isCycle={visitedIds.has(supersededBy.id)}
+                  isCycle={visitedIds.has(replacedBy.id)}
                 />
               </div>
             )}
             {status !== "PROPOSED" &&
-              (record.supersedesIds ?? [])
+              (record.replacesIds ?? [])
                 .map((id) => graph.recordsById.get(id))
                 .filter((target): target is TypedCaseRecord => Boolean(target))
                 .map((target) => (
                   <div key={target.id}>
-                    <p className="mb-1 text-xs text-black/55">Supersedes</p>
+                    <p className="mb-1 text-xs text-black/55">Replaces</p>
                     <RecordChip
                       record={target}
                       graph={graph}
@@ -1443,10 +1443,10 @@ function RecordCard({
   const [expanded, setExpanded] = useState(false);
   const status = graph.effectiveStatus(record);
   // Display status splits PROPOSED into plain "Proposed" vs "Proposed
-  // Supersession" (green badge, purple card); raw `status` still drives logic.
+  // Replacement" (green badge, purple card); raw `status` still drives logic.
   const displayStatus = recordDisplayStatus(record, graph);
   const decision = graph.proposalDecisions[record.id];
-  const pendingProposal = graph.pendingSupersessionByTargetId.get(record.id);
+  const pendingProposal = graph.pendingReplacementByTargetId.get(record.id);
 
   return (
     <article
@@ -1471,8 +1471,8 @@ function RecordCard({
         )}
         <div className="min-w-0">
           <div className="mb-2 flex flex-wrap items-center gap-2">
-            {/* The green "Proposed Supersession" status now carries the
-                supersedes signal on its own — no separate badge needed. */}
+            {/* The green "Proposed Replacement" status now carries the
+                replaces signal on its own — no separate badge needed. */}
             <StatusBadge status={displayStatus} />
             <SubstatusBadge record={record} />
             {record.category && (
@@ -1501,14 +1501,14 @@ function RecordCard({
       {expanded && (
         <div className="border-t border-black/15 px-4 pb-4 pt-3">
           {record.status === "PROPOSED" && !decision && (
-            <SupersessionNotice
+            <ReplacementNotice
               record={record}
               graph={graph}
               onOpenRecord={onOpenRecord}
             />
           )}
           {pendingProposal && (
-            <SupersessionPendingNotice
+            <PendingReplacementNotice
               proposal={pendingProposal}
               graph={graph}
               onOpenRecord={onOpenRecord}
@@ -1678,7 +1678,7 @@ function ProposalActions({
 
 // Action surface for accepted (authoritative) records: propose a revision. An
 // accepted record can't be edited in place — instead the user drafts a new
-// version that becomes a PROPOSED record superseding this one, routed through
+// version that becomes a PROPOSED record replacing this one, routed through
 // the normal review queue. This is the primary way humans turn an accepted
 // record back into a proposal.
 function AcceptedRecordActions({
@@ -1718,7 +1718,7 @@ function AcceptedRecordActions({
         <div className="mt-3">
           <TextAreaField
             label="Revised content"
-            placeholder="Edit the content. Submitting creates a proposed record that would supersede this one and sends it to the review queue."
+            placeholder="Edit the content. Submitting creates a proposed record that would replace this one and sends it to the review queue."
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
             rows={4}
@@ -1726,7 +1726,7 @@ function AcceptedRecordActions({
           />
           <div className="mt-2 flex items-center justify-between gap-3">
             <span className="text-xs text-black/55">
-              Goes to the review queue as a supersession proposal.
+              Goes to the review queue as a replacement proposal.
             </span>
             <Button
               style="secondary"
@@ -1776,7 +1776,7 @@ function RecordSettingsMenu({
   const menuRef = useRef<HTMLDivElement>(null);
   const itemLabel =
     SINGULAR_VIEW_LABELS[RECORD_TYPE_VIEW[record.type]] ?? "record";
-  const isSuperseded = record.status === "SUPERSEDED";
+  const isReplaced = record.status === "REPLACED";
 
   useEffect(() => {
     if (!open) return;
@@ -1817,9 +1817,9 @@ function RecordSettingsMenu({
           className="absolute right-0 top-8 z-20 min-w-52 rounded-xl border border-black/22 bg-white/90 p-1.5 text-sm shadow-md backdrop-blur-sm"
           onClick={(event) => event.stopPropagation()}
         >
-          {isSuperseded ? (
+          {isReplaced ? (
             <p className="px-2.5 py-2 text-black/50">
-              Superseded records are read-only.
+              Replaced records are read-only.
             </p>
           ) : (
             <>
@@ -1863,7 +1863,7 @@ function RecordSettingsMenu({
               </button>
             </>
           )}
-          {menuNote && !isSuperseded && (
+          {menuNote && !isReplaced && (
             <p className="mt-1 border-t border-black/15 px-2.5 py-2 text-xs leading-4 text-black/50">
               {menuNote}
             </p>
@@ -1904,14 +1904,14 @@ const FILTERABLE_STATUSES: RecordStatus[] = [
   "ACCEPTED",
   "PROPOSED",
   "REJECTED",
-  "SUPERSESSION_PENDING",
-  "SUPERSEDED",
+  "PENDING_REPLACEMENT",
+  "REPLACED",
 ];
 
-// Default view hides superseded records so the lists show only live work; the
+// Default view hides replaced records so the lists show only live work; the
 // reset control returns to exactly this set.
 const DEFAULT_VISIBLE_STATUSES: RecordStatus[] = FILTERABLE_STATUSES.filter(
-  (status) => status !== "SUPERSEDED",
+  (status) => status !== "REPLACED",
 );
 
 function StatusFilter({
@@ -1934,7 +1934,7 @@ function StatusFilter({
       <Filter className="h-4 w-4 text-black/50" />
       <button
         type="button"
-        title="Reset filters (hide superseded)"
+        title="Reset filters (hide replaced)"
         aria-label="Reset status filters"
         className="inline-flex items-center justify-center rounded-full border p-1.5 transition-colors border-black/15 bg-white/70 text-black/50 hover:bg-black/5 hover:text-black/50"
         onClick={() => onSelectStatuses(DEFAULT_VISIBLE_STATUSES)}
@@ -2049,7 +2049,7 @@ function OverviewView({
     (record) =>
       record.substatus &&
       ATTENTION_SUBSTATUSES.includes(record.substatus) &&
-      graph.effectiveStatus(record) !== "SUPERSEDED" &&
+      graph.effectiveStatus(record) !== "REPLACED" &&
       graph.effectiveStatus(record) !== "REJECTED",
   );
 
@@ -2117,7 +2117,7 @@ function OverviewView({
             </div>
             <p className="mt-1 text-sm text-black/65">
               Records flagged for source review, missing support, date
-              conflicts, or pending supersession.
+              conflicts, or pending replacement.
             </p>
             <div className="mt-3 flex flex-col gap-1.5">
               {attentionRecords.slice(0, 6).map((record) => (
@@ -2179,11 +2179,11 @@ function ReviewView({
   graph: WorkspaceGraph;
   onOpenRecord: (recordId: string) => void;
 }) {
-  const supersessionProposals = graph.proposedRecords.filter(
-    (record) => record.supersedesIds?.length,
+  const replacementProposals = graph.proposedRecords.filter(
+    (record) => record.replacesIds?.length,
   );
   const newProposals = graph.proposedRecords.filter(
-    (record) => !record.supersedesIds?.length,
+    (record) => !record.replacesIds?.length,
   );
 
   return (
@@ -2197,14 +2197,14 @@ function ReviewView({
         <EmptyState message="No pending proposals need review." />
       )}
 
-      {supersessionProposals.length > 0 && (
+      {replacementProposals.length > 0 && (
         <section className="flex flex-col gap-2">
           <h3 className="flex items-center gap-2 text-sm font-medium text-black/65">
             <GitBranch className="h-4 w-4" />
-            Supersession proposals ({supersessionProposals.length})
+            Replacement Proposals ({replacementProposals.length})
           </h3>
           <div className="grid gap-3">
-            {supersessionProposals.map((record) => (
+            {replacementProposals.map((record) => (
               <RecordCard
                 key={record.id}
                 record={record}

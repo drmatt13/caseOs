@@ -21,8 +21,8 @@ export const RECORD_STATUS_LABELS: Record<RecordStatus, string> = {
   PROPOSED: "Proposed",
   ACCEPTED: "Accepted",
   REJECTED: "Rejected",
-  SUPERSESSION_PENDING: "Supersession proposed",
-  SUPERSEDED: "Superseded",
+  PENDING_REPLACEMENT: "Pending Replacement",
+  REPLACED: "Replaced",
 };
 
 // Badge styling (the small status pill).
@@ -30,44 +30,44 @@ export const RECORD_STATUS_CLASSES: Record<RecordStatus, string> = {
   ACCEPTED: "border-green-300 bg-green-100 text-green-800",
   PROPOSED: "border-blue-300 bg-blue-100 text-blue-800",
   REJECTED: "border-red-300 bg-red-100 text-red-800",
-  SUPERSESSION_PENDING: "border-amber-300 bg-amber-100 text-amber-900",
-  SUPERSEDED: "border-black/15 bg-black/[0.06] text-black/55",
+  PENDING_REPLACEMENT: "border-amber-300 bg-amber-100 text-amber-900",
+  REPLACED: "border-black/15 bg-black/[0.06] text-black/55",
 };
 
 // Card surface tint keyed by status so a record's lifecycle reads at a glance:
-//   proposed → light blue, supersession proposed → yellow, superseded → gray,
+//   proposed → light blue, pending replacement → yellow, replaced → gray,
 //   accepted / rejected → the default translucent white surface.
 export const RECORD_STATUS_CARD_CLASSES: Record<RecordStatus, string> = {
   ACCEPTED: "border-black/15 bg-white/70",
   PROPOSED: "border-blue-200 bg-blue-50",
   REJECTED: "border-red-100 bg-red-50/50",
-  SUPERSESSION_PENDING: "border-amber-200 bg-amber-50",
-  SUPERSEDED: "border-black/10 bg-black/[0.04]",
+  PENDING_REPLACEMENT: "border-amber-200 bg-amber-50",
+  REPLACED: "border-black/10 bg-black/[0.04]",
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Display status (presentation only)
 // ─────────────────────────────────────────────────────────────────────────────
 
-// A PROPOSED record that would supersede an existing one reads as its own
-// "Proposed Supersession" state — one identity, no compound "supersedes" tag on
+// A PROPOSED record that would replace an existing one reads as its own
+// "Proposed Replacement" state — one identity, no compound "replaces" tag on
 // a blue proposal. This is purely cosmetic: the underlying lifecycle is still
 // PROPOSED, so counts, filters, and the review/accept path never see it.
 //
 // Accepted is the authoritative default and wears NO badge — its absence is the
 // signal (handled in StatusBadge / RecordChip), which frees green to mark an
-// *elevated* proposal. The Proposed Supersession identity is split across two
+// *elevated* proposal. The Proposed Replacement identity is split across two
 // channels: a green badge (the elevated-proposal signal) over a purple record
 // surface (its own card tint), so it never reads as a plain blue proposal.
 //   • Proposed             → blue badge   / blue surface
-//   • Proposed Supersession → green badge  / purple surface
-//   • Supersession proposed → amber badge  / amber surface
-export type RecordDisplayStatus = RecordStatus | "PROPOSED_SUPERSESSION";
+//   • Proposed Replacement → green badge  / purple surface
+//   • Pending Replacement → amber badge  / amber surface
+export type RecordDisplayStatus = RecordStatus | "PROPOSED_REPLACEMENT";
 
 export const RECORD_DISPLAY_STATUS_LABELS: Record<RecordDisplayStatus, string> =
   {
     ...RECORD_STATUS_LABELS,
-    PROPOSED_SUPERSESSION: "Proposed Supersession",
+    PROPOSED_REPLACEMENT: "Proposed Replacement",
   };
 
 // Badge palette. ACCEPTED keeps a class for type completeness but renders no
@@ -75,17 +75,17 @@ export const RECORD_DISPLAY_STATUS_LABELS: Record<RecordDisplayStatus, string> =
 export const RECORD_DISPLAY_STATUS_CLASSES: Record<RecordDisplayStatus, string> =
   {
     ...RECORD_STATUS_CLASSES,
-    PROPOSED_SUPERSESSION: "border-green-300 bg-green-100 text-green-800",
+    PROPOSED_REPLACEMENT: "border-green-300 bg-green-100 text-green-800",
   };
 
-// Card surface tint. Proposed Supersession gets a purple surface beneath its
+// Card surface tint. Proposed Replacement gets a purple surface beneath its
 // green badge — the two channels together make it unmistakable.
 export const RECORD_DISPLAY_STATUS_CARD_CLASSES: Record<
   RecordDisplayStatus,
   string
 > = {
   ...RECORD_STATUS_CARD_CLASSES,
-  PROPOSED_SUPERSESSION: "border-violet-200 bg-violet-50",
+  PROPOSED_REPLACEMENT: "border-violet-200 bg-violet-50",
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -291,7 +291,7 @@ export const VIEW_LABELS: Record<WorkspaceViewType, string> = {
 
 export const VIEW_DESCRIPTIONS: Partial<Record<WorkspaceViewType, string>> = {
   review:
-    "Agent-proposed records and supersessions awaiting your approval. Nothing becomes authoritative until you accept it.",
+    "Agent-proposed records and replacement proposals awaiting your approval. Nothing becomes authoritative until you accept it.",
   objectives:
     "What you are trying to accomplish — desired outcomes, priorities, and risk-aware goals.",
   claims:
