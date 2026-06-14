@@ -16,12 +16,12 @@ import {
 } from "#/components/features/create-case/caseIntakeForm";
 import ContentShell from "#/components/layouts/ContentShell";
 import CreateCaseMenu from "#/components/menus/CreateCaseMenu";
-import UserPanel from "#/components/UserPanel";
-import Button from "#/components/Button";
+import UserPanel from "#/components/layouts/UserPanel";
+import Button from "#/components/ui/Button";
 
 import type { CaseIntake } from "#/types/caseWorkspace";
 import type { CaseIntakeWizardState } from "#/components/features/create-case/caseIntakeForm";
-import PageLoading from "#/components/PageLoading";
+import PageLoading from "#/components/ui/PageLoading";
 import GetUserError from "#/components/errors/GetUserError";
 
 // route guards

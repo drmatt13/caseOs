@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import Button from "#/components/Button";
+import Button from "#/components/ui/Button";
 import LoginLayout from "#/components/layouts/LoginLayout";
 import {
   confirmSignUpUser,

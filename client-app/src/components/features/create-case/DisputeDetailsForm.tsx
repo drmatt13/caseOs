@@ -1,5 +1,5 @@
 import type { CaseIntake } from "#/types/caseWorkspace";
-import TextAreaField from "#/components/TextAreaField";
+import TextAreaField from "#/components/ui/TextAreaField";
 import { caseStatusOptions } from "#/components/features/create-case/caseIntakeForm";
 import {
   FormSection,

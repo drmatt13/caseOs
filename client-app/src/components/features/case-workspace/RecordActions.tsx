@@ -12,8 +12,8 @@ import {
 import type { TypedCaseRecord } from "#/types/caseRecords";
 import { SINGULAR_VIEW_LABELS } from "#/lib/caseRecordPresentation";
 import { RECORD_TYPE_VIEW } from "#/types/caseWorkspace";
-import Button from "#/components/Button";
-import TextAreaField from "#/components/TextAreaField";
+import Button from "#/components/ui/Button";
+import TextAreaField from "#/components/ui/TextAreaField";
 
 import type { ProposalDecision } from "./useWorkspaceGraph";
 

@@ -1,6 +1,6 @@
 import { BadgeCheck } from "lucide-react";
 
-import Button from "#/components/Button";
+import Button from "#/components/ui/Button";
 import {
   formatPrice,
   type AccountTier,

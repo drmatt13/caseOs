@@ -1,5 +1,5 @@
 import { type ChangeEvent } from "react";
-import TextAreaField from "#/components/TextAreaField";
+import TextAreaField from "#/components/ui/TextAreaField";
 import {
   FormSection,
   TextInputField,

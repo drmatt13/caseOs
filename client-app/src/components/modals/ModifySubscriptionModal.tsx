@@ -1,7 +1,7 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { CheckCircle2, XIcon } from "lucide-react";
 
-import Button from "#/components/Button";
+import Button from "#/components/ui/Button";
 import { useCurrentUserQuery } from "#/api/currentUser/hooks";
 import { useBillingProductsQuery } from "#/api/billing/hooks";
 import { AppModalContext } from "#/context/AppModalContext";

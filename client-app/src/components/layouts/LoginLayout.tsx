@@ -13,7 +13,7 @@ import {
   TriangleAlertIcon,
   UsersRoundIcon,
 } from "lucide-react";
-import AppLogo from "../AppLogo";
+import AppLogo from "./AppLogo";
 
 const connectorClassName =
   "h-full w-8 shrink-0 overflow-visible text-slate-400/80 [--arrow-stroke:1.5]";

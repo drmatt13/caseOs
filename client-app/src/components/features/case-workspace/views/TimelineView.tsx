@@ -5,7 +5,7 @@ import {
   VIEW_DESCRIPTIONS,
   VIEW_LABELS,
 } from "#/lib/caseRecordPresentation";
-import Button from "#/components/Button";
+import Button from "#/components/ui/Button";
 
 import { formatDate, recordMatchesSearch } from "../helpers";
 import { EmptyState } from "../common";

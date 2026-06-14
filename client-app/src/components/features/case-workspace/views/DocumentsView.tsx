@@ -7,7 +7,7 @@ import {
   VIEW_LABELS,
 } from "#/lib/caseRecordPresentation";
 import { demoDocuments } from "#/lib/caseWorkspaceDemo";
-import Button from "#/components/Button";
+import Button from "#/components/ui/Button";
 
 import { formatDate, isImageDocument } from "../helpers";
 import { DocumentViewButton } from "../common";

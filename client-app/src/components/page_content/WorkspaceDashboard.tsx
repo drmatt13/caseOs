@@ -1,11 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { BriefcaseBusiness } from "lucide-react";
-import UserPanel from "#/components/UserPanel";
-import Button from "#/components/Button";
+import UserPanel from "#/components/layouts/UserPanel";
+import Button from "#/components/ui/Button";
 import ContentHeaderBar from "#/components/layouts/ContentHeaderBar";
 import WorkspaceRoleBadge, {
   type WorkspaceRoleBadgeRole,
-} from "#/components/WorkspaceRoleBadge";
+} from "#/components/ui/WorkspaceRoleBadge";
 import type { MembershipRole } from "#/api/generated/graphql";
 import type { WorkspaceDetail } from "#/api/workspace/hooks";
 import { defaultWorkspaceCases } from "#/lib/defaultWorkspaceCases";

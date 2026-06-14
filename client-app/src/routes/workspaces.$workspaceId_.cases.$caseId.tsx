@@ -8,8 +8,8 @@ import ContentShell from "#/components/layouts/ContentShell";
 import ActiveWorkspaceMenu, {
   type ViewCount,
 } from "#/components/menus/ActiveWorkspaceMenu";
-import UserPanel from "#/components/UserPanel";
-import PageLoading from "#/components/PageLoading";
+import UserPanel from "#/components/layouts/UserPanel";
+import PageLoading from "#/components/ui/PageLoading";
 import GetUserError from "#/components/errors/GetUserError";
 import { requireAuth } from "#/lib/auth";
 import { useCurrentUserQuery } from "#/api/currentUser/hooks";

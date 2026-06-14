@@ -4,7 +4,7 @@ import { TanStackDevtools } from "@tanstack/react-devtools";
 import { useCallback, useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import SettingsPopup from "#/components/popups/SettingsPopup";
-import AppModal from "#/components/AppModal";
+import AppModal from "#/components/modals/AppModal";
 
 // context
 import { PopupContext, type PopupId } from "#/context/PopupContext";

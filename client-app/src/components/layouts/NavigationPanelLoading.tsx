@@ -1,5 +1,5 @@
 import { type CSSProperties, useContext, useEffect, useRef } from "react";
-import AppLogo from "#/components/AppLogo";
+import AppLogo from "#/components/layouts/AppLogo";
 import { XIcon } from "lucide-react";
 
 // context

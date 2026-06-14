@@ -2,9 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import AppLayout from "#/components/layouts/AppLayout";
 import NavigationPanel from "#/components/layouts/NavigationPanel";
 import ContentShell from "#/components/layouts/ContentShell";
-import UserPanel from "#/components/UserPanel";
+import UserPanel from "#/components/layouts/UserPanel";
 import WorkspaceDashboard from "#/components/page_content/WorkspaceDashboard";
-import PageLoading from "#/components/PageLoading";
+import PageLoading from "#/components/ui/PageLoading";
 import GetUserError from "#/components/errors/GetUserError";
 import SelectCaseMenu from "#/components/menus/SelectCaseMenu";
 

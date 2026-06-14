@@ -1,6 +1,6 @@
 import { XIcon } from "lucide-react";
-import Button from "#/components/Button";
-import WorkspaceRoleBadge from "#/components/WorkspaceRoleBadge";
+import Button from "#/components/ui/Button";
+import WorkspaceRoleBadge from "#/components/ui/WorkspaceRoleBadge";
 import {
   FormSection,
   SelectField,

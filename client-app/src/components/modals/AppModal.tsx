@@ -4,9 +4,9 @@ import { useContext, useState, useEffect } from "react";
 import { AppModalContext } from "#/context/AppModalContext";
 
 // modals
-import EditUserModal from "./modals/EditUserModal";
-import ModifySubscriptionModal from "./modals/ModifySubscriptionModal";
-import ManageWorkspacesModal from "./modals/ManageWorkspacesModal";
+import EditUserModal from "./EditUserModal";
+import ModifySubscriptionModal from "./ModifySubscriptionModal";
+import ManageWorkspacesModal from "./ManageWorkspacesModal";
 
 const SettingsModal = () => {
   const { modal, requestCloseModal } = useContext(AppModalContext);

@@ -11,7 +11,7 @@ import {
 } from "@floating-ui/react";
 import { useContext, useEffect, useCallback } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import Button from "../Button";
+import Button from "../ui/Button";
 import logout from "#/lib/logout";
 import { useCurrentUserQuery } from "#/api/currentUser/hooks";
 import { BriefcaseBusiness, CreditCard, UserPen, XIcon } from "lucide-react";

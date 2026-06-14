@@ -1,5 +1,5 @@
 import type { CaseIntake } from "#/types/caseWorkspace";
-import TextAreaField from "#/components/TextAreaField";
+import TextAreaField from "#/components/ui/TextAreaField";
 import { FormSection } from "#/components/features/create-case/fields";
 
 type TimelineAndUrgencyFormProps = {

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { PencilLine } from "lucide-react";
 
-import Button from "#/components/Button";
-import TextAreaField from "#/components/TextAreaField";
+import Button from "#/components/ui/Button";
+import TextAreaField from "#/components/ui/TextAreaField";
 
 function CaseNoteComposer({
   onCreateCaseNote,

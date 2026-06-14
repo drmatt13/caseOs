@@ -9,7 +9,7 @@ import {
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { Mail, UserRound, XIcon } from "lucide-react";
 
-import Button from "#/components/Button";
+import Button from "#/components/ui/Button";
 import { AppModalContext } from "#/context/AppModalContext";
 import {
   useCurrentUserQuery,

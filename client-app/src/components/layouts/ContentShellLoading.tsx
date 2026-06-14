@@ -1,6 +1,6 @@
 import { type CSSProperties } from "react";
 import ContentShell from "#/components/layouts/ContentShell";
-import LoadingSpinner from "#/components/LoadingSpinner";
+import LoadingSpinner from "#/components/ui/LoadingSpinner";
 import useWindowWidthCategory from "#/hooks/useWindowWidthCategory";
 
 const contentShellLoadingHeightStorageKeyPrefix =

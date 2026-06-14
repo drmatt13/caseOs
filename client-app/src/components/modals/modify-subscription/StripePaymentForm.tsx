@@ -7,7 +7,7 @@ import {
   useStripe,
 } from "@stripe/react-stripe-js";
 
-import Button from "#/components/Button";
+import Button from "#/components/ui/Button";
 import { currentUserQueryKey } from "#/api/currentUser/hooks";
 import { useCreateSubscriptionMutation } from "#/api/billing/hooks";
 import { formatPrice } from "#/components/modals/modify-subscription/types";

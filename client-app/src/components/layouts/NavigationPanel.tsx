@@ -7,7 +7,7 @@ import {
   // useState,
   useContext,
 } from "react";
-import AppLogo from "#/components/AppLogo";
+import AppLogo from "#/components/layouts/AppLogo";
 import useWindowWidthCategory from "#/hooks/useWindowWidthCategory";
 
 // context
