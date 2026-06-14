@@ -12,6 +12,7 @@ import type {
   SupportStatus,
 } from "#/types/caseRecords";
 import type { WorkspaceViewType } from "#/types/caseWorkspace";
+import { BLANK_SURFACE, PARTY_TONES, TONES } from "#/lib/tones";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Record lifecycle status
@@ -25,24 +26,26 @@ export const RECORD_STATUS_LABELS: Record<RecordStatus, string> = {
   REPLACED: "Replaced",
 };
 
-// Badge styling (the small status pill).
+// Badge styling (the small status pill). Each status maps to a semantic tone;
+// see lib/tones.ts for the actual color recipe.
 export const RECORD_STATUS_CLASSES: Record<RecordStatus, string> = {
-  ACCEPTED: "border-green-300 bg-green-100 text-green-800",
-  PROPOSED: "border-blue-300 bg-blue-100 text-blue-800",
-  REJECTED: "border-red-300 bg-red-100 text-red-800",
-  PENDING_REPLACEMENT: "border-amber-300 bg-amber-100 text-amber-900",
-  REPLACED: "border-black/15 bg-black/[0.06] text-black/55",
+  ACCEPTED: TONES.positive.badge,
+  PROPOSED: TONES.info.badge,
+  REJECTED: TONES.critical.badge,
+  PENDING_REPLACEMENT: TONES.caution.badge,
+  REPLACED: TONES.neutral.badge,
 };
 
 // Card surface tint keyed by status so a record's lifecycle reads at a glance:
-//   proposed → light blue, pending replacement → yellow, replaced → gray,
-//   accepted / rejected → the default translucent white surface.
+//   proposed → info wash, pending replacement → caution wash, replaced → gray,
+//   accepted → blank glass (no tint; being the source of truth is its own
+//   signal), rejected → critical wash.
 export const RECORD_STATUS_CARD_CLASSES: Record<RecordStatus, string> = {
-  ACCEPTED: "border-black/15 bg-white/70",
-  PROPOSED: "border-blue-200 bg-blue-50",
-  REJECTED: "border-red-100 bg-red-50/50",
-  PENDING_REPLACEMENT: "border-amber-200 bg-amber-50",
-  REPLACED: "border-black/10 bg-black/[0.04]",
+  ACCEPTED: BLANK_SURFACE,
+  PROPOSED: TONES.info.surface,
+  REJECTED: TONES.critical.surface,
+  PENDING_REPLACEMENT: TONES.caution.surface,
+  REPLACED: TONES.neutral.surface,
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -55,13 +58,13 @@ export const RECORD_STATUS_CARD_CLASSES: Record<RecordStatus, string> = {
 // PROPOSED, so counts, filters, and the review/accept path never see it.
 //
 // Accepted is the authoritative default and wears NO badge — its absence is the
-// signal (handled in StatusBadge / RecordChip), which frees green to mark an
-// *elevated* proposal. The Proposed Replacement identity is split across two
-// channels: a green badge (the elevated-proposal signal) over a purple record
-// surface (its own card tint), so it never reads as a plain blue proposal.
-//   • Proposed             → blue badge   / blue surface
-//   • Proposed Replacement → green badge  / purple surface
-//   • Pending Replacement → amber badge  / amber surface
+// signal (handled in StatusBadge / RecordChip). Proposed Replacement gets the
+// `special` tone (violet) for BOTH its badge and its card surface, so the two
+// channels share one hue and reinforce a single identity — distinct from a
+// plain Proposed (info/blue) and from Pending Replacement (caution/amber).
+//   • Proposed             → info badge    / info surface     (blue)
+//   • Proposed Replacement → special badge / special surface  (violet)
+//   • Pending Replacement  → caution badge / caution surface  (amber)
 export type RecordDisplayStatus = RecordStatus | "PROPOSED_REPLACEMENT";
 
 export const RECORD_DISPLAY_STATUS_LABELS: Record<RecordDisplayStatus, string> =
@@ -71,23 +74,23 @@ export const RECORD_DISPLAY_STATUS_LABELS: Record<RecordDisplayStatus, string> =
   };
 
 // Badge palette. ACCEPTED keeps a class for type completeness but renders no
-// badge, so green is unambiguous as the "elevated proposal" color.
+// badge (see StatusBadge).
 export const RECORD_DISPLAY_STATUS_CLASSES: Record<
   RecordDisplayStatus,
   string
 > = {
   ...RECORD_STATUS_CLASSES,
-  PROPOSED_REPLACEMENT: "border-amber-300 bg-amber-100 text-amber-900",
+  PROPOSED_REPLACEMENT: TONES.special.badge,
 };
 
-// Card surface tint. Proposed Replacement gets a purple surface beneath its
-// green badge — the two channels together make it unmistakable.
+// Card surface tint. Proposed Replacement's surface shares the `special` hue
+// with its badge, so badge and card read as one object.
 export const RECORD_DISPLAY_STATUS_CARD_CLASSES: Record<
   RecordDisplayStatus,
   string
 > = {
   ...RECORD_STATUS_CARD_CLASSES,
-  PROPOSED_REPLACEMENT: "border-violet-200 bg-indigo-50",
+  PROPOSED_REPLACEMENT: TONES.special.surface,
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -177,9 +180,9 @@ export const SUPPORT_STATUS_LABELS: Record<SupportStatus, string> = {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const RECORD_PARTY_CLASSES: Record<RecordParty, string> = {
-  ours: "border-sky-200 bg-sky-100 text-sky-800",
-  opposing: "border-rose-200 bg-rose-100 text-rose-800",
-  neutral: "border-black/15 bg-white/85 text-black/65",
+  ours: PARTY_TONES.ours.badge,
+  opposing: PARTY_TONES.opposing.badge,
+  neutral: PARTY_TONES.neutral.badge,
 };
 
 const OUR_SIDE_LABELS: Partial<Record<ClientRole, string>> = {

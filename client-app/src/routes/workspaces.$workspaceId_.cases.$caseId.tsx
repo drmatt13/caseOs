@@ -84,6 +84,7 @@ import {
   type RecordDisplayStatus,
   recordPartyLabel,
 } from "#/lib/caseRecordPresentation";
+import { TONES } from "#/lib/tones";
 import {
   demoActivity,
   demoAgentInstructions,
@@ -277,6 +278,29 @@ function useWorkspaceGraph() {
     return map;
   }, [records, proposalDecisions]);
 
+  const acceptedReplacementByTargetId = useMemo(() => {
+    const map = new Map<string, TypedCaseRecord>();
+    for (const record of records) {
+      if (!record.replacesIds?.length) continue;
+
+      const decision = proposalDecisions[record.id];
+      const isAcceptedReplacement =
+        decision?.status === "accepted" ||
+        (!decision &&
+          (record.status === "ACCEPTED" ||
+            record.status === "PENDING_REPLACEMENT" ||
+            record.status === "REPLACED"));
+
+      if (!isAcceptedReplacement) continue;
+
+      for (const targetId of record.replacesIds) {
+        if (!recordsById.has(targetId) || map.has(targetId)) continue;
+        map.set(targetId, record);
+      }
+    }
+    return map;
+  }, [records, recordsById, proposalDecisions]);
+
   const effectiveStatus = (record: TypedCaseRecord): RecordStatus => {
     const decision = proposalDecisions[record.id];
     if (decision)
@@ -417,6 +441,7 @@ function useWorkspaceGraph() {
     effectiveStatus,
     effectiveLinkStatus,
     pendingReplacementByTargetId,
+    acceptedReplacementByTargetId,
     proposedRecords,
     proposalDecisions,
     decideProposal,
@@ -466,9 +491,13 @@ function RouteComponent() {
   );
 
   const openRecord = (recordId: string) => {
-    setInspectorStack((stack) =>
-      stack[stack.length - 1] === recordId ? stack : [...stack, recordId],
-    );
+    setInspectorStack((stack) => {
+      const existingIndex = stack.indexOf(recordId);
+      if (existingIndex >= 0) return stack.slice(0, existingIndex + 1);
+      return stack[stack.length - 1] === recordId
+        ? stack
+        : [...stack, recordId];
+    });
   };
 
   const handleSelectView = (view: WorkspaceViewType) => {
@@ -670,9 +699,7 @@ function SubstatusBadge({ record }: { record: TypedCaseRecord }) {
   return (
     <span
       className={`rounded-full border px-2 py-0.5 text-xs ${
-        needsAttention
-          ? "border-amber-200 bg-amber-50 text-amber-800"
-          : "border-black/15 bg-black/[0.03] text-black/70"
+        needsAttention ? TONES.caution.badge : TONES.neutral.badge
       }`}
     >
       {RECORD_SUBSTATUS_LABELS[record.substatus]}
@@ -721,6 +748,8 @@ function RecordChip({
   isCycle = false,
   pairedReplacement = false,
   showPendingReplacement = false,
+  hideProposedReplacementPill = false,
+  allowCycleNavigation = false,
 }: {
   record: TypedCaseRecord;
   graph: WorkspaceGraph;
@@ -734,11 +763,20 @@ function RecordChip({
   // True inside ReplacementNotice ("This proposal would replace:") —
   // the only context where "Pending Replacement" badge belongs on a link.
   showPendingReplacement?: boolean;
+  // True when the surrounding copy already explains replacement context and
+  // the green "Proposed Replacement" pill would repeat the same signal.
+  hideProposedReplacementPill?: boolean;
+  // Version-history chips can point back to a record already in the inspector
+  // path. In that case clicking jumps back to that record instead of looping.
+  allowCycleNavigation?: boolean;
 }) {
   let displayStatus = recordDisplayStatus(record, graph);
   if (displayStatus === "PROPOSED_REPLACEMENT" && !pairedReplacement) {
     displayStatus = "PROPOSED";
   }
+  const cycleLocked = isCycle && !allowCycleNavigation;
+  const hidePill =
+    displayStatus === "PROPOSED_REPLACEMENT" && hideProposedReplacementPill;
   // Accepted links wear no pill (their calm absence reads as "settled").
   // Pending-replacement links are also pill-free in general link lists — the
   // amber badge belongs only inside "This proposal would replace:" where the
@@ -746,27 +784,30 @@ function RecordChip({
   // Cycle chips always show their "In path".
   const showPill =
     isCycle ||
-    (displayStatus !== "ACCEPTED" &&
+    (!hidePill &&
+      displayStatus !== "ACCEPTED" &&
       (displayStatus !== "PENDING_REPLACEMENT" || showPendingReplacement));
 
   return (
     <button
       type="button"
       title={
-        isCycle
+        cycleLocked
           ? "Already open in this path — following it again would loop"
           : undefined
       }
       className={`group flex w-full min-w-0 items-center gap-2 rounded-lg border px-2.5 py-1.5 text-left text-sm transition-colors ${
-        isCycle
+        cycleLocked
           ? "border-black/15 bg-black/[0.03] opacity-70 cursor-not-allowed"
-          : "border-black/15 bg-white/80 hover:border-black/25 hover:bg-white"
+          : isCycle
+            ? "border-sky-700/20 bg-sky-50/35 hover:border-sky-800/30 hover:bg-sky-50/60"
+            : "border-black/15 bg-white/80 hover:border-black/25 hover:bg-white"
       }`}
       onClick={(event) => {
         event.stopPropagation();
         onOpenRecord(record.id);
       }}
-      disabled={isCycle}
+      disabled={cycleLocked}
     >
       {/* Left tag: record type — tight radius, gray, reads as a category. */}
       <span className="shrink-0 rounded border border-black/15 bg-black/[0.03] px-1.5 py-0.5 text-[0.65rem] uppercase tracking-wide text-black/50">
@@ -774,7 +815,7 @@ function RecordChip({
       </span>
       <span
         className={`truncate ${
-          isCycle ? "text-black/55" : "text-black/75 group-hover:text-black"
+          cycleLocked ? "text-black/55" : "text-black/75 group-hover:text-black"
         }`}
       >
         {record.title}
@@ -939,7 +980,7 @@ function RecordLinksPanel({
                   <div className="ml-3 mt-1 flex flex-col gap-1 border-l border-black/15 pl-3">
                     <span className="flex items-center gap-1 text-[0.7rem] uppercase tracking-wide text-black/40">
                       <CornerDownRight className="h-3 w-3" />
-                      replaced by
+                      Proposed Replacement Record
                     </span>
                     <RecordChip
                       record={replacement}
@@ -947,6 +988,7 @@ function RecordLinksPanel({
                       onOpenRecord={onOpenRecord}
                       isCycle={visitedIds?.has(replacement.id)}
                       pairedReplacement
+                      // hideProposedReplacementPill
                     />
                   </div>
                 )}
@@ -1026,7 +1068,7 @@ function ReplacementNotice({
             graph={graph}
             onOpenRecord={onOpenRecord}
             isCycle={visitedIds?.has(target.id)}
-            showPendingReplacement
+            hideProposedReplacementPill
           />
         ))}
       </div>
@@ -1051,7 +1093,7 @@ function PendingReplacementNotice({
 }) {
   // The record this sits on is itself amber (pending replacement). The lock is
   // the blocking constraint, so the container reads red; the replacement chip
-  // carries its own lifecycle pill (the proposal on its way in to replace this).
+  // stays visually quieter because the surrounding copy already frames it.
   return (
     <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-900">
       <div className="flex items-center gap-1.5 font-medium">
@@ -1065,11 +1107,94 @@ function PendingReplacementNotice({
           onOpenRecord={onOpenRecord}
           isCycle={visitedIds?.has(proposal.id)}
           pairedReplacement
+          hideProposedReplacementPill
         />
       </div>
       <p className="mt-2 leading-5 text-red-900/80">
         Review the proposal before editing, deleting, or rewriting this record.
       </p>
+    </div>
+  );
+}
+
+function VersionHistoryNotice({
+  record,
+  graph,
+  onOpenRecord,
+  visitedIds,
+}: {
+  record: TypedCaseRecord;
+  graph: WorkspaceGraph;
+  onOpenRecord: (recordId: string) => void;
+  visitedIds?: Set<string>;
+}) {
+  const status = graph.effectiveStatus(record);
+  const replacedBy =
+    graph.acceptedReplacementByTargetId.get(record.id) ??
+    (record.replacedById
+      ? graph.recordsById.get(record.replacedById)
+      : undefined);
+  const replaces =
+    status === "PROPOSED"
+      ? []
+      : (record.replacesIds ?? [])
+          .map((id) => graph.recordsById.get(id))
+          .filter((target): target is TypedCaseRecord => Boolean(target));
+
+  if (!replacedBy && replaces.length === 0) return null;
+
+  const hasForwardHistory = Boolean(replacedBy);
+  const surfaceClass = hasForwardHistory
+    ? TONES.info.surface
+    : TONES.positive.surface;
+
+  return (
+    <div
+      className={`mb-3 mt-4 rounded-lg border px-3 py-2 text-sm ${surfaceClass}`}
+    >
+      <div className="flex items-center gap-1.5 font-medium text-black/80">
+        <GitBranch className="h-3.5 w-3.5" />
+        <span>Version history</span>
+      </div>
+
+      <div className="mt-2 flex flex-col gap-2">
+        {replacedBy && (
+          <div>
+            <p className="mb-1 flex items-center gap-1.5 text-xs font-medium text-black/65">
+              <GitBranch className="h-3.5 w-3.5" />
+              Replaced by
+            </p>
+            <RecordChip
+              record={replacedBy}
+              graph={graph}
+              onOpenRecord={onOpenRecord}
+              isCycle={visitedIds?.has(replacedBy.id)}
+              allowCycleNavigation
+            />
+          </div>
+        )}
+
+        {replaces.length > 0 && (
+          <div>
+            <p className="mb-1 flex items-center gap-1.5 text-xs font-medium text-black/65">
+              <GitBranch className="h-3.5 w-3.5" />
+              Replaces
+            </p>
+            <div className="flex flex-col gap-1.5">
+              {replaces.map((target) => (
+                <RecordChip
+                  key={target.id}
+                  record={target}
+                  graph={graph}
+                  onOpenRecord={onOpenRecord}
+                  isCycle={visitedIds?.has(target.id)}
+                  allowCycleNavigation
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -1226,9 +1351,6 @@ function RecordInspectorBody({
             candidate.id !== record.id,
         )
       : [];
-  const replacedBy = record.replacedById
-    ? graph.recordsById.get(record.replacedById)
-    : undefined;
   const pendingProposal = graph.pendingReplacementByTargetId.get(record.id);
 
   return (
@@ -1352,46 +1474,12 @@ function RecordInspectorBody({
         </div>
       )}
 
-      {/* Provenance the notices above don't cover: what replaced a retired
-          record, and (for already-settled records) what this one retired.
-          A live proposal's "replaces" is shown by the amber notice instead. */}
-      {(replacedBy ||
-        (status !== "PROPOSED" && record.replacesIds?.length)) && (
-        <div className="mt-4">
-          <p className="mb-1.5 flex items-center gap-1.5 text-xs text-black/65">
-            <GitBranch className="h-3.5 w-3.5" />
-            Version history
-          </p>
-          <div className="flex flex-col gap-1.5">
-            {replacedBy && (
-              <div>
-                <p className="mb-1 text-xs text-black/55">Replaced by</p>
-                <RecordChip
-                  record={replacedBy}
-                  graph={graph}
-                  onOpenRecord={onOpenRecord}
-                  isCycle={visitedIds.has(replacedBy.id)}
-                />
-              </div>
-            )}
-            {status !== "PROPOSED" &&
-              (record.replacesIds ?? [])
-                .map((id) => graph.recordsById.get(id))
-                .filter((target): target is TypedCaseRecord => Boolean(target))
-                .map((target) => (
-                  <div key={target.id}>
-                    <p className="mb-1 text-xs text-black/55">Replaces</p>
-                    <RecordChip
-                      record={target}
-                      graph={graph}
-                      onOpenRecord={onOpenRecord}
-                      isCycle={visitedIds.has(target.id)}
-                    />
-                  </div>
-                ))}
-          </div>
-        </div>
-      )}
+      <VersionHistoryNotice
+        record={record}
+        graph={graph}
+        onOpenRecord={onOpenRecord}
+        visitedIds={visitedIds}
+      />
 
       <div className="mt-4">
         <p className="mb-1.5 text-xs text-black/65">Knowledge graph</p>

@@ -1629,21 +1629,23 @@ type LinkSpec = [
 // Links are authored in their CANONICAL direction (fromRecord → type →
 // toRecord). For evidence/contradiction/context the source is the grounding
 // record (e.g. a DOCUMENT EVIDENCES a FACT); the inverse label ("Evidenced by")
-// is derived in the UI when the target record is viewed.
+// is derived in the UI when the target record is viewed. Prefer the most
+// specific semantic link available; RELATED_TO should be a sparse last resort.
 const linkSpecs: LinkSpec[] = [
   // Theory 1 (adopted) grounding
   ["theory-001", "DEPENDS_ON", "fact-001", "ACCEPTED"],
   ["theory-001", "DEPENDS_ON", "fact-007", "ACCEPTED"],
   ["theory-001", "DEPENDS_ON", "fact-005", "ACCEPTED"],
-  ["theory-001", "RELATED_TO", "claim-002", "ACCEPTED"],
+  ["theory-001", "SUPPORTS", "claim-002", "ACCEPTED"],
   ["theory-001", "CITES", "precedent-001", "PROPOSED"],
 
   // Theory 2 (proposed equitable prejudice)
+  ["theory-002", "DERIVED_FROM", "arg-003", "PROPOSED"],
   ["theory-002", "DEPENDS_ON", "fact-002", "PROPOSED"],
   ["theory-002", "DEPENDS_ON", "fact-010", "PROPOSED"],
   ["docrec-cert-letter", "EVIDENCES", "theory-002", "PROPOSED"],
   ["docrec-agreement-deadline", "EVIDENCES", "theory-002", "PROPOSED"],
-  ["theory-002", "RELATED_TO", "issue-003", "PROPOSED"],
+  ["theory-002", "EXPLAINS", "issue-003", "PROPOSED"],
 
   // Claims
   ["docrec-notice-first", "EVIDENCES", "claim-001", "ACCEPTED"],
@@ -1653,15 +1655,22 @@ const linkSpecs: LinkSpec[] = [
   ["docrec-maintenance-orders", "EVIDENCES", "claim-002", "ACCEPTED"],
 
   // Objectives
-  ["objective-001", "RELATED_TO", "theory-001", "ACCEPTED"],
-  ["objective-002", "RELATED_TO", "issue-003", "ACCEPTED"],
-  ["objective-003", "RELATED_TO", "issue-002", "PROPOSED"],
-  ["objective-003", "RELATED_TO", "arg-002", "PROPOSED"],
+  ["objective-001", "REQUIRES", "theory-001", "ACCEPTED"],
+  ["objective-002", "REQUIRES", "issue-003", "ACCEPTED"],
+  ["objective-003", "REQUIRES", "issue-002", "PROPOSED"],
+  ["objective-003", "REQUIRES", "arg-002", "PROPOSED"],
 
   // Posture
-  ["posture-002", "RELATED_TO", "task-001", "ACCEPTED"],
-  ["posture-002", "RELATED_TO", "task-002", "ACCEPTED"],
-  ["posture-002", "RELATED_TO", "objective-003", "ACCEPTED"],
+  [
+    "posture-002",
+    "DERIVED_FROM",
+    "posture-003",
+    "ACCEPTED",
+    "Current trial posture was synthesized after replacing the older discovery-complete posture.",
+  ],
+  ["posture-002", "LEADS_TO", "task-001", "ACCEPTED"],
+  ["posture-002", "LEADS_TO", "task-002", "ACCEPTED"],
+  ["posture-002", "SUPPORTS", "objective-003", "ACCEPTED"],
 
   // Issues
   ["issue-001", "DEPENDS_ON", "fact-001", "ACCEPTED"],
@@ -1674,6 +1683,7 @@ const linkSpecs: LinkSpec[] = [
   ["docrec-raft-approval", "EVIDENCES", "issue-006", "PROPOSED"],
 
   // Arguments
+  ["arg-002", "DERIVED_FROM", "arg-old-discovery-sanctions", "PROPOSED"],
   ["arg-002", "DEPENDS_ON", "issue-002", "PROPOSED"],
   ["arg-002", "DEPENDS_ON", "fact-005", "PROPOSED"],
   ["docrec-discovery-gaps", "EVIDENCES", "arg-002", "PROPOSED"],
@@ -1710,6 +1720,7 @@ const linkSpecs: LinkSpec[] = [
   ["fact-001", "INVOLVES", "person-msweeney", "ACCEPTED"],
   ["docrec-cert-letter", "EVIDENCES", "fact-002", "PROPOSED"],
   ["docrec-affidavit-hardship", "EVIDENCES", "fact-002", "PROPOSED"],
+  ["fact-002", "DERIVED_FROM", "fact-old-raft-timing", "PROPOSED"],
   ["fact-002", "INVOLVES", "person-dferreira", "PROPOSED"],
   ["docrec-cert-letter", "EVIDENCES", "fact-old-raft-timing", "ACCEPTED"],
   ["docrec-maintenance-orders", "EVIDENCES", "fact-003", "PROPOSED"],
@@ -1736,9 +1747,9 @@ const linkSpecs: LinkSpec[] = [
   ["docrec-affidavit-raft", "EVIDENCES", "timeline-007", "PROPOSED"],
   ["fact-010", "CONTEXTUALIZES", "timeline-009", "ACCEPTED"],
   ["docrec-agreement-deadline", "EVIDENCES", "timeline-011", "ACCEPTED"],
-  ["timeline-011", "RELATED_TO", "issue-003", "ACCEPTED"],
+  ["timeline-011", "LEADS_TO", "issue-003", "ACCEPTED"],
   ["docrec-discovery-gaps", "EVIDENCES", "timeline-013", "ACCEPTED"],
-  ["timeline-013", "RELATED_TO", "issue-002", "ACCEPTED"],
+  ["timeline-013", "SUPPORTS", "issue-002", "ACCEPTED"],
 
   // Testimony
   ["testimony-001", "INVOLVES", "person-msweeney", "ACCEPTED"],
@@ -1750,22 +1761,35 @@ const linkSpecs: LinkSpec[] = [
   ["testimony-002", "DEPENDS_ON", "fact-003", "PROPOSED"],
 
   // Precedent
-  ["precedent-001", "RELATED_TO", "issue-001", "PROPOSED"],
-  ["precedent-003", "RELATED_TO", "issue-002", "PROPOSED"],
+  ["precedent-001", "SUPPORTS", "issue-001", "PROPOSED"],
+  ["precedent-003", "SUPPORTS", "issue-002", "PROPOSED"],
 
   // Tasks
-  ["task-001", "RELATED_TO", "theory-001", "ACCEPTED"],
-  ["task-001", "RELATED_TO", "claim-002", "ACCEPTED"],
+  ["task-001", "REQUIRES", "theory-001", "ACCEPTED"],
+  ["task-001", "REQUIRES", "claim-002", "ACCEPTED"],
   ["task-002", "DEPENDS_ON", "issue-002", "PROPOSED"],
   ["task-002", "DEPENDS_ON", "fact-005", "PROPOSED"],
-  ["task-006", "RELATED_TO", "timeline-007", "ACCEPTED"],
-  ["task-006", "RELATED_TO", "timeline-011", "ACCEPTED"],
+  ["task-006", "REQUIRES", "timeline-007", "ACCEPTED"],
+  ["task-006", "REQUIRES", "timeline-011", "ACCEPTED"],
 
   // Notes
-  ["note-001", "RELATED_TO", "issue-002", "ACCEPTED"],
-  ["note-001", "RELATED_TO", "arg-002", "ACCEPTED"],
-  ["note-003", "RELATED_TO", "fact-005", "ACCEPTED"],
-  ["note-003", "RELATED_TO", "arg-002", "ACCEPTED"],
+  ["note-001", "EXPLAINS", "issue-002", "ACCEPTED"],
+  ["note-001", "SUPPORTS", "arg-002", "ACCEPTED"],
+  ["note-003", "EXPLAINS", "fact-005", "ACCEPTED"],
+  [
+    "note-003",
+    "ATTACKS",
+    "arg-old-discovery-sanctions",
+    "ACCEPTED",
+    "Human correction undercuts the older, sanctions-first framing if it implies intentional withholding.",
+  ],
+  [
+    "note-003",
+    "SUPPORTS",
+    "arg-002",
+    "ACCEPTED",
+    "Human correction supports the narrower missing-record framing without overclaiming intent.",
+  ],
 
   // ── New records: grounding for the expanded document set ──────────────────
   // Entry fact + its sources / witness
@@ -1778,7 +1802,7 @@ const linkSpecs: LinkSpec[] = [
 
   // Habitability argument (accepted) grounding
   ["arg-007", "DEPENDS_ON", "fact-001", "ACCEPTED"],
-  ["arg-007", "RELATED_TO", "issue-001", "ACCEPTED"],
+  ["arg-007", "SUPPORTS", "issue-001", "ACCEPTED"],
   ["docrec-maintenance-orders", "EVIDENCES", "arg-007", "ACCEPTED"],
 
   // Affidavit notice/filing-delay sections ground accepted timeline events
@@ -1826,10 +1850,17 @@ const linkSpecs: LinkSpec[] = [
   // Specified as ACCEPTED (they were real when authored); the builder normalizes
   // them to PROPOSED because an endpoint is now retired, so they stay hidden on
   // the live records and surface only inside the replaced record's inspector.
-  ["posture-003", "RELATED_TO", "objective-001", "ACCEPTED"],
-  ["posture-003", "RELATED_TO", "task-001", "ACCEPTED"],
+  ["posture-003", "CONTEXTUALIZES", "objective-001", "ACCEPTED"],
+  ["posture-003", "CONTEXTUALIZES", "task-001", "ACCEPTED"],
   ["docrec-affidavit-entry", "EVIDENCES", "fact-old-entry-vague", "ACCEPTED"],
   ["fact-old-entry-vague", "INVOLVES", "person-msweeney", "ACCEPTED"],
+  [
+    "fact-014",
+    "DERIVED_FROM",
+    "fact-old-entry-vague",
+    "ACCEPTED",
+    "Accepted entry fact replaces the earlier vague netting description with a more specific safety-needs framing.",
+  ],
   ["docrec-discovery-gaps-v0", "EVIDENCES", "fact-005", "ACCEPTED"],
 ];
 
