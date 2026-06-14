@@ -779,9 +779,6 @@ model CaseRecord {
   supportStatus    SupportStatus? @map("support_status")
   version          Int            @default(1)
 
-  // Self-referential replacement chain
-  replacedById     String?        @map("superseded_by_id") @db.Uuid
-
   // Type-specific structured metadata
   typedMeta        Json?          @map("typed_meta")
 
@@ -801,8 +798,12 @@ model CaseRecord {
   approvedByUser User?         @relation("RecordApprovedByUser", fields: [approvedByUserId], references: [id], onDelete: SetNull)
   sourceDocument CaseDocument? @relation(fields: [sourceDocumentId], references: [id], onDelete: SetNull)
 
-  replacedBy     CaseRecord?   @relation("RecordVersioning", fields: [replacedById], references: [id])
-  replaces       CaseRecord[]  @relation("RecordVersioning")
+  // Versioning is many-to-many: a record can be replaced by several successors
+  // (a split) and can replace several predecessors (a merge). Modeled as a bag
+  // of predecessor→successor edges (RecordSupersession) so both shapes — and
+  // any chain of them — are representable.
+  supersededBy   RecordSupersession[] @relation("SupersessionPredecessor")
+  supersedes     RecordSupersession[] @relation("SupersessionSuccessor")
 
   outboundLinks  GraphLink[]   @relation("GraphLinkFrom")
   inboundLinks   GraphLink[]   @relation("GraphLinkTo")
@@ -811,8 +812,28 @@ model CaseRecord {
   @@index([caseId, type])
   @@index([caseId, status])
   @@index([workspaceId])
-  @@index([replacedById])
   @@map("case_records")
+}
+
+// A single predecessor→successor versioning edge between two CaseRecords.
+// Because this is a join table (not a scalar FK on CaseRecord), the replacement
+// relation is many-to-many:
+//   • split (1→N): one predecessor with several rows (different successors)
+//   • merge (N→1): one successor with several rows (different predecessors)
+// A record's full lineage is just the set of rows it participates in.
+model RecordSupersession {
+  id            String   @id @default(uuid()) @db.Uuid
+  predecessorId String   @map("predecessor_id") @db.Uuid
+  successorId   String   @map("successor_id") @db.Uuid
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  predecessor CaseRecord @relation("SupersessionPredecessor", fields: [predecessorId], references: [id], onDelete: Cascade)
+  successor   CaseRecord @relation("SupersessionSuccessor", fields: [successorId], references: [id], onDelete: Cascade)
+
+  @@unique([predecessorId, successorId])
+  @@index([predecessorId])
+  @@index([successorId])
+  @@map("record_supersessions")
 }
 
 // An edge in the knowledge graph connecting two CaseRecords.

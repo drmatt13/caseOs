@@ -7,7 +7,9 @@
 //  - PROPOSED / ACCEPTED / PENDING_REPLACEMENT / REPLACED lifecycles
 //  - completed replacements (posture-003 → posture-002, fact-old-entry-vague
 //    → fact-014, docrec-discovery-gaps-v0 → docrec-discovery-gaps) and pending
-//    ones
+//    ones, plus many-to-many version history: a 1→2 SPLIT
+//    (fact-habitability-broad → mold + heat) and a 2→1 MERGE
+//    (fact-payment-raft-only + direct-only → fact-payment-cured)
 //  - every multi-page source file split into several DOCUMENT records, each a
 //    section/exhibit (e.g. the affidavit → seven §-records), with some still
 //    PROPOSED (newly extracted, awaiting review)
@@ -27,6 +29,7 @@ import type {
   RecordType,
   TypedCaseRecord,
 } from "#/types/caseRecords";
+import type { CaseDemo } from "#/lib/caseDemoTypes";
 
 export const demoUserId = "5bdbb6c2-877a-4772-ad9e-00a10d6073b5";
 export const DEMO_WORKSPACE_ID = "11111111-1111-4111-8111-111111111111";
@@ -386,7 +389,7 @@ export const demoRecords: TypedCaseRecord[] = [
     status: "REPLACED",
     substatus: "STALE",
     category: "Discovery posture",
-    replacedById: "posture-002",
+    replacedByIds: ["posture-002"],
     title: "Earlier posture treated discovery as mostly complete",
     summary:
       "Earlier posture replaced by newer discovery-pressure analysis.",
@@ -1356,7 +1359,7 @@ export const demoRecords: TypedCaseRecord[] = [
     id: "docrec-discovery-gaps-v0",
     type: "DOCUMENT",
     status: "REPLACED",
-    replacedById: "docrec-discovery-gaps",
+    replacedByIds: ["docrec-discovery-gaps"],
     documentId: "doc-discovery",
     fileName: "Plaintiffs Supplemental Discovery Responses.pdf",
     category: "Discovery",
@@ -1554,7 +1557,7 @@ export const demoRecords: TypedCaseRecord[] = [
     type: "FACT",
     status: "REPLACED",
     substatus: "CONTEXT",
-    replacedById: "fact-014",
+    replacedByIds: ["fact-014"],
     party: "ours",
     category: "Entry",
     title: "Entry removed 'some protective netting'",
@@ -1564,6 +1567,118 @@ export const demoRecords: TypedCaseRecord[] = [
       "An earlier draft described the July 24 entry as removing 'some protective netting' without specifying its purpose. It was replaced by a more precise statement tying the netting to a child's documented safety needs.",
     createdAt: "2026-05-13T12:00:00Z",
     updatedAt: "2026-05-15T12:00:00Z",
+  },
+  // ── Version history: a 1→2 SPLIT ─────────────────────────────────────────
+  // One broad habitability fact was found to conflate two distinct conditions,
+  // so it was split into two precise, separately-provable facts. The source is
+  // REPLACED and points forward to both successors; each successor replaces it.
+  {
+    ...recordDefaults,
+    id: "fact-habitability-broad",
+    type: "FACT",
+    status: "REPLACED",
+    substatus: "CONTEXT",
+    replacedByIds: ["fact-habitability-mold", "fact-habitability-heat"],
+    party: "ours",
+    category: "Habitability",
+    title: "Unit had ongoing habitability problems throughout the tenancy",
+    summary:
+      "Broad habitability fact split into two separately-provable conditions.",
+    content:
+      "An early catch-all fact asserted the unit had 'ongoing habitability problems.' Because the mold and the heating-outage conditions have different evidence, timelines, and responsible-party theories, this was split into two discrete facts so each can be proven and disputed on its own terms.",
+    createdAt: "2026-05-13T10:00:00Z",
+    updatedAt: "2026-05-15T12:00:00Z",
+  },
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "fact-habitability-mold",
+    type: "FACT",
+    substatus: "UNDISPUTED",
+    supportStatus: "SUPPORTED",
+    version: 2,
+    replacesIds: ["fact-habitability-broad"],
+    party: "ours",
+    category: "Habitability",
+    title: "Bathroom mold went unremediated for roughly three months",
+    summary:
+      "Discrete mold-condition fact carved out of the broad habitability fact.",
+    content:
+      "Tenant reported visible bathroom mold in maintenance requests; the condition remained unaddressed for approximately three months before any remediation was attempted, supported by the dated maintenance order log.",
+    createdAt: "2026-05-15T12:00:00Z",
+  },
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "fact-habitability-heat",
+    type: "FACT",
+    substatus: "DISPUTED",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    version: 2,
+    replacesIds: ["fact-habitability-broad"],
+    party: "ours",
+    category: "Habitability",
+    title: "Unit lost heat for 11 days during January",
+    summary:
+      "Discrete heating-outage fact carved out of the broad habitability fact.",
+    content:
+      "The unit was without functioning heat for an 11-day stretch in January. The duration is contested — the landlord's records suggest a shorter outage — but the loss of heat itself is corroborated by the maintenance order log.",
+    createdAt: "2026-05-15T12:00:00Z",
+  },
+  // ── Version history: a 2→1 MERGE ─────────────────────────────────────────
+  // Two separate payment facts were redundant and individually misleading
+  // (each looked like a partial payment), so they were merged into one fact
+  // that states the combined effect. Both sources are REPLACED and point
+  // forward to the single successor, which replaces both.
+  {
+    ...recordDefaults,
+    id: "fact-payment-raft-only",
+    type: "FACT",
+    status: "REPLACED",
+    substatus: "CONTEXT",
+    replacedByIds: ["fact-payment-cured"],
+    party: "ours",
+    category: "Payments",
+    title: "RAFT covered part of the outstanding arrears",
+    summary: "Partial payment fact merged into the consolidated cure fact.",
+    content:
+      "A RAFT approval covered a portion of the June–July arrears. On its own this read as a partial payment, understating how the balance was actually resolved.",
+    createdAt: "2026-05-13T11:00:00Z",
+    updatedAt: "2026-05-15T12:00:00Z",
+  },
+  {
+    ...recordDefaults,
+    id: "fact-payment-direct-only",
+    type: "FACT",
+    status: "REPLACED",
+    substatus: "CONTEXT",
+    replacedByIds: ["fact-payment-cured"],
+    party: "ours",
+    category: "Payments",
+    title: "Tenant made direct payments toward the arrears",
+    summary: "Partial payment fact merged into the consolidated cure fact.",
+    content:
+      "The tenant also made direct payments toward the same June–July arrears. Standing alone this likewise understated the full picture by omitting the RAFT contribution.",
+    createdAt: "2026-05-13T11:05:00Z",
+    updatedAt: "2026-05-15T12:00:00Z",
+  },
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "fact-payment-cured",
+    type: "FACT",
+    substatus: "UNDISPUTED",
+    supportStatus: "SUPPORTED",
+    version: 2,
+    replacesIds: ["fact-payment-raft-only", "fact-payment-direct-only"],
+    party: "ours",
+    category: "Payments",
+    title: "RAFT and direct payments together cured the arrears before filing",
+    summary:
+      "Consolidated payment fact merged from the RAFT-only and direct-only facts.",
+    content:
+      "The combined RAFT approval and the tenant's direct payments fully cured the June–July arrears before the nonpayment action advanced. Stating the combined effect in a single fact prevents either contribution from being read in isolation as a mere partial payment.",
+    createdAt: "2026-05-15T12:00:00Z",
   },
   {
     ...recordDefaults,
@@ -1862,6 +1977,16 @@ const linkSpecs: LinkSpec[] = [
     "Accepted entry fact replaces the earlier vague netting description with a more specific safety-needs framing.",
   ],
   ["docrec-discovery-gaps-v0", "EVIDENCES", "fact-005", "ACCEPTED"],
+
+  // ── Grounding for the split/merge version-history facts ───────────────────
+  // Live successors are grounded in authoritative document records.
+  ["docrec-maintenance-orders", "EVIDENCES", "fact-habitability-mold", "ACCEPTED"],
+  ["docrec-maintenance-orders", "EVIDENCES", "fact-habitability-heat", "ACCEPTED"],
+  ["docrec-raft-ledger", "EVIDENCES", "fact-payment-cured", "ACCEPTED"],
+  // Retired sources keep their original grounding (normalized to PROPOSED by the
+  // builder because the fact endpoint is now REPLACED) so it shows in-inspector.
+  ["docrec-maintenance-orders", "EVIDENCES", "fact-habitability-broad", "ACCEPTED"],
+  ["docrec-raft-ledger", "EVIDENCES", "fact-payment-raft-only", "ACCEPTED"],
 ];
 
 export const demoLinks: GraphLink[] = linkSpecs.map(
@@ -2032,3 +2157,22 @@ export const demoAgentInstructions = [
   "Prefer short, reviewable proposals over long freeform analysis.",
   "Flag missing evidence, date conflicts, and unsupported legal citations before trial use.",
 ];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Bundle export — everything the case route needs for this demo, resolved by
+// caseId in caseDemos.ts.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const faxonCaseDemo: CaseDemo = {
+  workspaceId: DEMO_WORKSPACE_ID,
+  caseId: DEMO_CASE_ID,
+  userId: demoUserId,
+  meta: demoCase,
+  caseContext: demoCaseContext,
+  documents: demoDocuments,
+  records: demoRecords,
+  links: demoLinks,
+  activity: demoActivity,
+  agentThread: demoAgentThread,
+  agentInstructions: demoAgentInstructions,
+};

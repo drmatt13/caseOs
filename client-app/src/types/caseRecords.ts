@@ -75,6 +75,10 @@ export const RECORD_LEVEL: Record<RecordType, number> = {
 //   PROPOSED → REJECTED (user rejects)
 //   ACCEPTED → PENDING_REPLACEMENT (a proposed replacement exists)
 //   PENDING_REPLACEMENT → REPLACED (replacement approved; old record retired)
+//
+// Replacement is many-to-many, not just 1:1 — see `replacesIds` /
+// `replacedByIds` on CaseRecord. One record can split into several (1→N) and
+// several can merge into one (N→1).
 export type RecordStatus =
   | "PROPOSED"
   | "ACCEPTED"
@@ -197,10 +201,14 @@ export interface CaseRecord {
   substatus?: RecordSubstatus;
   supportStatus?: SupportStatus;
 
-  // Versioning – follows the replacement lifecycle
+  // Versioning – follows the replacement lifecycle. Both directions are
+  // many-valued so the graph can model splits and merges, not just 1:1 edits:
+  //   • split  (1→N): one source has several entries in `replacedByIds`
+  //   • merge  (N→1): one successor has several entries in `replacesIds`
+  // The two arrays are inverse views of the same predecessor→successor edges.
   version: number;
-  replacedById?: string;  // ID of the record that replaces this one
-  replacesIds?: string[]; // IDs of older records this one replaces
+  replacedByIds?: string[]; // IDs of the record(s) that replace this one
+  replacesIds?: string[];   // IDs of older record(s) this one replaces
 
   // Authorship & approval
   createdBy: "human" | "agent";
