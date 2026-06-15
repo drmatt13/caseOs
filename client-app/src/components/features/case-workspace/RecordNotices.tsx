@@ -153,7 +153,6 @@ export function VersionHistoryNotice({
                   graph={graph}
                   onOpenRecord={onOpenRecord}
                   isCycle={visitedIds?.has(successor.id)}
-                  allowCycleNavigation
                 />
               ))}
             </div>
@@ -176,7 +175,6 @@ export function VersionHistoryNotice({
                   graph={graph}
                   onOpenRecord={onOpenRecord}
                   isCycle={visitedIds?.has(target.id)}
-                  allowCycleNavigation
                   hidePill
                 />
               ))}

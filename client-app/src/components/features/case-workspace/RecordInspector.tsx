@@ -146,8 +146,11 @@ function RecordInspector({
             graph={graph}
             onOpenRecord={onOpenRecord}
             onClose={onClose}
-            // Ancestors already open in this path — used to flag cycles.
-            visitedIds={new Set(stack.slice(0, -1))}
+            // Every record already open in this path (ancestors plus the record
+            // itself). Any chip pointing back into this set is a cycle and gets
+            // locked, so traversal can never loop — not via links, not via
+            // version history, not via a self-reference.
+            visitedIds={new Set(stack)}
           />
         )}
       </div>

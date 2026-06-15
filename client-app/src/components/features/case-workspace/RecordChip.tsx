@@ -15,8 +15,11 @@ import type { WorkspaceGraph } from "./useWorkspaceGraph";
 // status pill on the right, so a list of links reads as one calm column with
 // the standing of each target legible at a glance. The left tag is the record
 // type (gray, tight radius); the right pill is the lifecycle status (colored,
-// full radius). When `isCycle` is set the target is already open higher in the
-// inspector path, so the chip is grayed and flagged for a circular dependency.
+// full radius). When `isCycle` is set the target is already open in the current
+// inspector path, so the chip is locked: grayed, non-interactive, and flagged
+// "In path". This lock is uniform across every surface that renders a chip —
+// knowledge-graph links, replacement notices, version history, and sibling
+// documents all follow the same rule, so a reference can never loop the path.
 function RecordChip({
   record,
   graph,
@@ -26,11 +29,13 @@ function RecordChip({
   showPendingReplacement = false,
   hidePill = false,
   hideProposedReplacementPill = false,
-  allowCycleNavigation = false,
 }: {
   record: TypedCaseRecord;
   graph: WorkspaceGraph;
   onOpenRecord: (recordId: string) => void;
+  // True when the target is already open in the current inspector path (an
+  // ancestor, or the record itself). Following it again would loop, so the chip
+  // is locked: grayed, disabled, and flagged "In path".
   isCycle?: boolean;
   // True only where the replaced counterpart is shown right alongside (the
   // "replaced by" pairing). On a lone chip a Proposed Replacement reads as a
@@ -40,54 +45,52 @@ function RecordChip({
   // True inside ReplacementNotice ("This proposal would replace:") —
   // the only context where "Pending Replacement" badge belongs on a link.
   showPendingReplacement?: boolean;
-  // Hard override: suppress every right-side pill, including cycle state.
+  // Suppress the right-side status pill (e.g. version-history predecessors read
+  // calmer without one). Does NOT suppress the "In path" cycle pill — a locked
+  // chip must always explain why it can't be followed.
   hidePill?: boolean;
   // True when the surrounding copy already explains replacement context and
   // the green "Proposed Replacement" pill would repeat the same signal.
   hideProposedReplacementPill?: boolean;
-  // Version-history chips can point back to a record already in the inspector
-  // path. In that case clicking jumps back to that record instead of looping.
-  allowCycleNavigation?: boolean;
 }) {
   let displayStatus = recordDisplayStatus(record, graph);
   if (displayStatus === "PROPOSED_REPLACEMENT" && !pairedReplacement) {
     displayStatus = "PROPOSED";
   }
-  const cycleLocked = isCycle && !allowCycleNavigation;
   const hideProposedReplacementStatus =
     displayStatus === "PROPOSED_REPLACEMENT" && hideProposedReplacementPill;
   // Accepted links wear no pill (their calm absence reads as "settled").
   // Pending-replacement links are also pill-free in general link lists — the
   // amber badge belongs only inside "This proposal would replace:" where the
-  // relationship is already framed by the container.
-  // Cycle chips show "In path" unless the hard pill override is set.
-  const showPill =
+  // relationship is already framed by the container. `hidePill` suppresses it
+  // outright. A cycle replaces the status pill with the "In path" lock badge,
+  // so the status pill never competes with it.
+  const showStatusPill =
+    !isCycle &&
     !hidePill &&
-    (isCycle ||
-      (!hideProposedReplacementStatus &&
-        displayStatus !== "ACCEPTED" &&
-        (displayStatus !== "PENDING_REPLACEMENT" || showPendingReplacement)));
+    !hideProposedReplacementStatus &&
+    displayStatus !== "ACCEPTED" &&
+    (displayStatus !== "PENDING_REPLACEMENT" || showPendingReplacement);
+  const showAnyPill = isCycle || showStatusPill;
 
   return (
     <button
       type="button"
       title={
-        cycleLocked
+        isCycle
           ? "Already open in this path — following it again would loop"
           : record.title
       }
       className={`group flex w-full min-w-0 items-center gap-2 overflow-hidden rounded-lg border px-2.5 py-1.5 text-left text-sm transition-colors ${
-        cycleLocked
+        isCycle
           ? "border-black/15 bg-black/[0.03] opacity-70 cursor-not-allowed"
-          : isCycle
-            ? "border-sky-700/20 bg-sky-50/35 hover:border-sky-800/30 hover:bg-sky-50/60"
-            : "border-black/15 bg-white/80 hover:border-black/25 hover:bg-white"
+          : "border-black/15 bg-white/80 hover:border-black/25 hover:bg-white"
       }`}
       onClick={(event) => {
         event.stopPropagation();
         onOpenRecord(record.id);
       }}
-      disabled={cycleLocked}
+      disabled={isCycle}
     >
       {/* Left tag: record type — tight radius, gray, reads as a category. */}
       <span className="min-w-0 max-w-28 shrink rounded border border-black/15 bg-black/[0.03] px-1.5 py-0.5 text-[0.65rem] uppercase tracking-wide text-black/50">
@@ -97,19 +100,21 @@ function RecordChip({
       </span>
       <span
         className={`min-w-0 flex-1 truncate ${
-          cycleLocked ? "text-black/55" : "text-black/75 group-hover:text-black"
+          isCycle ? "text-black/55" : "text-black/75 group-hover:text-black"
         }`}
       >
         {record.title}
       </span>
-      {/* Right pill: lifecycle — full radius + color, matching StatusBadge.
-          Accepted shows none; its absence is the "settled" signal. */}
-      {!hidePill && isCycle ? (
+      {/* Right pill: "In path" when the target is locked (cycle), otherwise the
+          lifecycle status. The cycle badge is shown even when `hidePill` is set,
+          because a disabled chip must explain why it can't be followed. Accepted
+          shows none; its absence is the "settled" signal. */}
+      {isCycle ? (
         <span className="ml-auto inline-flex min-w-0 max-w-24 shrink items-center gap-1 rounded-full border border-black/15 bg-black/[0.04] px-2 py-0.5 text-xs text-black/55">
           <Repeat className="h-3 w-3" />
           <span className="truncate">In path</span>
         </span>
-      ) : showPill ? (
+      ) : showStatusPill ? (
         <span
           className={`ml-auto min-w-0 max-w-36 shrink rounded-full border px-2 py-0.5 text-xs ${RECORD_DISPLAY_STATUS_CLASSES[displayStatus]}`}
         >
@@ -120,7 +125,7 @@ function RecordChip({
       ) : null}
       <ChevronRight
         className={`h-3.5 w-3.5 shrink-0 text-black/30 group-hover:text-black/70 ${
-          showPill ? "" : "ml-auto"
+          showAnyPill ? "" : "ml-auto"
         }`}
       />
     </button>
