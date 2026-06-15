@@ -11,16 +11,25 @@ import { TONES } from "#/lib/tones";
 import { recordAttention, recordDisplayStatus } from "./helpers";
 import type { WorkspaceGraph } from "./useWorkspaceGraph";
 
+const RECORD_CHIP_STATUS_CLASSES: Record<TypedCaseRecord["status"], string> = {
+  ACCEPTED: "border-black/15 bg-white/80 hover:border-black/25 hover:bg-white",
+  PROPOSED: `${TONES.info.surface} hover:border-sky-700/30 hover:bg-sky-50/60`,
+  REJECTED: `${TONES.critical.surface} hover:border-red-700/30 hover:bg-red-50/60`,
+  PENDING_REPLACEMENT: `${TONES.caution.surface} hover:border-amber-600/35 hover:bg-amber-50/70`,
+  REPLACED:
+    "border-black/12 bg-black/[0.04] hover:border-black/20 hover:bg-black/[0.06]",
+};
+
 // Clickable reference to another record — the core graph-traversal affordance.
-// The chip stays neutral white; lifecycle is carried entirely by the colored
-// status pill on the right, so a list of links reads as one calm column with
-// the standing of each target legible at a glance. The left tag is the record
-// type (gray, tight radius); the right pill is the lifecycle status (colored,
-// full radius). When `isCycle` is set the target is already open in the current
-// inspector path, so the chip is locked: grayed, non-interactive, and flagged
-// "In path". This lock is uniform across every surface that renders a chip —
-// knowledge-graph links, replacement notices, version history, and sibling
-// documents all follow the same rule, so a reference can never loop the path.
+// The chip shell now gets a light status wash from record.status, while the
+// right pill still carries the resolved display status. The left tag is the
+// record type (gray, tight radius); the right pill is the lifecycle status
+// (colored, full radius). When `isCycle` is set the target is already open in
+// the current inspector path, so the chip is locked: grayed, non-interactive,
+// and flagged "In path". This lock is uniform across every surface that renders
+// a chip — knowledge-graph links, replacement notices, version history, and
+// sibling documents all follow the same rule, so a reference can never loop the
+// path.
 function RecordChip({
   record,
   graph,
@@ -97,7 +106,7 @@ function RecordChip({
       className={`group flex w-full min-w-0 items-center gap-2 overflow-hidden rounded-lg border px-2.5 py-1.5 text-left text-sm transition-colors ${
         isCycle
           ? "border-black/15 bg-black/[0.03] opacity-70 cursor-not-allowed"
-          : "border-black/15 bg-white/80 hover:border-black/25 hover:bg-white"
+          : RECORD_CHIP_STATUS_CLASSES[record.status]
       }`}
       onClick={(event) => {
         event.stopPropagation();
