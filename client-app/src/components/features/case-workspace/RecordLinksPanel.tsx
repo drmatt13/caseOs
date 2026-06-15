@@ -159,15 +159,19 @@ function RecordLinksPanel({
                 );
               }) ?? false;
 
-            const visibleReplacements = otherReplacements.filter(
+            const carriedReplacements = otherReplacements.filter(
               carriesLinkToRecord,
             );
+            const visibleReplacements =
+              recordIsAccepted && !shouldShowProposedLinks
+                ? []
+                : carriedReplacements;
             // The target is pending replacement, but no live successor carries
             // this relationship forward — so `record`'s link to it won't survive
             // the replacement. Flag that on the target's chip (amber "Pending
             // Replacement") instead of listing successors that don't apply here.
             const orphanedPendingReplacement =
-              otherReplacements.length > 0 && visibleReplacements.length === 0;
+              otherReplacements.length > 0 && carriedReplacements.length === 0;
             return (
               <div key={link.id} className="min-w-0">
                 <RecordChip

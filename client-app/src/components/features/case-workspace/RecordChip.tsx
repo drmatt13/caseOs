@@ -8,7 +8,7 @@ import {
 } from "#/lib/caseRecordPresentation";
 import { TONES } from "#/lib/tones";
 
-import { recordAttention, recordDisplayStatus } from "./helpers";
+import { recordDisplayStatus } from "./helpers";
 import type { WorkspaceGraph } from "./useWorkspaceGraph";
 
 const RECORD_CHIP_STATUS_CLASSES: Record<TypedCaseRecord["status"], string> = {
@@ -64,13 +64,15 @@ function RecordChip({
   // chip must always explain why it can't be followed.
   hidePill?: boolean;
   // True when the surrounding copy already explains replacement context and
-  // the green "Proposed Replacement" pill would repeat the same signal.
+  // the proposed pill would repeat the same signal.
   hideProposedReplacementPill?: boolean;
 }) {
   let displayStatus = recordDisplayStatus(record, graph);
   if (displayStatus === "PROPOSED_REPLACEMENT" && !pairedReplacement) {
     displayStatus = "PROPOSED";
   }
+  const pillDisplayStatus =
+    displayStatus === "PROPOSED_REPLACEMENT" ? "PROPOSED" : displayStatus;
   const hideProposedReplacementStatus =
     displayStatus === "PROPOSED_REPLACEMENT" && hideProposedReplacementPill;
   // Accepted links wear no pill (their calm absence reads as "settled").
@@ -85,15 +87,7 @@ function RecordChip({
     !hideProposedReplacementStatus &&
     displayStatus !== "ACCEPTED" &&
     (displayStatus !== "PENDING_REPLACEMENT" || showPendingReplacement);
-  // An accepted link wears no status pill, but if the target needs attention
-  // (unsupported, conflicted, blocked, bad law…) we fill that empty slot with a
-  // single caution pill — so problems surface in link lists without ever
-  // stacking a second badge. Calm, settled records still show nothing.
-  const attentionLabel =
-    !isCycle && !hidePill && !showStatusPill && displayStatus === "ACCEPTED"
-      ? recordAttention(record)
-      : null;
-  const showAnyPill = isCycle || showStatusPill || attentionLabel !== null;
+  const showAnyPill = isCycle || showStatusPill;
 
   return (
     <button
@@ -138,17 +132,11 @@ function RecordChip({
         </span>
       ) : showStatusPill ? (
         <span
-          className={`ml-auto min-w-0 max-w-36 shrink rounded-full border px-2 py-0.5 text-xs ${RECORD_DISPLAY_STATUS_CLASSES[displayStatus]}`}
+          className={`ml-auto min-w-0 max-w-36 shrink rounded-full border px-2 py-0.5 text-xs ${RECORD_DISPLAY_STATUS_CLASSES[pillDisplayStatus]}`}
         >
           <span className="block truncate">
-            {RECORD_DISPLAY_STATUS_LABELS[displayStatus]}
+            {RECORD_DISPLAY_STATUS_LABELS[pillDisplayStatus]}
           </span>
-        </span>
-      ) : attentionLabel !== null ? (
-        <span
-          className={`ml-auto min-w-0 max-w-36 shrink rounded-full border px-2 py-0.5 text-xs ${TONES.caution.badge}`}
-        >
-          <span className="block truncate">{attentionLabel}</span>
         </span>
       ) : null}
       <ChevronRight

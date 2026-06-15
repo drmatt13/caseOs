@@ -39,13 +39,19 @@ export function StatePill({
 
 export function StatusBadge({ status }: { status: RecordDisplayStatus }) {
   // Accepted is the authoritative default — it wears no badge. Its absence,
-  // alongside Proposed / Proposed Replacement / Pending Replacement, is the
-  // signal. Only unsettled states are labeled.
+  // alongside Proposed / Pending Replacement, is the signal. Only unsettled
+  // states are labeled.
   if (status === "ACCEPTED") return null;
+  // "Proposed Replacement" is the record card's identity alone (see
+  // resolveStatePill / RecordCard, where the violet pill and violet card surface
+  // read as one object). Every other surface — the inspector, PeopleView —
+  // collapses it to a plain "Proposed"; replacement context is carried by the
+  // ReplacementNotice instead.
+  const resolved = status === "PROPOSED_REPLACEMENT" ? "PROPOSED" : status;
   return (
     <Pill
-      label={RECORD_DISPLAY_STATUS_LABELS[status]}
-      className={RECORD_DISPLAY_STATUS_CLASSES[status]}
+      label={RECORD_DISPLAY_STATUS_LABELS[resolved]}
+      className={RECORD_DISPLAY_STATUS_CLASSES[resolved]}
     />
   );
 }
