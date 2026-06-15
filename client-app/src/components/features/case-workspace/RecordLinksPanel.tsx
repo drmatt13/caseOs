@@ -165,14 +165,11 @@ function RecordLinksPanel({
               recordIsAccepted && !shouldShowProposedLinks
                 ? []
                 : carriedReplacements;
-            // The target is pending replacement, but no live successor carries
-            // this relationship forward — so `record`'s link to it won't survive
-            // the replacement. Flag that on the target's chip (amber "Pending
-            // Replacement") instead of listing successors that don't apply here.
-            const orphanedPendingReplacement =
-              otherReplacements.length > 0 && carriedReplacements.length === 0;
-            const showTargetPendingReplacement =
-              orphanedPendingReplacement || visibleReplacements.length > 0;
+            // Only show the amber "Pending Replacement" treatment when the
+            // panel can also show the successor record(s) directly beneath this
+            // chip. Without that paired context, the badge suggests a hidden
+            // replacement path that is not visible in this relationship view.
+            const showTargetPendingReplacement = visibleReplacements.length > 0;
             return (
               <div key={link.id} className="min-w-0">
                 <RecordChip

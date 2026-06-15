@@ -17,7 +17,8 @@ const RECORD_CHIP_STATUS_CLASSES: Record<TypedCaseRecord["status"], string> = {
   REJECTED: `${TONES.critical.surface} hover:border-red-700/30 hover:bg-red-50/60`,
   PENDING_REPLACEMENT: `${TONES.caution.surface} hover:border-amber-600/35 hover:bg-amber-50/70`,
   REPLACED:
-    "border-black/12 bg-black/[0.04] hover:border-black/20 hover:bg-black/[0.06]",
+    // "border-black/12 bg-black/[0.04] hover:border-black/20 hover:bg-black/[0.06]",
+    "border-black/15 bg-white/80 hover:border-black/25 hover:bg-white",
 };
 
 // Clickable reference to another record — the core graph-traversal affordance.
@@ -53,11 +54,8 @@ function RecordChip({
   // framing is just noise.
   pairedReplacement?: boolean;
   // Surfaces the amber "Pending Replacement" badge on a link, normally
-  // suppressed in general link lists. Two contexts opt in:
-  //   • ReplacementNotice ("This proposal would replace:"), and
-  //   • RecordLinksPanel, when a linked record is mid-replacement but no live
-  //     successor carries the current relationship forward — the badge warns
-  //     that this link won't survive the replacement.
+  // suppressed in general link lists. RecordLinksPanel opts in only when it
+  // will render the visible successor record(s) directly beneath the chip.
   showPendingReplacement?: boolean;
   // Suppress the right-side status pill (e.g. version-history predecessors read
   // calmer without one). Does NOT suppress the "In path" cycle pill — a locked
@@ -113,10 +111,8 @@ function RecordChip({
       disabled={isCycle}
     >
       {/* Left tag: record type — tight radius, gray, reads as a category. */}
-      <span className="min-w-0 max-w-28 shrink rounded border border-black/15 bg-black/[0.03] px-1.5 py-0.5 text-[0.65rem] uppercase tracking-wide text-black/50">
-        <span className="block truncate">
-          {RECORD_TYPE_LABELS[record.type]}
-        </span>
+      <span className="min-w-0 shrink rounded border border-black/15 bg-black/[0.03] px-1.5 py-0.5 text-[0.65rem] uppercase tracking-wide text-black/50">
+        <span className="block">{RECORD_TYPE_LABELS[record.type]}</span>
       </span>
       <span
         className={`min-w-0 flex-1 truncate ${
