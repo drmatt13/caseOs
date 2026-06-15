@@ -90,8 +90,13 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     return map;
   }, [records, proposalDecisions]);
 
-  const acceptedReplacementByTargetId = useMemo(() => {
-    const map = new Map<string, TypedCaseRecord>();
+  // Accepted/retired replacements that supersede a target, keyed by target id.
+  // Many-valued: a 1→N split retires one source in favor of several successors,
+  // all of which list it in their `replacesIds`, so a single target can have
+  // more than one successor here. This is what lets version history render a
+  // branch ("Replaced by" → several records) rather than only the first one.
+  const acceptedReplacementsByTargetId = useMemo(() => {
+    const map = new Map<string, TypedCaseRecord[]>();
     for (const record of records) {
       if (!record.replacesIds?.length) continue;
 
@@ -106,8 +111,10 @@ export function useWorkspaceGraph(demo: CaseDemo) {
       if (!isAcceptedReplacement) continue;
 
       for (const targetId of record.replacesIds) {
-        if (!recordsById.has(targetId) || map.has(targetId)) continue;
-        map.set(targetId, record);
+        if (!recordsById.has(targetId)) continue;
+        const existing = map.get(targetId) ?? [];
+        if (existing.some((r) => r.id === record.id)) continue;
+        map.set(targetId, [...existing, record]);
       }
     }
     return map;
@@ -254,7 +261,7 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     effectiveStatus,
     effectiveLinkStatus,
     pendingReplacementByTargetId,
-    acceptedReplacementByTargetId,
+    acceptedReplacementsByTargetId,
     proposedRecords,
     proposalDecisions,
     decideProposal,

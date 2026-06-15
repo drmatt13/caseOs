@@ -24,6 +24,7 @@ function RecordChip({
   isCycle = false,
   pairedReplacement = false,
   showPendingReplacement = false,
+  hidePill = false,
   hideProposedReplacementPill = false,
   allowCycleNavigation = false,
 }: {
@@ -39,6 +40,8 @@ function RecordChip({
   // True inside ReplacementNotice ("This proposal would replace:") —
   // the only context where "Pending Replacement" badge belongs on a link.
   showPendingReplacement?: boolean;
+  // Hard override: suppress every right-side pill, including cycle state.
+  hidePill?: boolean;
   // True when the surrounding copy already explains replacement context and
   // the green "Proposed Replacement" pill would repeat the same signal.
   hideProposedReplacementPill?: boolean;
@@ -51,18 +54,19 @@ function RecordChip({
     displayStatus = "PROPOSED";
   }
   const cycleLocked = isCycle && !allowCycleNavigation;
-  const hidePill =
+  const hideProposedReplacementStatus =
     displayStatus === "PROPOSED_REPLACEMENT" && hideProposedReplacementPill;
   // Accepted links wear no pill (their calm absence reads as "settled").
   // Pending-replacement links are also pill-free in general link lists — the
   // amber badge belongs only inside "This proposal would replace:" where the
   // relationship is already framed by the container.
-  // Cycle chips always show their "In path".
+  // Cycle chips show "In path" unless the hard pill override is set.
   const showPill =
-    isCycle ||
-    (!hidePill &&
-      displayStatus !== "ACCEPTED" &&
-      (displayStatus !== "PENDING_REPLACEMENT" || showPendingReplacement));
+    !hidePill &&
+    (isCycle ||
+      (!hideProposedReplacementStatus &&
+        displayStatus !== "ACCEPTED" &&
+        (displayStatus !== "PENDING_REPLACEMENT" || showPendingReplacement)));
 
   return (
     <button
@@ -100,7 +104,7 @@ function RecordChip({
       </span>
       {/* Right pill: lifecycle — full radius + color, matching StatusBadge.
           Accepted shows none; its absence is the "settled" signal. */}
-      {isCycle ? (
+      {!hidePill && isCycle ? (
         <span className="ml-auto inline-flex min-w-0 max-w-24 shrink items-center gap-1 rounded-full border border-black/15 bg-black/[0.04] px-2 py-0.5 text-xs text-black/55">
           <Repeat className="h-3 w-3" />
           <span className="truncate">In path</span>

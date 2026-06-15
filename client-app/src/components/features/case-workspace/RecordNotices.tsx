@@ -98,11 +98,23 @@ export function VersionHistoryNotice({
   visitedIds?: Set<string>;
 }) {
   const status = graph.effectiveStatus(record);
-  const replacedBy =
-    graph.acceptedReplacementByTargetId.get(record.id) ??
-    (record.replacedByIds?.length
-      ? graph.recordsById.get(record.replacedByIds[0])
-      : undefined);
+  // Forward lineage ("replaced by") is many-valued: a 1→N split retires this
+  // record in favor of several successors. Union the derived accepted
+  // replacements with any stored successor ids, deduped by record id, so a
+  // branch shows every successor chip rather than only the first.
+  const replacedByMap = new Map<string, TypedCaseRecord>();
+  for (const successor of graph.acceptedReplacementsByTargetId.get(record.id) ??
+    []) {
+    replacedByMap.set(successor.id, successor);
+  }
+  for (const id of record.replacedByIds ?? []) {
+    const successor = graph.recordsById.get(id);
+    if (successor) replacedByMap.set(successor.id, successor);
+  }
+  const replacedBy = [...replacedByMap.values()];
+
+  // Backward lineage ("replaces"): the predecessor record(s) this one merges
+  // from or revises. Hidden while still a proposal (shown in ReplacementNotice).
   const replaces =
     status === "PROPOSED"
       ? []
@@ -110,12 +122,10 @@ export function VersionHistoryNotice({
           .map((id) => graph.recordsById.get(id))
           .filter((target): target is TypedCaseRecord => Boolean(target));
 
-  if (!replacedBy && replaces.length === 0) return null;
+  if (replacedBy.length === 0 && replaces.length === 0) return null;
 
-  const hasForwardHistory = Boolean(replacedBy);
-  const surfaceClass = hasForwardHistory
-    ? TONES.info.surface
-    : TONES.positive.surface;
+  // const hasForwardHistory = replacedBy.length > 0;
+  const surfaceClass = TONES.caution.surface;
 
   return (
     <div
@@ -127,27 +137,36 @@ export function VersionHistoryNotice({
       </div>
 
       <div className="mt-2 flex flex-col gap-2">
-        {replacedBy && (
+        {replacedBy.length > 0 && (
           <div>
             <p className="mb-1 flex items-center gap-1.5 text-xs font-medium text-black/65">
-              <GitBranch className="h-3.5 w-3.5" />
-              Replaced by
+              {/* <GitBranch className="h-3.5 w-3.5" /> */}
+              {replacedBy.length > 1
+                ? `Replaced by ${replacedBy.length} records`
+                : "Replaced by"}
             </p>
-            <RecordChip
-              record={replacedBy}
-              graph={graph}
-              onOpenRecord={onOpenRecord}
-              isCycle={visitedIds?.has(replacedBy.id)}
-              allowCycleNavigation
-            />
+            <div className="flex flex-col gap-1.5">
+              {replacedBy.map((successor) => (
+                <RecordChip
+                  key={successor.id}
+                  record={successor}
+                  graph={graph}
+                  onOpenRecord={onOpenRecord}
+                  isCycle={visitedIds?.has(successor.id)}
+                  allowCycleNavigation
+                />
+              ))}
+            </div>
           </div>
         )}
 
         {replaces.length > 0 && (
           <div>
             <p className="mb-1 flex items-center gap-1.5 text-xs font-medium text-black/65">
-              <GitBranch className="h-3.5 w-3.5" />
-              Replaces
+              {/* <GitBranch className="h-3.5 w-3.5" /> */}
+              {replaces.length > 1
+                ? `Replaces ${replaces.length} records`
+                : "Replaces"}
             </p>
             <div className="flex flex-col gap-1.5">
               {replaces.map((target) => (
@@ -158,6 +177,7 @@ export function VersionHistoryNotice({
                   onOpenRecord={onOpenRecord}
                   isCycle={visitedIds?.has(target.id)}
                   allowCycleNavigation
+                  hidePill
                 />
               ))}
             </div>
