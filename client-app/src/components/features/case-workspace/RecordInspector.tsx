@@ -31,7 +31,11 @@ import {
   VersionHistoryNotice,
 } from "./RecordNotices";
 import RecordLinksPanel from "./RecordLinksPanel";
-import { AcceptedRecordActions, ProposalActions } from "./RecordActions";
+import {
+  AcceptedRecordActions,
+  ProposalActions,
+  ProposalDecisionNote,
+} from "./RecordActions";
 import type { WorkspaceGraph } from "./useWorkspaceGraph";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -192,6 +196,7 @@ function RecordInspectorBody({
         )
       : [];
   const pendingProposals = graph.pendingReplacementByTargetId.get(record.id);
+  const proposalDecision = graph.proposalDecisions[record.id];
 
   return (
     <div className="flex-1 overflow-y-auto p-4">
@@ -330,6 +335,8 @@ function RecordInspectorBody({
         onOpenRecord={onOpenRecord}
         visitedIds={visitedIds}
       />
+
+      {proposalDecision && <ProposalDecisionNote decision={proposalDecision} />}
 
       <div className="mt-4">
         <p className="mb-1.5 text-xs text-black/65">Knowledge graph</p>

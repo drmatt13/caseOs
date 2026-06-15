@@ -1,6 +1,7 @@
 import type { ClientRole } from "#/types/caseDomain";
 import type {
   CaseDocument,
+  DatePrecision,
   TimelineEventRecord,
   TypedCaseRecord,
 } from "#/types/caseRecords";
@@ -31,48 +32,72 @@ export function formatDate(iso?: string) {
   });
 }
 
-// Formats a timeline event's date at the granularity declared by its
-// `datePrecision` (default "day"). Coarse precisions read as approximate;
+// Intl options per precision. Coarse precisions read as approximate;
 // "minute"/"second" surface the time-of-day stored in `eventDate`.
+const EVENT_DATE_FORMAT_OPTIONS: Record<
+  DatePrecision,
+  Intl.DateTimeFormatOptions
+> = {
+  year: { year: "numeric" },
+  month: { month: "short", year: "numeric" },
+  day: { month: "short", day: "numeric", year: "numeric" },
+  minute: {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  },
+  second: {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+  },
+};
+
+// Formats a timeline event's date at the granularity declared by its
+// `datePrecision` (default "day"). When the event carries an `eventEndDate`, the
+// two bounds render as a range with shared parts collapsed by Intl's native
+// range formatter ("5:00 – 5:30 PM", "Jun 12–18, 1994"); otherwise it formats
+// the single instant exactly as before.
 export function formatEventDate(
-  record: Pick<TimelineEventRecord, "eventDate" | "datePrecision">,
+  record: Pick<
+    TimelineEventRecord,
+    "eventDate" | "eventEndDate" | "datePrecision"
+  >,
 ): string {
-  const { eventDate, datePrecision = "day" } = record;
-  const date = new Date(eventDate);
-  if (Number.isNaN(date.getTime())) return eventDate;
-  switch (datePrecision) {
-    case "year":
-      return date.toLocaleDateString("en-US", { year: "numeric" });
-    case "month":
-      return date.toLocaleDateString("en-US", {
-        month: "short",
-        year: "numeric",
-      });
-    case "minute":
-      return date.toLocaleString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-      });
-    case "second":
-      return date.toLocaleString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-        second: "2-digit",
-      });
-    case "day":
-    default:
-      return date.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      });
+  const { eventDate, eventEndDate, datePrecision = "day" } = record;
+  const start = new Date(eventDate);
+  if (Number.isNaN(start.getTime())) return eventDate;
+
+  const formatter = new Intl.DateTimeFormat(
+    "en-US",
+    EVENT_DATE_FORMAT_OPTIONS[datePrecision],
+  );
+
+  if (eventEndDate) {
+    const end = new Date(eventEndDate);
+    // Render a range only when the end bound is valid and genuinely later than
+    // the start; a bad or non-advancing end falls back to the single instant.
+    if (!Number.isNaN(end.getTime()) && end.getTime() > start.getTime()) {
+      return formatter.formatRange(start, end);
+    }
   }
+  return formatter.format(start);
+}
+
+// A ranged event is one with a valid end bound after its start. Used by the
+// timeline to render an extent (a bar) rather than a single point (a dot).
+export function isRangedEvent(
+  record: Pick<TimelineEventRecord, "eventDate" | "eventEndDate">,
+): boolean {
+  if (!record.eventEndDate) return false;
+  const start = new Date(record.eventDate).getTime();
+  const end = new Date(record.eventEndDate).getTime();
+  return !Number.isNaN(start) && !Number.isNaN(end) && end > start;
 }
 
 export function isImageDocument(document: CaseDocument) {

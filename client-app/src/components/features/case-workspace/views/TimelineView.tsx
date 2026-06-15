@@ -7,7 +7,7 @@ import {
 } from "#/lib/caseRecordPresentation";
 import Button from "#/components/ui/Button";
 
-import { formatEventDate, recordMatchesSearch } from "../helpers";
+import { formatEventDate, isRangedEvent, recordMatchesSearch } from "../helpers";
 import { EmptyState } from "../common";
 import { StatusFilter, WorkPanelSearch } from "../RecordFilters";
 import RecordCard from "../RecordCard";
@@ -76,7 +76,13 @@ function TimelineView({
         ) : (
           events.map((record) => (
             <article key={record.id} className="relative">
-              <div className="absolute -left-[1.05rem] top-5 h-2.5 w-2.5 rounded-full border border-white bg-black/45" />
+              {/* A point event marks an instant (dot); a ranged event marks an
+                  extent (taller capsule) along the spine. */}
+              <div
+                className={`absolute -left-[1.05rem] top-5 w-2.5 rounded-full border border-white bg-black/45 ${
+                  isRangedEvent(record) ? "h-6" : "h-2.5"
+                }`}
+              />
               <div className="mb-1 flex items-center gap-1.5 pl-1 text-xs text-black/65">
                 <CalendarDays className="h-3.5 w-3.5" />
                 {formatEventDate(record)}

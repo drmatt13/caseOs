@@ -279,6 +279,12 @@ export interface TimelineEventRecord extends CaseRecord {
   type: "TIMELINE_EVENT";
   substatus?: undefined;
   eventDate: string; // ISO 8601 date, optionally with time ("…T22:25:00")
+  // Optional closing bound. When present, the event spans `eventDate` →
+  // `eventEndDate` (a meeting that ran 2–4 PM, or an instant known only to fall
+  // within a window like "between 5:00 and 5:30"). Absent ⇒ a single instant,
+  // the original behavior. Must be ≥ `eventDate`. `datePrecision` governs how
+  // *both* bounds render, so a minute-precision window reads "5:00 – 5:30 PM".
+  eventEndDate?: string; // ISO 8601, optionally with time
   datePrecision?: DatePrecision; // defaults to "day"
 }
 

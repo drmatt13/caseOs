@@ -1403,7 +1403,11 @@ const ojRecords: TypedCaseRecord[] = [
     type: "TIMELINE_EVENT",
     status: "PROPOSED",
     supportStatus: "CONFLICTED",
-    eventDate: "1994-06-12",
+    // Bounded uncertainty: the killings happened at one moment known only to
+    // fall within this window — not an event that occupied the whole interval.
+    eventDate: "1994-06-12T22:15:00",
+    eventEndDate: "1994-06-12T22:45:00",
+    datePrecision: "minute",
     party: "ours",
     category: "Time of death",
     title: "Estimated time-of-death window",
@@ -1492,7 +1496,12 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "timeline-bronco-pursuit",
     type: "TIMELINE_EVENT",
-    eventDate: "1994-06-17",
+    // True extent: the pursuit genuinely spanned the interval (~6:45–8:50 PM),
+    // unlike the time-of-death window which is a single instant known only
+    // approximately.
+    eventDate: "1994-06-17T18:45:00",
+    eventEndDate: "1994-06-17T20:50:00",
+    datePrecision: "minute",
     party: "opposing",
     category: "Procedural",
     title: "Bronco pursuit and arrest",
