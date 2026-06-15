@@ -187,7 +187,7 @@ function RouteComponent() {
                   {pendingProposalCount > 0 && (
                     <button
                       type="button"
-                      className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs text-amber-800 transition-colors hover:border-amber-300 hover:bg-amber-100"
+                      className="rounded-full border border-amber-600/35 bg-amber-50/60 px-2.5 py-1 text-xs text-amber-900 transition-colors hover:border-amber-700/45 hover:bg-amber-100/70"
                       onClick={() => handleSelectView("review")}
                     >
                       {pendingProposalCount} proposals need review

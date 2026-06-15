@@ -1,27 +1,25 @@
 import { FileText, Image as ImageIcon } from "lucide-react";
 
 import type { CaseDocument } from "#/types/caseRecords";
+import Button from "#/components/ui/Button";
 
 import { isImageDocument } from "./helpers";
 
 // Placeholder affordance to open the underlying file/image. Wired to nothing
-// yet — the real viewer will stream the stored object.
+// yet — the real viewer will stream the stored object. Lives in clickable card
+// rows, so it stops propagation to avoid also opening the parent record.
 export function DocumentViewButton({ document }: { document: CaseDocument }) {
   const image = isImageDocument(document);
+  const label = image ? "View image" : "Open document";
   return (
-    <button
-      type="button"
-      className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-black/15 bg-black/[0.03] px-2.5 py-1.5 text-xs text-black/70 transition-colors hover:bg-black/10"
-      title={image ? "View image" : "Open document"}
+    <Button
+      style="secondary"
+      size="sm"
+      icon={image ? ImageIcon : FileText}
+      text={label}
+      title={label}
       onClick={(event) => event.stopPropagation()}
-    >
-      {image ? (
-        <ImageIcon className="h-3.5 w-3.5" />
-      ) : (
-        <FileText className="h-3.5 w-3.5" />
-      )}
-      {image ? "View image" : "Open document"}
-    </button>
+    />
   );
 }
 

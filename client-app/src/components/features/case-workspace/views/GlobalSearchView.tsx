@@ -1,5 +1,6 @@
 import type { TypedCaseRecord } from "#/types/caseRecords";
 import { RECORD_TYPE_LABELS } from "#/lib/caseRecordPresentation";
+import Button from "#/components/ui/Button";
 
 import { formatDate } from "../helpers";
 import { EmptyState } from "../common";
@@ -28,13 +29,12 @@ function GlobalSearchView({
             Searching all case records for "{query.trim()}".
           </p>
         </div>
-        <button
-          type="button"
-          className="rounded-lg border border-black/15 bg-white/75 px-3 py-1.5 text-sm text-black/65 transition-colors hover:bg-black/10"
+        <Button
+          style="secondary"
+          size="sm"
+          text="Clear search"
           onClick={onClearSearch}
-        >
-          Clear search
-        </button>
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-3">

@@ -178,7 +178,9 @@ function RecordInspectorBody({
   const displayStatus = recordDisplayStatus(record, graph);
   const sourceDocument =
     record.type === "DOCUMENT"
-      ? graph.demo.documents.find((document) => document.id === record.documentId)
+      ? graph.demo.documents.find(
+          (document) => document.id === record.documentId,
+        )
       : undefined;
   const siblingDocumentRecords =
     record.type === "DOCUMENT"

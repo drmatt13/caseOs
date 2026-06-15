@@ -1,6 +1,8 @@
 import { CircleAlert, ShieldCheck, Users } from "lucide-react";
 
 import type { WorkspaceViewType } from "#/types/caseWorkspace";
+import { TONES } from "#/lib/tones";
+import Button from "#/components/ui/Button";
 
 import { Metric } from "../common";
 import { needsAttention } from "../helpers";
@@ -76,16 +78,15 @@ function OverviewView({
         </div>
 
         {attentionRecords.length > 0 && (
-          <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-4">
+          <div className={`rounded-xl border p-4 ${TONES.caution.surface}`}>
             <div className="flex items-center justify-between gap-3">
               <h2 className="font-serif text-lg">Needs Attention</h2>
-              <button
-                type="button"
-                className="rounded-lg border border-amber-200 bg-white/80 px-3 py-1.5 text-sm text-amber-800 transition-colors hover:bg-amber-100"
+              <Button
+                style="primary"
+                size="sm"
+                text="Open review queue"
                 onClick={() => onSelectView("review")}
-              >
-                Open review queue
-              </button>
+              />
             </div>
             <p className="mt-1 text-sm text-black/65">
               Records flagged for source review, missing support, date

@@ -35,13 +35,12 @@ function AgentView({
             can open, and every change arrives as a reviewable proposal.
           </p>
         </div>
-        <button
-          type="button"
-          className="rounded-lg border border-black/15 bg-white/75 px-3 py-1.5 text-sm text-black/65 transition-colors hover:bg-black/10"
+        <Button
+          style="secondary"
+          size="sm"
+          text={showInstructions ? "Hide instructions" : "Agent instructions"}
           onClick={() => setShowInstructions((value) => !value)}
-        >
-          {showInstructions ? "Hide instructions" : "Agent instructions"}
-        </button>
+        />
       </div>
 
       {showInstructions && (

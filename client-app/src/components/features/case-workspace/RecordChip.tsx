@@ -22,8 +22,9 @@ const RECORD_CHIP_STATUS_CLASSES: Record<TypedCaseRecord["status"], string> = {
 };
 
 // Clickable reference to another record — the core graph-traversal affordance.
-// The chip shell now gets a light status wash from record.status, while the
-// right pill still carries the resolved display status. The left tag is the
+// The chip shell gets a light status wash, while the right pill carries the
+// resolved display status. Pending-replacement records stay visually accepted
+// unless the caller opts into the replacement context. The left tag is the
 // record type (gray, tight radius); the right pill is the lifecycle status
 // (colored, full radius). When `isCycle` is set the target is already open in
 // the current inspector path, so the chip is locked: grayed, non-interactive,
@@ -73,16 +74,18 @@ function RecordChip({
     displayStatus === "PROPOSED_REPLACEMENT" ? "PROPOSED" : displayStatus;
   const hideProposedReplacementStatus =
     displayStatus === "PROPOSED_REPLACEMENT" && hideProposedReplacementPill;
-  const chipStatusClass =
-    showPendingReplacement && displayStatus === "PENDING_REPLACEMENT"
-      ? RECORD_CHIP_STATUS_CLASSES.PENDING_REPLACEMENT
-      : RECORD_CHIP_STATUS_CLASSES[record.status];
+  const chipStatus =
+    displayStatus === "PENDING_REPLACEMENT" && showPendingReplacement
+      ? "PENDING_REPLACEMENT"
+      : record.status === "PENDING_REPLACEMENT"
+        ? "ACCEPTED"
+        : record.status;
+  const chipStatusClass = RECORD_CHIP_STATUS_CLASSES[chipStatus];
   // Accepted links wear no pill (their calm absence reads as "settled").
-  // Pending-replacement links are also pill-free in general link lists — the
-  // amber badge belongs only inside "This proposal would replace:" where the
-  // relationship is already framed by the container. `hidePill` suppresses it
-  // outright. A cycle replaces the status pill with the "In path" lock badge,
-  // so the status pill never competes with it.
+  // Pending-replacement links are also pill-free unless the caller can show the
+  // visible replacement records in context. `hidePill` suppresses it outright.
+  // A cycle replaces the status pill with the "In path" lock badge, so the
+  // status pill never competes with it.
   const showStatusPill =
     !isCycle &&
     !hidePill &&
