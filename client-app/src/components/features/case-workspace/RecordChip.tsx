@@ -75,6 +75,10 @@ function RecordChip({
     displayStatus === "PROPOSED_REPLACEMENT" ? "PROPOSED" : displayStatus;
   const hideProposedReplacementStatus =
     displayStatus === "PROPOSED_REPLACEMENT" && hideProposedReplacementPill;
+  const chipStatusClass =
+    showPendingReplacement && displayStatus === "PENDING_REPLACEMENT"
+      ? RECORD_CHIP_STATUS_CLASSES.PENDING_REPLACEMENT
+      : RECORD_CHIP_STATUS_CLASSES[record.status];
   // Accepted links wear no pill (their calm absence reads as "settled").
   // Pending-replacement links are also pill-free in general link lists — the
   // amber badge belongs only inside "This proposal would replace:" where the
@@ -100,7 +104,7 @@ function RecordChip({
       className={`group flex w-full min-w-0 items-center gap-2 overflow-hidden rounded-lg border px-2.5 py-1.5 text-left text-sm transition-colors ${
         isCycle
           ? "border-black/15 bg-black/[0.03] opacity-70 cursor-not-allowed"
-          : RECORD_CHIP_STATUS_CLASSES[record.status]
+          : chipStatusClass
       }`}
       onClick={(event) => {
         event.stopPropagation();

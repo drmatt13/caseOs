@@ -159,9 +159,8 @@ function RecordLinksPanel({
                 );
               }) ?? false;
 
-            const carriedReplacements = otherReplacements.filter(
-              carriesLinkToRecord,
-            );
+            const carriedReplacements =
+              otherReplacements.filter(carriesLinkToRecord);
             const visibleReplacements =
               recordIsAccepted && !shouldShowProposedLinks
                 ? []
@@ -172,6 +171,8 @@ function RecordLinksPanel({
             // Replacement") instead of listing successors that don't apply here.
             const orphanedPendingReplacement =
               otherReplacements.length > 0 && carriedReplacements.length === 0;
+            const showTargetPendingReplacement =
+              orphanedPendingReplacement || visibleReplacements.length > 0;
             return (
               <div key={link.id} className="min-w-0">
                 <RecordChip
@@ -179,7 +180,7 @@ function RecordLinksPanel({
                   graph={graph}
                   onOpenRecord={onOpenRecord}
                   isCycle={visitedIds?.has(target.id)}
-                  showPendingReplacement={orphanedPendingReplacement}
+                  showPendingReplacement={showTargetPendingReplacement}
                 />
                 {(recordIsProposed || recordIsReplaced) && link.explanation && (
                   <p className="mt-0.5 pl-1 text-xs text-black/55">
@@ -187,23 +188,53 @@ function RecordLinksPanel({
                   </p>
                 )}
                 {visibleReplacements.length > 0 && (
-                  <div className="ml-3 mt-1 flex flex-col gap-1 border-l border-black/15 pl-3">
-                    <span className="flex items-center gap-1 text-[0.7rem] uppercase tracking-wide text-black/40">
+                  <div className="ml-3 mt-1 flex flex-col">
+                    {/* <span className="mb-1 flex items-center gap-1 text-[0.7rem] uppercase tracking-wide text-black/40">
                       <CornerDownRight className="h-3 w-3" />
                       Proposed Replacement{" "}
                       {visibleReplacements.length > 1 ? "Records" : "Record"}
-                    </span>
-                    {visibleReplacements.map((replacement) => (
-                      <RecordChip
-                        key={replacement.id}
-                        record={replacement}
-                        graph={graph}
-                        onOpenRecord={onOpenRecord}
-                        isCycle={visitedIds?.has(replacement.id)}
-                        pairedReplacement
-                        // hideProposedReplacementPill
-                      />
-                    ))}
+                    </span> */}
+                    {visibleReplacements.map((replacement, index) => {
+                      const isLast = index === visibleReplacements.length - 1;
+                      return (
+                        <div
+                          key={replacement.id}
+                          className="relative flex items-center py-0.5"
+                        >
+                          {/* Tree connector, drawn as two non-overlapping
+                              layers so the trunk stays unbroken while every chip
+                              gets its own rounded elbow:
+                                • a straight vertical trunk down the left. While
+                                  more chips follow it runs the full row height;
+                                  on the last chip it stops exactly where the
+                                  curve begins (center − corner radius) so nothing
+                                  dangles below the terminal L.
+                                • a quarter-circle elbow whose height equals the
+                                  corner radius, so it has no straight vertical
+                                  run — it only meets the trunk tangentially and
+                                  curves out to the chip at its vertical center. */}
+                          <span
+                            aria-hidden
+                            className={`absolute left-0 top-0 w-px bg-black/15 ${
+                              isLast ? "h-[calc(50%-0.5rem)]" : "bottom-0"
+                            }`}
+                          />
+                          <span
+                            aria-hidden
+                            className="absolute bottom-1/2 left-0 h-2 w-4 rounded-bl-lg border-b border-l border-black/15"
+                          />
+                          <div className="min-w-0 flex-1 pl-4">
+                            <RecordChip
+                              record={replacement}
+                              graph={graph}
+                              onOpenRecord={onOpenRecord}
+                              isCycle={visitedIds?.has(replacement.id)}
+                              pairedReplacement
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
