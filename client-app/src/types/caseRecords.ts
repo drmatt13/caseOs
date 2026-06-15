@@ -88,12 +88,17 @@ export type RecordStatus =
 
 export type LinkStatus = "PROPOSED" | "ACCEPTED" | "REJECTED";
 
+// Evidentiary grounding — a first-class axis on assertion-bearing records
+// (FACT, TIMELINE_EVENT, TESTIMONY, CLAIM, ARGUMENT, THEORY, ISSUE). The agent
+// reasons over this directly ("find evidence for every UNSUPPORTED argument").
+// CONFLICTED captures "evidence cuts both ways"; UNKNOWN means not yet verified.
 export type SupportStatus =
   | "SUPPORTED"
   | "PARTIALLY_SUPPORTED"
   | "UNSUPPORTED"
+  | "CONFLICTED"
   | "SUPPORT_NOT_REQUIRED"
-  | "SUPPORT_UNKNOWN";
+  | "UNKNOWN";
 
 // Which side of the matter a record concerns. Resolved to display labels
 // (e.g. "Defense" / "Plaintiffs") using CaseContext.representation.clientRole.
@@ -102,54 +107,49 @@ export type RecordParty = "ours" | "opposing" | "neutral";
 export type RecordPriority = "low" | "medium" | "high";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Per-type substatus (replaces free-text "typeStatus")
-// Each record type carries a small, typed working state in addition to the
-// shared PROPOSED/ACCEPTED lifecycle.
+// Per-type substatus — the record's domain LIFECYCLE (its "phase").
+//
+// Intentionally lifecycle-only. Two things that used to live here have moved:
+//   • evidentiary state  → `supportStatus` (SUPPORTED/CONFLICTED/UNKNOWN/…)
+//   • "needs attention"  → DERIVED, never stored (see recordAttention in the
+//     case-workspace helpers — staleness, blocked, unsupported, conflicted…)
+// Records whose state is fully captured by support + lifecycle status carry no
+// substatus at all (FACT, TIMELINE_EVENT, POSTURE, PERSON, DOCUMENT,
+// CASE_SUMMARY).
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type ObjectiveSubstatus = "ACTIVE" | "AT_RISK" | "ACHIEVED" | "ABANDONED";
-export type PostureSubstatus = "CURRENT" | "STALE";
 export type ClaimSubstatus = "ASSERTED" | "ANTICIPATED" | "WITHDRAWN" | "DISMISSED";
 export type TheorySubstatus = "ADOPTED" | "EXPLORING" | "BACKUP" | "ABANDONED";
 export type IssueSubstatus = "OPEN" | "RESERVED" | "RESOLVED";
-export type ArgumentSubstatus = "DRAFT" | "NEEDS_SUPPORT" | "TRIAL_READY";
+export type ArgumentSubstatus = "DRAFT" | "TRIAL_READY";
 export type TaskSubstatus = "OPEN" | "IN_PROGRESS" | "BLOCKED" | "DONE";
-export type FactSubstatus =
-  | "UNDISPUTED"
-  | "DISPUTED"
-  | "NEEDS_SOURCE_REVIEW"
-  | "CONTEXT";
-export type TimelineEventSubstatus =
-  | "CONFIRMED"
-  | "APPROXIMATE"
-  | "DISPUTED"
-  | "DATE_CONFLICT";
-export type TestimonySubstatus =
-  | "ANTICIPATED"
-  | "PREPARED"
-  | "GIVEN"
-  | "IMPEACHMENT";
+export type TestimonySubstatus = "ANTICIPATED" | "PREPARED" | "GIVEN";
+// Precedent treatment — the authority's standing in current law. (Whether the
+// cite has been verified is the separate `citeChecked` flag on the record.)
 export type PrecedentSubstatus =
-  | "NEEDS_CITE_CHECK"
   | "GOOD_LAW"
   | "DISTINGUISHED"
   | "QUESTIONED"
   | "OVERRULED";
-export type NoteSubstatus = "GENERAL" | "PINNED" | "OPEN_QUESTION" | "RESOLVED";
+export type NoteSubstatus = "OPEN_QUESTION" | "RESOLVED";
 
 export type RecordSubstatus =
   | ObjectiveSubstatus
-  | PostureSubstatus
   | ClaimSubstatus
   | TheorySubstatus
   | IssueSubstatus
   | ArgumentSubstatus
   | TaskSubstatus
-  | FactSubstatus
-  | TimelineEventSubstatus
   | TestimonySubstatus
   | PrecedentSubstatus
   | NoteSubstatus;
+
+// Granularity of a timeline event's date — controls how much of the timestamp
+// is meaningful and therefore displayed. "day" is the default; "minute"/"second"
+// require a time component in `eventDate` (ISO 8601, e.g. "1994-06-12T22:25:00").
+// Coarser values ("year"/"month") also read as an approximate date.
+export type DatePrecision = "year" | "month" | "day" | "minute" | "second";
 
 // Semantic edge types in the knowledge graph.
 // Direction: fromRecord → type → toRecord
@@ -233,7 +233,8 @@ export interface ObjectiveRecord extends CaseRecord {
 
 export interface PostureRecord extends CaseRecord {
   type: "POSTURE";
-  substatus: PostureSubstatus;
+  // Posture has no lifecycle phase of its own; staleness is derived from age.
+  substatus?: undefined;
 }
 
 export interface ClaimRecord extends CaseRecord {
@@ -267,13 +268,18 @@ export interface TaskRecord extends CaseRecord {
 
 export interface FactRecord extends CaseRecord {
   type: "FACT";
-  substatus: FactSubstatus;
+  // A fact's state is its evidentiary grounding (`supportStatus`), not a phase.
+  substatus?: undefined;
+  // True for background facts that frame the case but are not load-bearing
+  // proof (was the old "CONTEXT" substatus).
+  isContextual?: boolean;
 }
 
 export interface TimelineEventRecord extends CaseRecord {
   type: "TIMELINE_EVENT";
-  substatus: TimelineEventSubstatus;
-  eventDate: string; // ISO 8601 date
+  substatus?: undefined;
+  eventDate: string; // ISO 8601 date, optionally with time ("…T22:25:00")
+  datePrecision?: DatePrecision; // defaults to "day"
 }
 
 export interface TestimonyRecord extends CaseRecord {
@@ -284,7 +290,10 @@ export interface TestimonyRecord extends CaseRecord {
 
 export interface LegalPrecedentRecord extends CaseRecord {
   type: "LEGAL_PRECEDENT";
-  substatus: PrecedentSubstatus;
+  // Treatment (standing in current law); absent until the authority is verified.
+  substatus?: PrecedentSubstatus;
+  // False while the citation still needs verification (was "NEEDS_CITE_CHECK").
+  citeChecked?: boolean;
   citation?: string;    // e.g. "410 U.S. 113 (1973)"
   jurisdiction?: string;
   court?: string;
@@ -292,7 +301,10 @@ export interface LegalPrecedentRecord extends CaseRecord {
 
 export interface NoteRecord extends CaseRecord {
   type: "NOTE";
-  substatus: NoteSubstatus;
+  // Most notes have no phase ("GENERAL" is simply the absence of one).
+  substatus?: NoteSubstatus;
+  // Pinning is orthogonal to status — a flag, not a phase (was "PINNED").
+  pinned?: boolean;
 }
 
 // PERSON – special record type.

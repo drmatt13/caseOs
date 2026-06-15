@@ -2,10 +2,13 @@ import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
 import type { TypedCaseRecord } from "#/types/caseRecords";
-import { RECORD_DISPLAY_STATUS_CARD_CLASSES } from "#/lib/caseRecordPresentation";
+import {
+  RECORD_DISPLAY_STATUS_CARD_CLASSES,
+  RECORD_PARTY_ACCENT_CLASSES,
+} from "#/lib/caseRecordPresentation";
 
 import { recordDisplayStatus } from "./helpers";
-import { PartyBadge, StatusBadge, SubstatusBadge } from "./RecordBadges";
+import { StatePill } from "./RecordBadges";
 import {
   AcceptedRecordActions,
   ProposalActions,
@@ -38,7 +41,7 @@ function RecordCard({
 
   return (
     <article
-      className={`rounded-xl border shadow-sm ${RECORD_DISPLAY_STATUS_CARD_CLASSES[displayStatus]}`}
+      className={`rounded-xl border shadow-sm ${RECORD_DISPLAY_STATUS_CARD_CLASSES[displayStatus]} ${RECORD_PARTY_ACCENT_CLASSES[record.party ?? "neutral"]}`}
     >
       <div
         role="button"
@@ -58,20 +61,16 @@ function RecordCard({
           </div>
         )}
         <div className="min-w-0">
-          <div className="mb-2 flex flex-wrap items-center gap-2">
-            {/* The green "Proposed Replacement" status now carries the
-                replaces signal on its own — no separate badge needed. */}
-            <StatusBadge status={displayStatus} />
-            <SubstatusBadge record={record} />
-            {record.category && (
-              <span className="rounded-full border border-black/15 bg-white/80 px-2 py-0.5 text-xs text-black/65">
-                {record.category}
-              </span>
-            )}
-            <PartyBadge
-              record={record}
-              clientRole={graph.demo.caseContext.representation.clientRole}
-            />
+          {/* One resolved state pill (cascade) carries the record's standing;
+              category is a quiet kicker; party reads from the left-edge accent.
+              The full decomposition lives in the inspector. */}
+          {record.category && (
+            <p className="mb-1 text-[0.65rem] uppercase tracking-wide text-black/40">
+              {record.category}
+            </p>
+          )}
+          <div className="mb-2">
+            <StatePill record={record} graph={graph} />
           </div>
           <h3 className="text-md font-semibold">{record.title}</h3>
           {record.summary && (

@@ -1,9 +1,9 @@
 import { CircleAlert, ShieldCheck, Users } from "lucide-react";
 
-import { ATTENTION_SUBSTATUSES } from "#/lib/caseRecordPresentation";
 import type { WorkspaceViewType } from "#/types/caseWorkspace";
 
 import { Metric } from "../common";
+import { needsAttention } from "../helpers";
 import RecordChip from "../RecordChip";
 import type { WorkspaceGraph } from "../useWorkspaceGraph";
 
@@ -21,12 +21,8 @@ function OverviewView({
       record.priority === "high" &&
       graph.effectiveStatus(record) === "ACCEPTED",
   );
-  const attentionRecords = graph.records.filter(
-    (record) =>
-      record.substatus &&
-      ATTENTION_SUBSTATUSES.includes(record.substatus) &&
-      graph.effectiveStatus(record) !== "REPLACED" &&
-      graph.effectiveStatus(record) !== "REJECTED",
+  const attentionRecords = graph.records.filter((record) =>
+    needsAttention(record, graph),
   );
 
   return (

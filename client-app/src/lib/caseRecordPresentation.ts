@@ -94,7 +94,8 @@ export const RECORD_DISPLAY_STATUS_CARD_CLASSES: Record<
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Per-type substatus
+// Per-type substatus — the record's domain lifecycle ("phase"). Lifecycle-only:
+// evidentiary state is `supportStatus`; "needs attention" is derived.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const RECORD_SUBSTATUS_LABELS: Record<RecordSubstatus, string> = {
@@ -103,9 +104,6 @@ export const RECORD_SUBSTATUS_LABELS: Record<RecordSubstatus, string> = {
   AT_RISK: "At risk",
   ACHIEVED: "Achieved",
   ABANDONED: "Abandoned",
-  // Posture
-  CURRENT: "Current",
-  STALE: "Stale",
   // Claim
   ASSERTED: "Asserted",
   ANTICIPATED: "Anticipated",
@@ -124,55 +122,72 @@ export const RECORD_SUBSTATUS_LABELS: Record<RecordSubstatus, string> = {
   DONE: "Done",
   // Argument
   DRAFT: "Draft",
-  NEEDS_SUPPORT: "Needs support",
   TRIAL_READY: "Trial ready",
-  // Fact / Timeline
-  UNDISPUTED: "Undisputed",
-  DISPUTED: "Disputed",
-  NEEDS_SOURCE_REVIEW: "Needs source review",
-  CONTEXT: "Context",
-  CONFIRMED: "Confirmed",
-  APPROXIMATE: "Approximate",
-  DATE_CONFLICT: "Date conflict",
   // Testimony
   PREPARED: "Prepared",
   GIVEN: "Given",
-  IMPEACHMENT: "Impeachment",
-  // Precedent
-  NEEDS_CITE_CHECK: "Needs cite check",
+  // Precedent treatment
   GOOD_LAW: "Good law",
   DISTINGUISHED: "Distinguished",
   QUESTIONED: "Questioned",
   OVERRULED: "Overruled",
   // Note
-  GENERAL: "General",
-  PINNED: "Pinned",
   OPEN_QUESTION: "Open question",
 };
 
-// Substatuses that signal the record needs attention before trial use.
-export const ATTENTION_SUBSTATUSES: RecordSubstatus[] = [
+// Phase badge tone. Most phases are neutral; a few terminal "good" states read
+// positive. Attention-worthy phases (AT_RISK, BLOCKED, QUESTIONED, OVERRULED,
+// OPEN_QUESTION) read caution — though in dense views those are surfaced by the
+// derived attention pill (see recordAttention) rather than the phase pill.
+const POSITIVE_PHASES: RecordSubstatus[] = [
+  "ACHIEVED",
+  "DONE",
+  "TRIAL_READY",
+  "ADOPTED",
+  "GOOD_LAW",
+  "RESOLVED",
+  "GIVEN",
+];
+const CAUTION_PHASES: RecordSubstatus[] = [
   "AT_RISK",
-  "STALE",
-  "NEEDS_SUPPORT",
-  "NEEDS_SOURCE_REVIEW",
-  "NEEDS_CITE_CHECK",
-  "DATE_CONFLICT",
   "BLOCKED",
+  "QUESTIONED",
+  "OVERRULED",
   "OPEN_QUESTION",
-  "DISPUTED",
 ];
 
+export const RECORD_SUBSTATUS_CLASSES: Record<RecordSubstatus, string> =
+  Object.fromEntries(
+    (Object.keys(RECORD_SUBSTATUS_LABELS) as RecordSubstatus[]).map((sub) => [
+      sub,
+      POSITIVE_PHASES.includes(sub)
+        ? TONES.positive.badge
+        : CAUTION_PHASES.includes(sub)
+          ? TONES.caution.badge
+          : TONES.neutral.badge,
+    ]),
+  ) as Record<RecordSubstatus, string>;
+
 // ─────────────────────────────────────────────────────────────────────────────
-// Support status
+// Support status (evidentiary grounding)
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const SUPPORT_STATUS_LABELS: Record<SupportStatus, string> = {
   SUPPORTED: "Supported",
   PARTIALLY_SUPPORTED: "Partially supported",
   UNSUPPORTED: "Unsupported",
+  CONFLICTED: "Conflicted",
   SUPPORT_NOT_REQUIRED: "Support not required",
-  SUPPORT_UNKNOWN: "Support unknown",
+  UNKNOWN: "Unverified",
+};
+
+export const SUPPORT_STATUS_CLASSES: Record<SupportStatus, string> = {
+  SUPPORTED: TONES.positive.badge,
+  PARTIALLY_SUPPORTED: TONES.info.badge,
+  UNSUPPORTED: TONES.caution.badge,
+  CONFLICTED: TONES.caution.badge,
+  SUPPORT_NOT_REQUIRED: TONES.neutral.badge,
+  UNKNOWN: TONES.caution.badge,
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -183,6 +198,14 @@ export const RECORD_PARTY_CLASSES: Record<RecordParty, string> = {
   ours: PARTY_TONES.ours.badge,
   opposing: PARTY_TONES.opposing.badge,
   neutral: PARTY_TONES.neutral.badge,
+};
+
+// Party as an ambient left-edge accent on cards (instead of a full word-pill).
+// Neutral / no party gets no stripe — only "ours" vs "opposing" earn an accent.
+export const RECORD_PARTY_ACCENT_CLASSES: Record<RecordParty, string> = {
+  ours: "border-l-2 border-l-sky-600/50",
+  opposing: "border-l-2 border-l-rose-600/50",
+  neutral: "",
 };
 
 const OUR_SIDE_LABELS: Partial<Record<ClientRole, string>> = {

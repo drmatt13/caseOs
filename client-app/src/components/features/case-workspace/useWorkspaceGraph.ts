@@ -234,7 +234,6 @@ export function useWorkspaceGraph(demo: CaseDemo) {
         workspaceId: demo.workspaceId,
         caseId: demo.caseId,
         type: "NOTE",
-        substatus: "GENERAL",
         title: trimmed.split("\n")[0].slice(0, 72),
         summary: "New working case note captured in the workspace.",
         content: trimmed,

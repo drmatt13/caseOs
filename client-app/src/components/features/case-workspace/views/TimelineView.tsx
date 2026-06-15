@@ -7,7 +7,7 @@ import {
 } from "#/lib/caseRecordPresentation";
 import Button from "#/components/ui/Button";
 
-import { formatDate, recordMatchesSearch } from "../helpers";
+import { formatEventDate, recordMatchesSearch } from "../helpers";
 import { EmptyState } from "../common";
 import { StatusFilter, WorkPanelSearch } from "../RecordFilters";
 import RecordCard from "../RecordCard";
@@ -79,7 +79,7 @@ function TimelineView({
               <div className="absolute -left-[1.05rem] top-5 h-2.5 w-2.5 rounded-full border border-white bg-black/45" />
               <div className="mb-1 flex items-center gap-1.5 pl-1 text-xs text-black/65">
                 <CalendarDays className="h-3.5 w-3.5" />
-                {formatDate(record.eventDate)}
+                {formatEventDate(record)}
               </div>
               <RecordCard
                 record={record}

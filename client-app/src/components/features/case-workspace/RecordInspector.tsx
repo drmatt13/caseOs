@@ -8,19 +8,22 @@ import {
 } from "lucide-react";
 
 import type { TypedCaseRecord } from "#/types/caseRecords";
-import {
-  RECORD_TYPE_LABELS,
-  SUPPORT_STATUS_LABELS,
-} from "#/lib/caseRecordPresentation";
+import { RECORD_TYPE_LABELS } from "#/lib/caseRecordPresentation";
 
 import {
   documentScopeLabel,
   formatDate,
+  formatEventDate,
   isImageDocument,
   recordDisplayStatus,
 } from "./helpers";
 import { DocumentViewButton } from "./common";
-import { PartyBadge, StatusBadge, SubstatusBadge } from "./RecordBadges";
+import {
+  PartyBadge,
+  StatusBadge,
+  SubstatusBadge,
+  SupportBadge,
+} from "./RecordBadges";
 import RecordChip from "./RecordChip";
 import {
   PendingReplacementNotice,
@@ -194,8 +197,11 @@ function RecordInspectorBody({
         <span className="rounded border border-black/15 bg-black/[0.03] px-1.5 py-0.5 text-[0.65rem] uppercase tracking-wide text-black/50">
           {RECORD_TYPE_LABELS[record.type]}
         </span>
+        {/* The inspector shows the FULL decomposition — every axis at once —
+            unlike the single resolved pill on dense cards. */}
         <StatusBadge status={displayStatus} />
         <SubstatusBadge record={record} />
+        <SupportBadge record={record} />
         <PartyBadge
           record={record}
           clientRole={graph.demo.caseContext.representation.clientRole}
@@ -209,8 +215,12 @@ function RecordInspectorBody({
 
       <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-black/50">
         {record.category && <span>Category: {record.category}</span>}
-        {record.supportStatus && (
-          <span>Support: {SUPPORT_STATUS_LABELS[record.supportStatus]}</span>
+        {record.type === "FACT" && record.isContextual && (
+          <span>Background context</span>
+        )}
+        {record.type === "NOTE" && record.pinned && <span>Pinned</span>}
+        {record.type === "LEGAL_PRECEDENT" && record.citeChecked === false && (
+          <span>Cite-check pending</span>
         )}
         <span>Version {record.version}</span>
         <span>
@@ -243,7 +253,7 @@ function RecordInspectorBody({
       {record.type === "TIMELINE_EVENT" && (
         <p className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-black/15 bg-white/75 px-2.5 py-1.5 text-sm text-black/70">
           <CalendarDays className="h-4 w-4" />
-          {formatDate(record.eventDate)}
+          {formatEventDate(record)}
         </p>
       )}
 

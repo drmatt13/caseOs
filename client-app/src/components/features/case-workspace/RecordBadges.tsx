@@ -1,15 +1,41 @@
 import type { ClientRole } from "#/types/caseDomain";
 import type { TypedCaseRecord } from "#/types/caseRecords";
 import {
-  ATTENTION_SUBSTATUSES,
   RECORD_DISPLAY_STATUS_CLASSES,
   RECORD_DISPLAY_STATUS_LABELS,
   RECORD_PARTY_CLASSES,
+  RECORD_SUBSTATUS_CLASSES,
   RECORD_SUBSTATUS_LABELS,
+  SUPPORT_STATUS_CLASSES,
+  SUPPORT_STATUS_LABELS,
   type RecordDisplayStatus,
   recordPartyLabel,
 } from "#/lib/caseRecordPresentation";
-import { TONES } from "#/lib/tones";
+
+import { resolveStatePill } from "./helpers";
+import type { WorkspaceGraph } from "./useWorkspaceGraph";
+
+function Pill({ label, className }: { label: string; className: string }) {
+  return (
+    <span className={`rounded-full border px-2 py-0.5 text-xs ${className}`}>
+      {label}
+    </span>
+  );
+}
+
+// The single resolved state pill for dense views (cards). One pill, chosen by
+// cascade — never a stack. See resolveStatePill for the priority order.
+export function StatePill({
+  record,
+  graph,
+}: {
+  record: TypedCaseRecord;
+  graph: WorkspaceGraph;
+}) {
+  const resolved = resolveStatePill(record, graph);
+  if (!resolved) return null;
+  return <Pill label={resolved.label} className={resolved.className} />;
+}
 
 export function StatusBadge({ status }: { status: RecordDisplayStatus }) {
   // Accepted is the authoritative default — it wears no badge. Its absence,
@@ -17,26 +43,34 @@ export function StatusBadge({ status }: { status: RecordDisplayStatus }) {
   // signal. Only unsettled states are labeled.
   if (status === "ACCEPTED") return null;
   return (
-    <span
-      className={`rounded-full border px-2 py-0.5 text-xs ${RECORD_DISPLAY_STATUS_CLASSES[status]}`}
-    >
-      {RECORD_DISPLAY_STATUS_LABELS[status]}
-    </span>
+    <Pill
+      label={RECORD_DISPLAY_STATUS_LABELS[status]}
+      className={RECORD_DISPLAY_STATUS_CLASSES[status]}
+    />
   );
 }
 
+// The record's domain lifecycle ("phase"). Lifecycle-only now — no attention
+// coloring (that's the derived attention pill). Shown in the inspector's full
+// decomposition.
 export function SubstatusBadge({ record }: { record: TypedCaseRecord }) {
   if (!record.substatus) return null;
-  const needsAttention = ATTENTION_SUBSTATUSES.includes(record.substatus);
-
   return (
-    <span
-      className={`rounded-full border px-2 py-0.5 text-xs ${
-        needsAttention ? TONES.caution.badge : TONES.neutral.badge
-      }`}
-    >
-      {RECORD_SUBSTATUS_LABELS[record.substatus]}
-    </span>
+    <Pill
+      label={RECORD_SUBSTATUS_LABELS[record.substatus]}
+      className={RECORD_SUBSTATUS_CLASSES[record.substatus]}
+    />
+  );
+}
+
+// Evidentiary grounding. Shown in the inspector's full decomposition.
+export function SupportBadge({ record }: { record: TypedCaseRecord }) {
+  if (!record.supportStatus) return null;
+  return (
+    <Pill
+      label={SUPPORT_STATUS_LABELS[record.supportStatus]}
+      className={SUPPORT_STATUS_CLASSES[record.supportStatus]}
+    />
   );
 }
 
@@ -50,10 +84,9 @@ export function PartyBadge({
   if (!record.party) return null;
 
   return (
-    <span
-      className={`rounded-full border px-2 py-0.5 text-xs ${RECORD_PARTY_CLASSES[record.party]}`}
-    >
-      {recordPartyLabel(record.party, clientRole)}
-    </span>
+    <Pill
+      label={recordPartyLabel(record.party, clientRole)}
+      className={RECORD_PARTY_CLASSES[record.party]}
+    />
   );
 }

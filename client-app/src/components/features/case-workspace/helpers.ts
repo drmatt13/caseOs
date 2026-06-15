@@ -1,13 +1,22 @@
 import type { ClientRole } from "#/types/caseDomain";
-import type { CaseDocument, TypedCaseRecord } from "#/types/caseRecords";
+import type {
+  CaseDocument,
+  TimelineEventRecord,
+  TypedCaseRecord,
+} from "#/types/caseRecords";
 import {
+  RECORD_DISPLAY_STATUS_CLASSES,
   RECORD_DISPLAY_STATUS_LABELS,
   RECORD_STATUS_LABELS,
+  RECORD_SUBSTATUS_CLASSES,
   RECORD_SUBSTATUS_LABELS,
   RECORD_TYPE_LABELS,
+  SUPPORT_STATUS_CLASSES,
+  SUPPORT_STATUS_LABELS,
   type RecordDisplayStatus,
   recordPartyLabel,
 } from "#/lib/caseRecordPresentation";
+import { TONES } from "#/lib/tones";
 
 import type { WorkspaceGraph } from "./useWorkspaceGraph";
 
@@ -20,6 +29,50 @@ export function formatDate(iso?: string) {
     day: "numeric",
     year: "numeric",
   });
+}
+
+// Formats a timeline event's date at the granularity declared by its
+// `datePrecision` (default "day"). Coarse precisions read as approximate;
+// "minute"/"second" surface the time-of-day stored in `eventDate`.
+export function formatEventDate(
+  record: Pick<TimelineEventRecord, "eventDate" | "datePrecision">,
+): string {
+  const { eventDate, datePrecision = "day" } = record;
+  const date = new Date(eventDate);
+  if (Number.isNaN(date.getTime())) return eventDate;
+  switch (datePrecision) {
+    case "year":
+      return date.toLocaleDateString("en-US", { year: "numeric" });
+    case "month":
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        year: "numeric",
+      });
+    case "minute":
+      return date.toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      });
+    case "second":
+      return date.toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+    case "day":
+    default:
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+  }
 }
 
 export function isImageDocument(document: CaseDocument) {
@@ -58,6 +111,7 @@ export function recordMatchesSearch(
     record.content,
     record.category ?? "",
     record.substatus ? RECORD_SUBSTATUS_LABELS[record.substatus] : "",
+    record.supportStatus ? SUPPORT_STATUS_LABELS[record.supportStatus] : "",
     record.party ? recordPartyLabel(record.party, clientRole) : "",
     // A proposed record that replaces reads as "Proposed Replacement"; index
     // that label so the term finds it (raw status alone would only say Proposed).
@@ -83,4 +137,91 @@ export function recordDisplayStatus(
   return status === "PROPOSED" && record.replacesIds?.length
     ? "PROPOSED_REPLACEMENT"
     : status;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Derived attention + the single "resolved state" pill
+// ─────────────────────────────────────────────────────────────────────────────
+
+// An accepted record is "stale" once it has gone untouched past this window.
+const STALE_AFTER_DAYS = 120;
+
+function isStale(record: TypedCaseRecord): boolean {
+  const ts = Date.parse(record.updatedAt);
+  if (Number.isNaN(ts)) return false;
+  return Date.now() - ts > STALE_AFTER_DAYS * 24 * 60 * 60 * 1000;
+}
+
+// Whether a record needs human action, DERIVED from the structured axes rather
+// than a hand-set flag: weak/conflicting evidence, a blocking/at-risk phase, bad
+// law, an unverified citation, or staleness. Returns a short reason label (used
+// directly as the attention pill text) or null. This is the reasoning-friendly
+// replacement for the old hand-maintained ATTENTION_SUBSTATUSES list.
+export function recordAttention(record: TypedCaseRecord): string | null {
+  const support = record.supportStatus;
+  if (support === "CONFLICTED") return "Conflicted";
+  if (support === "UNSUPPORTED") return "Unsupported";
+  if (support === "UNKNOWN") return "Unverified";
+
+  const sub = record.substatus;
+  if (sub === "BLOCKED") return "Blocked";
+  if (sub === "AT_RISK") return "At risk";
+  if (sub === "OVERRULED") return "Overruled";
+  if (sub === "QUESTIONED") return "Questioned";
+  if (sub === "OPEN_QUESTION") return "Open question";
+
+  if (record.type === "LEGAL_PRECEDENT" && record.citeChecked === false)
+    return "Needs cite check";
+
+  if (isStale(record)) return "Stale";
+  return null;
+}
+
+// True when a live (non-replaced, non-rejected) record needs attention. The
+// single source of truth for the Overview "Needs Attention" panel.
+export function needsAttention(
+  record: TypedCaseRecord,
+  graph: WorkspaceGraph,
+): boolean {
+  const status = graph.effectiveStatus(record);
+  if (status === "REPLACED" || status === "REJECTED") return false;
+  return recordAttention(record) !== null;
+}
+
+// The ONE pill a dense view (card / chip) shows for a record, chosen by a
+// priority cascade so a record never wears a stack of competing badges:
+//   review status (if unsettled) → attention → support → phase
+// Returns null when an accepted, well-grounded record has nothing to flag — its
+// calm blankness is itself the "settled" signal. The full decomposition (every
+// axis at once) lives in the inspector, not here.
+export function resolveStatePill(
+  record: TypedCaseRecord,
+  graph: WorkspaceGraph,
+): { label: string; className: string } | null {
+  const displayStatus = recordDisplayStatus(record, graph);
+  if (displayStatus !== "ACCEPTED") {
+    return {
+      label: RECORD_DISPLAY_STATUS_LABELS[displayStatus],
+      className: RECORD_DISPLAY_STATUS_CLASSES[displayStatus],
+    };
+  }
+
+  const attention = recordAttention(record);
+  if (attention) return { label: attention, className: TONES.caution.badge };
+
+  if (record.supportStatus === "PARTIALLY_SUPPORTED") {
+    return {
+      label: SUPPORT_STATUS_LABELS.PARTIALLY_SUPPORTED,
+      className: SUPPORT_STATUS_CLASSES.PARTIALLY_SUPPORTED,
+    };
+  }
+
+  if (record.substatus) {
+    return {
+      label: RECORD_SUBSTATUS_LABELS[record.substatus],
+      className: RECORD_SUBSTATUS_CLASSES[record.substatus],
+    };
+  }
+
+  return null;
 }

@@ -6,8 +6,9 @@ import {
   RECORD_DISPLAY_STATUS_LABELS,
   RECORD_TYPE_LABELS,
 } from "#/lib/caseRecordPresentation";
+import { TONES } from "#/lib/tones";
 
-import { recordDisplayStatus } from "./helpers";
+import { recordAttention, recordDisplayStatus } from "./helpers";
 import type { WorkspaceGraph } from "./useWorkspaceGraph";
 
 // Clickable reference to another record — the core graph-traversal affordance.
@@ -71,7 +72,15 @@ function RecordChip({
     !hideProposedReplacementStatus &&
     displayStatus !== "ACCEPTED" &&
     (displayStatus !== "PENDING_REPLACEMENT" || showPendingReplacement);
-  const showAnyPill = isCycle || showStatusPill;
+  // An accepted link wears no status pill, but if the target needs attention
+  // (unsupported, conflicted, blocked, bad law…) we fill that empty slot with a
+  // single caution pill — so problems surface in link lists without ever
+  // stacking a second badge. Calm, settled records still show nothing.
+  const attentionLabel =
+    !isCycle && !hidePill && !showStatusPill && displayStatus === "ACCEPTED"
+      ? recordAttention(record)
+      : null;
+  const showAnyPill = isCycle || showStatusPill || attentionLabel !== null;
 
   return (
     <button
@@ -121,6 +130,12 @@ function RecordChip({
           <span className="block truncate">
             {RECORD_DISPLAY_STATUS_LABELS[displayStatus]}
           </span>
+        </span>
+      ) : attentionLabel !== null ? (
+        <span
+          className={`ml-auto min-w-0 max-w-36 shrink rounded-full border px-2 py-0.5 text-xs ${TONES.caution.badge}`}
+        >
+          <span className="block truncate">{attentionLabel}</span>
         </span>
       ) : null}
       <ChevronRight
