@@ -2,10 +2,6 @@ import { useState } from "react";
 import { Bot, Sparkles } from "lucide-react";
 
 import type { TypedCaseRecord } from "#/types/caseRecords";
-import {
-  demoAgentInstructions,
-  demoAgentThread,
-} from "#/lib/caseWorkspaceDemo";
 import Button from "#/components/ui/Button";
 import TextAreaField from "#/components/ui/TextAreaField";
 
@@ -54,7 +50,7 @@ function AgentView({
             Standing instructions
           </h3>
           <div className="mt-2 flex flex-col gap-2">
-            {[...demoAgentInstructions, ...proposedInstructions].map(
+            {[...graph.demo.agentInstructions, ...proposedInstructions].map(
               (instruction) => (
                 <div
                   key={instruction}
@@ -95,7 +91,7 @@ function AgentView({
       )}
 
       <section className="flex flex-col gap-3 rounded-xl border border-black/15 bg-white/65 p-4">
-        {demoAgentThread.map((message) => (
+        {graph.demo.agentThread.map((message) => (
           <div
             key={message.id}
             className={`flex flex-col gap-1.5 ${

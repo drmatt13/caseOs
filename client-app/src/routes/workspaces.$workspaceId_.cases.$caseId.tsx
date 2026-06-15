@@ -22,15 +22,11 @@ import {
   type WorkspaceViewType,
 } from "#/types/caseWorkspace";
 import { recordPartyLabel } from "#/lib/caseRecordPresentation";
-import {
-  demoCase,
-  demoCaseContext,
-  demoDocuments,
-} from "#/lib/caseWorkspaceDemo";
+import { getCaseDemo } from "#/lib/caseDemos";
 
 import { useWorkspaceGraph } from "#/components/features/case-workspace/useWorkspaceGraph";
 import { ShowProposedLinksContext } from "#/components/features/case-workspace/showProposedLinksContext";
-import { clientRole, recordMatchesSearch } from "#/components/features/case-workspace/helpers";
+import { recordMatchesSearch } from "#/components/features/case-workspace/helpers";
 import { DEFAULT_VISIBLE_STATUSES } from "#/components/features/case-workspace/RecordFilters";
 import RecordInspector from "#/components/features/case-workspace/RecordInspector";
 import GlobalSearchView from "#/components/features/case-workspace/views/GlobalSearchView";
@@ -64,7 +60,9 @@ function RouteComponent() {
     error: getWorkspaceError,
   } = useWorkspaceQuery(workspaceId, { enabled: Boolean(user) });
 
-  const graph = useWorkspaceGraph();
+  const demo = useMemo(() => getCaseDemo(caseId), [caseId]);
+  const clientRole = demo.caseContext.representation.clientRole;
+  const graph = useWorkspaceGraph(demo);
   const [activeView, setActiveView] = useState<WorkspaceViewType>("overview");
   const [globalSearch, setGlobalSearch] = useState("");
   const [panelSearch, setPanelSearch] = useState("");
@@ -120,22 +118,22 @@ function RouteComponent() {
       proposed: 0,
     };
     counts.documents = {
-      accepted: demoDocuments.length,
+      accepted: demo.documents.length,
       proposed: documentRecordCounts.proposed,
     };
     return counts;
     // graph.effectiveStatus is recreated each render; records is the real input.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [graph.records]);
+  }, [graph.records, demo.documents.length]);
 
   const globalSearchResults = useMemo(
     () =>
       globalSearch.trim().length === 0
         ? []
         : graph.records.filter((record) =>
-            recordMatchesSearch(record, globalSearch),
+            recordMatchesSearch(record, globalSearch, clientRole),
           ),
-    [globalSearch, graph.records],
+    [globalSearch, graph.records, clientRole],
   );
 
   if (getUserPending || getWorkspacePending) {
@@ -159,7 +157,7 @@ function RouteComponent() {
                 <ArrowLeft className="w-3 h-3" />
               </div>
             </Link>
-            <p className="truncate">{demoCase.title}</p>
+            <p className="truncate">{demo.meta.title}</p>
           </div>
           <label className="relative block">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-black/50" />
@@ -184,7 +182,7 @@ function RouteComponent() {
               <div className="min-w-0">
                 <div className="mb-2 flex flex-wrap items-center gap-2">
                   <span className="rounded-full border border-black/15 bg-white/75 px-2.5 py-1 text-xs text-black/65">
-                    {demoCase.caseNumber}
+                    {demo.meta.caseNumber}
                   </span>
                   {pendingProposalCount > 0 && (
                     <button
@@ -197,10 +195,10 @@ function RouteComponent() {
                   )}
                 </div>
                 <h1 className="truncate text-2xl font-semibold">
-                  {demoCase.title}
+                  {demo.meta.title}
                 </h1>
                 <p className="mt-1 text-sm text-black/70">
-                  {demoCaseContext.jurisdictionOrCourt} ·{" "}
+                  {demo.caseContext.jurisdictionOrCourt} ·{" "}
                   {recordPartyLabel("ours", clientRole)} side · Case id:{" "}
                   {caseId}
                 </p>

@@ -40,7 +40,7 @@ function ReviewView({
             <GitBranch className="h-4 w-4" />
             Replacement Proposals ({replacementProposals.length})
           </h3>
-          <div className="grid gap-3">
+          <div className="grid grid-cols-1 gap-3">
             {replacementProposals.map((record) => (
               <RecordCard
                 key={record.id}
@@ -59,7 +59,7 @@ function ReviewView({
             <Sparkles className="h-4 w-4" />
             New proposals ({newProposals.length})
           </h3>
-          <div className="grid gap-3">
+          <div className="grid grid-cols-1 gap-3">
             {newProposals.map((record) => (
               <RecordCard
                 key={record.id}

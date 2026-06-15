@@ -6,7 +6,6 @@ import {
   VIEW_DESCRIPTIONS,
   VIEW_LABELS,
 } from "#/lib/caseRecordPresentation";
-import { demoDocuments } from "#/lib/caseWorkspaceDemo";
 import Button from "#/components/ui/Button";
 
 import { formatDate, isImageDocument } from "../helpers";
@@ -112,8 +111,8 @@ function DocumentsView({
         </div>
         <Button text="Upload document" icon="upload" />
       </div>
-      <div className="grid gap-3">
-        {demoDocuments.map((document) => (
+      <div className="grid grid-cols-1 gap-3">
+        {graph.demo.documents.map((document) => (
           <DocumentCard
             key={document.id}
             document={document}

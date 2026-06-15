@@ -68,7 +68,10 @@ function RecordCard({
                 {record.category}
               </span>
             )}
-            <PartyBadge record={record} />
+            <PartyBadge
+              record={record}
+              clientRole={graph.demo.caseContext.representation.clientRole}
+            />
           </div>
           <h3 className="text-md font-semibold">{record.title}</h3>
           {record.summary && (

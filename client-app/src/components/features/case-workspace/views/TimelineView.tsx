@@ -34,7 +34,14 @@ function TimelineView({
       const status = graph.effectiveStatus(record);
       const matchesStatus =
         selectedStatuses.length === 0 || selectedStatuses.includes(status);
-      return matchesStatus && recordMatchesSearch(record, panelSearch);
+      return (
+        matchesStatus &&
+        recordMatchesSearch(
+          record,
+          panelSearch,
+          graph.demo.caseContext.representation.clientRole,
+        )
+      );
     })
     .sort((a, b) => a.eventDate.localeCompare(b.eventDate));
 

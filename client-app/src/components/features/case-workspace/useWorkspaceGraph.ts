@@ -6,13 +6,7 @@ import type {
   RecordStatus,
   TypedCaseRecord,
 } from "#/types/caseRecords";
-import {
-  demoLinks,
-  demoRecords,
-  demoUserId,
-  DEMO_CASE_ID,
-  DEMO_WORKSPACE_ID,
-} from "#/lib/caseWorkspaceDemo";
+import type { CaseDemo } from "#/lib/caseDemoTypes";
 
 export type ProposalDecision = {
   status: "accepted" | "rejected";
@@ -29,7 +23,7 @@ function isAuthoritative(status: RecordStatus) {
   return status === "ACCEPTED" || status === "PENDING_REPLACEMENT";
 }
 
-export function useWorkspaceGraph() {
+export function useWorkspaceGraph(demo: CaseDemo) {
   const [localNotes, setLocalNotes] = useState<TypedCaseRecord[]>([]);
   const [deletedRecordIds, setDeletedRecordIds] = useState<string[]>([]);
   const [proposalDecisions, setProposalDecisions] = useState<
@@ -44,10 +38,10 @@ export function useWorkspaceGraph() {
 
   const records = useMemo(
     () =>
-      [...addedRecords, ...localNotes, ...demoRecords].filter(
+      [...addedRecords, ...localNotes, ...demo.records].filter(
         (record) => !deletedRecordIds.includes(record.id),
       ),
-    [addedRecords, localNotes, deletedRecordIds],
+    [addedRecords, localNotes, deletedRecordIds, demo.records],
   );
 
   const recordsById = useMemo(
@@ -59,7 +53,7 @@ export function useWorkspaceGraph() {
     const outbound = new Map<string, GraphLink[]>();
     const inbound = new Map<string, GraphLink[]>();
 
-    for (const link of demoLinks) {
+    for (const link of demo.links) {
       if (
         deletedRecordIds.includes(link.fromRecordId) ||
         deletedRecordIds.includes(link.toRecordId)
@@ -77,7 +71,7 @@ export function useWorkspaceGraph() {
     }
 
     return { outboundLinks: outbound, inboundLinks: inbound };
-  }, [deletedRecordIds]);
+  }, [deletedRecordIds, demo.links]);
 
   // Proposed records that replace another record, keyed by the target id.
   const pendingReplacementByTargetId = useMemo(() => {
@@ -204,7 +198,7 @@ export function useWorkspaceGraph() {
       approvedByUserId: undefined,
       approvedAt: undefined,
       createdBy: "human",
-      createdByUserId: demoUserId,
+      createdByUserId: demo.userId,
       content: trimmed,
       createdAt: now,
       updatedAt: now,
@@ -230,8 +224,8 @@ export function useWorkspaceGraph() {
     setLocalNotes((notes) => [
       {
         id: `note-local-${Date.now()}`,
-        workspaceId: DEMO_WORKSPACE_ID,
-        caseId: DEMO_CASE_ID,
+        workspaceId: demo.workspaceId,
+        caseId: demo.caseId,
         type: "NOTE",
         substatus: "GENERAL",
         title: trimmed.split("\n")[0].slice(0, 72),
@@ -241,8 +235,8 @@ export function useWorkspaceGraph() {
         status: "ACCEPTED",
         version: 1,
         createdBy: "human",
-        createdByUserId: demoUserId,
-        approvedByUserId: demoUserId,
+        createdByUserId: demo.userId,
+        approvedByUserId: demo.userId,
         approvedAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -252,6 +246,7 @@ export function useWorkspaceGraph() {
   };
 
   return {
+    demo,
     records,
     recordsById,
     outboundLinks,

@@ -1,3 +1,4 @@
+import type { ClientRole } from "#/types/caseDomain";
 import type { TypedCaseRecord } from "#/types/caseRecords";
 import {
   ATTENTION_SUBSTATUSES,
@@ -9,8 +10,6 @@ import {
   recordPartyLabel,
 } from "#/lib/caseRecordPresentation";
 import { TONES } from "#/lib/tones";
-
-import { clientRole } from "./helpers";
 
 export function StatusBadge({ status }: { status: RecordDisplayStatus }) {
   // Accepted is the authoritative default — it wears no badge. Its absence,
@@ -41,7 +40,13 @@ export function SubstatusBadge({ record }: { record: TypedCaseRecord }) {
   );
 }
 
-export function PartyBadge({ record }: { record: TypedCaseRecord }) {
+export function PartyBadge({
+  record,
+  clientRole,
+}: {
+  record: TypedCaseRecord;
+  clientRole: ClientRole;
+}) {
   if (!record.party) return null;
 
   return (

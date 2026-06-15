@@ -70,9 +70,9 @@ function RecordChip({
       title={
         cycleLocked
           ? "Already open in this path — following it again would loop"
-          : undefined
+          : record.title
       }
-      className={`group flex w-full min-w-0 items-center gap-2 rounded-lg border px-2.5 py-1.5 text-left text-sm transition-colors ${
+      className={`group flex w-full min-w-0 items-center gap-2 overflow-hidden rounded-lg border px-2.5 py-1.5 text-left text-sm transition-colors ${
         cycleLocked
           ? "border-black/15 bg-black/[0.03] opacity-70 cursor-not-allowed"
           : isCycle
@@ -86,11 +86,13 @@ function RecordChip({
       disabled={cycleLocked}
     >
       {/* Left tag: record type — tight radius, gray, reads as a category. */}
-      <span className="shrink-0 rounded border border-black/15 bg-black/[0.03] px-1.5 py-0.5 text-[0.65rem] uppercase tracking-wide text-black/50">
-        {RECORD_TYPE_LABELS[record.type]}
+      <span className="min-w-0 max-w-28 shrink rounded border border-black/15 bg-black/[0.03] px-1.5 py-0.5 text-[0.65rem] uppercase tracking-wide text-black/50">
+        <span className="block truncate">
+          {RECORD_TYPE_LABELS[record.type]}
+        </span>
       </span>
       <span
-        className={`truncate ${
+        className={`min-w-0 flex-1 truncate ${
           cycleLocked ? "text-black/55" : "text-black/75 group-hover:text-black"
         }`}
       >
@@ -99,15 +101,17 @@ function RecordChip({
       {/* Right pill: lifecycle — full radius + color, matching StatusBadge.
           Accepted shows none; its absence is the "settled" signal. */}
       {isCycle ? (
-        <span className="ml-auto inline-flex shrink-0 items-center gap-1 rounded-full border border-black/15 bg-black/[0.04] px-2 py-0.5 text-xs text-black/55">
+        <span className="ml-auto inline-flex min-w-0 max-w-24 shrink items-center gap-1 rounded-full border border-black/15 bg-black/[0.04] px-2 py-0.5 text-xs text-black/55">
           <Repeat className="h-3 w-3" />
-          In path
+          <span className="truncate">In path</span>
         </span>
       ) : showPill ? (
         <span
-          className={`ml-auto shrink-0 rounded-full border px-2 py-0.5 text-xs ${RECORD_DISPLAY_STATUS_CLASSES[displayStatus]}`}
+          className={`ml-auto min-w-0 max-w-36 shrink rounded-full border px-2 py-0.5 text-xs ${RECORD_DISPLAY_STATUS_CLASSES[displayStatus]}`}
         >
-          {RECORD_DISPLAY_STATUS_LABELS[displayStatus]}
+          <span className="block truncate">
+            {RECORD_DISPLAY_STATUS_LABELS[displayStatus]}
+          </span>
         </span>
       ) : null}
       <ChevronRight

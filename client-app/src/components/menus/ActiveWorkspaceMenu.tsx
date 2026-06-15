@@ -100,7 +100,9 @@ const ActiveWorkspaceMenu = ({
               <div
                 key={view}
                 className={`p-2 h-8 rounded-lg flex items-center justify-between gap-2 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100 ${
-                  activeView === view ? "bg-black/14 font-medium" : "hover:bg-black/10"
+                  activeView === view
+                    ? "bg-black/14 font-medium"
+                    : "hover:bg-black/10"
                 }`}
                 onClick={() => onSelectView(view)}
               >
@@ -114,7 +116,7 @@ const ActiveWorkspaceMenu = ({
                     <CountBadge count={reviewCount} tone="blue" />
                   ) : (
                     <>
-                      <CountBadge count={count?.proposed ?? 0} tone="blue" />
+                      {/* <CountBadge count={count?.proposed ?? 0} tone="blue" /> */}
                       <CountBadge count={count?.accepted ?? 0} tone="gray" />
                     </>
                   )}

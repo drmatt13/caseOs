@@ -37,7 +37,7 @@ function GlobalSearchView({
         </button>
       </div>
 
-      <div className="grid gap-3">
+      <div className="grid grid-cols-1 gap-3">
         {records.length === 0 ? (
           <EmptyState message="No case records match this workspace search." />
         ) : (

@@ -12,7 +12,6 @@ import {
   RECORD_TYPE_LABELS,
   SUPPORT_STATUS_LABELS,
 } from "#/lib/caseRecordPresentation";
-import { demoDocuments } from "#/lib/caseWorkspaceDemo";
 
 import {
   documentScopeLabel,
@@ -173,7 +172,7 @@ function RecordInspectorBody({
   const displayStatus = recordDisplayStatus(record, graph);
   const sourceDocument =
     record.type === "DOCUMENT"
-      ? demoDocuments.find((document) => document.id === record.documentId)
+      ? graph.demo.documents.find((document) => document.id === record.documentId)
       : undefined;
   const siblingDocumentRecords =
     record.type === "DOCUMENT"
@@ -194,7 +193,10 @@ function RecordInspectorBody({
         </span>
         <StatusBadge status={displayStatus} />
         <SubstatusBadge record={record} />
-        <PartyBadge record={record} />
+        <PartyBadge
+          record={record}
+          clientRole={graph.demo.caseContext.representation.clientRole}
+        />
       </div>
 
       <h2 className="font-serif text-xl leading-snug">{record.title}</h2>

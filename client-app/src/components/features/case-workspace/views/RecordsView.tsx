@@ -38,7 +38,14 @@ function RecordsView({
     if (record.type !== recordType) return false;
     const status = graph.effectiveStatus(record);
     const matchesStatus = selectedStatuses.includes(status);
-    return matchesStatus && recordMatchesSearch(record, panelSearch);
+    return (
+      matchesStatus &&
+      recordMatchesSearch(
+        record,
+        panelSearch,
+        graph.demo.caseContext.representation.clientRole,
+      )
+    );
   });
 
   return (
@@ -71,7 +78,7 @@ function RecordsView({
         <CaseNoteComposer onCreateCaseNote={graph.createNote} />
       )}
 
-      <div className="grid gap-3">
+      <div className="grid grid-cols-1 gap-3">
         {filteredRecords.length === 0 ? (
           <EmptyState
             message={`No ${VIEW_LABELS[activeView].toLowerCase()} match the current filters.`}

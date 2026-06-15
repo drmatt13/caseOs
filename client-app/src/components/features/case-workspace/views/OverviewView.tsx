@@ -2,11 +2,6 @@ import { CircleAlert, ShieldCheck, Users } from "lucide-react";
 
 import { ATTENTION_SUBSTATUSES } from "#/lib/caseRecordPresentation";
 import type { WorkspaceViewType } from "#/types/caseWorkspace";
-import {
-  demoActivity,
-  demoCase,
-  demoCaseContext,
-} from "#/lib/caseWorkspaceDemo";
 
 import { Metric } from "../common";
 import RecordChip from "../RecordChip";
@@ -42,19 +37,19 @@ function OverviewView({
             <div>
               <h2 className="font-serif text-lg">Strategic Snapshot</h2>
               <p className="mt-1 text-sm text-black/70">
-                {demoCaseContext.currentPosture}
+                {graph.demo.caseContext.currentPosture}
               </p>
             </div>
             <ShieldCheck className="h-5 w-5 text-green-700" />
           </div>
           <p className="text-md leading-6 text-black/75">
-            {demoCaseContext.objectives.ours}
+            {graph.demo.caseContext.objectives.ours}
           </p>
           <div className="mt-4 grid gap-2 sm:grid-cols-3">
-            <Metric label="Case health" value={`${demoCase.health}%`} />
+            <Metric label="Case health" value={`${graph.demo.meta.health}%`} />
             <Metric
               label="Trial readiness"
-              value={`${demoCase.trialReadiness}%`}
+              value={`${graph.demo.meta.trialReadiness}%`}
             />
             <Metric
               label="Pending proposals"
@@ -70,7 +65,7 @@ function OverviewView({
               <h2 className="font-serif text-lg">Main Risk</h2>
             </div>
             <p className="mt-2 text-md leading-6 text-black/75">
-              {demoCaseContext.objectives.biggestCurrentRisk}
+              {graph.demo.caseContext.objectives.biggestCurrentRisk}
             </p>
           </div>
           <div className="rounded-xl border border-black/15 bg-black/[0.03] p-4">
@@ -79,7 +74,7 @@ function OverviewView({
               <h2 className="font-serif text-lg">Their Objective</h2>
             </div>
             <p className="mt-2 text-md leading-6 text-black/75">
-              {demoCaseContext.objectives.theirs}
+              {graph.demo.caseContext.objectives.theirs}
             </p>
           </div>
         </div>
@@ -132,7 +127,7 @@ function OverviewView({
         <div className="rounded-xl border border-black/15 bg-white/65 p-4">
           <h2 className="font-serif text-lg">Workspace Activity</h2>
           <div className="mt-3 flex flex-col gap-2">
-            {demoActivity.map((item) => (
+            {graph.demo.activity.map((item) => (
               <div
                 key={item.id}
                 className="rounded-lg border border-black/15 bg-white/75 p-3"

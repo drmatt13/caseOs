@@ -30,7 +30,7 @@ function PeopleView({
         </div>
         <Button style="secondary" text="Add person" icon="userPlus" />
       </div>
-      <div className="grid gap-3 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         {people.map((person) => {
           if (person.type !== "PERSON") return null;
           const involvedIn = (graph.inboundLinks.get(person.id) ?? []).filter(

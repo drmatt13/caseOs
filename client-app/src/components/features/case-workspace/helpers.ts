@@ -1,3 +1,4 @@
+import type { ClientRole } from "#/types/caseDomain";
 import type { CaseDocument, TypedCaseRecord } from "#/types/caseRecords";
 import {
   RECORD_DISPLAY_STATUS_LABELS,
@@ -7,11 +8,8 @@ import {
   type RecordDisplayStatus,
   recordPartyLabel,
 } from "#/lib/caseRecordPresentation";
-import { demoCaseContext } from "#/lib/caseWorkspaceDemo";
 
 import type { WorkspaceGraph } from "./useWorkspaceGraph";
-
-export const clientRole = demoCaseContext.representation.clientRole;
 
 export function formatDate(iso?: string) {
   if (!iso) return "—";
@@ -48,6 +46,7 @@ export function documentScopeLabel(
 export function recordMatchesSearch(
   record: TypedCaseRecord,
   searchValue: string,
+  clientRole: ClientRole,
 ) {
   const normalizedSearch = searchValue.trim().toLowerCase();
   if (normalizedSearch.length === 0) return true;
