@@ -43,8 +43,12 @@ function RecordChip({
   // plain blue "Proposed" link — without its counterpart the replacement
   // framing is just noise.
   pairedReplacement?: boolean;
-  // True inside ReplacementNotice ("This proposal would replace:") —
-  // the only context where "Pending Replacement" badge belongs on a link.
+  // Surfaces the amber "Pending Replacement" badge on a link, normally
+  // suppressed in general link lists. Two contexts opt in:
+  //   • ReplacementNotice ("This proposal would replace:"), and
+  //   • RecordLinksPanel, when a linked record is mid-replacement but no live
+  //     successor carries the current relationship forward — the badge warns
+  //     that this link won't survive the replacement.
   showPendingReplacement?: boolean;
   // Suppress the right-side status pill (e.g. version-history predecessors read
   // calmer without one). Does NOT suppress the "In path" cycle pill — a locked

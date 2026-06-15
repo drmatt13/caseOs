@@ -126,15 +126,48 @@ function RecordLinksPanel({
         <div className="flex flex-col gap-1.5">
           {entries.map(({ record: target, link }) => {
             // If this link's target is mid-replacement, show the proposal that
-            // would replace it inline — both coexist until the replacement is
-            // accepted, at which point the target retires and drops out.
-            const replacements = graph.pendingReplacementByTargetId.get(
-              target.id,
+            // would replace it inline — but only the proposal(s) that carry THIS
+            // relationship forward to the record being viewed. A target's split
+            // can fan out to several successors, each inheriting a different
+            // slice of its links; surfacing a successor here that never links
+            // back to `record` would imply a relationship it doesn't have.
+            const replacements =
+              graph.pendingReplacementByTargetId.get(target.id) ?? [];
+            // Never list the record we're viewing beneath itself (it may itself
+            // be one of the target's proposed replacements).
+            const otherReplacements = replacements.filter(
+              (replacement) => replacement.id !== record.id,
             );
-            const visibleReplacements =
-              replacements?.filter(
-                (replacement) => replacement.id !== record.id,
-              ) ?? [];
+
+            // `target` sits on one side of `link`; mirror that orientation when
+            // checking for a replacement's proposed link back to `record`.
+            // Inbound group (target is `from`): the carry-forward link is
+            // replacement → record. Outbound group (target is `to`): it's
+            // record → replacement.
+            const targetIsFrom = link.fromRecordId === target.id;
+            const carriesLinkToRecord = (replacement: TypedCaseRecord) =>
+              (targetIsFrom
+                ? graph.inboundLinks.get(record.id)
+                : graph.outboundLinks.get(record.id)
+              )?.some((candidate) => {
+                const replacementEndpoint = targetIsFrom
+                  ? candidate.fromRecordId
+                  : candidate.toRecordId;
+                return (
+                  replacementEndpoint === replacement.id &&
+                  graph.effectiveLinkStatus(candidate) === "PROPOSED"
+                );
+              }) ?? false;
+
+            const visibleReplacements = otherReplacements.filter(
+              carriesLinkToRecord,
+            );
+            // The target is pending replacement, but no live successor carries
+            // this relationship forward — so `record`'s link to it won't survive
+            // the replacement. Flag that on the target's chip (amber "Pending
+            // Replacement") instead of listing successors that don't apply here.
+            const orphanedPendingReplacement =
+              otherReplacements.length > 0 && visibleReplacements.length === 0;
             return (
               <div key={link.id} className="min-w-0">
                 <RecordChip
@@ -142,6 +175,7 @@ function RecordLinksPanel({
                   graph={graph}
                   onOpenRecord={onOpenRecord}
                   isCycle={visitedIds?.has(target.id)}
+                  showPendingReplacement={orphanedPendingReplacement}
                 />
                 {(recordIsProposed || recordIsReplaced) && link.explanation && (
                   <p className="mt-0.5 pl-1 text-xs text-black/55">
