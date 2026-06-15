@@ -20,9 +20,9 @@ export type { CaseIntake, CaseIntakeDocument } from "./caseIntake";
 
 export type WorkspaceViewType =
   // Workspace-level views
-  | "agent"      // case agent chat
-  | "overview"   // case summary + activity
-  | "review"     // proposed records awaiting user approval
+  | "agent" // case agent chat
+  | "overview" // case summary + activity
+  | "review" // proposed records awaiting user approval
   // Record-type views (each maps to one RecordType)
   | "objectives"
   | "claims"
@@ -79,13 +79,13 @@ export const RECORD_TYPE_VIEW: Record<RecordType, WorkspaceViewType> = {
 };
 
 // Sidebar grouping, ordered top-down to mirror RECORD_LEVEL flow:
-// strategy → analysis → grounding → sources.
+// Scenario → analysis → grounding → sources.
 export const WORKSPACE_MENU_GROUPS: Array<{
   label?: string;
   views: WorkspaceViewType[];
 }> = [
   { views: ["agent", "overview", "review"] },
-  { label: "Strategy", views: ["objectives", "claims", "posture"] },
+  { label: "Scenario", views: ["objectives", "claims", "posture"] },
   { label: "Analysis", views: ["theories", "issues", "arguments", "tasks"] },
   {
     label: "Grounding",

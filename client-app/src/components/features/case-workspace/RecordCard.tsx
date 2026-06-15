@@ -34,7 +34,7 @@ function RecordCard({
   // Replacement" (green badge, purple card); raw `status` still drives logic.
   const displayStatus = recordDisplayStatus(record, graph);
   const decision = graph.proposalDecisions[record.id];
-  const pendingProposal = graph.pendingReplacementByTargetId.get(record.id);
+  const pendingProposals = graph.pendingReplacementByTargetId.get(record.id);
 
   return (
     <article
@@ -94,9 +94,9 @@ function RecordCard({
               onOpenRecord={onOpenRecord}
             />
           )}
-          {pendingProposal && (
+          {pendingProposals && (
             <PendingReplacementNotice
-              proposal={pendingProposal}
+              proposals={pendingProposals}
               graph={graph}
               onOpenRecord={onOpenRecord}
             />

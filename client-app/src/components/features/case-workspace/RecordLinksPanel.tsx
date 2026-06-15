@@ -128,9 +128,13 @@ function RecordLinksPanel({
             // If this link's target is mid-replacement, show the proposal that
             // would replace it inline — both coexist until the replacement is
             // accepted, at which point the target retires and drops out.
-            const replacement = graph.pendingReplacementByTargetId.get(
+            const replacements = graph.pendingReplacementByTargetId.get(
               target.id,
             );
+            const visibleReplacements =
+              replacements?.filter(
+                (replacement) => replacement.id !== record.id,
+              ) ?? [];
             return (
               <div key={link.id} className="min-w-0">
                 <RecordChip
@@ -144,20 +148,24 @@ function RecordLinksPanel({
                     {link.explanation}
                   </p>
                 )}
-                {replacement && replacement.id !== record.id && (
+                {visibleReplacements.length > 0 && (
                   <div className="ml-3 mt-1 flex flex-col gap-1 border-l border-black/15 pl-3">
                     <span className="flex items-center gap-1 text-[0.7rem] uppercase tracking-wide text-black/40">
                       <CornerDownRight className="h-3 w-3" />
-                      Proposed Replacement Record
+                      Proposed Replacement{" "}
+                      {visibleReplacements.length > 1 ? "Records" : "Record"}
                     </span>
-                    <RecordChip
-                      record={replacement}
-                      graph={graph}
-                      onOpenRecord={onOpenRecord}
-                      isCycle={visitedIds?.has(replacement.id)}
-                      pairedReplacement
-                      // hideProposedReplacementPill
-                    />
+                    {visibleReplacements.map((replacement) => (
+                      <RecordChip
+                        key={replacement.id}
+                        record={replacement}
+                        graph={graph}
+                        onOpenRecord={onOpenRecord}
+                        isCycle={visitedIds?.has(replacement.id)}
+                        pairedReplacement
+                        // hideProposedReplacementPill
+                      />
+                    ))}
                   </div>
                 )}
               </div>

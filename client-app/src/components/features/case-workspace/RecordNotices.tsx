@@ -50,16 +50,18 @@ export function ReplacementNotice({
 }
 
 export function PendingReplacementNotice({
-  proposal,
+  proposals,
   graph,
   onOpenRecord,
   visitedIds,
 }: {
-  proposal: TypedCaseRecord;
+  proposals: TypedCaseRecord[];
   graph: WorkspaceGraph;
   onOpenRecord: (recordId: string) => void;
   visitedIds?: Set<string>;
 }) {
+  if (proposals.length === 0) return null;
+
   // The record this sits on is itself amber (pending replacement). The lock is
   // the blocking constraint, so the container reads red; the replacement chip
   // stays visually quieter because the surrounding copy already frames it.
@@ -67,20 +69,30 @@ export function PendingReplacementNotice({
     <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-900">
       <div className="flex items-center gap-1.5 font-medium">
         <Lock className="h-3.5 w-3.5" />
-        <span>Record locked while a replacement proposal is pending</span>
+        <span>
+          Record locked while{" "}
+          {proposals.length > 1
+            ? "replacement proposals are pending"
+            : "a replacement proposal is pending"}
+        </span>
       </div>
-      <div className="mt-2">
-        <RecordChip
-          record={proposal}
-          graph={graph}
-          onOpenRecord={onOpenRecord}
-          isCycle={visitedIds?.has(proposal.id)}
-          pairedReplacement
-          hideProposedReplacementPill
-        />
+      <div className="mt-2 flex flex-col gap-1.5">
+        {proposals.map((proposal) => (
+          <RecordChip
+            key={proposal.id}
+            record={proposal}
+            graph={graph}
+            onOpenRecord={onOpenRecord}
+            isCycle={visitedIds?.has(proposal.id)}
+            pairedReplacement
+            hideProposedReplacementPill
+          />
+        ))}
       </div>
       <p className="mt-2 leading-5 text-red-900/80">
-        Review the proposal before editing, deleting, or rewriting this record.
+        Review{" "}
+        {proposals.length > 1 ? "the proposals" : "the proposal"} before
+        editing, deleting, or rewriting this record.
       </p>
     </div>
   );

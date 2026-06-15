@@ -74,8 +74,10 @@ export function useWorkspaceGraph(demo: CaseDemo) {
   }, [deletedRecordIds, demo.links]);
 
   // Proposed records that replace another record, keyed by the target id.
+  // Many-valued: one accepted record can be split into several proposed
+  // successors, and the pending lock should show each live proposal.
   const pendingReplacementByTargetId = useMemo(() => {
-    const map = new Map<string, TypedCaseRecord>();
+    const map = new Map<string, TypedCaseRecord[]>();
     for (const record of records) {
       if (
         record.status === "PROPOSED" &&
@@ -83,7 +85,7 @@ export function useWorkspaceGraph(demo: CaseDemo) {
         record.replacesIds
       ) {
         for (const targetId of record.replacesIds) {
-          map.set(targetId, record);
+          map.set(targetId, [...(map.get(targetId) ?? []), record]);
         }
       }
     }

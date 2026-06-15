@@ -189,7 +189,7 @@ function RecordInspectorBody({
             candidate.id !== record.id,
         )
       : [];
-  const pendingProposal = graph.pendingReplacementByTargetId.get(record.id);
+  const pendingProposals = graph.pendingReplacementByTargetId.get(record.id);
 
   return (
     <div className="flex-1 overflow-y-auto p-4">
@@ -311,10 +311,10 @@ function RecordInspectorBody({
         </div>
       )}
 
-      {pendingProposal && (
+      {pendingProposals && (
         <div className="mt-4">
           <PendingReplacementNotice
-            proposal={pendingProposal}
+            proposals={pendingProposals}
             graph={graph}
             onOpenRecord={onOpenRecord}
             visitedIds={visitedIds}
