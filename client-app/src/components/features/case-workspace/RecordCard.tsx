@@ -2,10 +2,7 @@ import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
 import type { TypedCaseRecord } from "#/types/caseRecords";
-import {
-  RECORD_DISPLAY_STATUS_CARD_CLASSES,
-  RECORD_PARTY_ACCENT_CLASSES,
-} from "#/lib/caseRecordPresentation";
+import { RECORD_DISPLAY_STATUS_CARD_CLASSES } from "#/lib/caseRecordPresentation";
 
 import { recordDisplayStatus } from "./helpers";
 import { StatePill } from "./RecordBadges";
@@ -41,7 +38,7 @@ function RecordCard({
 
   return (
     <article
-      className={`rounded-xl border shadow-sm ${RECORD_DISPLAY_STATUS_CARD_CLASSES[displayStatus]} ${RECORD_PARTY_ACCENT_CLASSES[record.party ?? "neutral"]}`}
+      className={`rounded-xl border shadow-sm ${RECORD_DISPLAY_STATUS_CARD_CLASSES[displayStatus]}`}
     >
       <div
         role="button"
@@ -62,8 +59,8 @@ function RecordCard({
         )}
         <div className="min-w-0">
           {/* One resolved state pill (cascade) carries the record's standing;
-              category is a quiet kicker; party reads from the left-edge accent.
-              The full decomposition lives in the inspector. */}
+              category is a quiet kicker. The full decomposition lives in the
+              inspector. */}
           {record.category && (
             <p className="mb-1 text-[0.65rem] uppercase tracking-wide text-black/40">
               {record.category}
