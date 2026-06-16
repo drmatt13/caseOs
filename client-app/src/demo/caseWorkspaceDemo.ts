@@ -882,8 +882,8 @@ export const demoRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "task-002",
     type: "TASK",
-    status: "PROPOSED",
-    substatus: "BLOCKED",
+    status: "ACCEPTED",
+    substatus: "IN_PROGRESS",
     priority: "high",
     category: "Discovery",
     title: "Prepare discovery-prejudice demonstrative",
@@ -1726,6 +1726,7 @@ type LinkSpec = [
   toId: string,
   status: LinkStatus,
   explanation: string,
+  rejectionReason?: string,
 ];
 
 // Links are authored in their CANONICAL direction (fromRecord → type →
@@ -1869,8 +1870,8 @@ const linkSpecs: LinkSpec[] = [
   // Tasks
   ["task-001", "REQUIRES", "theory-001", "ACCEPTED", "Trial-prep task can't proceed until the habitability theory is locked."],
   ["task-001", "REQUIRES", "claim-002", "ACCEPTED", "Task organizes the proof for the habitability counterclaim."],
-  ["task-002", "DEPENDS_ON", "issue-002", "PROPOSED", "Discovery task is scoped by the discovery-gaps issue."],
-  ["task-002", "DEPENDS_ON", "fact-005", "PROPOSED", "Task targets the specific records shown to be missing."],
+  ["task-002", "REQUIRES", "issue-002", "PROPOSED", "Discovery task can't proceed until the discovery-gaps issue is accepted."],
+  ["task-002", "REQUIRES", "fact-005", "PROPOSED", "Task requires the missing-records fact to be confirmed before it can proceed."],
   ["task-006", "REQUIRES", "timeline-007", "ACCEPTED", "Task needs the RAFT approval date resolved before it can proceed."],
   ["task-006", "REQUIRES", "timeline-011", "ACCEPTED", "Task depends on the agreed-deadline event for its timeline."],
 
@@ -1977,7 +1978,7 @@ const linkSpecs: LinkSpec[] = [
 ];
 
 export const demoLinks: GraphLink[] = linkSpecs.map(
-  ([fromId, type, toId, status, explanation], index) => {
+  ([fromId, type, toId, status, explanation, rejectionReason], index) => {
     const fromRecordType = recordTypeById.get(fromId);
     const toRecordType = recordTypeById.get(toId);
 
@@ -2003,6 +2004,9 @@ export const demoLinks: GraphLink[] = linkSpecs.map(
       type,
       status: normalizedStatus,
       explanation,
+      ...(normalizedStatus === "REJECTED" && rejectionReason
+        ? { rejectionReason }
+        : {}),
       createdBy: "agent",
       ...(normalizedStatus === "ACCEPTED"
         ? { approvedByUserId: demoUserId, approvedAt: "2026-05-15T16:00:00Z" }

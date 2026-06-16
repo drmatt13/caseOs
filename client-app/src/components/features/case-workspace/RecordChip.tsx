@@ -68,6 +68,11 @@ function RecordChip({
   linkDirection?: "outbound" | "inbound";
 }) {
   const effectiveStatus = graph.effectiveStatus(record);
+  // A rejected EDGE reads red regardless of the target record's own status —
+  // the link itself was abandoned. Its reason lives in the Info popover.
+  const linkIsRejected = link
+    ? graph.effectiveLinkStatus(link) === "REJECTED"
+    : false;
   let displayStatus = recordDisplayStatus(record, graph);
   if (displayStatus === "PROPOSED_REPLACEMENT" && !pairedReplacement) {
     displayStatus = "PROPOSED";
@@ -82,7 +87,9 @@ function RecordChip({
       : effectiveStatus === "PENDING_REPLACEMENT"
         ? "ACCEPTED"
         : effectiveStatus;
-  const chipStatusClass = RECORD_CHIP_STATUS_CLASSES[chipStatus];
+  const chipStatusClass = linkIsRejected
+    ? RECORD_CHIP_STATUS_CLASSES.REJECTED
+    : RECORD_CHIP_STATUS_CLASSES[chipStatus];
   // Accepted links wear no pill (their calm absence reads as "settled").
   // Pending-replacement links are also pill-free unless the caller can show the
   // visible replacement records in context. `hidePill` suppresses it outright.
@@ -90,11 +97,16 @@ function RecordChip({
   // status pill never competes with it.
   const showStatusPill =
     !isCycle &&
+    !linkIsRejected &&
     !hidePill &&
     !hideProposedReplacementStatus &&
     displayStatus !== "ACCEPTED" &&
     (displayStatus !== "PENDING_REPLACEMENT" || showPendingReplacement);
-  const showAnyPill = isCycle || showStatusPill;
+  // A rejected edge always wears a red "Link rejected" pill (unless it's a locked
+  // cycle, whose "In path" badge takes the slot) — distinct from a rejected
+  // record, which carries its own "Rejected" status pill.
+  const showLinkRejectedPill = linkIsRejected && !isCycle;
+  const showAnyPill = isCycle || showStatusPill || showLinkRejectedPill;
 
   const chipButton = (
     <button
@@ -136,6 +148,12 @@ function RecordChip({
         <span className="ml-auto inline-flex min-w-0 max-w-24 shrink items-center gap-1 rounded-full border border-black/15 bg-black/[0.04] px-2 py-0.5 text-xs text-black/55">
           <Repeat className="h-3 w-3" />
           <span className="truncate">In path</span>
+        </span>
+      ) : showLinkRejectedPill ? (
+        <span
+          className={`ml-auto min-w-0 max-w-36 shrink rounded-full border px-2 py-0.5 text-xs ${RECORD_DISPLAY_STATUS_CLASSES.REJECTED}`}
+        >
+          <span className="block truncate">Link rejected</span>
         </span>
       ) : showStatusPill ? (
         <span

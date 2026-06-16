@@ -4,6 +4,7 @@ import type {
   GraphLink,
   LinkStatus,
   RecordStatus,
+  TaskSubstatus,
   TypedCaseRecord,
 } from "#/types/caseRecords";
 import type { CaseDemo } from "#/demo/caseDemoTypes";
@@ -42,6 +43,10 @@ export function useWorkspaceGraph(demo: CaseDemo) {
   const [proposalDecisions, setProposalDecisions] = useState<
     Record<string, ProposalDecision>
   >({});
+  // Per-task work-phase overrides set from the quick status control.
+  const [taskSubstatusOverrides, setTaskSubstatusOverrides] = useState<
+    Record<string, TaskSubstatus>
+  >({});
   // Records whose replacement completed in this session (proposal accepted).
   const [replacedIds, setReplacedIds] = useState<string[]>([]);
   // Proposed records created in this session from an accepted record (revisions
@@ -53,10 +58,33 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     const baseRecords = [...addedRecords, ...localNotes, ...demo.records];
     return baseRecords
       .map((record) => editedRecords[record.id] ?? record)
-      .filter(
-        (record) => !deletedRecordIds.includes(record.id),
-      );
-  }, [addedRecords, localNotes, demo.records, editedRecords, deletedRecordIds]);
+      .filter((record) => !deletedRecordIds.includes(record.id))
+      // Fold session overrides onto the record itself so every consumer (lists,
+      // search, links, inspector) reads them uniformly off the record — no
+      // special-case map lookups downstream. The rejection reason is retained even
+      // once the record is replaced, so the "why" survives a regenerated fix.
+      .map((record) => {
+        const decision = proposalDecisions[record.id];
+        const rejectionReason =
+          decision?.status === "rejected" ? decision.reason : undefined;
+        const taskSubstatus =
+          record.type === "TASK" ? taskSubstatusOverrides[record.id] : undefined;
+        if (!rejectionReason && !taskSubstatus) return record;
+        return {
+          ...record,
+          ...(taskSubstatus ? { substatus: taskSubstatus } : {}),
+          ...(rejectionReason ? { rejectionReason } : {}),
+        } as TypedCaseRecord;
+      });
+  }, [
+    addedRecords,
+    localNotes,
+    demo.records,
+    editedRecords,
+    deletedRecordIds,
+    proposalDecisions,
+    taskSubstatusOverrides,
+  ]);
 
   const recordsById = useMemo(
     () => new Map(records.map((record) => [record.id, record])),
@@ -143,10 +171,13 @@ export function useWorkspaceGraph(demo: CaseDemo) {
   }, [records, recordsById, proposalDecisions]);
 
   const effectiveStatus = (record: TypedCaseRecord): RecordStatus => {
+    // REPLACED wins over a rejection decision: regenerating a frozen record into
+    // an accepted successor retires it to REPLACED, even though its rejection
+    // decision (and `rejectionReason`) is intentionally left in place.
+    if (replacedIds.includes(record.id)) return "REPLACED";
     const decision = proposalDecisions[record.id];
     if (decision)
       return decision.status === "accepted" ? "ACCEPTED" : "REJECTED";
-    if (replacedIds.includes(record.id)) return "REPLACED";
     // An accepted record reads as "Pending Replacement" only while a live
     // replacement proposal targets it; if that proposal is decided away, it
     // reverts to plain accepted.
@@ -282,12 +313,46 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     ]);
   };
 
+  // Freeze (retire) a record — proposals and live records alike. The reason is
+  // persisted onto the record (see the `records` memo) so it's auditable. Reuses
+  // the proposalDecisions map, which effectiveStatus already reads as REJECTED.
+  const rejectRecord = (recordId: string, reason: string) => {
+    const trimmed = reason.trim();
+    if (!trimmed) return;
+    setProposalDecisions((decisions) => ({
+      ...decisions,
+      [recordId]: { status: "rejected", reason: trimmed },
+    }));
+  };
+
+  // Restore a frozen record to its prior status (ACCEPTED for live records,
+  // PROPOSED for proposals) by clearing the decision.
+  const restoreRecord = (recordId: string) => {
+    setProposalDecisions((decisions) => {
+      const next = { ...decisions };
+      delete next[recordId];
+      return next;
+    });
+  };
+
+  const setTaskSubstatus = (recordId: string, substatus: TaskSubstatus) => {
+    setTaskSubstatusOverrides((overrides) => ({
+      ...overrides,
+      [recordId]: substatus,
+    }));
+  };
+
   const deleteRecord = (recordId: string) => {
     setDeletedRecordIds((ids) =>
       ids.includes(recordId) ? ids : [...ids, recordId],
     );
     setProposalDecisions((decisions) => {
       const next = { ...decisions };
+      delete next[recordId];
+      return next;
+    });
+    setTaskSubstatusOverrides((overrides) => {
+      const next = { ...overrides };
       delete next[recordId];
       return next;
     });
@@ -333,6 +398,9 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     proposedRecords,
     proposalDecisions,
     decideProposal,
+    rejectRecord,
+    restoreRecord,
+    setTaskSubstatus,
     requestAgentRevision,
     saveProposalDraft,
     deleteRecord,

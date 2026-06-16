@@ -72,9 +72,18 @@ export const RECORD_LEVEL: Record<RecordType, number> = {
 
 // Lifecycle of a single record:
 //   PROPOSED → ACCEPTED (user approves)
-//   PROPOSED → REJECTED (user rejects)
+//   PROPOSED → REJECTED (user declines the proposal)
+//   ACCEPTED → REJECTED (user freezes/retires a live record)
+//   REJECTED → ACCEPTED (user restores a frozen record)
 //   ACCEPTED → PENDING_REPLACEMENT (a proposed replacement exists)
 //   PENDING_REPLACEMENT → REPLACED (replacement approved; old record retired)
+//
+// REJECTED is "frozen": the record is reference-only and excluded from agent
+// reasoning, but it is never deleted — it can still be cited when proposing other
+// records, and it can be restored to ACCEPTED. Freezing requires a reason, stored
+// in `rejectionReason`. A frozen record can also be regenerated through the
+// proposal engine: accepting a "fix" proposal retires it REJECTED → REPLACED while
+// keeping `rejectionReason`, so the trail of why it was rejected survives.
 //
 // Replacement is many-to-many, not just 1:1 — see `replacesIds` /
 // `replacedByIds` on CaseRecord. One record can split into several (1→N) and
@@ -131,7 +140,10 @@ export type ClaimSubstatus =
 export type TheorySubstatus = "ADOPTED" | "EXPLORING" | "BACKUP" | "ABANDONED";
 export type IssueSubstatus = "OPEN" | "RESERVED" | "RESOLVED";
 export type ArgumentSubstatus = "DRAFT" | "TRIAL_READY";
-export type TaskSubstatus = "OPEN" | "IN_PROGRESS" | "BLOCKED" | "DONE";
+// Work phase only. "Blocked" is intentionally NOT here — an impediment is
+// orthogonal to phase and is derived (an unmet REQUIRES prerequisite) or set as
+// a separate manual block, never authored as a phase. See recordAttention.
+export type TaskSubstatus = "OPEN" | "IN_PROGRESS" | "DONE";
 export type TestimonySubstatus = "ANTICIPATED" | "PREPARED" | "GIVEN";
 // Precedent treatment — the authority's standing in current law. (Whether the
 // cite has been verified is the separate `citeChecked` flag on the record.)
@@ -223,6 +235,15 @@ export interface CaseRecord {
   createdByUserId?: string;
   approvedByUserId?: string;
   approvedAt?: string;
+
+  // Freeze / retire (status === "REJECTED"). The reason is required when a record
+  // is frozen so the decision is auditable; a frozen record is reference-only and
+  // excluded from agent reasoning until restored. The reason is retained even
+  // after a frozen record is regenerated into a successor (REJECTED → REPLACED),
+  // so the record of WHY it was rejected survives the fix.
+  rejectionReason?: string;
+  rejectedByUserId?: string;
+  rejectedAt?: string;
 
   createdAt: string;
   updatedAt: string;
@@ -445,6 +466,10 @@ export interface GraphLink {
   // the connective tissue agents traverse and the justification human operators
   // read in the record inspector — an unexplained edge is not allowed.
   explanation: string;
+  // Why this edge was rejected (status === "REJECTED"). A rejected link stays in
+  // the graph on purpose: the agent reads the reason and learns the path was
+  // abandoned WITHOUT having to traverse it. Absent on non-rejected links.
+  rejectionReason?: string;
 
   createdAt: string;
 }

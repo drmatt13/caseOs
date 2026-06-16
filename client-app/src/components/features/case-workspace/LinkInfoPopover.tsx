@@ -66,7 +66,11 @@ function LinkInfoPopover({
   direction: "outbound" | "inbound";
   graph: WorkspaceGraph;
 }) {
-  const tone = TONES[linkTone(link.type)];
+  // A rejected edge overrides the type-based valence: the whole popover reads
+  // critical (red), and the rejection reason is shown beneath the rationale so
+  // the agent learns why the path was abandoned without traversing it.
+  const isRejected = link.status === "REJECTED";
+  const tone = isRejected ? TONES.critical : TONES[linkTone(link.type)];
 
   const fromRecord = graph.recordsById.get(link.fromRecordId);
   const toRecord = graph.recordsById.get(link.toRecordId);
@@ -130,6 +134,14 @@ function LinkInfoPopover({
       <p className="border-t border-black/10 pt-2 text-sm leading-5 text-black/75">
         {link.explanation}
       </p>
+
+      {/* Why the edge was rejected — the reason the agent reads in lieu of
+          following it. Inked critical to match the red panel. */}
+      {isRejected && link.rejectionReason && (
+        <p className={`border-t border-black/10 pt-2 text-sm leading-5 ${tone.ink}`}>
+          <span className="font-medium">Rejected:</span> {link.rejectionReason}
+        </p>
+      )}
     </Popover>
   );
 }

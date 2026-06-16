@@ -3,30 +3,38 @@ import {
   CheckCircle2,
   GitBranch,
   PencilLine,
+  RotateCcw,
   Settings,
   Sparkles,
+  Snowflake,
   Trash2,
+  Wrench,
   XCircle,
 } from "lucide-react";
 
-import type { TypedCaseRecord } from "#/types/caseRecords";
-import { SINGULAR_VIEW_LABELS } from "#/lib/caseRecordPresentation";
+import type { TaskSubstatus, TypedCaseRecord } from "#/types/caseRecords";
+import {
+  RECORD_SUBSTATUS_LABELS,
+  SINGULAR_VIEW_LABELS,
+} from "#/lib/caseRecordPresentation";
 import { RECORD_TYPE_VIEW } from "#/types/caseWorkspace";
 import { TONES } from "#/lib/tones";
 import Button from "#/components/ui/Button";
 import TextAreaField from "#/components/ui/TextAreaField";
 
-import type { ProposalDecision } from "./useWorkspaceGraph";
+import type { ProposalDecision, WorkspaceGraph } from "./useWorkspaceGraph";
 
 export function ProposalActions({
   record,
   onDelete,
   onDecision,
+  onReject,
   onEditManually,
 }: {
   record: TypedCaseRecord;
   onDelete: (recordId: string) => void;
   onDecision: (recordId: string, decision: ProposalDecision) => void;
+  onReject: (recordId: string, reason: string) => void;
   onEditManually: (recordId: string) => void;
 }) {
   const [rejecting, setRejecting] = useState(false);
@@ -49,13 +57,13 @@ export function ProposalActions({
           text="Accept proposal"
           onClick={() => onDecision(record.id, { status: "accepted" })}
         />
-        {/* <Button
+        <Button
           style="danger"
           size="sm"
           icon={XCircle}
           text="Reject proposal"
           onClick={() => setRejecting((value) => !value)}
-        /> */}
+        />
         <Button
           style="secondary"
           size="sm"
@@ -97,12 +105,7 @@ export function ProposalActions({
               size="sm"
               text="Save rejection"
               disabled={!rejectionReason.trim()}
-              onClick={() =>
-                onDecision(record.id, {
-                  status: "rejected",
-                  reason: rejectionReason.trim(),
-                })
-              }
+              onClick={() => onReject(record.id, rejectionReason.trim())}
             />
           </div>
         </div>
@@ -146,47 +149,68 @@ export function ProposalActions({
   );
 }
 
-// Action surface for accepted (authoritative) records: propose a revision. An
-// accepted record can't be edited in place — and crucially it isn't hand-edited
-// either. Instead the human describes WHAT should change and the agent drafts a
-// new PROPOSED record that would replace this one, routed through the normal
-// review queue. Submitting flips this record to "Pending Replacement", so the
-// surface swaps to the replacement notice on its own — that transition is the
-// confirmation. The drafted proposal can then be refined via manual edit.
+// Action surface for accepted (authoritative) records. An accepted record can't
+// be edited in place: the human either has the agent draft a replacement
+// ("Propose revision") or freezes it out of reasoning ("Reject record"). One
+// consistent toolbar, one inline panel at a time.
+type ActiveAction = "revision" | "reject";
+
 export function AcceptedRecordActions({
   record,
   onRequestRevision,
+  onReject,
 }: {
   record: TypedCaseRecord;
   onRequestRevision: (recordId: string, instruction: string) => void;
+  onReject: (recordId: string, reason: string) => void;
 }) {
-  const [open, setOpen] = useState(false);
+  // One action surface, one open panel at a time. `active` names which inline
+  // panel is expanded; `instruction` backs the revision panel and `reason` the
+  // reject form.
+  const [active, setActive] = useState<ActiveAction | null>(null);
   const [instruction, setInstruction] = useState("");
+  const [reason, setReason] = useState("");
+
+  const toggle = (next: ActiveAction) => {
+    setInstruction("");
+    setReason("");
+    setActive((current) => (current === next ? null : next));
+  };
 
   return (
     <div
-      className="mt-3 rounded-lg border border-black/15 bg-white/75 p-3"
+      className="mt-4 rounded-lg border border-black/15 bg-white/75 p-3"
       onClick={(event) => event.stopPropagation()}
     >
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-1.5 text-sm text-black/65">
-          <GitBranch className="h-4 w-4" />
-          <span>Propose a revision</span>
-        </div>
+      <p className="mb-2 text-xs text-black/65">Manage record</p>
+
+      {/* One consistent toolbar: the constructive action on the left, the
+          destructive retire action on the right. Each button toggles a single
+          inline panel below — no competing idioms; the open panel is itself the
+          active-state indicator. */}
+      <div className="flex flex-wrap items-center gap-2">
         <Button
           style="secondary"
           size="sm"
-          icon={open ? undefined : Sparkles}
-          text={open ? "Cancel" : "Propose revision"}
-          onClick={() => {
-            setInstruction("");
-            setOpen((value) => !value);
-          }}
+          icon={GitBranch}
+          text={active === "revision" ? "Cancel" : "Propose revision"}
+          title="Have the agent draft a replacement proposal"
+          onClick={() => toggle("revision")}
         />
+        <div className="ml-auto flex items-center gap-2">
+          <Button
+            style="danger"
+            size="sm"
+            icon={Snowflake}
+            text={active === "reject" ? "Cancel" : "Reject record"}
+            title="Freeze this record out of agent reasoning (kept as reference)"
+            onClick={() => toggle("reject")}
+          />
+        </div>
       </div>
 
-      {open && (
-        <div className="mt-3">
+      {active === "revision" && (
+        <div className="mt-3 rounded-lg border border-black/15 bg-black/2.5 p-3">
           <TextAreaField
             label="What should the agent change?"
             placeholder="Describe the revision — what to add, soften, cite, split, or rewrite. The agent drafts a proposed revision for your review."
@@ -207,6 +231,104 @@ export function AcceptedRecordActions({
               disabled={!instruction.trim()}
               onClick={() => {
                 onRequestRevision(record.id, instruction.trim());
+                setActive(null);
+                setInstruction("");
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {active === "reject" && (
+        <div className={`mt-3 rounded-lg border p-3 ${TONES.critical.surface}`}>
+          <TextAreaField
+            label="Reason for freezing this record"
+            placeholder="Example: superseded by the settlement; this theory is no longer being pursued."
+            value={reason}
+            onChange={(event) => setReason(event.target.value)}
+            rows={3}
+            minRows={3}
+          />
+          <div className="mt-2 flex justify-end">
+            <Button
+              style="danger"
+              size="sm"
+              text="Freeze record"
+              disabled={!reason.trim()}
+              onClick={() => {
+                onReject(record.id, reason.trim());
+                setActive(null);
+                setReason("");
+              }}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Action surface for a frozen (REJECTED) record: regenerate it through the
+// proposal engine. The human describes how to fix the rejected record and the
+// agent drafts a PROPOSED replacement; accepting it retires the original
+// REJECTED → REPLACED while keeping its rejection reason. (Restore lives on the
+// FrozenNote above.)
+export function RejectedRecordActions({
+  record,
+  onRequestRevision,
+}: {
+  record: TypedCaseRecord;
+  onRequestRevision: (recordId: string, instruction: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [instruction, setInstruction] = useState("");
+
+  return (
+    <div
+      className="mt-4 rounded-lg border border-black/15 bg-white/75 p-3"
+      onClick={(event) => event.stopPropagation()}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-1.5 text-sm text-black/65">
+          <Wrench className="h-4 w-4" />
+          <span>Regenerate this record</span>
+        </div>
+        <Button
+          style="secondary"
+          size="sm"
+          icon={open ? undefined : Sparkles}
+          text={open ? "Cancel" : "Propose a fix"}
+          title="Have the agent draft a replacement that addresses the rejection"
+          onClick={() => {
+            setInstruction("");
+            setOpen((value) => !value);
+          }}
+        />
+      </div>
+
+      {open && (
+        <div className="mt-3">
+          <TextAreaField
+            label="How should the agent fix it?"
+            placeholder="Describe what to change so this record can stand — address the rejection reason. The agent drafts a proposed replacement for your review."
+            value={instruction}
+            onChange={(event) => setInstruction(event.target.value)}
+            rows={3}
+            minRows={3}
+          />
+          <div className="mt-2 flex items-center justify-between gap-3">
+            <span className="text-xs text-black/55">
+              Accepting the fix retires this record (Rejected → Replaced) but
+              keeps its rejection reason.
+            </span>
+            <Button
+              style="primary"
+              size="sm"
+              icon="sparkles"
+              text="Draft fix"
+              disabled={!instruction.trim()}
+              onClick={() => {
+                onRequestRevision(record.id, instruction.trim());
                 setOpen(false);
                 setInstruction("");
               }}
@@ -217,6 +339,139 @@ export function AcceptedRecordActions({
     </div>
   );
 }
+
+// Segmented work-phase control for a live task. Changing a task's phase is a
+// graph operation, not an arbitrary flag — marking a task DONE can unblock the
+// records that REQUIRE it, and re-opening one can re-block them. So the control
+// is a deliberate two-step: pick a new phase (it stages), then confirm. The
+// confirmation surfaces how many live dependents the change will re-evaluate.
+const TASK_PHASES: TaskSubstatus[] = ["OPEN", "IN_PROGRESS", "DONE"];
+
+// Count of live (ACCEPTED) records that REQUIRE this task — the dependents whose
+// standing the change re-evaluates.
+function liveDependentCount(
+  record: TypedCaseRecord,
+  graph: WorkspaceGraph,
+): number {
+  const dependents = new Set<string>();
+  for (const link of graph.inboundLinks.get(record.id) ?? []) {
+    if (link.type !== "REQUIRES") continue;
+    const from = graph.recordsById.get(link.fromRecordId);
+    if (from && graph.effectiveStatus(from) === "ACCEPTED") {
+      dependents.add(link.fromRecordId);
+    }
+  }
+  return dependents.size;
+}
+
+function statusImpactLine(dependentCount: number): string {
+  if (dependentCount === 0) return "Updates the task's status.";
+  const noun = dependentCount === 1 ? "record" : "records";
+  return `${dependentCount} ${noun} depend on this task and will be re-evaluated.`;
+}
+
+export function TaskStatusControl({
+  record,
+  graph,
+  onChange,
+}: {
+  record: Extract<TypedCaseRecord, { type: "TASK" }>;
+  graph: WorkspaceGraph;
+  onChange: (recordId: string, substatus: TaskSubstatus) => void;
+}) {
+  const [staged, setStaged] = useState<TaskSubstatus | null>(null);
+
+  return (
+    <div
+      className="mt-3 rounded-lg border border-black/15 bg-white/75 p-2"
+      onClick={(event) => event.stopPropagation()}
+    >
+      <div className="flex items-center gap-2">
+        <span className="px-1 text-sm text-black/65">Status</span>
+        <div className="flex flex-1 gap-1">
+          {TASK_PHASES.map((phase) => {
+            const isCurrent = record.substatus === phase;
+            const isStaged = staged === phase;
+            const className = isStaged
+              ? "ring-2 ring-inset ring-[#282828] bg-white text-[#282828]"
+              : isCurrent
+                ? "bg-[#282828] text-white"
+                : "bg-black/5 text-black/70 hover:bg-black/10";
+            return (
+              <button
+                key={phase}
+                type="button"
+                aria-pressed={isCurrent}
+                className={`flex-1 rounded-md px-2 py-1.5 text-sm transition-colors ${className}`}
+                onClick={() =>
+                  setStaged(record.substatus === phase ? null : phase)
+                }
+              >
+                {RECORD_SUBSTATUS_LABELS[phase]}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {staged && (
+        <div className="mt-2 flex items-center justify-between gap-3 border-t border-black/10 px-1 pt-2">
+          <span className="text-xs text-black/55">
+            {statusImpactLine(liveDependentCount(record, graph))}
+          </span>
+          <div className="flex items-center gap-2">
+            <Button
+              style="ghost"
+              size="sm"
+              text="Cancel"
+              onClick={() => setStaged(null)}
+            />
+            <Button
+              style="primary"
+              size="sm"
+              text={`Mark ${RECORD_SUBSTATUS_LABELS[staged]}`}
+              onClick={() => {
+                onChange(record.id, staged);
+                setStaged(null);
+              }}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Notice shown on a frozen (REJECTED) record: why it was frozen, plus Restore.
+export function FrozenNote({
+  reason,
+  onRestore,
+}: {
+  reason?: string;
+  onRestore: () => void;
+}) {
+  return (
+    <div
+      className={`mt-4 rounded-lg border px-3 py-2 text-sm ${TONES.critical.surface} text-red-800`}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <p className="flex items-center gap-1.5 font-medium">
+          <Snowflake className="h-4 w-4" />
+          Frozen · excluded from agent reasoning
+        </p>
+        <Button
+          style="secondary"
+          size="sm"
+          icon={RotateCcw}
+          text="Restore"
+          onClick={onRestore}
+        />
+      </div>
+      {reason && <p className="mt-1 leading-5">Reason: {reason}</p>}
+    </div>
+  );
+}
+
 
 export function ProposalDecisionNote({
   decision,

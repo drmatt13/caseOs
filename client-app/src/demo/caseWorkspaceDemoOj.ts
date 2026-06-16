@@ -982,8 +982,8 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "task-002",
     type: "TASK",
-    status: "PROPOSED",
-    substatus: "BLOCKED",
+    status: "ACCEPTED",
+    substatus: "IN_PROGRESS",
     priority: "medium",
     category: "Demonstrative",
     title: "Prepare a glove-demonstration risk memo",
@@ -1380,6 +1380,8 @@ const ojRecords: TypedCaseRecord[] = [
       "Rejected: asserts an affirmative alternative the evidence cannot support.",
     content:
       "A proposed fact asserting that an unidentified third party committed the murders. Rejected because it commits the defense to proving an alternative narrative, contrary to objective-001's reasonable-doubt strategy, and is unsupported by the record.",
+    rejectionReason:
+      "Commits the defense to affirmatively proving an alternative narrative — contrary to objective-001's reasonable-doubt strategy — and is unsupported by the record. Kept as reference so the agent doesn't re-propose it.",
   },
 
   // ── Timeline events (level 3) ─────────────────────────────────────────────
@@ -2150,6 +2152,7 @@ type LinkSpec = [
   toId: string,
   status: LinkStatus,
   explanation: string,
+  rejectionReason?: string,
 ];
 
 const linkSpecs: LinkSpec[] = [
@@ -2232,8 +2235,8 @@ const linkSpecs: LinkSpec[] = [
   // Tasks
   ["task-001", "REQUIRES", "fact-coc-integrity", "ACCEPTED", "Chain-of-custody prep can't finish until the custody-integrity fact is settled."],
   ["task-001", "REQUIRES", "fact-edta-vial", "ACCEPTED", "Task depends on confirming the EDTA-vial fact."],
-  ["task-002", "DEPENDS_ON", "issue-003", "PROPOSED", "Task is scoped by the glove-demonstration issue."],
-  ["task-002", "DEPENDS_ON", "arg-glove-demo", "PROPOSED", "Task supports preparing the glove-demonstration argument."],
+  ["task-002", "REQUIRES", "issue-003", "PROPOSED", "Memo can't proceed until the glove-demonstration issue (whether to take the risk) is decided."],
+  ["task-002", "SUPPORTS", "arg-glove-demo", "PROPOSED", "Task supports preparing the glove-demonstration argument."],
   ["task-coc", "SUPPORTS", "theory-fuhrman", "ACCEPTED", "Custody-audit task reinforces the Fuhrman-bias theory."],
   ["task-coc", "INVOLVES", "person-fuhrman", "ACCEPTED", "Task examines evidence Fuhrman handled."],
 
@@ -2345,10 +2348,30 @@ const linkSpecs: LinkSpec[] = [
     "ACCEPTED",
     "Contamination theory was narrowed from the earlier broad-investigation theory.",
   ],
+
+  // Rejection as a graph signal. The rejected alternative-suspect fact stays
+  // linked so it surfaces (red) on the objective it conflicts with — the agent
+  // reads why it was abandoned without re-proposing it. And one rejected EDGE
+  // between two live records: the link, not the records, was the bad idea.
+  [
+    "fact-alt-suspect-rejected",
+    "CONTRADICTS",
+    "objective-001",
+    "ACCEPTED",
+    "The alternative-suspect fact, if pursued, would cut against the reasonable-doubt objective.",
+  ],
+  [
+    "fact-edta-vial",
+    "SUPPORTS",
+    "objective-001",
+    "REJECTED",
+    "Proposed that the EDTA-vial fact directly supports the acquittal objective.",
+    "Too attenuated as a direct edge: the EDTA point supports the contamination theory, which in turn serves the objective. Linking it straight to the objective overstates its reach — keep the support routed through the theory.",
+  ],
 ];
 
 const ojLinks: GraphLink[] = linkSpecs.map(
-  ([fromId, type, toId, status, explanation], index) => {
+  ([fromId, type, toId, status, explanation, rejectionReason], index) => {
     const fromRecordType = recordTypeById.get(fromId);
     const toRecordType = recordTypeById.get(toId);
 
@@ -2373,6 +2396,9 @@ const ojLinks: GraphLink[] = linkSpecs.map(
       type,
       status: normalizedStatus,
       explanation,
+      ...(normalizedStatus === "REJECTED" && rejectionReason
+        ? { rejectionReason }
+        : {}),
       createdBy: "agent",
       ...(normalizedStatus === "ACCEPTED"
         ? { approvedByUserId: demoUserId, approvedAt: "2026-06-12T16:00:00Z" }

@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { CornerDownRight, Link2 } from "lucide-react";
+import { Link2 } from "lucide-react";
 
 import type { GraphLink, TypedCaseRecord } from "#/types/caseRecords";
 import {
@@ -61,7 +61,18 @@ function RecordLinksPanel({
     return !other || graph.effectiveStatus(other) !== "REPLACED";
   };
 
+  // A rejection is information the agent can read without traversing: surface
+  // both rejected edges and edges to rejected records in every view, so a
+  // rejected path (and its reason) is never hidden. The red chip / red popover
+  // make their status unmistakable.
+  const rejectionInformative = (link: GraphLink) => {
+    if (graph.effectiveLinkStatus(link) === "REJECTED") return true;
+    const other = graph.recordsById.get(otherEndpointId(link));
+    return Boolean(other && graph.effectiveStatus(other) === "REJECTED");
+  };
+
   const visibleLink = (link: GraphLink) => {
+    if (rejectionInformative(link)) return true;
     if (recordIsReplaced) return true;
     if (recordIsProposed || recordIsPendingReplacement) {
       return proposedLinkVisible(link);

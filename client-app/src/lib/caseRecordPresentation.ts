@@ -133,7 +133,6 @@ export const RECORD_SUBSTATUS_LABELS: Record<RecordSubstatus, string> = {
   RESERVED: "Reserved",
   RESOLVED: "Resolved",
   IN_PROGRESS: "In progress",
-  BLOCKED: "Blocked",
   DONE: "Done",
   // Argument
   DRAFT: "Draft",
@@ -151,7 +150,7 @@ export const RECORD_SUBSTATUS_LABELS: Record<RecordSubstatus, string> = {
 };
 
 // Phase badge tone. Most phases are neutral; a few terminal "good" states read
-// positive. Attention-worthy phases (AT_RISK, BLOCKED, QUESTIONED, OVERRULED,
+// positive. Attention-worthy phases (AT_RISK, QUESTIONED, OVERRULED,
 // OPEN_QUESTION) read caution — though in dense views those are surfaced by the
 // derived attention pill (see recordAttention) rather than the phase pill.
 const POSITIVE_PHASES: RecordSubstatus[] = [
@@ -165,7 +164,6 @@ const POSITIVE_PHASES: RecordSubstatus[] = [
 ];
 const CAUTION_PHASES: RecordSubstatus[] = [
   "AT_RISK",
-  "BLOCKED",
   "QUESTIONED",
   "OVERRULED",
   "OPEN_QUESTION",

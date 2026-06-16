@@ -181,9 +181,9 @@ function isStale(record: TypedCaseRecord): boolean {
 }
 
 // Whether a record needs human action, DERIVED from the structured axes rather
-// than a hand-set flag: weak/conflicting evidence, a blocking/at-risk phase, bad
-// law, an unverified citation, or staleness. Returns a short reason label (used
-// directly as the attention pill text) or null. This is the reasoning-friendly
+// than a hand-set flag: weak/conflicting evidence, an at-risk phase, bad law, an
+// unverified citation, or staleness. Returns a short reason label (used directly
+// as the attention pill text) or null. This is the reasoning-friendly
 // replacement for the old hand-maintained ATTENTION_SUBSTATUSES list.
 export function recordAttention(record: TypedCaseRecord): string | null {
   const support = record.supportStatus;
@@ -192,7 +192,6 @@ export function recordAttention(record: TypedCaseRecord): string | null {
   if (support === "UNKNOWN") return "Unverified";
 
   const sub = record.substatus;
-  if (sub === "BLOCKED") return "Blocked";
   if (sub === "AT_RISK") return "At risk";
   if (sub === "OVERRULED") return "Overruled";
   if (sub === "QUESTIONED") return "Questioned";

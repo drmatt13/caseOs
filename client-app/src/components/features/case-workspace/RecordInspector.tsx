@@ -34,8 +34,11 @@ import {
 import RecordLinksPanel from "./RecordLinksPanel";
 import {
   AcceptedRecordActions,
+  FrozenNote,
   ProposalActions,
   ProposalDecisionNote,
+  RejectedRecordActions,
+  TaskStatusControl,
 } from "./RecordActions";
 import ProposalManualEditor from "./ProposalManualEditor";
 import type { WorkspaceGraph } from "./useWorkspaceGraph";
@@ -329,6 +332,14 @@ function RecordInspectorBody({
         </div>
       )}
 
+      {record.type === "TASK" && status === "ACCEPTED" && (
+        <TaskStatusControl
+          record={record}
+          graph={graph}
+          onChange={graph.setTaskSubstatus}
+        />
+      )}
+
       <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-black/50">
         {record.category && <span>Category: {record.category}</span>}
         {record.type === "FACT" && record.isContextual && (
@@ -418,7 +429,24 @@ function RecordInspectorBody({
         visitedIds={visitedIds}
       />
 
-      {proposalDecision && <ProposalDecisionNote decision={proposalDecision} />}
+      {status === "REJECTED" && (
+        <FrozenNote
+          reason={record.rejectionReason}
+          onRestore={() => graph.restoreRecord(record.id)}
+        />
+      )}
+
+      {/* A record regenerated from a rejection keeps its rejection reason even
+          once it is replaced — the trail of why it was frozen survives the fix. */}
+      {status === "REPLACED" && record.rejectionReason && (
+        <p className="mt-4 rounded-lg border border-black/15 bg-black/2.5 px-3 py-2 text-sm leading-5 text-black/55">
+          Previously rejected: {record.rejectionReason}
+        </p>
+      )}
+
+      {proposalDecision?.status === "accepted" && (
+        <ProposalDecisionNote decision={proposalDecision} />
+      )}
 
       <div className="mt-4">
         <p className="mb-1.5 text-xs text-black/65">Knowledge graph</p>
@@ -439,12 +467,21 @@ function RecordInspectorBody({
             onClose();
           }}
           onDecision={graph.decideProposal}
+          onReject={graph.rejectRecord}
           onEditManually={onEditManually}
         />
       )}
 
       {status === "ACCEPTED" && (
         <AcceptedRecordActions
+          record={record}
+          onRequestRevision={graph.requestAgentRevision}
+          onReject={graph.rejectRecord}
+        />
+      )}
+
+      {status === "REJECTED" && (
+        <RejectedRecordActions
           record={record}
           onRequestRevision={graph.requestAgentRevision}
         />
