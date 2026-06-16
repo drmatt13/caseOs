@@ -1,5 +1,13 @@
 import { useMemo, useState } from "react";
-import { ArrowRight, Link2, Plus, Trash2, X } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowLeftRight,
+  ArrowRight,
+  Link2,
+  Plus,
+  Trash2,
+  X,
+} from "lucide-react";
 
 import type {
   GraphLink,
@@ -8,8 +16,8 @@ import type {
   TypedCaseRecord,
 } from "#/types/caseRecords";
 import {
+  isSymmetricLink,
   LINK_TYPE_LABEL_PAIRS,
-  linkTypeLabel,
   RECORD_TYPE_LABELS,
 } from "#/lib/caseRecordPresentation";
 import Button from "#/components/ui/Button";
@@ -129,8 +137,8 @@ function OtherRecordTag({
 
 // One editable edge: the related record, a relationship-type select, a
 // direction toggle whose two options ARE the live forward/inverse phrasings, an
-// explanation, and a delete. The phrasing line reads "This record → <verb> →
-// <other>" so direction is never ambiguous.
+// explanation, and a delete. The phrasing line always anchors "This record" on
+// the left; inverse direction flips the arrows instead of moving the records.
 function LinkEditorRow({
   link,
   recordId,
@@ -149,7 +157,22 @@ function LinkEditorRow({
   const otherType =
     direction === "outbound" ? link.toRecordType : link.fromRecordType;
   const pair = LINK_TYPE_LABEL_PAIRS[link.type];
-  const verb = linkTypeLabel(link.type, direction);
+  const symmetric = isSymmetricLink(link.type);
+  // Phrasing always uses the canonical (forward) verb; direction is carried by
+  // the arrows so "This record" stays anchored on the left while editing.
+  const verb = pair.forward;
+  const otherTitle = other?.title ?? "Unknown record";
+  const ThisRecord = (
+    <span className="font-medium text-black/75">This record</span>
+  );
+  const OtherRecord = (
+    <span className="min-w-0 truncate text-black/70">{otherTitle}</span>
+  );
+  const Arrow = symmetric
+    ? ArrowLeftRight
+    : direction === "outbound"
+      ? ArrowRight
+      : ArrowLeft;
   const missingReason = !link.explanation.trim();
 
   return (
@@ -190,39 +213,43 @@ function LinkEditorRow({
 
         {/* Direction toggle — the two pills are the actual forward / inverse
             phrasings, so picking one both sets orientation and shows how the
-            edge will read from this record. */}
-        <div className="inline-flex overflow-hidden rounded-lg border border-black/15">
-          {(["outbound", "inbound"] as const).map((option, index) => {
-            const active = direction === option;
-            const label = option === "outbound" ? pair.forward : pair.inverse;
-            return (
-              <button
-                key={option}
-                type="button"
-                className={`px-2 py-1 text-sm transition-colors ${
-                  index > 0 ? "border-l border-black/15" : ""
-                } ${
-                  active
-                    ? "bg-black/10 text-black/80"
-                    : "bg-white/60 text-black/55 hover:bg-black/5"
-                }`}
-                onClick={() => onChange(orientLink(link, recordId, option))}
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
+            edge will read from this record. Hidden for symmetric links, which
+            read the same either way. */}
+        {!symmetric && (
+          <div className="inline-flex overflow-hidden rounded-lg border border-black/15">
+            {(["outbound", "inbound"] as const).map((option, index) => {
+              const active = direction === option;
+              const label = option === "outbound" ? pair.forward : pair.inverse;
+              return (
+                <button
+                  key={option}
+                  type="button"
+                  className={`px-2 py-1 text-sm transition-colors ${
+                    index > 0 ? "border-l border-black/15" : ""
+                  } ${
+                    active
+                      ? "bg-black/10 text-black/80"
+                      : "bg-white/60 text-black/55 hover:bg-black/5"
+                  }`}
+                  onClick={() => onChange(orientLink(link, recordId, option))}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
+      {/* "This record" stays fixed on the left; inverse direction flips both
+          arrows so the relationship can be read without the row jumping around.
+          Symmetric links use a ↔. */}
       <p className="mt-2 flex items-center gap-1.5 text-xs text-black/55">
-        <span className="text-black/70">This record</span>
-        <ArrowRight className="h-3 w-3 text-black/30" />
-        <span className="font-medium text-black/75">{verb}</span>
-        <ArrowRight className="h-3 w-3 text-black/30" />
-        <span className="min-w-0 truncate text-black/70">
-          {other?.title ?? "Unknown record"}
-        </span>
+        {ThisRecord}
+        <Arrow className="h-3 w-3 shrink-0 text-black/30" />
+        <span className="shrink-0 font-medium text-black/75">{verb}</span>
+        <Arrow className="h-3 w-3 shrink-0 text-black/30" />
+        {OtherRecord}
       </p>
 
       <div className="mt-2">

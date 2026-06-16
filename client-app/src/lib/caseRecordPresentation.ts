@@ -305,6 +305,17 @@ export const LINK_TYPE_LABEL_PAIRS: Record<
   RELATED_TO: { forward: "Related to", inverse: "Related to" },
 };
 
+// Symmetric relationships read the same from either endpoint (A relates to B ⇔
+// B relates to A). They carry no direction: the UI hides the direction toggle
+// and renders a ↔ arrow. Today only RELATED_TO qualifies; add others here.
+export const SYMMETRIC_LINK_TYPES: ReadonlySet<RecordLinkType> = new Set([
+  "RELATED_TO",
+]);
+
+export function isSymmetricLink(type: RecordLinkType): boolean {
+  return SYMMETRIC_LINK_TYPES.has(type);
+}
+
 // Returns the label for a link as seen from one endpoint:
 //   "outbound" → viewing the source record (forward phrasing)
 //   "inbound"  → viewing the target record (inverse phrasing)

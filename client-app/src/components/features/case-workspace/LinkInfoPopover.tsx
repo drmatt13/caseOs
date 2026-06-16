@@ -1,7 +1,9 @@
-import { ArrowDown, ArrowUp, Info } from "lucide-react";
+import { ArrowDown, ArrowLeftRight, ArrowUp, Info } from "lucide-react";
 
 import type { GraphLink, RecordLinkType } from "#/types/caseRecords";
 import {
+  isSymmetricLink,
+  LINK_TYPE_LABEL_PAIRS,
   linkTypeLabel,
   RECORD_TYPE_LABELS,
 } from "#/lib/caseRecordPresentation";
@@ -94,8 +96,17 @@ function LinkInfoPopover({
   // "<here> evidenced by <other>" inbound). The arrow points at the edge's
   // canonical destination: down (out of the current record) when outbound, up
   // (into the current record) when inbound.
-  const verb = linkTypeLabel(link.type, direction);
-  const DirectionArrow = isOutbound ? ArrowDown : ArrowUp;
+  // Symmetric links carry no direction: use the canonical verb and a horizontal
+  // ↔ instead of the up/down arrow, matching the proposal editor.
+  const symmetric = isSymmetricLink(link.type);
+  const verb = symmetric
+    ? LINK_TYPE_LABEL_PAIRS[link.type].forward
+    : linkTypeLabel(link.type, direction);
+  const DirectionArrow = symmetric
+    ? ArrowLeftRight
+    : isOutbound
+      ? ArrowDown
+      : ArrowUp;
 
   return (
     <Popover

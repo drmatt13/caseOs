@@ -109,19 +109,6 @@ function RecordLinksPanel({
       return !hasVisiblePredecessorLink(other, link, direction);
     };
 
-  const allLinks = [
-    ...(graph.outboundLinks.get(record.id) ?? []),
-    ...(graph.inboundLinks.get(record.id) ?? []),
-  ];
-  // Whether the checkbox would reveal anything (proposed links currently hidden).
-  const hasProposedLinks =
-    canToggleProposedLinks &&
-    allLinks.some(
-      (link) =>
-        graph.effectiveLinkStatus(link) !== "ACCEPTED" &&
-        proposedLinkVisible(link),
-    );
-
   const outbound = (graph.outboundLinks.get(record.id) ?? []).filter(
     visibleNonDuplicateLink("outbound"),
   );
@@ -307,7 +294,7 @@ function RecordLinksPanel({
 
   return (
     <div className="flex flex-col gap-3">
-      {recordIsAccepted && hasProposedLinks && (
+      {canToggleProposedLinks && (
         <label className="flex w-fit cursor-pointer select-none items-center gap-2 text-xs text-black/60">
           <input
             type="checkbox"
