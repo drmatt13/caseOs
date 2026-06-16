@@ -31,9 +31,15 @@ export function useCaseWorkspace(caseId: string) {
   // Sticky inspector preference for accepted records as graph traversal moves
   // from one inspected record to the next.
   const [showProposedLinks, setShowProposedLinks] = useState(false);
+  const [showRejectedRecords, setShowRejectedRecords] = useState(true);
   const showProposedLinksValue = useMemo(
-    () => ({ show: showProposedLinks, setShow: setShowProposedLinks }),
-    [showProposedLinks],
+    () => ({
+      show: showProposedLinks,
+      setShow: setShowProposedLinks,
+      showRejected: showRejectedRecords,
+      setShowRejected: setShowRejectedRecords,
+    }),
+    [showProposedLinks, showRejectedRecords],
   );
 
   const openRecord = (recordId: string) => {

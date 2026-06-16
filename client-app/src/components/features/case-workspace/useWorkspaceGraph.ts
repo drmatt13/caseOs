@@ -18,9 +18,15 @@ export type ProposalDraftUpdate = {
 };
 
 export type ProposalDecision = {
-  status: "accepted" | "rejected";
-  reason?: string;
+  status: "accepted";
 };
+
+type RecordDecision =
+  | ProposalDecision
+  | {
+      status: "rejected";
+      reason: string;
+    };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Workspace data hook: records + graph lookups + simulated lifecycle state
@@ -41,7 +47,7 @@ export function useWorkspaceGraph(demo: CaseDemo) {
   const [editedLinks, setEditedLinks] = useState<Record<string, GraphLink>>({});
   const [deletedLinkIds, setDeletedLinkIds] = useState<string[]>([]);
   const [proposalDecisions, setProposalDecisions] = useState<
-    Record<string, ProposalDecision>
+    Record<string, RecordDecision>
   >({});
   // Per-task work-phase overrides set from the quick status control.
   const [taskSubstatusOverrides, setTaskSubstatusOverrides] = useState<
@@ -222,6 +228,9 @@ export function useWorkspaceGraph(demo: CaseDemo) {
   );
 
   const decideProposal = (recordId: string, decision: ProposalDecision) => {
+    const record = recordsById.get(recordId);
+    if (!record || effectiveStatus(record) !== "PROPOSED") return;
+
     setProposalDecisions((decisions) => ({
       ...decisions,
       [recordId]: decision,
@@ -313,10 +322,15 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     ]);
   };
 
-  // Freeze (retire) a record — proposals and live records alike. The reason is
-  // persisted onto the record (see the `records` memo) so it's auditable. Reuses
-  // the proposalDecisions map, which effectiveStatus already reads as REJECTED.
+  // Freeze (retire) a live record. The reason is persisted onto the record (see
+  // the `records` memo) so it's auditable. Proposals leave review by deletion,
+  // not rejection.
   const rejectRecord = (recordId: string, reason: string) => {
+    const record = recordsById.get(recordId);
+    if (!record) return;
+    const status = effectiveStatus(record);
+    if (status !== "ACCEPTED" && status !== "PENDING_REPLACEMENT") return;
+
     const trimmed = reason.trim();
     if (!trimmed) return;
     setProposalDecisions((decisions) => ({
@@ -325,8 +339,7 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     }));
   };
 
-  // Restore a frozen record to its prior status (ACCEPTED for live records,
-  // PROPOSED for proposals) by clearing the decision.
+  // Restore a frozen record to its prior live status by clearing the decision.
   const restoreRecord = (recordId: string) => {
     setProposalDecisions((decisions) => {
       const next = { ...decisions };

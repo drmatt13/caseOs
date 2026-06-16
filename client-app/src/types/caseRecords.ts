@@ -72,7 +72,7 @@ export const RECORD_LEVEL: Record<RecordType, number> = {
 
 // Lifecycle of a single record:
 //   PROPOSED → ACCEPTED (user approves)
-//   PROPOSED → REJECTED (user declines the proposal)
+//   PROPOSED → deleted (user discards the proposal before it enters the graph)
 //   ACCEPTED → REJECTED (user freezes/retires a live record)
 //   REJECTED → ACCEPTED (user restores a frozen record)
 //   ACCEPTED → PENDING_REPLACEMENT (a proposed replacement exists)

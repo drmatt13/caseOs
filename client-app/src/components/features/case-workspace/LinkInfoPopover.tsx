@@ -1,6 +1,10 @@
 import { ArrowDown, ArrowLeftRight, ArrowUp, Info } from "lucide-react";
 
-import type { GraphLink, RecordLinkType } from "#/types/caseRecords";
+import type {
+  GraphLink,
+  RecordLinkType,
+  TypedCaseRecord,
+} from "#/types/caseRecords";
 import {
   isSymmetricLink,
   LINK_TYPE_LABEL_PAIRS,
@@ -21,6 +25,23 @@ function linkTone(type: RecordLinkType): ToneName {
   if (type === "SUPPORTS" || type === "EVIDENCES") return "positive";
   return "info";
 }
+
+// The label already says "rejected"; keep the stored reason literal, but avoid
+// doubled display copy like "Note rejected: rejected because...".
+function displayRejectionReason(reason: string) {
+  const trimmed = reason.trim();
+  const withoutLeadingStatus = trimmed
+    .replace(/^(?:(?:reject(?:ed|ion)?)\b[\s:;,.!?\-]*)+/i, "")
+    .trimStart();
+  return withoutLeadingStatus || trimmed;
+}
+
+type EndpointRejection = {
+  key: "from" | "to";
+  typeLabel: string;
+  here: boolean;
+  reason: string;
+};
 
 // One end of the edge, rendered as a calm white-glass card sitting *in* the
 // tinted panel: a small type tag (the record's category) above its own title.
@@ -66,14 +87,30 @@ function LinkInfoPopover({
   direction: "outbound" | "inbound";
   graph: WorkspaceGraph;
 }) {
-  // A rejected edge overrides the type-based valence: the whole popover reads
-  // critical (red), and the rejection reason is shown beneath the rationale so
-  // the agent learns why the path was abandoned without traversing it.
-  const isRejected = link.status === "REJECTED";
-  const tone = isRejected ? TONES.critical : TONES[linkTone(link.type)];
-
   const fromRecord = graph.recordsById.get(link.fromRecordId);
   const toRecord = graph.recordsById.get(link.toRecordId);
+
+  const rejectedEndpoint = (
+    record: TypedCaseRecord | undefined,
+    key: "from" | "to",
+    typeLabel: string,
+    here: boolean,
+  ): EndpointRejection | undefined => {
+    if (!record || graph.effectiveStatus(record) !== "REJECTED") {
+      return undefined;
+    }
+    const decision = graph.proposalDecisions[record.id];
+    const reason =
+      record.rejectionReason ??
+      (decision?.status === "rejected" ? decision.reason : undefined);
+    const resolvedReason = reason?.trim() || "No rejection reason recorded.";
+    return {
+      key,
+      typeLabel,
+      here,
+      reason: displayRejectionReason(resolvedReason),
+    };
+  };
 
   // Fall back to the link's stored endpoint types if a record can't be resolved,
   // so the diagram still reads even with a dangling reference.
@@ -94,6 +131,19 @@ function LinkInfoPopover({
   const isOutbound = direction === "outbound";
   const here = isOutbound ? ends.from : ends.to;
   const other = isOutbound ? ends.to : ends.from;
+  const endpointRejections = [
+    rejectedEndpoint(fromRecord, "from", ends.from.typeLabel, isOutbound),
+    rejectedEndpoint(toRecord, "to", ends.to.typeLabel, !isOutbound),
+  ].filter((entry): entry is EndpointRejection => Boolean(entry));
+
+  // A rejected edge or endpoint overrides the type-based valence: the whole
+  // popover reads critical (red). Edge rejection explains why the relationship
+  // was abandoned; endpoint rejection explains why a linked record is frozen.
+  const isRejected = graph.effectiveLinkStatus(link) === "REJECTED";
+  const tone =
+    isRejected || endpointRejections.length > 0
+      ? TONES.critical
+      : TONES[linkTone(link.type)];
 
   // Verb phrased from the top (current) record's perspective so the diagram
   // always reads naturally top-to-bottom ("<here> evidences <other>" outbound,
@@ -139,9 +189,24 @@ function LinkInfoPopover({
           following it. Inked critical to match the red panel. */}
       {isRejected && link.rejectionReason && (
         <p className={`border-t border-black/10 pt-2 text-sm leading-5 ${tone.ink}`}>
-          <span className="font-medium">Rejected:</span> {link.rejectionReason}
+          <span className="font-medium">Rejected:</span>{" "}
+          {displayRejectionReason(link.rejectionReason)}
         </p>
       )}
+
+      {endpointRejections.map((rejection) => (
+        <p
+          key={rejection.key}
+          className={`border-t border-black/10 pt-2 text-sm leading-5 ${tone.ink}`}
+        >
+          <span className="font-medium">
+            {rejection.here
+              ? "Current record rejected:"
+              : `${rejection.typeLabel} rejected:`}
+          </span>{" "}
+          {rejection.reason}
+        </p>
+      ))}
     </Popover>
   );
 }

@@ -445,7 +445,7 @@ function RecordInspectorBody({
       )}
 
       {proposalDecision?.status === "accepted" && (
-        <ProposalDecisionNote decision={proposalDecision} />
+        <ProposalDecisionNote />
       )}
 
       <div className="mt-4">
@@ -467,7 +467,6 @@ function RecordInspectorBody({
             onClose();
           }}
           onDecision={graph.decideProposal}
-          onReject={graph.rejectRecord}
           onEditManually={onEditManually}
         />
       )}

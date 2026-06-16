@@ -102,9 +102,8 @@ function RecordChip({
     !hideProposedReplacementStatus &&
     displayStatus !== "ACCEPTED" &&
     (displayStatus !== "PENDING_REPLACEMENT" || showPendingReplacement);
-  // A rejected edge always wears a red "Link rejected" pill (unless it's a locked
-  // cycle, whose "In path" badge takes the slot) — distinct from a rejected
-  // record, which carries its own "Rejected" status pill.
+  // A rejected edge always wears a red "Rejected" pill (unless it's a locked
+  // cycle, whose "In path" badge takes the slot).
   const showLinkRejectedPill = linkIsRejected && !isCycle;
   const showAnyPill = isCycle || showStatusPill || showLinkRejectedPill;
 
@@ -153,7 +152,9 @@ function RecordChip({
         <span
           className={`ml-auto min-w-0 max-w-36 shrink rounded-full border px-2 py-0.5 text-xs ${RECORD_DISPLAY_STATUS_CLASSES.REJECTED}`}
         >
-          <span className="block truncate">Link rejected</span>
+          <span className="block truncate">
+            {RECORD_DISPLAY_STATUS_LABELS.REJECTED}
+          </span>
         </span>
       ) : showStatusPill ? (
         <span

@@ -9,7 +9,6 @@ import {
   Snowflake,
   Trash2,
   Wrench,
-  XCircle,
 } from "lucide-react";
 
 import type { TaskSubstatus, TypedCaseRecord } from "#/types/caseRecords";
@@ -28,27 +27,22 @@ export function ProposalActions({
   record,
   onDelete,
   onDecision,
-  onReject,
   onEditManually,
 }: {
   record: TypedCaseRecord;
   onDelete: (recordId: string) => void;
   onDecision: (recordId: string, decision: ProposalDecision) => void;
-  onReject: (recordId: string, reason: string) => void;
   onEditManually: (recordId: string) => void;
 }) {
-  const [rejecting, setRejecting] = useState(false);
-  const [rejectionReason, setRejectionReason] = useState("");
   const [suggestingEdits, setSuggestingEdits] = useState(false);
   const [editSuggestion, setEditSuggestion] = useState("");
   const [editSubmitted, setEditSubmitted] = useState(false);
 
   return (
     <div className="mt-4 rounded-lg border border-black/15 bg-white/75 p-3">
-      {/* Accept is the affirmative primary; Reject carries the lone destructive
-          accent (red ink at rest, fills on hover); Suggest edits is a neutral
-          secondary and Delete a quiet ghost — a deliberate emphasis gradient so
-          the review decision reads at a glance. */}
+      {/* Proposals are either accepted into the graph, edited, or deleted from
+          review. Rejection is reserved for already accepted records, where it
+          means "freeze this record out of reasoning." */}
       <div className="flex flex-wrap flex-row-reverse items-center gap-2">
         <Button
           style="primary"
@@ -56,13 +50,6 @@ export function ProposalActions({
           icon={CheckCircle2}
           text="Accept proposal"
           onClick={() => onDecision(record.id, { status: "accepted" })}
-        />
-        <Button
-          style="danger"
-          size="sm"
-          icon={XCircle}
-          text="Reject proposal"
-          onClick={() => setRejecting((value) => !value)}
         />
         <Button
           style="secondary"
@@ -81,35 +68,13 @@ export function ProposalActions({
           onClick={() => onEditManually(record.id)}
         />
         <Button
-          style="ghost"
+          style="danger"
           size="sm"
           icon={Trash2}
           text="Delete proposal"
           onClick={() => onDelete(record.id)}
         />
       </div>
-
-      {rejecting && (
-        <div className={`mt-3 rounded-lg border p-3 ${TONES.critical.surface}`}>
-          <TextAreaField
-            label="Reason for rejecting this proposal"
-            placeholder="Example: unsupported by produced discovery, duplicates an accepted fact, or uses language that overstates the evidence."
-            value={rejectionReason}
-            onChange={(event) => setRejectionReason(event.target.value)}
-            rows={3}
-            minRows={3}
-          />
-          <div className="mt-2 flex justify-end">
-            <Button
-              style="danger"
-              size="sm"
-              text="Save rejection"
-              disabled={!rejectionReason.trim()}
-              onClick={() => onReject(record.id, rejectionReason.trim())}
-            />
-          </div>
-        </div>
-      )}
 
       {suggestingEdits && (
         <div className="mt-3 rounded-lg border border-black/15 bg-black/[0.025] p-3">
@@ -473,25 +438,12 @@ export function FrozenNote({
 }
 
 
-export function ProposalDecisionNote({
-  decision,
-}: {
-  decision: ProposalDecision;
-}) {
+export function ProposalDecisionNote() {
   return (
     <div
-      className={`mt-4 rounded-lg border px-3 py-2 text-sm ${
-        decision.status === "accepted"
-          ? `${TONES.positive.surface} text-emerald-800`
-          : `${TONES.critical.surface} text-red-800`
-      }`}
+      className={`mt-4 rounded-lg border px-3 py-2 text-sm ${TONES.positive.surface} text-emerald-800`}
     >
-      <p className="font-medium">
-        Proposal {decision.status === "accepted" ? "accepted" : "rejected"}
-      </p>
-      {decision.reason && (
-        <p className="mt-1 leading-5">Reason: {decision.reason}</p>
-      )}
+      <p className="font-medium">Proposal accepted</p>
     </div>
   );
 }

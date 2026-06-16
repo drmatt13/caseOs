@@ -20,6 +20,8 @@ import type { WorkspaceGraph } from "./useWorkspaceGraph";
 //     the inspector, a checkbox opts into proposed links to records in review.
 //   • A pending-replacement record shows review links in full because the
 //     record itself is already in an unsettled lifecycle state.
+//   • A rejected record shows its incident link history for audit, even though
+//     those edges no longer count as authoritative reasoning paths.
 //   • A replaced record keeps its historical links for provenance.
 // When a link's target is mid-replacement, the proposal that would replace it
 // is shown inline beneath it ("replaced by", offset on a connector rail) so the
@@ -43,14 +45,21 @@ function RecordLinksPanel({
   const viewStatus = graph.effectiveStatus(record);
   const recordIsProposed = viewStatus === "PROPOSED";
   const recordIsAccepted = viewStatus === "ACCEPTED";
+  const recordIsRejected = viewStatus === "REJECTED";
   const recordIsPendingReplacement = viewStatus === "PENDING_REPLACEMENT";
   const recordIsReplaced = viewStatus === "REPLACED";
 
-  const { show: showProposedLinks, setShow: setShowProposedLinks } = useContext(
-    ShowProposedLinksContext,
-  );
+  const {
+    show: showProposedLinks,
+    setShow: setShowProposedLinks,
+    showRejected: showRejectedRecords,
+    setShowRejected: setShowRejectedRecords,
+  } = useContext(ShowProposedLinksContext);
   const canToggleProposedLinks = allowProposedLinksToggle && recordIsAccepted;
+  const canToggleRejectedRecords = allowProposedLinksToggle && recordIsAccepted;
   const shouldShowProposedLinks = canToggleProposedLinks && showProposedLinks;
+  const shouldHideRejectedSignals =
+    canToggleRejectedRecords && !showRejectedRecords;
 
   const otherEndpointId = (link: GraphLink) =>
     link.fromRecordId === record.id ? link.toRecordId : link.fromRecordId;
@@ -61,19 +70,31 @@ function RecordLinksPanel({
     return !other || graph.effectiveStatus(other) !== "REPLACED";
   };
 
+  const linkPointsToRejectedRecord = (link: GraphLink) => {
+    const other = graph.recordsById.get(otherEndpointId(link));
+    return Boolean(other && graph.effectiveStatus(other) === "REJECTED");
+  };
+
   // A rejection is information the agent can read without traversing: surface
   // both rejected edges and edges to rejected records in every view, so a
   // rejected path (and its reason) is never hidden. The red chip / red popover
   // make their status unmistakable.
   const rejectionInformative = (link: GraphLink) => {
     if (graph.effectiveLinkStatus(link) === "REJECTED") return true;
-    const other = graph.recordsById.get(otherEndpointId(link));
-    return Boolean(other && graph.effectiveStatus(other) === "REJECTED");
+    return linkPointsToRejectedRecord(link);
   };
 
   const visibleLink = (link: GraphLink) => {
+    if (shouldHideRejectedSignals && rejectionInformative(link)) {
+      return false;
+    }
     if (rejectionInformative(link)) return true;
     if (recordIsReplaced) return true;
+    // Frozen records are reference-only, but their link history is still audit
+    // context. Their accepted edges intentionally demote to PROPOSED because a
+    // rejected endpoint is no longer authoritative; keep those incident links
+    // visible here so the human can still inspect how the abandoned record fit.
+    if (recordIsRejected) return proposedLinkVisible(link);
     if (recordIsProposed || recordIsPendingReplacement) {
       return proposedLinkVisible(link);
     }
@@ -250,8 +271,7 @@ function RecordLinksPanel({
                     </span> */}
                     {visibleReplacements.map(
                       ({ replacement, carriedLink }, index) => {
-                        const isLast =
-                          index === visibleReplacements.length - 1;
+                        const isLast = index === visibleReplacements.length - 1;
                         return (
                           <div
                             key={replacement.id}
@@ -306,15 +326,26 @@ function RecordLinksPanel({
   return (
     <div className="flex flex-col gap-3">
       {canToggleProposedLinks && (
-        <label className="flex w-fit cursor-pointer select-none items-center gap-2 text-xs text-black/60">
-          <input
-            type="checkbox"
-            className="h-3.5 w-3.5 accent-[#282828]"
-            checked={showProposedLinks}
-            onChange={(event) => setShowProposedLinks(event.target.checked)}
-          />
-          Show proposed links to records in review
-        </label>
+        <div className="flex flex-col items-start gap-2 mb-1">
+          <label className="flex w-fit cursor-pointer select-none items-center gap-2 text-xs text-black/60">
+            <input
+              type="checkbox"
+              className="h-3.5 w-3.5 accent-[#282828]"
+              checked={showProposedLinks}
+              onChange={(event) => setShowProposedLinks(event.target.checked)}
+            />
+            Show links to records under review
+          </label>
+          <label className="flex w-fit cursor-pointer select-none items-center gap-2 text-xs text-black/60">
+            <input
+              type="checkbox"
+              className="h-3.5 w-3.5 accent-[#282828]"
+              checked={showRejectedRecords}
+              onChange={(event) => setShowRejectedRecords(event.target.checked)}
+            />
+            Show rejected records
+          </label>
+        </div>
       )}
       {recordIsReplaced && (
         <p className="rounded-lg border border-black/15 bg-black/[0.025] px-2.5 py-1.5 text-xs leading-5 text-black/55">
@@ -328,7 +359,9 @@ function RecordLinksPanel({
             ? "This proposal introduces no linked records yet."
             : recordIsReplaced
               ? "This record had no links."
-              : "No accepted links yet."}
+              : recordIsRejected
+                ? "This frozen record has no linked records."
+                : "No accepted links yet."}
         </div>
       ) : (
         <>
