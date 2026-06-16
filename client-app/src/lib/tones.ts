@@ -21,6 +21,8 @@
 //   surface — card/panel tint: colored border + wash (text inherits)
 //   dot     — small status dot (border + solid-ish fill) for dense lists
 //   badgeInteractive — badge + group-hover deepening, for clickable chips
+//   ink     — bare text color only (no fill/border), for "color in the ink"
+//             headings/verbs that sit directly on a tinted surface
 
 export type ToneName =
   | "neutral"
@@ -35,6 +37,7 @@ export type Tone = {
   surface: string;
   dot: string;
   badgeInteractive: string;
+  ink: string;
 };
 
 export const TONES: Record<ToneName, Tone> = {
@@ -44,6 +47,7 @@ export const TONES: Record<ToneName, Tone> = {
     dot: "border-black/20 bg-black/30",
     badgeInteractive:
       "border-black/12 bg-black/[0.03] text-black/65 group-hover:border-black/20 group-hover:text-black/75",
+    ink: "text-black/70",
   },
   info: {
     badge: "border-sky-700/25 bg-sky-50/50 text-sky-800",
@@ -51,6 +55,7 @@ export const TONES: Record<ToneName, Tone> = {
     dot: "border-sky-700/30 bg-sky-500/70",
     badgeInteractive:
       "border-sky-700/25 bg-sky-50/50 text-sky-800 group-hover:border-sky-800/35 group-hover:text-sky-900",
+    ink: "text-sky-800",
   },
   positive: {
     badge: "border-emerald-600/30 bg-emerald-50/50 text-emerald-800",
@@ -58,6 +63,7 @@ export const TONES: Record<ToneName, Tone> = {
     dot: "border-emerald-700/30 bg-emerald-500/70",
     badgeInteractive:
       "border-emerald-600/30 bg-emerald-50/50 text-emerald-800 group-hover:border-emerald-700/40 group-hover:text-emerald-900",
+    ink: "text-emerald-800",
   },
   caution: {
     badge: "border-amber-600/35 bg-amber-50/60 text-amber-900",
@@ -65,6 +71,7 @@ export const TONES: Record<ToneName, Tone> = {
     dot: "border-amber-700/30 bg-amber-500/80",
     badgeInteractive:
       "border-amber-600/35 bg-amber-50/60 text-amber-900 group-hover:border-amber-700/45 group-hover:text-amber-950",
+    ink: "text-amber-900",
   },
   critical: {
     badge: "border-red-700/30 bg-red-50/50 text-red-800",
@@ -72,6 +79,7 @@ export const TONES: Record<ToneName, Tone> = {
     dot: "border-red-700/30 bg-red-500/70",
     badgeInteractive:
       "border-red-700/30 bg-red-50/50 text-red-800 group-hover:border-red-800/40 group-hover:text-red-900",
+    ink: "text-red-800",
   },
   special: {
     badge: "border-violet-700/25 bg-violet-50/50 text-violet-800",
@@ -79,6 +87,7 @@ export const TONES: Record<ToneName, Tone> = {
     dot: "border-violet-700/30 bg-violet-500/70",
     badgeInteractive:
       "border-violet-700/25 bg-violet-50/50 text-violet-800 group-hover:border-violet-800/35 group-hover:text-violet-900",
+    ink: "text-violet-800",
   },
 };
 
