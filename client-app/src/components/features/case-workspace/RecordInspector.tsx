@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   CalendarDays,
   ChevronLeft,
@@ -37,6 +37,9 @@ import {
   ProposalActions,
   ProposalDecisionNote,
 } from "./RecordActions";
+import ProposalManualEditor, {
+  type ProposalDraft,
+} from "./ProposalManualEditor";
 import type { WorkspaceGraph } from "./useWorkspaceGraph";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -68,9 +71,21 @@ function RecordInspector({
     recordId,
   );
 
+  // Manual edit mode is per-record. `editingId` is the proposal currently being
+  // hand-edited; the cache keeps each record's working draft alive across
+  // edit-mode toggles within this inspector session (a visual mock — it never
+  // touches the graph), so "save and edit again later" reads believably.
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const draftCacheRef = useRef<Map<string, ProposalDraft>>(new Map());
+
   useEffect(() => {
     if (recordId) setDisplayRecordId(recordId);
   }, [recordId]);
+
+  // Closing the inspector exits edit mode (cached drafts are retained).
+  useEffect(() => {
+    if (!open) setEditingId(null);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -147,20 +162,35 @@ function RecordInspector({
           </button>
         </div>
 
-        {record && (
-          <RecordInspectorBody
-            key={record.id}
-            record={record}
-            graph={graph}
-            onOpenRecord={onOpenRecord}
-            onClose={onClose}
-            // Every record already open in this path (ancestors plus the record
-            // itself). Any chip pointing back into this set is a cycle and gets
-            // locked, so traversal can never loop — not via links, not via
-            // version history, not via a self-reference.
-            visitedIds={new Set(stack)}
-          />
-        )}
+        {record &&
+          (editingId === record.id &&
+          graph.effectiveStatus(record) === "PROPOSED" ? (
+            <ProposalManualEditor
+              key={`edit-${record.id}`}
+              record={record}
+              graph={graph}
+              initialDraft={draftCacheRef.current.get(record.id)}
+              onSave={(draft) => {
+                draftCacheRef.current.set(record.id, draft);
+                setEditingId(null);
+              }}
+              onCancel={() => setEditingId(null)}
+            />
+          ) : (
+            <RecordInspectorBody
+              key={record.id}
+              record={record}
+              graph={graph}
+              onOpenRecord={onOpenRecord}
+              onClose={onClose}
+              onEditManually={setEditingId}
+              // Every record already open in this path (ancestors plus the
+              // record itself). Any chip pointing back into this set is a cycle
+              // and gets locked, so traversal can never loop — not via links,
+              // not via version history, not via a self-reference.
+              visitedIds={new Set(stack)}
+            />
+          ))}
       </div>
     </div>
   );
@@ -228,12 +258,14 @@ function RecordInspectorBody({
   graph,
   onOpenRecord,
   onClose,
+  onEditManually,
   visitedIds,
 }: {
   record: TypedCaseRecord;
   graph: WorkspaceGraph;
   onOpenRecord: (recordId: string) => void;
   onClose: () => void;
+  onEditManually: (recordId: string) => void;
   visitedIds: Set<string>;
 }) {
   const status = graph.effectiveStatus(record);
@@ -412,13 +444,14 @@ function RecordInspectorBody({
             onClose();
           }}
           onDecision={graph.decideProposal}
+          onEditManually={onEditManually}
         />
       )}
 
       {status === "ACCEPTED" && (
         <AcceptedRecordActions
           record={record}
-          onPropose={graph.proposeRevision}
+          onRequestRevision={graph.requestAgentRevision}
         />
       )}
     </div>

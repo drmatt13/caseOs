@@ -22,10 +22,12 @@ export function ProposalActions({
   record,
   onDelete,
   onDecision,
+  onEditManually,
 }: {
   record: TypedCaseRecord;
   onDelete: (recordId: string) => void;
   onDecision: (recordId: string, decision: ProposalDecision) => void;
+  onEditManually: (recordId: string) => void;
 }) {
   const [rejecting, setRejecting] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
@@ -61,6 +63,14 @@ export function ProposalActions({
           text="Suggest edits"
           title="Suggest edits with AI"
           onClick={() => setSuggestingEdits((value) => !value)}
+        />
+        <Button
+          style="secondary"
+          size="sm"
+          icon={PencilLine}
+          text="Edit manually"
+          title="Hand-edit this proposal and its links"
+          onClick={() => onEditManually(record.id)}
         />
         <Button
           style="ghost"
@@ -137,19 +147,21 @@ export function ProposalActions({
 }
 
 // Action surface for accepted (authoritative) records: propose a revision. An
-// accepted record can't be edited in place — instead the user drafts a new
-// version that becomes a PROPOSED record replacing this one, routed through
-// the normal review queue. This is the primary way humans turn an accepted
-// record back into a proposal.
+// accepted record can't be edited in place — and crucially it isn't hand-edited
+// either. Instead the human describes WHAT should change and the agent drafts a
+// new PROPOSED record that would replace this one, routed through the normal
+// review queue. Submitting flips this record to "Pending Replacement", so the
+// surface swaps to the replacement notice on its own — that transition is the
+// confirmation. The drafted proposal can then be refined via manual edit.
 export function AcceptedRecordActions({
   record,
-  onPropose,
+  onRequestRevision,
 }: {
   record: TypedCaseRecord;
-  onPropose: (recordId: string, draft: string) => void;
+  onRequestRevision: (recordId: string, instruction: string) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const [draft, setDraft] = useState(record.content);
+  const [instruction, setInstruction] = useState("");
 
   return (
     <div
@@ -164,10 +176,10 @@ export function AcceptedRecordActions({
         <Button
           style="secondary"
           size="sm"
-          icon={open ? undefined : PencilLine}
+          icon={open ? undefined : Sparkles}
           text={open ? "Cancel" : "Propose revision"}
           onClick={() => {
-            setDraft(record.content);
+            setInstruction("");
             setOpen((value) => !value);
           }}
         />
@@ -176,26 +188,27 @@ export function AcceptedRecordActions({
       {open && (
         <div className="mt-3">
           <TextAreaField
-            label="Revised content"
-            placeholder="Edit the content. Submitting creates a proposed record that would replace this one and sends it to the review queue."
-            value={draft}
-            onChange={(event) => setDraft(event.target.value)}
-            rows={4}
-            minRows={4}
+            label="What should the agent change?"
+            placeholder="Describe the revision — what to add, soften, cite, split, or rewrite. The agent drafts a proposed revision for your review."
+            value={instruction}
+            onChange={(event) => setInstruction(event.target.value)}
+            rows={3}
+            minRows={3}
           />
           <div className="mt-2 flex items-center justify-between gap-3">
             <span className="text-xs text-black/55">
-              Goes to the review queue as a replacement proposal.
+              The agent drafts a replacement proposal for the review queue.
             </span>
             <Button
               style="primary"
               size="sm"
-              text="Submit proposal"
+              text="Draft revision"
               icon="sparkles"
-              disabled={!draft.trim() || draft.trim() === record.content.trim()}
+              disabled={!instruction.trim()}
               onClick={() => {
-                onPropose(record.id, draft);
+                onRequestRevision(record.id, instruction.trim());
                 setOpen(false);
+                setInstruction("");
               }}
             />
           </div>

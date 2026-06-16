@@ -1,4 +1,4 @@
-import { ArrowDown, Info } from "lucide-react";
+import { ArrowDown, ArrowUp, Info } from "lucide-react";
 
 import type { GraphLink, RecordLinkType } from "#/types/caseRecords";
 import {
@@ -22,17 +22,17 @@ function linkTone(type: RecordLinkType): ToneName {
 
 // One end of the edge, rendered as a calm white-glass card sitting *in* the
 // tinted panel: a small type tag (the record's category) above its own title.
-// `here` marks the record the viewer is currently standing on, so the diagram
-// always reads as "where I am → where this goes" no matter which end the popover
-// was opened from.
+// `here` marks the record the viewer is currently standing on — always pinned to
+// the top of the diagram — so the relationship reads "where I am → where this
+// goes" no matter which end the popover was opened from.
 function RecordRow({
   typeLabel,
   title,
-  here,
+  here = false,
 }: {
   typeLabel: string;
   title: string;
-  here: boolean;
+  here?: boolean;
 }) {
   return (
     <div
@@ -49,11 +49,12 @@ function RecordRow({
 }
 
 // The "why" behind a single graph edge, reached from a small Info button on the
-// link chip. Reads as a plain sentence diagram — source record, the relationship
-// verb under a downward arrow, target record, then the agent's rationale. The
-// edge is always laid out in its canonical from → to order so the relationship
-// reads the same regardless of which end you opened it from; `direction` only
-// decides which record is highlighted as "you are here."
+// link chip. Reads as a plain sentence diagram — the record you're inspecting on
+// top, the relationship verb under a direction arrow, the other record below,
+// then the agent's rationale. The current record is always pinned to the top
+// ("you are here"); the arrow, not the record order, carries direction — it
+// points at the edge's destination, so an outgoing link points DOWN to the
+// record below and an incoming link points UP into the record you're on.
 function LinkInfoPopover({
   link,
   direction,
@@ -64,51 +65,56 @@ function LinkInfoPopover({
   graph: WorkspaceGraph;
 }) {
   const tone = TONES[linkTone(link.type)];
-  // Canonical forward phrasing ("Evidences", "Depends on", …): the source acts
-  // on the target, read top-to-bottom along the arrow.
-  const verb = linkTypeLabel(link.type, "outbound");
 
   const fromRecord = graph.recordsById.get(link.fromRecordId);
   const toRecord = graph.recordsById.get(link.toRecordId);
 
   // Fall back to the link's stored endpoint types if a record can't be resolved,
   // so the diagram still reads even with a dangling reference.
-  const fromTypeLabel = RECORD_TYPE_LABELS[fromRecord?.type ?? link.fromRecordType];
-  const toTypeLabel = RECORD_TYPE_LABELS[toRecord?.type ?? link.toRecordType];
-  const fromTitle = fromRecord?.title ?? fromTypeLabel;
-  const toTitle = toRecord?.title ?? toTypeLabel;
+  const ends = {
+    from: {
+      typeLabel: RECORD_TYPE_LABELS[fromRecord?.type ?? link.fromRecordType],
+      title: fromRecord?.title ?? RECORD_TYPE_LABELS[link.fromRecordType],
+    },
+    to: {
+      typeLabel: RECORD_TYPE_LABELS[toRecord?.type ?? link.toRecordType],
+      title: toRecord?.title ?? RECORD_TYPE_LABELS[link.toRecordType],
+    },
+  };
 
-  // "outbound" → the viewer stands on the source; "inbound" → on the target.
-  const hereEnd: "from" | "to" = direction === "outbound" ? "from" : "to";
+  // "outbound" → we stand on the source (from); "inbound" → on the target (to).
+  // The record we're on is `here` and is pinned to the top; the other hangs
+  // below it.
+  const isOutbound = direction === "outbound";
+  const here = isOutbound ? ends.from : ends.to;
+  const other = isOutbound ? ends.to : ends.from;
+
+  // Verb phrased from the top (current) record's perspective so the diagram
+  // always reads naturally top-to-bottom ("<here> evidences <other>" outbound,
+  // "<here> evidenced by <other>" inbound). The arrow points at the edge's
+  // canonical destination: down (out of the current record) when outbound, up
+  // (into the current record) when inbound.
+  const verb = linkTypeLabel(link.type, direction);
+  const DirectionArrow = isOutbound ? ArrowDown : ArrowUp;
 
   return (
     <Popover
       placement="top"
-      triggerLabel={`Why this link: ${fromTitle} ${verb.toLowerCase()} ${toTitle}`}
+      triggerLabel={`Why this link: ${here.title} ${verb.toLowerCase()} ${other.title}`}
       triggerClassName="flex shrink-0 items-center rounded-md px-1 text-black/35 transition-colors hover:text-black/70"
       trigger={<Info className="h-3.5 w-3.5" />}
-      className={`z-[10001] flex w-72 max-w-[90vw] flex-col gap-1.5 rounded-xl border ${tone.surface} p-3 shadow-md backdrop-blur-sm`}
+      className={`z-10001 flex w-72 max-w-[90vw] flex-col gap-1.5 rounded-xl border ${tone.surface} p-3 shadow-md backdrop-blur-sm`}
     >
-      <RecordRow
-        typeLabel={fromTypeLabel}
-        title={fromTitle}
-        here={hereEnd === "from"}
-      />
+      <RecordRow typeLabel={here.typeLabel} title={here.title} here />
 
-      {/* Relationship verb: the heart of the edge. Color lives in the ink, and
-          the downward arrow makes the from → to direction unmistakable. */}
-      <div
-        className={`flex items-center justify-center gap-1.5 ${tone.ink}`}
-      >
-        <ArrowDown className="h-3.5 w-3.5" />
+      {/* Relationship verb: the heart of the edge. Color lives in the ink; the
+          arrow points at the link's destination so direction is unmistakable. */}
+      <div className={`flex items-center justify-center gap-1.5 ${tone.ink}`}>
+        <DirectionArrow className="h-3.5 w-3.5" />
         <span className="text-sm font-medium">{verb}</span>
       </div>
 
-      <RecordRow
-        typeLabel={toTypeLabel}
-        title={toTitle}
-        here={hereEnd === "to"}
-      />
+      <RecordRow typeLabel={other.typeLabel} title={other.title} />
 
       <p className="border-t border-black/10 pt-2 text-sm leading-5 text-black/75">
         {link.explanation}

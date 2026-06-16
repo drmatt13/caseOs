@@ -187,15 +187,16 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     }
   };
 
-  // Propose a revised version of an accepted record. The draft becomes a new
-  // PROPOSED record that would replace its source — the primary path for a
-  // human to turn an accepted record into a fresh proposal. It carries the
-  // source's type and type-specific fields, lands in the review queue, and (via
-  // replacesIds) flips the source to "Pending Replacement".
-  const proposeRevision = (recordId: string, draft: string) => {
+  // Agent-drafted revision of an accepted record. The human describes WHAT to
+  // change (the instruction) rather than hand-editing the prose; the agent then
+  // drafts a proposed revision for review. In this proof-of-concept the "agent"
+  // is mocked: we seed the draft from the source content and mark it
+  // agent-authored, landing it in the review queue (where it can be manually
+  // edited). Like proposeRevision, replacesIds flips the source to "Pending
+  // Replacement". The instruction itself is not persisted on the record.
+  const requestAgentRevision = (recordId: string, instruction: string) => {
     const source = recordsById.get(recordId);
-    const trimmed = draft.trim();
-    if (!source || !trimmed) return;
+    if (!source || !instruction.trim()) return;
     const now = new Date().toISOString();
     const revision = {
       ...source,
@@ -206,9 +207,8 @@ export function useWorkspaceGraph(demo: CaseDemo) {
       replacedByIds: undefined,
       approvedByUserId: undefined,
       approvedAt: undefined,
-      createdBy: "human",
-      createdByUserId: demo.userId,
-      content: trimmed,
+      createdBy: "agent",
+      createdByUserId: undefined,
       createdAt: now,
       updatedAt: now,
     } as TypedCaseRecord;
@@ -266,7 +266,7 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     proposedRecords,
     proposalDecisions,
     decideProposal,
-    proposeRevision,
+    requestAgentRevision,
     deleteRecord,
     createNote,
   };

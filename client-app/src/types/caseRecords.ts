@@ -219,6 +219,7 @@ export interface CaseRecord {
   replacesIds?: string[]; // IDs of older record(s) this one replaces
 
   // Authorship & approval
+  createdBy?: "human" | "agent";
   createdByUserId?: string;
   approvedByUserId?: string;
   approvedAt?: string;

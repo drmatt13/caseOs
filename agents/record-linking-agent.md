@@ -86,7 +86,7 @@ component — read them off the `WorkspaceGraph`.**
 | `effectiveStatus(record)` | lifecycle after simulated decisions (§4) |
 | `effectiveLinkStatus(link)` | link status after endpoint lifecycle (§4) |
 | `proposedRecords` | the review-queue feed |
-| `decideProposal`, `proposeRevision`, `deleteRecord`, `createNote` | mutations |
+| `decideProposal`, `requestAgentRevision`, `deleteRecord`, `createNote` | mutations |
 
 **Finding what points into / out of a record** is just `inboundLinks.get(id)` /
 `outboundLinks.get(id)`. To find records with a *proposed* link into R, filter
