@@ -43,10 +43,16 @@ function RecordLinksPanel({
   allowProposedLinksToggle?: boolean;
 }) {
   const viewStatus = graph.effectiveStatus(record);
-  const recordIsProposed = viewStatus === "PROPOSED";
-  const recordIsAccepted = viewStatus === "ACCEPTED";
-  const recordIsRejected = viewStatus === "REJECTED";
-  const recordIsPendingReplacement = viewStatus === "PENDING_REPLACEMENT";
+  // Frozen is orthogonal to lifecycle, so it overrides the live/proposed reads:
+  // a frozen record is treated as rejected here (unless it's also replaced, where
+  // replaced wins and its links read as provenance). This mirrors the old model,
+  // where freezing drove effectiveStatus to REJECTED.
+  const frozen = graph.recordIsFrozen(record);
+  const recordIsProposed = viewStatus === "PROPOSED" && !frozen;
+  const recordIsAccepted = viewStatus === "ACCEPTED" && !frozen;
+  const recordIsRejected = frozen && viewStatus !== "REPLACED";
+  const recordIsPendingReplacement =
+    viewStatus === "PENDING_REPLACEMENT" && !frozen;
   const recordIsReplaced = viewStatus === "REPLACED";
 
   const {
@@ -72,7 +78,11 @@ function RecordLinksPanel({
 
   const linkPointsToRejectedRecord = (link: GraphLink) => {
     const other = graph.recordsById.get(otherEndpointId(link));
-    return Boolean(other && graph.effectiveStatus(other) === "REJECTED");
+    return Boolean(
+      other &&
+        graph.recordIsFrozen(other) &&
+        graph.effectiveStatus(other) !== "REPLACED",
+    );
   };
 
   // A rejection is information the agent can read without traversing: surface

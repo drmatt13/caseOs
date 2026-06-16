@@ -21,7 +21,6 @@ import { BLANK_SURFACE, PARTY_TONES, TONES } from "#/lib/tones";
 export const RECORD_STATUS_LABELS: Record<RecordStatus, string> = {
   PROPOSED: "Proposed",
   ACCEPTED: "Accepted",
-  REJECTED: "Rejected",
   PENDING_REPLACEMENT: "Pending Replacement",
   REPLACED: "Replaced",
 };
@@ -31,7 +30,6 @@ export const RECORD_STATUS_LABELS: Record<RecordStatus, string> = {
 export const RECORD_STATUS_CLASSES: Record<RecordStatus, string> = {
   ACCEPTED: TONES.positive.badge,
   PROPOSED: TONES.info.badge,
-  REJECTED: TONES.critical.badge,
   PENDING_REPLACEMENT: TONES.caution.badge,
   REPLACED: TONES.neutral.badge,
 };
@@ -39,21 +37,24 @@ export const RECORD_STATUS_CLASSES: Record<RecordStatus, string> = {
 // Card surface tint keyed by status so a record's lifecycle reads at a glance:
 //   proposed → info wash, pending replacement → caution wash, replaced → gray,
 //   accepted → blank glass (no tint; being the source of truth is its own
-//   signal), rejected → critical wash.
+//   signal). The frozen/"Rejected" wash lives on the display map below, since
+//   frozen is a disposition derived on top of the lifecycle, not a status here.
 export const RECORD_STATUS_CARD_CLASSES: Record<RecordStatus, string> = {
   ACCEPTED: BLANK_SURFACE,
   PROPOSED: TONES.info.surface,
-  REJECTED: TONES.critical.surface,
   PENDING_REPLACEMENT: TONES.caution.surface,
   REPLACED: TONES.neutral.surface,
 };
 
-// Chip-shell wash keyed by status, with per-status hover deepening. A clickable
-// RecordChip gets a lighter, interactive variant of the card surface above:
-// accepted/replaced read as plain glass, the rest carry their tone wash plus a
-// hover state. Lives here with the other status→class maps so the presentation
-// layer owns all status styling.
-export const RECORD_CHIP_STATUS_CLASSES: Record<RecordStatus, string> = {
+// Chip-shell wash keyed by DISPLAY status, with per-status hover deepening. A
+// clickable RecordChip gets a lighter, interactive variant of the card surface
+// above: accepted/replaced read as plain glass, the rest carry their tone wash
+// plus a hover state. Keyed by display status so frozen records (and rejected
+// edges) get the critical wash; PROPOSED_REPLACEMENT reuses the proposed wash.
+export const RECORD_CHIP_STATUS_CLASSES: Record<
+  RecordStatus | "REJECTED",
+  string
+> = {
   ACCEPTED: "border-black/15 bg-white/80 hover:border-black/25 hover:bg-white",
   PROPOSED: `${TONES.info.surface} hover:border-sky-700/30 hover:bg-sky-50/60`,
   REJECTED: `${TONES.critical.surface} hover:border-red-700/30 hover:bg-red-50/60`,
@@ -80,12 +81,21 @@ export const RECORD_CHIP_STATUS_CLASSES: Record<RecordStatus, string> = {
 //   • Proposed             → info badge    / info surface     (blue)
 //   • Proposed Replacement → special badge / special surface  (violet)
 //   • Pending Replacement  → caution badge / caution surface  (amber)
-export type RecordDisplayStatus = RecordStatus | "PROPOSED_REPLACEMENT";
+//   • Rejected (frozen)    → critical badge / critical surface (red)
+//
+// REJECTED is likewise display-only: it is the "frozen" disposition surfaced as a
+// single render state (see recordDisplayStatus / recordIsFrozen). The lifecycle
+// underneath is still ACCEPTED/PROPOSED — the frozen record just reads as red.
+export type RecordDisplayStatus =
+  | RecordStatus
+  | "PROPOSED_REPLACEMENT"
+  | "REJECTED";
 
 export const RECORD_DISPLAY_STATUS_LABELS: Record<RecordDisplayStatus, string> =
   {
     ...RECORD_STATUS_LABELS,
     PROPOSED_REPLACEMENT: "Proposed Replacement",
+    REJECTED: "Rejected",
   };
 
 // Badge palette. ACCEPTED keeps a class for type completeness but renders no
@@ -96,6 +106,7 @@ export const RECORD_DISPLAY_STATUS_CLASSES: Record<
 > = {
   ...RECORD_STATUS_CLASSES,
   PROPOSED_REPLACEMENT: TONES.special.badge,
+  REJECTED: TONES.critical.badge,
 };
 
 // Card surface tint. Proposed Replacement's surface shares the `special` hue
@@ -106,6 +117,7 @@ export const RECORD_DISPLAY_STATUS_CARD_CLASSES: Record<
 > = {
   ...RECORD_STATUS_CARD_CLASSES,
   PROPOSED_REPLACEMENT: TONES.special.surface,
+  REJECTED: TONES.critical.surface,
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

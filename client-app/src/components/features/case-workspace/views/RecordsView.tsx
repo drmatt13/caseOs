@@ -1,4 +1,3 @@
-import type { RecordStatus } from "#/types/caseRecords";
 import { VIEW_RECORD_TYPE, type RecordViewType } from "#/types/caseWorkspace";
 import {
   SINGULAR_VIEW_LABELS,
@@ -7,7 +6,11 @@ import {
 } from "#/lib/caseRecordPresentation";
 import Button from "#/components/ui/Button";
 
-import { recordMatchesSearch } from "../helpers";
+import {
+  recordFilterStatus,
+  recordMatchesSearch,
+  type RecordFilterStatus,
+} from "../helpers";
 import { EmptyState } from "../common";
 import { StatusFilter, WorkPanelSearch } from "../RecordFilters";
 import RecordCard from "../RecordCard";
@@ -27,8 +30,8 @@ function RecordsView({
   graph: WorkspaceGraph;
   panelSearch: string;
   setPanelSearch: (value: string) => void;
-  selectedStatuses: RecordStatus[];
-  setSelectedStatuses: (statuses: RecordStatus[]) => void;
+  selectedStatuses: RecordFilterStatus[];
+  setSelectedStatuses: (statuses: RecordFilterStatus[]) => void;
   onOpenRecord: (recordId: string) => void;
 }) {
   const recordType = VIEW_RECORD_TYPE[activeView];
@@ -36,8 +39,9 @@ function RecordsView({
 
   const filteredRecords = graph.records.filter((record) => {
     if (record.type !== recordType) return false;
-    const status = graph.effectiveStatus(record);
-    const matchesStatus = selectedStatuses.includes(status);
+    const matchesStatus = selectedStatuses.includes(
+      recordFilterStatus(record, graph),
+    );
     return (
       matchesStatus &&
       recordMatchesSearch(

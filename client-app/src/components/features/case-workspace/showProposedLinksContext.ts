@@ -9,7 +9,7 @@ export const ShowProposedLinksContext = createContext<{
   showRejected: boolean;
   setShowRejected: (value: boolean) => void;
 }>({
-  show: false,
+  show: true,
   setShow: () => {},
   showRejected: true,
   setShowRejected: () => {},

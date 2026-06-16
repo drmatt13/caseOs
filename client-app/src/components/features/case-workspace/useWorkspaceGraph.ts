@@ -97,6 +97,16 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     [records],
   );
 
+  // Frozen disposition — orthogonal to lifecycle `status` (see RecordStatus). A
+  // record is frozen by a session reject decision or by a stored `rejectedAt`:
+  // reference-only as a traversal boundary until restored. Every consumer reads
+  // "is this frozen?" through here so the rule lives in one place.
+  const recordIsFrozen = (record: TypedCaseRecord): boolean => {
+    const decision = proposalDecisions[record.id];
+    if (decision) return decision.status === "rejected";
+    return Boolean(record.rejectedAt);
+  };
+
   const { outboundLinks, inboundLinks } = useMemo(() => {
     const outbound = new Map<string, GraphLink[]>();
     const inbound = new Map<string, GraphLink[]>();
@@ -136,6 +146,7 @@ export function useWorkspaceGraph(demo: CaseDemo) {
       if (
         record.status === "PROPOSED" &&
         !proposalDecisions[record.id] &&
+        !recordIsFrozen(record) &&
         record.replacesIds
       ) {
         for (const targetId of record.replacesIds) {
@@ -177,13 +188,15 @@ export function useWorkspaceGraph(demo: CaseDemo) {
   }, [records, recordsById, proposalDecisions]);
 
   const effectiveStatus = (record: TypedCaseRecord): RecordStatus => {
-    // REPLACED wins over a rejection decision: regenerating a frozen record into
-    // an accepted successor retires it to REPLACED, even though its rejection
-    // decision (and `rejectionReason`) is intentionally left in place.
+    // Lifecycle position only. The frozen disposition is orthogonal (see
+    // recordIsFrozen): a frozen record keeps the lifecycle status it had, and
+    // "Rejected" is derived for display, never returned here.
+    // REPLACED still wins: regenerating a frozen record into an accepted
+    // successor retires it to REPLACED, while its `rejectionReason` is left in
+    // place so the audit trail survives the fix.
     if (replacedIds.includes(record.id)) return "REPLACED";
     const decision = proposalDecisions[record.id];
-    if (decision)
-      return decision.status === "accepted" ? "ACCEPTED" : "REJECTED";
+    if (decision?.status === "accepted") return "ACCEPTED";
     // An accepted record reads as "Pending Replacement" only while a live
     // replacement proposal targets it; if that proposal is decided away, it
     // reverts to plain accepted.
@@ -210,10 +223,15 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     if (link.status === "REJECTED") return "REJECTED";
     const from = recordsById.get(link.fromRecordId);
     const to = recordsById.get(link.toRecordId);
+    // A frozen endpoint is no longer authoritative, so its accepted edges demote
+    // to PROPOSED — same as before, when freezing drove effectiveStatus to
+    // REJECTED. Frozen is now orthogonal, so it must be checked explicitly.
     return from &&
       to &&
       isAuthoritative(effectiveStatus(from)) &&
-      isAuthoritative(effectiveStatus(to))
+      !recordIsFrozen(from) &&
+      isAuthoritative(effectiveStatus(to)) &&
+      !recordIsFrozen(to)
       ? "ACCEPTED"
       : "PROPOSED";
   };
@@ -222,7 +240,9 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     () =>
       records.filter(
         (record) =>
-          record.status === "PROPOSED" && !proposalDecisions[record.id],
+          record.status === "PROPOSED" &&
+          !proposalDecisions[record.id] &&
+          !recordIsFrozen(record),
       ),
     [records, proposalDecisions],
   );
@@ -405,6 +425,7 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     outboundLinks,
     inboundLinks,
     effectiveStatus,
+    recordIsFrozen,
     effectiveLinkStatus,
     pendingReplacementByTargetId,
     acceptedReplacementsByTargetId,

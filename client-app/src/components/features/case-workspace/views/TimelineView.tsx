@@ -1,13 +1,19 @@
 import { CalendarDays } from "lucide-react";
 
-import type { RecordStatus, TimelineEventRecord } from "#/types/caseRecords";
+import type { TimelineEventRecord } from "#/types/caseRecords";
 import {
   VIEW_DESCRIPTIONS,
   VIEW_LABELS,
 } from "#/lib/caseRecordPresentation";
 import Button from "#/components/ui/Button";
 
-import { formatEventDate, isRangedEvent, recordMatchesSearch } from "../helpers";
+import {
+  formatEventDate,
+  isRangedEvent,
+  recordFilterStatus,
+  recordMatchesSearch,
+  type RecordFilterStatus,
+} from "../helpers";
 import { EmptyState } from "../common";
 import { StatusFilter, WorkPanelSearch } from "../RecordFilters";
 import RecordCard from "../RecordCard";
@@ -24,16 +30,16 @@ function TimelineView({
   graph: WorkspaceGraph;
   panelSearch: string;
   setPanelSearch: (value: string) => void;
-  selectedStatuses: RecordStatus[];
-  setSelectedStatuses: (statuses: RecordStatus[]) => void;
+  selectedStatuses: RecordFilterStatus[];
+  setSelectedStatuses: (statuses: RecordFilterStatus[]) => void;
   onOpenRecord: (recordId: string) => void;
 }) {
   const events = graph.records
     .filter((record): record is TimelineEventRecord => {
       if (record.type !== "TIMELINE_EVENT") return false;
-      const status = graph.effectiveStatus(record);
       const matchesStatus =
-        selectedStatuses.length === 0 || selectedStatuses.includes(status);
+        selectedStatuses.length === 0 ||
+        selectedStatuses.includes(recordFilterStatus(record, graph));
       return (
         matchesStatus &&
         recordMatchesSearch(

@@ -163,7 +163,8 @@ function RecordInspector({
 
         {record &&
           (editingId === record.id &&
-          graph.effectiveStatus(record) === "PROPOSED" ? (
+          graph.effectiveStatus(record) === "PROPOSED" &&
+          !graph.recordIsFrozen(record) ? (
             <ProposalManualEditor
               key={`edit-${record.id}`}
               record={record}
@@ -267,6 +268,10 @@ function RecordInspectorBody({
   visitedIds: Set<string>;
 }) {
   const status = graph.effectiveStatus(record);
+  // Frozen is orthogonal to lifecycle: it gates the action surfaces (a frozen
+  // record shows the Frozen note + regenerate panel, never the proposal/accepted
+  // toolbars), regardless of the lifecycle position underneath.
+  const frozen = graph.recordIsFrozen(record);
   const displayStatus = recordDisplayStatus(record, graph);
   const relationshipSummary = recordRelationshipSummary(record, graph);
   const sourceDocument =
@@ -332,7 +337,7 @@ function RecordInspectorBody({
         </div>
       )}
 
-      {record.type === "TASK" && status === "ACCEPTED" && (
+      {record.type === "TASK" && status === "ACCEPTED" && !frozen && (
         <TaskStatusControl
           record={record}
           graph={graph}
@@ -400,7 +405,7 @@ function RecordInspectorBody({
       {/* Replacement state mirrors the case-record card so the inspector reads
           the same way: the amber "would replace" and red "locked, pending
           replacement" containers travel with the record into the drawer. */}
-      {status === "PROPOSED" && record.replacesIds?.length && (
+      {status === "PROPOSED" && !frozen && record.replacesIds?.length && (
         <div className="mt-4">
           <ReplacementNotice
             record={record}
@@ -429,7 +434,10 @@ function RecordInspectorBody({
         visitedIds={visitedIds}
       />
 
-      {status === "REJECTED" && (
+      {/* `displayStatus === "REJECTED"` is exactly "frozen AND not replaced": a
+          frozen-then-replaced record shows the "Previously rejected" audit note
+          below instead of this active Frozen note with Restore. */}
+      {displayStatus === "REJECTED" && (
         <FrozenNote
           reason={record.rejectionReason}
           onRestore={() => graph.restoreRecord(record.id)}
@@ -459,7 +467,7 @@ function RecordInspectorBody({
         />
       </div>
 
-      {status === "PROPOSED" && (
+      {status === "PROPOSED" && !frozen && (
         <ProposalActions
           record={record}
           onDelete={(id) => {
@@ -471,7 +479,7 @@ function RecordInspectorBody({
         />
       )}
 
-      {status === "ACCEPTED" && (
+      {status === "ACCEPTED" && !frozen && (
         <AcceptedRecordActions
           record={record}
           onRequestRevision={graph.requestAgentRevision}
@@ -479,7 +487,7 @@ function RecordInspectorBody({
         />
       )}
 
-      {status === "REJECTED" && (
+      {displayStatus === "REJECTED" && (
         <RejectedRecordActions
           record={record}
           onRequestRevision={graph.requestAgentRevision}

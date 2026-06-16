@@ -36,7 +36,7 @@ function RecordCard({
       }}
       title={`Open ${record.title}`}
     >
-      {(status === "ACCEPTED" || status === "REJECTED") && (
+      {(status === "ACCEPTED" || displayStatus === "REJECTED") && (
         <div className="absolute right-3 top-3">
           <RecordSettingsMenu record={record} onDelete={graph.deleteRecord} />
         </div>

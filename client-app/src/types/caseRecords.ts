@@ -70,20 +70,26 @@ export const RECORD_LEVEL: Record<RecordType, number> = {
 // Status types
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Lifecycle of a single record:
-//   PROPOSED → ACCEPTED (user approves)
-//   PROPOSED → deleted (user discards the proposal before it enters the graph)
-//   ACCEPTED → REJECTED (user freezes/retires a live record)
-//   REJECTED → ACCEPTED (user restores a frozen record)
-//   ACCEPTED → PENDING_REPLACEMENT (a proposed replacement exists)
-//   PENDING_REPLACEMENT → REPLACED (replacement approved; old record retired)
+// A record sits on TWO orthogonal axes, deliberately kept separate:
 //
-// REJECTED is "frozen": the record is reference-only and excluded from agent
-// reasoning, but it is never deleted — it can still be cited when proposing other
-// records, and it can be restored to ACCEPTED. Freezing requires a reason, stored
-// in `rejectionReason`. A frozen record can also be regenerated through the
-// proposal engine: accepting a "fix" proposal retires it REJECTED → REPLACED while
-// keeping `rejectionReason`, so the trail of why it was rejected survives.
+//   1. LIFECYCLE POSITION (this type) — mutually exclusive and monotonic:
+//        PROPOSED → ACCEPTED (user approves)
+//        PROPOSED → deleted (user discards the proposal before it enters the graph)
+//        ACCEPTED → PENDING_REPLACEMENT (a proposed replacement exists)
+//        PENDING_REPLACEMENT → REPLACED (replacement approved; old record retired)
+//
+//   2. FROZEN DISPOSITION (the `rejectedAt` / `rejectionReason` fields below) — a
+//      reversible human action that turns a record into a traversal boundary
+//      while keeping it as reference. Agents may encounter the record through a
+//      link and read its rejection reason as context, but should not continue
+//      traversal through it as an authoritative node. It is orthogonal to
+//      lifecycle: a record can be frozen while ACCEPTED ("retire this live
+//      record"), and a frozen record can still be REPLACED (regenerating a "fix"
+//      keeps `rejectionReason`, so the trail of why it was rejected survives).
+//      Frozen records are never deleted — they can be cited when proposing other
+//      records, and can be restored.
+//      "Rejected" is a derived display state (frozen + not replaced); it is NOT a
+//      lifecycle position. See `recordIsFrozen` / `recordDisplayStatus`.
 //
 // Replacement is many-to-many, not just 1:1 — see `replacesIds` /
 // `replacedByIds` on CaseRecord. One record can split into several (1→N) and
@@ -91,7 +97,6 @@ export const RECORD_LEVEL: Record<RecordType, number> = {
 export type RecordStatus =
   | "PROPOSED"
   | "ACCEPTED"
-  | "REJECTED"
   | "PENDING_REPLACEMENT"
   | "REPLACED";
 
@@ -236,11 +241,14 @@ export interface CaseRecord {
   approvedByUserId?: string;
   approvedAt?: string;
 
-  // Freeze / retire (status === "REJECTED"). The reason is required when a record
-  // is frozen so the decision is auditable; a frozen record is reference-only and
-  // excluded from agent reasoning until restored. The reason is retained even
-  // after a frozen record is regenerated into a successor (REJECTED → REPLACED),
-  // so the record of WHY it was rejected survives the fix.
+  // Frozen disposition — orthogonal to `status` (see RecordStatus). `rejectedAt`
+  // marks a record as frozen: a reference-only traversal boundary until restored.
+  // Agents may use the record's incident link and rejection reason as context,
+  // then stop instead of traversing through the rejected record. The reason lives
+  // on the record (not the link), is required when a record is frozen so the
+  // decision is auditable, and is retained even after a frozen record is
+  // regenerated into a successor (it stays on the now-REPLACED record), so the
+  // record of WHY it was rejected survives the fix.
   rejectionReason?: string;
   rejectedByUserId?: string;
   rejectedAt?: string;

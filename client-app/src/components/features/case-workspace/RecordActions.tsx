@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import {
   CheckCircle2,
+  CircleSlash,
   GitBranch,
   PencilLine,
   RotateCcw,
   Settings,
   Sparkles,
-  Snowflake,
   Trash2,
   Wrench,
 } from "lucide-react";
@@ -42,7 +42,7 @@ export function ProposalActions({
     <div className="mt-4 rounded-lg border border-black/15 bg-white/75 p-3">
       {/* Proposals are either accepted into the graph, edited, or deleted from
           review. Rejection is reserved for already accepted records, where it
-          means "freeze this record out of reasoning." */}
+          creates a traversal boundary with an auditable reason. */}
       <div className="flex flex-wrap flex-row-reverse items-center gap-2">
         <Button
           style="primary"
@@ -116,8 +116,8 @@ export function ProposalActions({
 
 // Action surface for accepted (authoritative) records. An accepted record can't
 // be edited in place: the human either has the agent draft a replacement
-// ("Propose revision") or freezes it out of reasoning ("Reject record"). One
-// consistent toolbar, one inline panel at a time.
+// ("Propose revision") or marks it as a rejected traversal boundary ("Reject
+// record"). One consistent toolbar, one inline panel at a time.
 type ActiveAction = "revision" | "reject";
 
 export function AcceptedRecordActions({
@@ -147,29 +147,27 @@ export function AcceptedRecordActions({
       className="mt-4 rounded-lg border border-black/15 bg-white/75 p-3"
       onClick={(event) => event.stopPropagation()}
     >
-      <p className="mb-2 text-xs text-black/65">Manage record</p>
-
-      {/* One consistent toolbar: the constructive action on the left, the
-          destructive retire action on the right. Each button toggles a single
-          inline panel below — no competing idioms; the open panel is itself the
-          active-state indicator. */}
-      <div className="flex flex-wrap items-center gap-2">
-        <Button
-          style="secondary"
-          size="sm"
-          icon={GitBranch}
-          text={active === "revision" ? "Cancel" : "Propose revision"}
-          title="Have the agent draft a replacement proposal"
-          onClick={() => toggle("revision")}
-        />
-        <div className="ml-auto flex items-center gap-2">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-1.5 text-sm text-black/65">
+          <Wrench className="h-4 w-4" />
+          <span>Manage record</span>
+        </div>
+        <div className="flex flex-wrap justify-end gap-2">
           <Button
             style="danger"
             size="sm"
-            icon={Snowflake}
+            icon={CircleSlash}
             text={active === "reject" ? "Cancel" : "Reject record"}
-            title="Freeze this record out of agent reasoning (kept as reference)"
+            title="Reject this record; agents can read the reason, but will not rely on it or follow it further"
             onClick={() => toggle("reject")}
+          />
+          <Button
+            style="secondary"
+            size="sm"
+            icon={GitBranch}
+            text={active === "revision" ? "Cancel" : "Propose revision"}
+            title="Have the agent draft a replacement proposal"
+            onClick={() => toggle("revision")}
           />
         </div>
       </div>
@@ -207,7 +205,7 @@ export function AcceptedRecordActions({
       {active === "reject" && (
         <div className={`mt-3 rounded-lg border p-3 ${TONES.critical.surface}`}>
           <TextAreaField
-            label="Reason for freezing this record"
+            label="Reason for rejecting this record"
             placeholder="Example: superseded by the settlement; this theory is no longer being pursued."
             value={reason}
             onChange={(event) => setReason(event.target.value)}
@@ -218,7 +216,7 @@ export function AcceptedRecordActions({
             <Button
               style="danger"
               size="sm"
-              text="Freeze record"
+              text="Reject record"
               disabled={!reason.trim()}
               onClick={() => {
                 onReject(record.id, reason.trim());
@@ -233,10 +231,9 @@ export function AcceptedRecordActions({
   );
 }
 
-// Action surface for a frozen (REJECTED) record: regenerate it through the
-// proposal engine. The human describes how to fix the rejected record and the
-// agent drafts a PROPOSED replacement; accepting it retires the original
-// REJECTED → REPLACED while keeping its rejection reason. (Restore lives on the
+// Action surface for a frozen record (display "Rejected"): ask the agent to
+// draft a new replacement proposal. Accepting that proposal retires the rejected
+// original as Replaced while keeping its rejection reason. (Restore lives on the
 // FrozenNote above.)
 export function RejectedRecordActions({
   record,
@@ -256,14 +253,14 @@ export function RejectedRecordActions({
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-1.5 text-sm text-black/65">
           <Wrench className="h-4 w-4" />
-          <span>Regenerate this record</span>
+          <span>Manage record</span>
         </div>
         <Button
           style="secondary"
           size="sm"
           icon={open ? undefined : Sparkles}
-          text={open ? "Cancel" : "Propose a fix"}
-          title="Have the agent draft a replacement that addresses the rejection"
+          text={open ? "Cancel" : "Propose revision"}
+          title="Have the agent draft a replacement proposal"
           onClick={() => {
             setInstruction("");
             setOpen((value) => !value);
@@ -274,8 +271,8 @@ export function RejectedRecordActions({
       {open && (
         <div className="mt-3">
           <TextAreaField
-            label="How should the agent fix it?"
-            placeholder="Describe what to change so this record can stand — address the rejection reason. The agent drafts a proposed replacement for your review."
+            label="What should the agent revise?"
+            placeholder="Describe the revision — what to preserve, change, cite, split, or rewrite. The agent drafts a replacement proposal for your review."
             value={instruction}
             onChange={(event) => setInstruction(event.target.value)}
             rows={3}
@@ -283,14 +280,14 @@ export function RejectedRecordActions({
           />
           <div className="mt-2 flex items-center justify-between gap-3">
             <span className="text-xs text-black/55">
-              Accepting the fix retires this record (Rejected → Replaced) but
-              keeps its rejection reason.
+              Accepting the revision retires this rejected record as replaced
+              while keeping its rejection reason.
             </span>
             <Button
               style="primary"
               size="sm"
               icon="sparkles"
-              text="Draft fix"
+              text="Draft revision"
               disabled={!instruction.trim()}
               onClick={() => {
                 onRequestRevision(record.id, instruction.trim());
@@ -407,7 +404,7 @@ export function TaskStatusControl({
   );
 }
 
-// Notice shown on a frozen (REJECTED) record: why it was frozen, plus Restore.
+// Notice shown on a rejected record: why it is kept for context, plus Restore.
 export function FrozenNote({
   reason,
   onRestore,
@@ -421,8 +418,8 @@ export function FrozenNote({
     >
       <div className="flex items-center justify-between gap-3">
         <p className="flex items-center gap-1.5 font-medium">
-          <Snowflake className="h-4 w-4" />
-          Frozen · excluded from agent reasoning
+          <CircleSlash className="h-4 w-4" />
+          Rejected · kept for context
         </p>
         <Button
           style="secondary"
@@ -433,6 +430,10 @@ export function FrozenNote({
         />
       </div>
       {reason && <p className="mt-1 leading-5">Reason: {reason}</p>}
+      <p className="mt-1 text-xs leading-5 text-red-700">
+        Agents may read this reason, but will not rely on this record or follow
+        it further.
+      </p>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import type {
   CaseDocument,
   DatePrecision,
   GraphLink,
+  RecordStatus,
   RecordType,
   TimelineEventRecord,
   TypedCaseRecord,
@@ -141,30 +142,52 @@ export function recordMatchesSearch(
     record.substatus ? RECORD_SUBSTATUS_LABELS[record.substatus] : "",
     record.supportStatus ? SUPPORT_STATUS_LABELS[record.supportStatus] : "",
     record.party ? recordPartyLabel(record.party, clientRole) : "",
-    // A proposed record that replaces reads as "Proposed Replacement"; index
-    // that label so the term finds it (raw status alone would only say Proposed).
-    record.status === "PROPOSED" && record.replacesIds?.length
-      ? RECORD_DISPLAY_STATUS_LABELS.PROPOSED_REPLACEMENT
-      : RECORD_STATUS_LABELS[record.status],
+    // Index the display label so search finds the derived states: a frozen record
+    // by "Rejected" (it carries a rejectionReason), and a proposal that replaces
+    // by "Proposed Replacement" — raw status alone would only say Proposed.
+    record.rejectionReason && record.status !== "REPLACED"
+      ? RECORD_DISPLAY_STATUS_LABELS.REJECTED
+      : record.status === "PROPOSED" && record.replacesIds?.length
+        ? RECORD_DISPLAY_STATUS_LABELS.PROPOSED_REPLACEMENT
+        : RECORD_STATUS_LABELS[record.status],
   ]
     .join(" ")
     .toLowerCase()
     .includes(normalizedSearch);
 }
 
-// Resolve a record to its display status — the lifecycle status, except a
-// proposal that would replace an existing record reads as its own "Proposed
-// Replacement" state (green badge, purple surface). The single source of truth
-// for every status badge, card tint, and inspector wash, so links, cards, and
-// the inspector never diverge.
+// Resolve a record to its display status — the single source of truth for every
+// status badge, card tint, and inspector wash, so links, cards, and the
+// inspector never diverge. It folds the orthogonal lifecycle + frozen axes into
+// one render token, by priority:
+//   • REPLACED wins (the "previously rejected" audit note carries the rejection);
+//   • a frozen record reads as "Rejected" (red), whatever its lifecycle;
+//   • a proposal that would replace an existing record reads as its own "Proposed
+//     Replacement" state (violet).
 export function recordDisplayStatus(
   record: TypedCaseRecord,
   graph: WorkspaceGraph,
 ): RecordDisplayStatus {
   const status = graph.effectiveStatus(record);
+  if (status === "REPLACED") return "REPLACED";
+  if (graph.recordIsFrozen(record)) return "REJECTED";
   return status === "PROPOSED" && record.replacesIds?.length
     ? "PROPOSED_REPLACEMENT"
     : status;
+}
+
+// The user-facing status buckets for the filter chips: the lifecycle states plus
+// the derived "Rejected" (frozen). Proposed Replacement collapses into Proposed
+// for filtering, matching how a plain proposal and a replacement proposal share
+// the review queue.
+export type RecordFilterStatus = RecordStatus | "REJECTED";
+
+export function recordFilterStatus(
+  record: TypedCaseRecord,
+  graph: WorkspaceGraph,
+): RecordFilterStatus {
+  const displayStatus = recordDisplayStatus(record, graph);
+  return displayStatus === "PROPOSED_REPLACEMENT" ? "PROPOSED" : displayStatus;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -211,7 +234,7 @@ export function needsAttention(
   graph: WorkspaceGraph,
 ): boolean {
   const status = graph.effectiveStatus(record);
-  if (status === "REPLACED" || status === "REJECTED") return false;
+  if (status === "REPLACED" || graph.recordIsFrozen(record)) return false;
   return recordAttention(record) !== null;
 }
 

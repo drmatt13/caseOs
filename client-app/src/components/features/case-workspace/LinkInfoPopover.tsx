@@ -27,8 +27,9 @@ function linkTone(type: RecordLinkType): ToneName {
 }
 
 // The label already says "rejected"; keep the stored reason literal, but avoid
-// doubled display copy like "Note rejected: rejected because...".
-function displayRejectionReason(reason: string) {
+// doubled display copy like "Note rejected: rejected because...". Exported so the
+// proposal editor can surface a frozen linked record's reason the same way.
+export function displayRejectionReason(reason: string) {
   const trimmed = reason.trim();
   const withoutLeadingStatus = trimmed
     .replace(/^(?:(?:reject(?:ed|ion)?)\b[\s:;,.!?\-]*)+/i, "")
@@ -96,7 +97,13 @@ function LinkInfoPopover({
     typeLabel: string,
     here: boolean,
   ): EndpointRejection | undefined => {
-    if (!record || graph.effectiveStatus(record) !== "REJECTED") {
+    // A frozen-and-not-replaced endpoint (display "Rejected"). A frozen record
+    // that was later replaced reads as Replaced, not Rejected, so skip it here.
+    if (
+      !record ||
+      !graph.recordIsFrozen(record) ||
+      graph.effectiveStatus(record) === "REPLACED"
+    ) {
       return undefined;
     }
     const decision = graph.proposalDecisions[record.id];

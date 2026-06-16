@@ -1366,12 +1366,17 @@ const ojRecords: TypedCaseRecord[] = [
     content:
       "The glove report states the two gloves appeared visually consistent but that visual similarity does not establish common origin, and that additional testing is required. The proposal records this as an open evidentiary point rather than a concession.",
   },
-  // One REJECTED record to exercise the rejected lifecycle/filter.
+  // One frozen ("Rejected") record to exercise the frozen disposition + filter.
+  // Frozen is orthogonal to lifecycle: this was a proposal that was declined and
+  // kept for reference, so its lifecycle is PROPOSED and `rejectedAt` marks it
+  // frozen. It reads as "Rejected", stays out of the review queue, and is
+  // linkable via the picker's "Include rejected" toggle. See recordIsFrozen.
   {
     ...recordDefaults,
     id: "fact-alt-suspect-rejected",
     type: "FACT",
-    status: "REJECTED",
+    status: "PROPOSED",
+    rejectedAt: "2026-06-13T12:00:00Z",
     supportStatus: "UNSUPPORTED",
     party: "ours",
     category: "Alternative theory",

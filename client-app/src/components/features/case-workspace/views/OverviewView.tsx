@@ -21,7 +21,8 @@ function OverviewView({
   const highPriorityRecords = graph.records.filter(
     (record) =>
       record.priority === "high" &&
-      graph.effectiveStatus(record) === "ACCEPTED",
+      graph.effectiveStatus(record) === "ACCEPTED" &&
+      !graph.recordIsFrozen(record),
   );
   const attentionRecords = graph.records.filter((record) =>
     needsAttention(record, graph),

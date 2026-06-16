@@ -1,12 +1,11 @@
 import { useMemo, useState } from "react";
 
 import type { ViewCount } from "#/components/menus/ActiveWorkspaceMenu";
-import type { RecordStatus } from "#/types/caseRecords";
 import { RECORD_TYPE_VIEW, type WorkspaceViewType } from "#/types/caseWorkspace";
 import { getCaseDemo } from "#/demo/caseDemos";
 
 import { useWorkspaceGraph } from "./useWorkspaceGraph";
-import { recordMatchesSearch } from "./helpers";
+import { recordMatchesSearch, type RecordFilterStatus } from "./helpers";
 import { DEFAULT_VISIBLE_STATUSES } from "./RecordFilters";
 
 // All local UI state and derivations for the case workspace route: the active
@@ -23,14 +22,14 @@ export function useCaseWorkspace(caseId: string) {
   const [globalSearch, setGlobalSearch] = useState("");
   const [panelSearch, setPanelSearch] = useState("");
   // Replaced records are hidden by default so the views show only live work.
-  const [selectedStatuses, setSelectedStatuses] = useState<RecordStatus[]>(
+  const [selectedStatuses, setSelectedStatuses] = useState<RecordFilterStatus[]>(
     DEFAULT_VISIBLE_STATUSES,
   );
   // Graph traversal: a stack of record ids opened in the inspector drawer.
   const [inspectorStack, setInspectorStack] = useState<string[]>([]);
   // Sticky inspector preference for accepted records as graph traversal moves
   // from one inspected record to the next.
-  const [showProposedLinks, setShowProposedLinks] = useState(false);
+  const [showProposedLinks, setShowProposedLinks] = useState(true);
   const [showRejectedRecords, setShowRejectedRecords] = useState(true);
   const showProposedLinksValue = useMemo(
     () => ({
@@ -67,9 +66,13 @@ export function useCaseWorkspace(caseId: string) {
       const view = RECORD_TYPE_VIEW[record.type];
       const status = graph.effectiveStatus(record);
       const entry = counts[view] ?? { accepted: 0, proposed: 0 };
-      if (status === "PROPOSED") entry.proposed += 1;
-      else if (status === "ACCEPTED" || status === "PENDING_REPLACEMENT")
-        entry.accepted += 1;
+      // Frozen records are reference-only — not live work, so they don't tally
+      // into either badge (the entry is still created for the view).
+      if (!graph.recordIsFrozen(record)) {
+        if (status === "PROPOSED") entry.proposed += 1;
+        else if (status === "ACCEPTED" || status === "PENDING_REPLACEMENT")
+          entry.accepted += 1;
+      }
       counts[view] = entry;
     }
     // Documents are a special case: the gray badge counts source files (the

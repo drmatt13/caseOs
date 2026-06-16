@@ -18,13 +18,16 @@ import type {
 import {
   isSymmetricLink,
   LINK_TYPE_LABEL_PAIRS,
+  RECORD_DISPLAY_STATUS_CARD_CLASSES,
   RECORD_TYPE_LABELS,
 } from "#/lib/caseRecordPresentation";
 import Button from "#/components/ui/Button";
 import TextAreaField from "#/components/ui/TextAreaField";
 import { TextInputField } from "#/components/features/create-case/fields";
 
-import { recordMatchesSearch } from "./helpers";
+import { recordDisplayStatus, recordMatchesSearch } from "./helpers";
+import { StatusBadge } from "./RecordBadges";
+import { displayRejectionReason } from "./LinkInfoPopover";
 import { WorkPanelSearch } from "./RecordFilters";
 import type { WorkspaceGraph } from "./useWorkspaceGraph";
 
@@ -174,13 +177,31 @@ function LinkEditorRow({
       ? ArrowRight
       : ArrowLeft;
   const missingReason = !link.explanation.trim();
+  // Reflect the linked record's status in the row, in the same language as
+  // RecordCard: the card-surface wash plus the resolved status pill (a frozen
+  // record reads red, a replaced one gray, etc.). The reason is shown for a
+  // frozen-and-not-replaced ("Rejected") record so the human sees why it stands.
+  const otherDisplayStatus = other
+    ? recordDisplayStatus(other, graph)
+    : undefined;
+  const rejectionReason =
+    otherDisplayStatus === "REJECTED" ? other?.rejectionReason : undefined;
 
   return (
-    <div className="rounded-lg border border-black/15 bg-white/70 p-2.5">
+    <div
+      className={`rounded-lg border p-2.5 ${
+        otherDisplayStatus
+          ? RECORD_DISPLAY_STATUS_CARD_CLASSES[otherDisplayStatus]
+          : "border-black/15 bg-white/70"
+      }`}
+    >
       <div className="flex items-start justify-between gap-2">
-        <OtherRecordTag
-          record={other ?? { type: otherType, title: "Unknown record" }}
-        />
+        <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+          <OtherRecordTag
+            record={other ?? { type: otherType, title: "Unknown record" }}
+          />
+          {otherDisplayStatus && <StatusBadge status={otherDisplayStatus} />}
+        </div>
         <button
           type="button"
           aria-label="Remove link"
@@ -190,6 +211,12 @@ function LinkEditorRow({
           <Trash2 className="h-4 w-4" />
         </button>
       </div>
+      {rejectionReason && (
+        <p className="mt-1.5 text-xs leading-snug text-red-800/90 line-clamp-2">
+          <span className="font-medium">Rejected:</span>{" "}
+          {displayRejectionReason(rejectionReason)}
+        </p>
+      )}
 
       <div className="mt-2 flex flex-wrap items-center gap-2">
         <select
@@ -274,9 +301,10 @@ function LinkEditorRow({
   );
 }
 
-// Search-and-pick a record to link. Filters the workspace by text; a checkbox
-// opts proposed records into the candidate set (off by default — links usually
-// attach to authoritative records). Retired/rejected records are never offered.
+// Search-and-pick a record to link. Filters the workspace by text; checkboxes opt
+// proposed and rejected (frozen) records into the candidate set (both off by
+// default — links usually attach to authoritative records). Replaced records are
+// retired version history and are never offered, even one that was also rejected.
 function LinkSearchPicker({
   record,
   graph,
@@ -292,6 +320,7 @@ function LinkSearchPicker({
 }) {
   const [query, setQuery] = useState("");
   const [includeProposed, setIncludeProposed] = useState(false);
+  const [includeRejected, setIncludeRejected] = useState(false);
   const clientRole = graph.demo.caseContext.representation.clientRole;
   const searchTerm = query.trim();
 
@@ -303,8 +332,16 @@ function LinkSearchPicker({
         if (candidate.id === record.id) return false;
         if (existingOtherIds.has(candidate.id)) return false;
         const status = graph.effectiveStatus(candidate);
-        if (status === "REPLACED" || status === "REJECTED") return false;
-        if (status === "PROPOSED" && !includeProposed) return false;
+        // Replaced records are retired version history — never linkable. Checked
+        // first so a rejected-then-superseded record stays out regardless.
+        if (status === "REPLACED") return false;
+        // Frozen reads as "Rejected"; gate it behind its own toggle rather than
+        // the proposed one, whatever lifecycle sits underneath.
+        if (graph.recordIsFrozen(candidate)) {
+          if (!includeRejected) return false;
+        } else if (status === "PROPOSED" && !includeProposed) {
+          return false;
+        }
         return recordMatchesSearch(candidate, searchTerm, clientRole);
       })
       .slice(0, 12);
@@ -313,6 +350,7 @@ function LinkSearchPicker({
     record.id,
     existingOtherIds,
     includeProposed,
+    includeRejected,
     searchTerm,
     clientRole,
   ]);
@@ -339,15 +377,26 @@ function LinkSearchPicker({
         />
       </div>
 
-      <label className="mt-2 flex w-fit cursor-pointer select-none items-center gap-2 text-xs text-black/60">
-        <input
-          type="checkbox"
-          className="h-3.5 w-3.5 accent-[#282828]"
-          checked={includeProposed}
-          onChange={(event) => setIncludeProposed(event.target.checked)}
-        />
-        Include proposed records
-      </label>
+      <div className="mt-2 flex flex-col items-start gap-1.5">
+        <label className="flex w-fit cursor-pointer select-none items-center gap-2 text-xs text-black/60">
+          <input
+            type="checkbox"
+            className="h-3.5 w-3.5 accent-[#282828]"
+            checked={includeProposed}
+            onChange={(event) => setIncludeProposed(event.target.checked)}
+          />
+          Include proposed records
+        </label>
+        <label className="flex w-fit cursor-pointer select-none items-center gap-2 text-xs text-black/60">
+          <input
+            type="checkbox"
+            className="h-3.5 w-3.5 accent-[#282828]"
+            checked={includeRejected}
+            onChange={(event) => setIncludeRejected(event.target.checked)}
+          />
+          Include rejected records
+        </label>
+      </div>
 
       <div className="mt-2 flex max-h-56 flex-col gap-1 overflow-y-auto">
         {candidates.length === 0 ? (
@@ -355,17 +404,33 @@ function LinkSearchPicker({
             {searchTerm ? "No matching records." : "Search to find records."}
           </p>
         ) : (
-          candidates.map((candidate) => (
-            <button
-              key={candidate.id}
-              type="button"
-              className="group flex w-full items-center gap-2 rounded-lg border border-black/15 bg-white/70 px-2.5 py-1.5 text-left transition-colors hover:bg-white"
-              onClick={() => onPick(candidate)}
-            >
-              <OtherRecordTag record={candidate} />
-              <Plus className="ml-auto h-4 w-4 shrink-0 text-black/30 group-hover:text-black/70" />
-            </button>
-          ))
+          candidates.map((candidate) => {
+            const candidateDisplayStatus = recordDisplayStatus(candidate, graph);
+            const candidateReason =
+              candidateDisplayStatus === "REJECTED"
+                ? candidate.rejectionReason
+                : undefined;
+            return (
+              <button
+                key={candidate.id}
+                type="button"
+                className={`group flex w-full flex-col gap-1 rounded-lg border px-2.5 py-1.5 text-left transition-colors hover:border-black/30 ${RECORD_DISPLAY_STATUS_CARD_CLASSES[candidateDisplayStatus]}`}
+                onClick={() => onPick(candidate)}
+              >
+                <div className="flex w-full items-center gap-2">
+                  <OtherRecordTag record={candidate} />
+                  <StatusBadge status={candidateDisplayStatus} />
+                  <Plus className="ml-auto h-4 w-4 shrink-0 text-black/30 group-hover:text-black/70" />
+                </div>
+                {candidateReason && (
+                  <p className="text-xs leading-snug text-red-800/90 line-clamp-2">
+                    <span className="font-medium">Rejected:</span>{" "}
+                    {displayRejectionReason(candidateReason)}
+                  </p>
+                )}
+              </button>
+            );
+          })
         )}
       </div>
     </div>

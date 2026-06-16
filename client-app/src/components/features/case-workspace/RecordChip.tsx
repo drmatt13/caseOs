@@ -1,6 +1,10 @@
 import { ChevronRight, Repeat } from "lucide-react";
 
-import type { GraphLink, TypedCaseRecord } from "#/types/caseRecords";
+import type {
+  GraphLink,
+  RecordStatus,
+  TypedCaseRecord,
+} from "#/types/caseRecords";
 import {
   RECORD_CHIP_STATUS_CLASSES,
   RECORD_DISPLAY_STATUS_CLASSES,
@@ -67,7 +71,6 @@ function RecordChip({
   // is the source) or "inbound" (it is the target). Only meaningful with `link`.
   linkDirection?: "outbound" | "inbound";
 }) {
-  const effectiveStatus = graph.effectiveStatus(record);
   // A rejected EDGE reads red regardless of the target record's own status —
   // the link itself was abandoned. Its reason lives in the Info popover.
   const linkIsRejected = link
@@ -81,15 +84,20 @@ function RecordChip({
     displayStatus === "PROPOSED_REPLACEMENT" ? "PROPOSED" : displayStatus;
   const hideProposedReplacementStatus =
     displayStatus === "PROPOSED_REPLACEMENT" && hideProposedReplacementPill;
-  const chipStatus =
-    displayStatus === "PENDING_REPLACEMENT" && showPendingReplacement
-      ? "PENDING_REPLACEMENT"
-      : effectiveStatus === "PENDING_REPLACEMENT"
-        ? "ACCEPTED"
-        : effectiveStatus;
+  // Chip-shell wash, derived from the display status so a frozen record reads red
+  // and a proposed-replacement reuses the proposed wash. Pending-replacement is
+  // calmed to accepted unless the caller can show the successor in context.
+  const washStatus: RecordStatus | "REJECTED" =
+    displayStatus === "PROPOSED_REPLACEMENT"
+      ? "PROPOSED"
+      : displayStatus === "PENDING_REPLACEMENT"
+        ? showPendingReplacement
+          ? "PENDING_REPLACEMENT"
+          : "ACCEPTED"
+        : displayStatus;
   const chipStatusClass = linkIsRejected
     ? RECORD_CHIP_STATUS_CLASSES.REJECTED
-    : RECORD_CHIP_STATUS_CLASSES[chipStatus];
+    : RECORD_CHIP_STATUS_CLASSES[washStatus];
   // Accepted links wear no pill (their calm absence reads as "settled").
   // Pending-replacement links are also pill-free unless the caller can show the
   // visible replacement records in context. `hidePill` suppresses it outright.

@@ -1,7 +1,8 @@
 import { Filter, RotateCcw, Search } from "lucide-react";
 
-import type { RecordStatus } from "#/types/caseRecords";
-import { RECORD_STATUS_LABELS } from "#/lib/caseRecordPresentation";
+import { RECORD_DISPLAY_STATUS_LABELS } from "#/lib/caseRecordPresentation";
+
+import type { RecordFilterStatus } from "./helpers";
 
 export function WorkPanelSearch({
   value,
@@ -25,7 +26,7 @@ export function WorkPanelSearch({
   );
 }
 
-export const FILTERABLE_STATUSES: RecordStatus[] = [
+export const FILTERABLE_STATUSES: RecordFilterStatus[] = [
   "ACCEPTED",
   "PROPOSED",
   "REJECTED",
@@ -35,17 +36,17 @@ export const FILTERABLE_STATUSES: RecordStatus[] = [
 
 // Default view hides replaced records so the lists show only live work; the
 // reset control returns to exactly this set.
-export const DEFAULT_VISIBLE_STATUSES: RecordStatus[] =
+export const DEFAULT_VISIBLE_STATUSES: RecordFilterStatus[] =
   FILTERABLE_STATUSES.filter((status) => status !== "REPLACED");
 
 export function StatusFilter({
   selectedStatuses,
   onSelectStatuses,
 }: {
-  selectedStatuses: RecordStatus[];
-  onSelectStatuses: (statuses: RecordStatus[]) => void;
+  selectedStatuses: RecordFilterStatus[];
+  onSelectStatuses: (statuses: RecordFilterStatus[]) => void;
 }) {
-  const toggleStatus = (status: RecordStatus) => {
+  const toggleStatus = (status: RecordFilterStatus) => {
     onSelectStatuses(
       selectedStatuses.includes(status)
         ? selectedStatuses.filter((selected) => selected !== status)
@@ -79,7 +80,7 @@ export function StatusFilter({
             onClick={() => toggleStatus(status)}
             type="button"
           >
-            {RECORD_STATUS_LABELS[status]}
+            {RECORD_DISPLAY_STATUS_LABELS[status]}
           </button>
         );
       })}
