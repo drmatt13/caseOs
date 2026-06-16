@@ -67,6 +67,7 @@ function RecordChip({
   // is the source) or "inbound" (it is the target). Only meaningful with `link`.
   linkDirection?: "outbound" | "inbound";
 }) {
+  const effectiveStatus = graph.effectiveStatus(record);
   let displayStatus = recordDisplayStatus(record, graph);
   if (displayStatus === "PROPOSED_REPLACEMENT" && !pairedReplacement) {
     displayStatus = "PROPOSED";
@@ -78,9 +79,9 @@ function RecordChip({
   const chipStatus =
     displayStatus === "PENDING_REPLACEMENT" && showPendingReplacement
       ? "PENDING_REPLACEMENT"
-      : record.status === "PENDING_REPLACEMENT"
+      : effectiveStatus === "PENDING_REPLACEMENT"
         ? "ACCEPTED"
-        : record.status;
+        : effectiveStatus;
   const chipStatusClass = RECORD_CHIP_STATUS_CLASSES[chipStatus];
   // Accepted links wear no pill (their calm absence reads as "settled").
   // Pending-replacement links are also pill-free unless the caller can show the
