@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   CalendarDays,
   ChevronLeft,
@@ -37,9 +37,7 @@ import {
   ProposalActions,
   ProposalDecisionNote,
 } from "./RecordActions";
-import ProposalManualEditor, {
-  type ProposalDraft,
-} from "./ProposalManualEditor";
+import ProposalManualEditor from "./ProposalManualEditor";
 import type { WorkspaceGraph } from "./useWorkspaceGraph";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -71,12 +69,10 @@ function RecordInspector({
     recordId,
   );
 
-  // Manual edit mode is per-record. `editingId` is the proposal currently being
-  // hand-edited; the cache keeps each record's working draft alive across
-  // edit-mode toggles within this inspector session (a visual mock — it never
-  // touches the graph), so "save and edit again later" reads believably.
+  // Manual edit mode is per-record. Saved drafts are written into the
+  // workspace graph's session state, so lists, search, links, and the inspector
+  // all read the edited test data until the page is refreshed.
   const [editingId, setEditingId] = useState<string | null>(null);
-  const draftCacheRef = useRef<Map<string, ProposalDraft>>(new Map());
 
   useEffect(() => {
     if (recordId) setDisplayRecordId(recordId);
@@ -169,9 +165,8 @@ function RecordInspector({
               key={`edit-${record.id}`}
               record={record}
               graph={graph}
-              initialDraft={draftCacheRef.current.get(record.id)}
               onSave={(draft) => {
-                draftCacheRef.current.set(record.id, draft);
+                graph.saveProposalDraft(record.id, draft);
                 setEditingId(null);
               }}
               onCancel={() => setEditingId(null)}

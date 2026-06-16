@@ -8,6 +8,14 @@ import type {
 } from "#/types/caseRecords";
 import type { CaseDemo } from "#/demo/caseDemoTypes";
 
+export type ProposalDraftUpdate = {
+  title: string;
+  summary: string;
+  content: string;
+  category: string;
+  links: GraphLink[];
+};
+
 export type ProposalDecision = {
   status: "accepted" | "rejected";
   reason?: string;
@@ -26,6 +34,11 @@ function isAuthoritative(status: RecordStatus) {
 export function useWorkspaceGraph(demo: CaseDemo) {
   const [localNotes, setLocalNotes] = useState<TypedCaseRecord[]>([]);
   const [deletedRecordIds, setDeletedRecordIds] = useState<string[]>([]);
+  const [editedRecords, setEditedRecords] = useState<
+    Record<string, TypedCaseRecord>
+  >({});
+  const [editedLinks, setEditedLinks] = useState<Record<string, GraphLink>>({});
+  const [deletedLinkIds, setDeletedLinkIds] = useState<string[]>([]);
   const [proposalDecisions, setProposalDecisions] = useState<
     Record<string, ProposalDecision>
   >({});
@@ -36,13 +49,14 @@ export function useWorkspaceGraph(demo: CaseDemo) {
   // queue and replacement lifecycle.
   const [addedRecords, setAddedRecords] = useState<TypedCaseRecord[]>([]);
 
-  const records = useMemo(
-    () =>
-      [...addedRecords, ...localNotes, ...demo.records].filter(
+  const records = useMemo(() => {
+    const baseRecords = [...addedRecords, ...localNotes, ...demo.records];
+    return baseRecords
+      .map((record) => editedRecords[record.id] ?? record)
+      .filter(
         (record) => !deletedRecordIds.includes(record.id),
-      ),
-    [addedRecords, localNotes, deletedRecordIds, demo.records],
-  );
+      );
+  }, [addedRecords, localNotes, demo.records, editedRecords, deletedRecordIds]);
 
   const recordsById = useMemo(
     () => new Map(records.map((record) => [record.id, record])),
@@ -52,9 +66,15 @@ export function useWorkspaceGraph(demo: CaseDemo) {
   const { outboundLinks, inboundLinks } = useMemo(() => {
     const outbound = new Map<string, GraphLink[]>();
     const inbound = new Map<string, GraphLink[]>();
+    const demoLinkIds = new Set(demo.links.map((link) => link.id));
+    const links = [
+      ...demo.links.map((link) => editedLinks[link.id] ?? link),
+      ...Object.values(editedLinks).filter((link) => !demoLinkIds.has(link.id)),
+    ];
 
-    for (const link of demo.links) {
+    for (const link of links) {
       if (
+        deletedLinkIds.includes(link.id) ||
         deletedRecordIds.includes(link.fromRecordId) ||
         deletedRecordIds.includes(link.toRecordId)
       ) {
@@ -71,7 +91,7 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     }
 
     return { outboundLinks: outbound, inboundLinks: inbound };
-  }, [deletedRecordIds, demo.links]);
+  }, [deletedLinkIds, deletedRecordIds, demo.links, editedLinks]);
 
   // Proposed records that replace another record, keyed by the target id.
   // Many-valued: one accepted record can be split into several proposed
@@ -215,6 +235,53 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     setAddedRecords((existing) => [revision, ...existing]);
   };
 
+  const saveProposalDraft = (recordId: string, draft: ProposalDraftUpdate) => {
+    const source = recordsById.get(recordId);
+    if (!source || effectiveStatus(source) !== "PROPOSED") return;
+
+    const now = new Date().toISOString();
+    const editedRecord = {
+      ...source,
+      title: draft.title,
+      summary: draft.summary.trim() ? draft.summary : undefined,
+      content: draft.content,
+      category: draft.category.trim() ? draft.category : undefined,
+      updatedAt: now,
+    } as TypedCaseRecord;
+
+    const incidentLinkIds = new Set<string>();
+    for (const link of [
+      ...(outboundLinks.get(recordId) ?? []),
+      ...(inboundLinks.get(recordId) ?? []),
+    ]) {
+      incidentLinkIds.add(link.id);
+    }
+
+    const draftLinkIds = new Set(draft.links.map((link) => link.id));
+    const removedLinkIds = [...incidentLinkIds].filter(
+      (id) => !draftLinkIds.has(id),
+    );
+
+    setEditedRecords((existing) => ({
+      ...existing,
+      [recordId]: editedRecord,
+    }));
+    setEditedLinks((existing) => {
+      const next = { ...existing };
+      for (const link of draft.links) {
+        next[link.id] = link;
+      }
+      for (const id of removedLinkIds) {
+        delete next[id];
+      }
+      return next;
+    });
+    setDeletedLinkIds((ids) => [
+      ...ids.filter((id) => !draftLinkIds.has(id)),
+      ...removedLinkIds.filter((id) => !ids.includes(id)),
+    ]);
+  };
+
   const deleteRecord = (recordId: string) => {
     setDeletedRecordIds((ids) =>
       ids.includes(recordId) ? ids : [...ids, recordId],
@@ -267,6 +334,7 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     proposalDecisions,
     decideProposal,
     requestAgentRevision,
+    saveProposalDraft,
     deleteRecord,
     createNote,
   };

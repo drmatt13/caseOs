@@ -34,10 +34,10 @@ import type { WorkspaceGraph } from "./useWorkspaceGraph";
 // A draft-editing surface for a PROPOSED record: hand-edit the common text
 // fields and curate the proposal's knowledge-graph links (search + add, choose
 // the relationship type and direction, write the rationale, delete). It does
-// NOT submit the proposal — Save commits the working copy to the inspector's
-// ephemeral session cache and exits; Cancel discards. Nothing here is written
-// back into the graph or demo.links: this is a UI mock, and the ephemeral cache
-// exists only so "save and edit again later" reads believably within a session.
+// NOT submit the proposal — Save commits the working copy to the workspace
+// graph's ephemeral session state and exits; Cancel discards. Nothing here is
+// written back to the hardcoded demo module or server, so refresh restores the
+// original test data.
 // Only proposals reach this surface — accepted records are never hand-edited.
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -375,18 +375,16 @@ function LinkSearchPicker({
 function ProposalManualEditor({
   record,
   graph,
-  initialDraft,
   onSave,
   onCancel,
 }: {
   record: TypedCaseRecord;
   graph: WorkspaceGraph;
-  initialDraft?: ProposalDraft;
   onSave: (draft: ProposalDraft) => void;
   onCancel: () => void;
 }) {
-  const [draft, setDraft] = useState<ProposalDraft>(
-    () => initialDraft ?? seedDraft(record, graph),
+  const [draft, setDraft] = useState<ProposalDraft>(() =>
+    seedDraft(record, graph),
   );
   const [picking, setPicking] = useState(false);
 
