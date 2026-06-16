@@ -6,10 +6,14 @@ import type {
   GetWorkspaceQuery,
   GetWorkspaceQueryVariables,
   ListWorkspacesQuery,
-  MembershipRole,
-  MembershipStatus,
 } from "#/api/generated/graphql";
 import { executeGraphQL } from "#/api/graphql/client";
+import {
+  normalizeWorkspaceDetail,
+  normalizeWorkspaceList,
+  type WorkspaceDetail,
+  type WorkspaceListItem,
+} from "./model";
 
 type CreateWorkspacePayload = NonNullable<
   CreateWorkspaceMutation["createWorkspace"]
@@ -24,46 +28,10 @@ export type CreateWorkspaceResult = Omit<CreateWorkspacePayload, "workspace"> & 
   success: true;
   workspace: CreatedWorkspace;
 };
-export type WorkspaceListItem = {
-  id: string;
-  name: string;
-  updatedAt: string | null;
-};
-export type WorkspaceDetailMember = {
-  id: string;
-  role: NonNullable<
-    NonNullable<
-      NonNullable<GetWorkspaceQuery["workspace"]>["memberships"]
-    >[number]["role"]
-  >;
-  membershipStatus: NonNullable<
-    NonNullable<
-      NonNullable<GetWorkspaceQuery["workspace"]>["memberships"]
-    >[number]["membershipStatus"]
-  >;
-  joinedAt: string | null;
-  updatedAt: string | null;
-  user: {
-    id: string;
-    email: string | null;
-    displayName: string | null;
-    firstName: string | null;
-    lastName: string | null;
-    profilePicture: string | null;
-  };
-};
-export type WorkspaceDetailCurrentUserMembership = {
-  id: string | null;
-  role: MembershipRole;
-  membershipStatus: MembershipStatus;
-};
-export type WorkspaceDetail = {
-  id: string;
-  name: string;
-  description: string | null;
-  currentUserMembership: WorkspaceDetailCurrentUserMembership | null;
-  memberships: WorkspaceDetailMember[];
-};
+
+// Entity types and their normalizers live in ./model (the operations/model/hooks
+// split). Re-exported here so existing `./operations` importers keep working.
+export type { WorkspaceDetail, WorkspaceListItem };
 
 const ListWorkspacesDocument = graphql(`
   query ListWorkspaces {
@@ -138,24 +106,7 @@ export async function listWorkspaces(): Promise<WorkspaceListItem[]> {
     ListWorkspacesDocument,
   );
 
-  return (data.workspaces ?? [])
-    .filter(
-      (workspace): workspace is NonNullable<typeof workspace> & {
-        id: string;
-        name: string;
-      } => Boolean(workspace?.id && workspace.name),
-    )
-    .map((workspace) => ({
-      id: workspace.id,
-      name: workspace.name,
-      updatedAt: workspace.updatedAt ?? null,
-    }))
-    .sort((a, b) => {
-      const aTime = a.updatedAt ? Date.parse(a.updatedAt) : 0;
-      const bTime = b.updatedAt ? Date.parse(b.updatedAt) : 0;
-
-      return bTime - aTime;
-    });
+  return normalizeWorkspaceList(data.workspaces);
 }
 
 export async function getWorkspace(
@@ -170,50 +121,7 @@ export async function getWorkspace(
     throw new Error("Workspace was not found");
   }
 
-  return {
-    id: workspace.id,
-    name: workspace.name,
-    description: workspace.description ?? null,
-    currentUserMembership:
-      workspace.currentUserMembership?.role &&
-      workspace.currentUserMembership.membershipStatus
-        ? {
-            id: workspace.currentUserMembership.id ?? null,
-            role: workspace.currentUserMembership.role,
-            membershipStatus: workspace.currentUserMembership.membershipStatus,
-          }
-        : null,
-    memberships: (workspace.memberships ?? [])
-      .filter(
-        (membership): membership is NonNullable<typeof membership> & {
-          id: string;
-          role: WorkspaceDetailMember["role"];
-          membershipStatus: WorkspaceDetailMember["membershipStatus"];
-          user: NonNullable<typeof membership.user> & { id: string };
-        } =>
-          Boolean(
-            membership?.id &&
-              membership.role &&
-              membership.membershipStatus &&
-              membership.user?.id,
-          ),
-      )
-      .map((membership) => ({
-        id: membership.id,
-        role: membership.role,
-        membershipStatus: membership.membershipStatus,
-        joinedAt: membership.joinedAt ?? null,
-        updatedAt: membership.updatedAt ?? null,
-        user: {
-          id: membership.user.id,
-          email: membership.user.email ?? null,
-          displayName: membership.user.displayName ?? null,
-          firstName: membership.user.firstName ?? null,
-          lastName: membership.user.lastName ?? null,
-          profilePicture: membership.user.profilePicture ?? null,
-        },
-      })),
-  };
+  return normalizeWorkspaceDetail(workspace);
 }
 
 export async function createWorkspace(

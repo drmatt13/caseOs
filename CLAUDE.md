@@ -95,6 +95,8 @@ packages/database/prisma/schema.prisma
 - TanStack React Query v5 for server state
 - Tailwind CSS v4 with custom config in `src/styles.css`
 - GraphQL client via `executeGraphQL()` in `src/api/graphql/`
+- Per-feature API folders follow `operations.ts` (GraphQL documents + raw calls) / `model.ts` (normalization + UI-facing types) / `hooks.ts` (React Query); see `src/api/workspace/` and `src/api/currentUser/`
+- Hardcoded demo workspace data lives in `client-app/src/demo/` (`caseWorkspaceDemo.ts` Faxon Commons, `caseWorkspaceDemoOj.ts` O.J. Simpson, resolved by `getCaseDemo` in `caseDemos.ts`) — not in `src/lib/`
 
 ### CDK Context Flags
 

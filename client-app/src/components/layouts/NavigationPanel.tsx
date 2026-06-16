@@ -9,6 +9,15 @@ import {
 } from "react";
 import AppLogo from "#/components/layouts/AppLogo";
 import useWindowWidthCategory from "#/hooks/useWindowWidthCategory";
+import {
+  getNavigationPanelLoadingHeightStorageKey,
+  getPanelOffsetRem,
+  getTransitionDurationMs,
+  initialPanelOffsetRem,
+  scrollDownTransitionTimingFunction,
+  scrollUpSlowTransitionDurationMs,
+  scrollUpTransitionTimingFunction,
+} from "#/components/layouts/navigationPanelMetrics";
 
 // context
 import { MenuContext } from "#/context/MenuContext";
@@ -17,77 +26,6 @@ import { XIcon } from "lucide-react";
 interface NavigationPanelProps {
   children: ReactNode;
 }
-
-const navigationPanelLoadingHeightStorageKeyPrefix =
-  "lawstruct.navigationPanel.loadingHeight";
-const getNavigationPanelLoadingHeightStorageKey = (
-  windowWidthCategory: string,
-) => `${navigationPanelLoadingHeightStorageKeyPrefix}.${windowWidthCategory}`;
-
-const pixelsToRem = (px: number) => px / 21;
-const maxBodyScrollDeltaRem = 5.25;
-const stickyTopRem = 1.75;
-const bottomPaddingRem = 1.8;
-const initialPanelOffsetRem =
-  maxBodyScrollDeltaRem + stickyTopRem + bottomPaddingRem;
-const scrollUpSlowTransitionDurationMs = 90;
-const scrollUpFastTransitionDurationMs = 12;
-const scrollDownSlowTransitionDurationMs = 55;
-const scrollDownFastTransitionDurationMs = 30;
-const slowScrollVelocityPxPerMs = 0.1;
-const fastScrollVelocityPxPerMs = 0.9;
-const scrollVelocityDurationCurve = 1;
-const scrollUpTransitionTimingFunction = "cubic-bezier(.65,.8,0,.9)";
-const scrollDownTransitionTimingFunction = "cubic-bezier(0.3, 0.6, 0.75, 1)";
-// const shouldLogScrollVelocity = true;
-
-const clamp = (value: number, min: number, max: number) =>
-  Math.min(max, Math.max(min, value));
-const lerp = (start: number, end: number, progress: number) =>
-  start + (end - start) * progress;
-const inverseLerp = (start: number, end: number, value: number) =>
-  clamp((value - start) / (end - start), 0, 1);
-const getScrollVelocityProgress = (scrollVelocityPxPerMs: number) => {
-  const velocityProgress = inverseLerp(
-    slowScrollVelocityPxPerMs,
-    fastScrollVelocityPxPerMs,
-    scrollVelocityPxPerMs,
-  );
-
-  return Math.pow(velocityProgress, scrollVelocityDurationCurve);
-};
-const getTransitionDurationMs = (
-  scrollVelocityPxPerMs: number,
-  scrollDirection: "up" | "down",
-) => {
-  const curvedVelocityProgress = getScrollVelocityProgress(
-    scrollVelocityPxPerMs,
-  );
-  const slowTransitionDurationMs =
-    scrollDirection === "down"
-      ? scrollDownSlowTransitionDurationMs
-      : scrollUpSlowTransitionDurationMs;
-  const fastTransitionDurationMs =
-    scrollDirection === "down"
-      ? scrollDownFastTransitionDurationMs
-      : scrollUpFastTransitionDurationMs;
-
-  return lerp(
-    slowTransitionDurationMs,
-    fastTransitionDurationMs,
-    curvedVelocityProgress,
-  );
-};
-const getPanelOffsetRem = () => {
-  const bodyScrollDelta = Math.min(
-    maxBodyScrollDeltaRem,
-    pixelsToRem(window.scrollY),
-  );
-
-  return (
-    maxBodyScrollDeltaRem - bodyScrollDelta + stickyTopRem + bottomPaddingRem
-  );
-};
 
 const NavigationPanel = ({ children }: NavigationPanelProps) => {
   const { menuOpen, setMenuOpen } = useContext(MenuContext);

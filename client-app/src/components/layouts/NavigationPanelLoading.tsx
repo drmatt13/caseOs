@@ -6,12 +6,7 @@ import { XIcon } from "lucide-react";
 import { MenuContext } from "#/context/MenuContext";
 
 import useWindowWidthCategory from "#/hooks/useWindowWidthCategory";
-
-const navigationPanelLoadingHeightStorageKeyPrefix =
-  "lawstruct.navigationPanel.loadingHeight";
-const getNavigationPanelLoadingHeightStorageKey = (
-  windowWidthCategory: string,
-) => `${navigationPanelLoadingHeightStorageKeyPrefix}.${windowWidthCategory}`;
+import { getNavigationPanelLoadingHeightStorageKey } from "#/components/layouts/navigationPanelMetrics";
 
 const readNavigationPanelLoadingHeight = (windowWidthCategory: string) => {
   try {

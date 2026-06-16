@@ -36,8 +36,8 @@ import type {
   CaseDemo,
   DemoActivity,
   DemoAgentMessage,
-} from "#/lib/caseDemoTypes";
-import { demoUserId } from "#/lib/caseWorkspaceDemo";
+} from "#/demo/caseDemoTypes";
+import { demoUserId } from "#/demo/caseWorkspaceDemo";
 
 export const OJ_WORKSPACE_ID = "22222222-2222-4222-8222-222222222222";
 export const OJ_CASE_ID = "case-oj-simpson-demo";
@@ -2141,34 +2141,37 @@ const recordStatusById = new Map<string, RecordStatus>(
 const isAuthoritativeStatus = (status?: RecordStatus) =>
   status === "ACCEPTED" || status === "PENDING_REPLACEMENT";
 
+// Explanation is REQUIRED on every edge (mirrors GraphLink.explanation): the
+// agent must state why a connection exists. Because a tuple can't carry a
+// required element after an optional one, `status` is required too.
 type LinkSpec = [
   fromId: string,
   type: RecordLinkType,
   toId: string,
-  status?: LinkStatus,
-  explanation?: string,
+  status: LinkStatus,
+  explanation: string,
 ];
 
 const linkSpecs: LinkSpec[] = [
   // Objectives → theories / issues
-  ["objective-001", "REQUIRES", "theory-contamination", "ACCEPTED"],
-  ["objective-001", "REQUIRES", "theory-fuhrman", "ACCEPTED"],
-  ["objective-002", "REQUIRES", "issue-001", "ACCEPTED"],
-  ["objective-002", "REQUIRES", "theory-coc", "ACCEPTED"],
-  ["objective-doubt-broad", "DEPENDS_ON", "theory-contamination", "ACCEPTED"],
-  ["objective-doubt-broad", "DEPENDS_ON", "theory-fuhrman", "ACCEPTED"],
-  ["objective-doubt-forensic", "DEPENDS_ON", "theory-contamination", "PROPOSED"],
-  ["objective-doubt-forensic", "DEPENDS_ON", "issue-002", "PROPOSED"],
-  ["objective-doubt-investigation", "DEPENDS_ON", "theory-fuhrman", "PROPOSED"],
-  ["objective-doubt-investigation", "DEPENDS_ON", "theory-coc", "PROPOSED"],
-  ["objective-003", "REQUIRES", "task-coc", "PROPOSED"],
+  ["objective-001", "REQUIRES", "theory-contamination", "ACCEPTED", "The acquittal objective requires the evidence-contamination theory to hold."],
+  ["objective-001", "REQUIRES", "theory-fuhrman", "ACCEPTED", "Objective also depends on the Fuhrman-bias theory casting doubt on the glove evidence."],
+  ["objective-002", "REQUIRES", "issue-001", "ACCEPTED", "This objective requires winning suppression of the warrantless Rockingham search."],
+  ["objective-002", "REQUIRES", "theory-coc", "ACCEPTED", "Objective rests on the chain-of-custody theory undermining the blood evidence."],
+  ["objective-doubt-broad", "DEPENDS_ON", "theory-contamination", "ACCEPTED", "Broad reasonable-doubt objective draws on the contamination theory."],
+  ["objective-doubt-broad", "DEPENDS_ON", "theory-fuhrman", "ACCEPTED", "Broad-doubt objective also leans on the Fuhrman-bias theory."],
+  ["objective-doubt-forensic", "DEPENDS_ON", "theory-contamination", "PROPOSED", "Forensic-doubt objective is built on the contamination theory."],
+  ["objective-doubt-forensic", "DEPENDS_ON", "issue-002", "PROPOSED", "Objective depends on the DNA-admissibility issue limiting the mixture evidence."],
+  ["objective-doubt-investigation", "DEPENDS_ON", "theory-fuhrman", "PROPOSED", "Investigation-doubt objective rests on the Fuhrman-bias theory."],
+  ["objective-doubt-investigation", "DEPENDS_ON", "theory-coc", "PROPOSED", "Objective also depends on the chain-of-custody theory."],
+  ["objective-003", "REQUIRES", "task-coc", "PROPOSED", "Objective can't be met until the chain-of-custody audit task is complete."],
 
   // Claims
-  ["claim-001", "INVOLVES", "person-oj", "ACCEPTED"],
-  ["docrec-dna-bundy", "EVIDENCES", "claim-001", "ACCEPTED"],
-  ["claim-002", "DEPENDS_ON", "theory-contamination", "ACCEPTED"],
-  ["claim-002", "DEPENDS_ON", "theory-fuhrman", "ACCEPTED"],
-  ["claim-002", "DEPENDS_ON", "theory-coc", "ACCEPTED"],
+  ["claim-001", "INVOLVES", "person-oj", "ACCEPTED", "The prosecution's murder charge names O.J. Simpson as the defendant."],
+  ["docrec-dna-bundy", "EVIDENCES", "claim-001", "ACCEPTED", "The Bundy DNA report is the prosecution's central evidence for the murder claim."],
+  ["claim-002", "DEPENDS_ON", "theory-contamination", "ACCEPTED", "The reasonable-doubt defense rests on the contamination theory."],
+  ["claim-002", "DEPENDS_ON", "theory-fuhrman", "ACCEPTED", "Defense also depends on the Fuhrman-bias theory."],
+  ["claim-002", "DEPENDS_ON", "theory-coc", "ACCEPTED", "Defense depends on the chain-of-custody theory."],
 
   // Posture (completed replacement pair)
   [
@@ -2178,129 +2181,129 @@ const linkSpecs: LinkSpec[] = [
     "ACCEPTED",
     "Current trial posture was synthesized after broadening the suppression-only posture.",
   ],
-  ["posture-002", "LEADS_TO", "task-001", "ACCEPTED"],
-  ["posture-002", "SUPPORTS", "objective-002", "ACCEPTED"],
+  ["posture-002", "LEADS_TO", "task-001", "ACCEPTED", "The trial posture makes the chain-of-custody prep task the next step."],
+  ["posture-002", "SUPPORTS", "objective-002", "ACCEPTED", "Current posture favors the suppression-and-doubt objective."],
 
   // Theories — split successors grounded in evidence
-  ["theory-contamination", "DEPENDS_ON", "fact-bronco-late", "ACCEPTED"],
-  ["theory-contamination", "CITES", "precedent-kelly-frye", "PROPOSED"],
-  ["docrec-forensic-notes-contam", "EVIDENCES", "theory-contamination", "PROPOSED"],
-  ["theory-fuhrman", "DEPENDS_ON", "fact-glove-v3", "ACCEPTED"],
-  ["theory-fuhrman", "INVOLVES", "person-fuhrman", "ACCEPTED"],
-  ["docrec-fuhrman-glove", "EVIDENCES", "theory-fuhrman", "ACCEPTED"],
-  ["theory-coc", "DEPENDS_ON", "fact-coc-integrity", "ACCEPTED"],
-  ["theory-coc", "DEPENDS_ON", "fact-edta-vial", "ACCEPTED"],
-  ["theory-alt-timeline", "DEPENDS_ON", "fact-park-timeline", "PROPOSED"],
-  ["theory-alt-timeline", "DEPENDS_ON", "fact-kato-thumps", "PROPOSED"],
-  ["theory-alt-timeline", "EXPLAINS", "fact-tod-v4", "PROPOSED"],
+  ["theory-contamination", "DEPENDS_ON", "fact-bronco-late", "ACCEPTED", "Contamination theory rests on the Bronco blood being collected and logged late."],
+  ["theory-contamination", "CITES", "precedent-kelly-frye", "PROPOSED", "Theory invokes Kelly-Frye limits on the contested forensic methods."],
+  ["docrec-forensic-notes-contam", "EVIDENCES", "theory-contamination", "PROPOSED", "Defense consultant's contamination notes evidence the theory."],
+  ["theory-fuhrman", "DEPENDS_ON", "fact-glove-v3", "ACCEPTED", "Fuhrman theory rests on the disputed circumstances of the Rockingham glove."],
+  ["theory-fuhrman", "INVOLVES", "person-fuhrman", "ACCEPTED", "Theory centers on Detective Fuhrman's conduct and credibility."],
+  ["docrec-fuhrman-glove", "EVIDENCES", "theory-fuhrman", "ACCEPTED", "Fuhrman's glove-discovery report evidences the planting theory."],
+  ["theory-coc", "DEPENDS_ON", "fact-coc-integrity", "ACCEPTED", "Chain-of-custody theory rests on the documented custody-integrity gaps."],
+  ["theory-coc", "DEPENDS_ON", "fact-edta-vial", "ACCEPTED", "Theory also depends on the EDTA-in-the-vial fact pointing to planted blood."],
+  ["theory-alt-timeline", "DEPENDS_ON", "fact-park-timeline", "PROPOSED", "Alternative-timeline theory rests on limo driver Allan Park's arrival times."],
+  ["theory-alt-timeline", "DEPENDS_ON", "fact-kato-thumps", "PROPOSED", "Theory also depends on the timing of Kato Kaelin's 'thumps'."],
+  ["theory-alt-timeline", "EXPLAINS", "fact-tod-v4", "PROPOSED", "Theory explains how the medical examiner's time-of-death window fits an alternative sequence."],
 
   // Issues
-  ["issue-001", "DEPENDS_ON", "fact-glove-v3", "ACCEPTED"],
-  ["docrec-motion-suppress", "EVIDENCES", "issue-001", "ACCEPTED"],
-  ["issue-001", "CITES", "precedent-fourth-amendment", "PROPOSED"],
-  ["issue-002", "DEPENDS_ON", "fact-dna-bundy", "PROPOSED"],
-  ["docrec-dna-mixture-limits", "EVIDENCES", "issue-002", "PROPOSED"],
-  ["issue-002", "CITES", "precedent-kelly-frye", "PROPOSED"],
-  ["issue-003", "DEPENDS_ON", "fact-second-glove-fit", "PROPOSED"],
-  ["issue-prior-domestic", "DEPENDS_ON", "timeline-prior-1989", "ACCEPTED"],
-  ["issue-prior-domestic", "CITES", "precedent-1101b", "PROPOSED"],
+  ["issue-001", "DEPENDS_ON", "fact-glove-v3", "ACCEPTED", "Suppression issue turns on how the Rockingham glove was discovered."],
+  ["docrec-motion-suppress", "EVIDENCES", "issue-001", "ACCEPTED", "The filed suppression motion frames the Fourth Amendment issue."],
+  ["issue-001", "CITES", "precedent-fourth-amendment", "PROPOSED", "Issue cites Fourth Amendment warrantless-search authority."],
+  ["issue-002", "DEPENDS_ON", "fact-dna-bundy", "PROPOSED", "DNA-admissibility issue turns on the Bundy mixture results."],
+  ["docrec-dna-mixture-limits", "EVIDENCES", "issue-002", "PROPOSED", "Mixture-limits report documents the reliability problems behind the issue."],
+  ["issue-002", "CITES", "precedent-kelly-frye", "PROPOSED", "Issue cites Kelly-Frye on novel-method admissibility."],
+  ["issue-003", "DEPENDS_ON", "fact-second-glove-fit", "PROPOSED", "Glove-demonstration issue turns on the courtroom fact that the glove did not fit."],
+  ["issue-prior-domestic", "DEPENDS_ON", "timeline-prior-1989", "ACCEPTED", "Prior-domestic issue turns on the 1989 incident on the timeline."],
+  ["issue-prior-domestic", "CITES", "precedent-1101b", "PROPOSED", "Issue cites §1101(b) on the admissibility of prior bad acts."],
 
   // Arguments
-  ["arg-fuhrman-collateral", "DEPENDS_ON", "fact-glove-v3", "ACCEPTED"],
-  ["arg-fuhrman-collateral", "INVOLVES", "person-fuhrman", "ACCEPTED"],
-  ["arg-fuhrman-central", "DERIVED_FROM", "arg-fuhrman-collateral", "PROPOSED"],
-  ["arg-fuhrman-central", "DEPENDS_ON", "fact-glove-v3", "PROPOSED"],
-  ["arg-fuhrman-central", "INVOLVES", "person-fuhrman", "PROPOSED"],
-  ["docrec-fuhrman-glove", "EVIDENCES", "arg-fuhrman-central", "PROPOSED"],
-  ["arg-glove-demo", "DEPENDS_ON", "fact-second-glove-fit", "PROPOSED"],
-  ["arg-glove-demo", "SUPPORTS", "issue-003", "PROPOSED"],
-  ["docrec-glove-fit-history", "EVIDENCES", "arg-glove-demo", "PROPOSED"],
-  ["arg-edta", "DEPENDS_ON", "fact-edta-vial", "PROPOSED"],
-  ["arg-edta", "INVOLVES", "person-vannatter", "PROPOSED"],
-  ["docrec-coc-bs010-volume", "EVIDENCES", "arg-edta", "PROPOSED"],
-  ["arg-mixture", "DEPENDS_ON", "fact-dna-bundy", "PROPOSED"],
-  ["docrec-dna-mixture-limits", "EVIDENCES", "arg-mixture", "PROPOSED"],
-  ["arg-timeline-compressed", "DEPENDS_ON", "fact-park-timeline", "PROPOSED"],
-  ["arg-timeline-compressed", "DEPENDS_ON", "fact-kato-thumps", "PROPOSED"],
-  ["docrec-timeline-compression", "EVIDENCES", "arg-timeline-compressed", "PROPOSED"],
-  ["arg-domestic-prejudice", "SUPPORTS", "issue-prior-domestic", "ACCEPTED"],
-  ["docrec-domestic-1989", "EVIDENCES", "arg-domestic-prejudice", "ACCEPTED"],
+  ["arg-fuhrman-collateral", "DEPENDS_ON", "fact-glove-v3", "ACCEPTED", "Collateral Fuhrman argument rests on the disputed glove discovery."],
+  ["arg-fuhrman-collateral", "INVOLVES", "person-fuhrman", "ACCEPTED", "Argument concerns Fuhrman's credibility."],
+  ["arg-fuhrman-central", "DERIVED_FROM", "arg-fuhrman-collateral", "PROPOSED", "Central Fuhrman argument was promoted from the collateral version."],
+  ["arg-fuhrman-central", "DEPENDS_ON", "fact-glove-v3", "PROPOSED", "Argument depends on the disputed glove-discovery fact."],
+  ["arg-fuhrman-central", "INVOLVES", "person-fuhrman", "PROPOSED", "Argument puts Fuhrman's conduct at the center of the defense."],
+  ["docrec-fuhrman-glove", "EVIDENCES", "arg-fuhrman-central", "PROPOSED", "Fuhrman's glove report evidences the central argument."],
+  ["arg-glove-demo", "DEPENDS_ON", "fact-second-glove-fit", "PROPOSED", "Glove-demonstration argument rests on the glove not fitting."],
+  ["arg-glove-demo", "SUPPORTS", "issue-003", "PROPOSED", "Argument advances our side of the glove-demonstration issue."],
+  ["docrec-glove-fit-history", "EVIDENCES", "arg-glove-demo", "PROPOSED", "Glove-fit history record evidences the demonstration argument."],
+  ["arg-edta", "DEPENDS_ON", "fact-edta-vial", "PROPOSED", "EDTA argument rests on the preservative found in the blood evidence."],
+  ["arg-edta", "INVOLVES", "person-vannatter", "PROPOSED", "Argument implicates Detective Vannatter's handling of the reference vial."],
+  ["docrec-coc-bs010-volume", "EVIDENCES", "arg-edta", "PROPOSED", "Blood-volume custody record evidences the missing-blood premise of the EDTA argument."],
+  ["arg-mixture", "DEPENDS_ON", "fact-dna-bundy", "PROPOSED", "Mixture argument rests on the Bundy DNA results."],
+  ["docrec-dna-mixture-limits", "EVIDENCES", "arg-mixture", "PROPOSED", "Mixture-limits report evidences the argument."],
+  ["arg-timeline-compressed", "DEPENDS_ON", "fact-park-timeline", "PROPOSED", "Compressed-timeline argument rests on Allan Park's arrival times."],
+  ["arg-timeline-compressed", "DEPENDS_ON", "fact-kato-thumps", "PROPOSED", "Argument also relies on the timing of Kato's thumps."],
+  ["docrec-timeline-compression", "EVIDENCES", "arg-timeline-compressed", "PROPOSED", "Timeline-compression analysis evidences the argument."],
+  ["arg-domestic-prejudice", "SUPPORTS", "issue-prior-domestic", "ACCEPTED", "Argument advances exclusion of the prejudicial 1989 incident."],
+  ["docrec-domestic-1989", "EVIDENCES", "arg-domestic-prejudice", "ACCEPTED", "The 1989 incident report is the record at issue in the prejudice argument."],
 
   // Tasks
-  ["task-001", "REQUIRES", "fact-coc-integrity", "ACCEPTED"],
-  ["task-001", "REQUIRES", "fact-edta-vial", "ACCEPTED"],
-  ["task-002", "DEPENDS_ON", "issue-003", "PROPOSED"],
-  ["task-002", "DEPENDS_ON", "arg-glove-demo", "PROPOSED"],
-  ["task-coc", "SUPPORTS", "theory-fuhrman", "ACCEPTED"],
-  ["task-coc", "INVOLVES", "person-fuhrman", "ACCEPTED"],
+  ["task-001", "REQUIRES", "fact-coc-integrity", "ACCEPTED", "Chain-of-custody prep can't finish until the custody-integrity fact is settled."],
+  ["task-001", "REQUIRES", "fact-edta-vial", "ACCEPTED", "Task depends on confirming the EDTA-vial fact."],
+  ["task-002", "DEPENDS_ON", "issue-003", "PROPOSED", "Task is scoped by the glove-demonstration issue."],
+  ["task-002", "DEPENDS_ON", "arg-glove-demo", "PROPOSED", "Task supports preparing the glove-demonstration argument."],
+  ["task-coc", "SUPPORTS", "theory-fuhrman", "ACCEPTED", "Custody-audit task reinforces the Fuhrman-bias theory."],
+  ["task-coc", "INVOLVES", "person-fuhrman", "ACCEPTED", "Task examines evidence Fuhrman handled."],
 
   // Glove-discovery fact lineage grounding
-  ["docrec-glove-rockingham", "EVIDENCES", "fact-glove-v3", "ACCEPTED"],
-  ["docrec-glove-discrepancy", "EVIDENCES", "fact-glove-v3", "ACCEPTED"],
-  ["fact-glove-v3", "INVOLVES", "person-fuhrman", "ACCEPTED"],
-  ["timeline-rockingham-glove", "SUPPORTS", "fact-glove-v3", "ACCEPTED"],
+  ["docrec-glove-rockingham", "EVIDENCES", "fact-glove-v3", "ACCEPTED", "Rockingham glove report grounds the current glove fact."],
+  ["docrec-glove-discrepancy", "EVIDENCES", "fact-glove-v3", "ACCEPTED", "Glove-discrepancy record corroborates the disputed-discovery fact."],
+  ["fact-glove-v3", "INVOLVES", "person-fuhrman", "ACCEPTED", "Glove fact centers on the detective who reported finding it."],
+  ["timeline-rockingham-glove", "SUPPORTS", "fact-glove-v3", "ACCEPTED", "The Rockingham discovery event substantiates the glove fact."],
 
   // Time-of-death fact lineage grounding
-  ["docrec-me-tod", "EVIDENCES", "fact-tod-v4", "ACCEPTED"],
-  ["docrec-timeline-tod", "EVIDENCES", "fact-tod-v4", "ACCEPTED"],
+  ["docrec-me-tod", "EVIDENCES", "fact-tod-v4", "ACCEPTED", "Medical examiner report grounds the current time-of-death fact."],
+  ["docrec-timeline-tod", "EVIDENCES", "fact-tod-v4", "ACCEPTED", "Timeline reconstruction corroborates the time-of-death window."],
 
   // Blood-handling split grounding
-  ["docrec-coc-bs010-volume", "EVIDENCES", "fact-edta-vial", "ACCEPTED"],
-  ["fact-edta-vial", "INVOLVES", "person-vannatter", "ACCEPTED"],
-  ["docrec-bronco-inventory", "EVIDENCES", "fact-bronco-late", "ACCEPTED"],
-  ["docrec-dna-bronco", "EVIDENCES", "fact-bronco-late", "PROPOSED"],
+  ["docrec-coc-bs010-volume", "EVIDENCES", "fact-edta-vial", "ACCEPTED", "Blood-volume custody record grounds the EDTA-vial fact."],
+  ["fact-edta-vial", "INVOLVES", "person-vannatter", "ACCEPTED", "EDTA fact concerns the reference vial Vannatter carried."],
+  ["docrec-bronco-inventory", "EVIDENCES", "fact-bronco-late", "ACCEPTED", "Bronco inventory log shows the late collection of the blood."],
+  ["docrec-dna-bronco", "EVIDENCES", "fact-bronco-late", "PROPOSED", "Bronco DNA report corroborates the late-collection fact."],
 
   // Documentation-discrepancy merge grounding (live successor)
-  ["docrec-coc-bs003", "EVIDENCES", "fact-coc-integrity", "ACCEPTED"],
-  ["docrec-coc-bs007", "EVIDENCES", "fact-coc-integrity", "ACCEPTED"],
-  ["docrec-coc-bs010-volume", "EVIDENCES", "fact-coc-integrity", "ACCEPTED"],
-  ["docrec-coc-access-log", "EVIDENCES", "fact-coc-integrity", "PROPOSED"],
+  ["docrec-coc-bs003", "EVIDENCES", "fact-coc-integrity", "ACCEPTED", "BS-003 custody record is one source for the custody-integrity fact."],
+  ["docrec-coc-bs007", "EVIDENCES", "fact-coc-integrity", "ACCEPTED", "BS-007 custody record corroborates the custody-integrity fact."],
+  ["docrec-coc-bs010-volume", "EVIDENCES", "fact-coc-integrity", "ACCEPTED", "Blood-volume custody record contributes to the custody-integrity fact."],
+  ["docrec-coc-access-log", "EVIDENCES", "fact-coc-integrity", "PROPOSED", "Evidence-room access log adds to the custody-integrity fact."],
 
   // Bronco-blood pending reframe
-  ["docrec-dna-bronco", "EVIDENCES", "fact-bronco-his", "PROPOSED"],
-  ["fact-bronco-his", "INVOLVES", "person-oj", "ACCEPTED"],
-  ["fact-bronco-innocent", "DERIVED_FROM", "fact-bronco-his", "PROPOSED"],
-  ["docrec-dna-bronco", "EVIDENCES", "fact-bronco-innocent", "PROPOSED"],
+  ["docrec-dna-bronco", "EVIDENCES", "fact-bronco-his", "PROPOSED", "Bronco DNA report establishes the blood is consistent with O.J.'s."],
+  ["fact-bronco-his", "INVOLVES", "person-oj", "ACCEPTED", "Fact concerns blood attributed to the defendant."],
+  ["fact-bronco-innocent", "DERIVED_FROM", "fact-bronco-his", "PROPOSED", "Innocent-explanation fact is a proposed reframing of the Bronco-blood fact."],
+  ["docrec-dna-bronco", "EVIDENCES", "fact-bronco-innocent", "PROPOSED", "The same Bronco DNA report is read to support an innocent explanation."],
 
   // Other facts
-  ["docrec-dna-bundy", "EVIDENCES", "fact-dna-bundy", "PROPOSED"],
-  ["fact-bronco-late", "CONTEXTUALIZES", "fact-dna-bundy", "PROPOSED"],
-  ["docrec-park-arrival", "EVIDENCES", "fact-park-timeline", "ACCEPTED"],
-  ["fact-park-timeline", "INVOLVES", "person-park", "ACCEPTED"],
-  ["docrec-kato-thumps", "EVIDENCES", "fact-kato-thumps", "ACCEPTED"],
-  ["fact-kato-thumps", "INVOLVES", "person-kato", "ACCEPTED"],
-  ["docrec-glove-bundy", "EVIDENCES", "fact-second-glove-fit", "PROPOSED"],
-  ["docrec-glove-rockingham", "EVIDENCES", "fact-second-glove-fit", "PROPOSED"],
+  ["docrec-dna-bundy", "EVIDENCES", "fact-dna-bundy", "PROPOSED", "Bundy DNA report grounds the Bundy-blood fact."],
+  ["fact-bronco-late", "CONTEXTUALIZES", "fact-dna-bundy", "PROPOSED", "The late Bronco collection casts doubt on the parallel Bundy DNA handling."],
+  ["docrec-park-arrival", "EVIDENCES", "fact-park-timeline", "ACCEPTED", "Limo records ground Allan Park's arrival-time fact."],
+  ["fact-park-timeline", "INVOLVES", "person-park", "ACCEPTED", "Timeline fact is based on driver Allan Park's account."],
+  ["docrec-kato-thumps", "EVIDENCES", "fact-kato-thumps", "ACCEPTED", "Kato's statement grounds the 'thumps' timing fact."],
+  ["fact-kato-thumps", "INVOLVES", "person-kato", "ACCEPTED", "Fact is based on Kato Kaelin's account."],
+  ["docrec-glove-bundy", "EVIDENCES", "fact-second-glove-fit", "PROPOSED", "Bundy glove record grounds the glove-fit fact."],
+  ["docrec-glove-rockingham", "EVIDENCES", "fact-second-glove-fit", "PROPOSED", "Rockingham glove record also bears on the glove-fit fact."],
 
   // Timeline events
-  ["docrec-park-arrival", "EVIDENCES", "timeline-park", "ACCEPTED"],
-  ["docrec-kato-thumps", "EVIDENCES", "timeline-kato", "PROPOSED"],
-  ["docrec-me-tod", "EVIDENCES", "timeline-tod", "PROPOSED"],
-  ["docrec-glove-rockingham", "EVIDENCES", "timeline-rockingham-glove", "ACCEPTED"],
-  ["docrec-domestic-1989", "EVIDENCES", "timeline-prior-1989", "ACCEPTED"],
-  ["timeline-park", "CONTEXTUALIZES", "fact-park-timeline", "ACCEPTED"],
-  ["timeline-departure", "RELATED_TO", "timeline-park", "ACCEPTED"],
+  ["docrec-park-arrival", "EVIDENCES", "timeline-park", "ACCEPTED", "Limo records fix Allan Park's arrival event."],
+  ["docrec-kato-thumps", "EVIDENCES", "timeline-kato", "PROPOSED", "Kato's statement dates the 'thumps' event."],
+  ["docrec-me-tod", "EVIDENCES", "timeline-tod", "PROPOSED", "Medical examiner report fixes the estimated time-of-death event."],
+  ["docrec-glove-rockingham", "EVIDENCES", "timeline-rockingham-glove", "ACCEPTED", "Glove report dates the Rockingham discovery event."],
+  ["docrec-domestic-1989", "EVIDENCES", "timeline-prior-1989", "ACCEPTED", "Incident report fixes the 1989 domestic event."],
+  ["timeline-park", "CONTEXTUALIZES", "fact-park-timeline", "ACCEPTED", "The arrival event frames the driver-timeline fact."],
+  ["timeline-departure", "RELATED_TO", "timeline-park", "ACCEPTED", "Departure and arrival events bracket the same window."],
 
   // Testimony
-  ["testimony-park", "INVOLVES", "person-park", "ACCEPTED"],
-  ["testimony-park", "DEPENDS_ON", "fact-park-timeline", "ACCEPTED"],
-  ["testimony-kato", "INVOLVES", "person-kato", "ACCEPTED"],
-  ["testimony-kato", "DEPENDS_ON", "fact-kato-thumps", "ACCEPTED"],
-  ["testimony-fuhrman-cross", "INVOLVES", "person-fuhrman", "PROPOSED"],
-  ["testimony-fuhrman-cross", "DEPENDS_ON", "fact-glove-v3", "PROPOSED"],
-  ["docrec-fuhrman-bias", "EVIDENCES", "testimony-fuhrman-cross", "PROPOSED"],
-  ["testimony-wu-cross", "INVOLVES", "person-wu", "PROPOSED"],
-  ["testimony-wu-cross", "DEPENDS_ON", "fact-dna-bundy", "PROPOSED"],
-  ["docrec-dna-mixture-limits", "EVIDENCES", "testimony-wu-cross", "PROPOSED"],
+  ["testimony-park", "INVOLVES", "person-park", "ACCEPTED", "Testimony is Allan Park's."],
+  ["testimony-park", "DEPENDS_ON", "fact-park-timeline", "ACCEPTED", "Park's testimony carries his arrival-time account."],
+  ["testimony-kato", "INVOLVES", "person-kato", "ACCEPTED", "Testimony is Kato Kaelin's."],
+  ["testimony-kato", "DEPENDS_ON", "fact-kato-thumps", "ACCEPTED", "Kato's testimony carries the 'thumps' timing."],
+  ["testimony-fuhrman-cross", "INVOLVES", "person-fuhrman", "PROPOSED", "Planned cross-examination targets Fuhrman."],
+  ["testimony-fuhrman-cross", "DEPENDS_ON", "fact-glove-v3", "PROPOSED", "Cross would probe Fuhrman on the disputed glove discovery."],
+  ["docrec-fuhrman-bias", "EVIDENCES", "testimony-fuhrman-cross", "PROPOSED", "Fuhrman bias materials feed the planned cross-examination."],
+  ["testimony-wu-cross", "INVOLVES", "person-wu", "PROPOSED", "Planned cross-examination targets the DNA analyst."],
+  ["testimony-wu-cross", "DEPENDS_ON", "fact-dna-bundy", "PROPOSED", "Cross would probe the Bundy DNA-mixture results."],
+  ["docrec-dna-mixture-limits", "EVIDENCES", "testimony-wu-cross", "PROPOSED", "Mixture-limits report supplies the basis for the DNA cross."],
 
   // Precedent
-  ["precedent-kelly-frye", "SUPPORTS", "issue-002", "PROPOSED"],
-  ["precedent-fourth-amendment", "SUPPORTS", "issue-001", "PROPOSED"],
-  ["precedent-1101b", "SUPPORTS", "issue-prior-domestic", "PROPOSED"],
+  ["precedent-kelly-frye", "SUPPORTS", "issue-002", "PROPOSED", "Kelly-Frye authority supports limiting the novel DNA-mixture evidence."],
+  ["precedent-fourth-amendment", "SUPPORTS", "issue-001", "PROPOSED", "Fourth Amendment authority supports suppression of the warrantless search."],
+  ["precedent-1101b", "SUPPORTS", "issue-prior-domestic", "PROPOSED", "§1101(b) authority supports excluding the 1989 prior-acts evidence."],
 
   // Notes
-  ["note-cross-theme", "EXPLAINS", "theory-contamination", "ACCEPTED"],
-  ["note-cross-theme", "SUPPORTS", "arg-mixture", "ACCEPTED"],
+  ["note-cross-theme", "EXPLAINS", "theory-contamination", "ACCEPTED", "Cross-exam theme note explains how to present the contamination theory."],
+  ["note-cross-theme", "SUPPORTS", "arg-mixture", "ACCEPTED", "Note reinforces the DNA-mixture argument with a cross plan."],
   [
     "note-fuhrman-caution",
     "ATTACKS",
@@ -2308,20 +2311,20 @@ const linkSpecs: LinkSpec[] = [
     "ACCEPTED",
     "Human correction undercuts the overreaching warrantless-entry characterization that v2 asserted.",
   ],
-  ["note-fuhrman-caution", "EXPLAINS", "fact-glove-v3", "ACCEPTED"],
-  ["note-glove-demo-question", "EXPLAINS", "issue-003", "PROPOSED"],
+  ["note-fuhrman-caution", "EXPLAINS", "fact-glove-v3", "ACCEPTED", "Caution note explains the documented-and-disputed framing of the current glove fact."],
+  ["note-glove-demo-question", "EXPLAINS", "issue-003", "PROPOSED", "Note flags the open question about staging the glove demonstration."],
 
   // People cross-references
-  ["claim-001", "INVOLVES", "person-clark", "ACCEPTED"],
-  ["claim-002", "INVOLVES", "person-cochran", "ACCEPTED"],
+  ["claim-001", "INVOLVES", "person-clark", "ACCEPTED", "Murder charge is prosecuted by Marcia Clark."],
+  ["claim-002", "INVOLVES", "person-cochran", "ACCEPTED", "Reasonable-doubt defense is led by Johnnie Cochran."],
 
   // ── Historical links retained on replaced records ───────────────────────
   // Specified as ACCEPTED (real when authored); the builder normalizes them to
   // PROPOSED because an endpoint is now retired, so they surface only inside the
   // replaced record's inspector.
-  ["docrec-glove-rockingham", "EVIDENCES", "fact-glove-v1", "ACCEPTED"],
-  ["docrec-glove-rockingham", "EVIDENCES", "fact-glove-v2", "ACCEPTED"],
-  ["fact-glove-v2", "INVOLVES", "person-fuhrman", "ACCEPTED"],
+  ["docrec-glove-rockingham", "EVIDENCES", "fact-glove-v1", "ACCEPTED", "Rockingham report originally grounded the first glove-fact version."],
+  ["docrec-glove-rockingham", "EVIDENCES", "fact-glove-v2", "ACCEPTED", "Same report grounded the superseded warrantless-entry glove version."],
+  ["fact-glove-v2", "INVOLVES", "person-fuhrman", "ACCEPTED", "The superseded glove fact also centered on Fuhrman."],
   [
     "fact-glove-v3",
     "DERIVED_FROM",
@@ -2329,22 +2332,23 @@ const linkSpecs: LinkSpec[] = [
     "ACCEPTED",
     "Accepted glove fact replaces the overreaching warrantless-entry version with a documented-and-disputed framing.",
   ],
-  ["docrec-me-tod", "EVIDENCES", "fact-tod-v1", "ACCEPTED"],
-  ["docrec-me-tod", "EVIDENCES", "fact-tod-v3", "ACCEPTED"],
-  ["docrec-coc-bs010-volume", "EVIDENCES", "fact-blood-broad", "ACCEPTED"],
-  ["docrec-coc-bs003", "EVIDENCES", "fact-disc-photo", "ACCEPTED"],
-  ["docrec-coc-bs007", "EVIDENCES", "fact-disc-bs007", "ACCEPTED"],
-  ["docrec-coc-firstpass", "EVIDENCES", "fact-coc-integrity", "ACCEPTED"],
+  ["docrec-me-tod", "EVIDENCES", "fact-tod-v1", "ACCEPTED", "Medical examiner report originally grounded the first time-of-death version."],
+  ["docrec-me-tod", "EVIDENCES", "fact-tod-v3", "ACCEPTED", "Same report grounded a later, since-replaced time-of-death version."],
+  ["docrec-coc-bs010-volume", "EVIDENCES", "fact-blood-broad", "ACCEPTED", "Blood-volume record originally grounded the retired broad blood fact."],
+  ["docrec-coc-bs003", "EVIDENCES", "fact-disc-photo", "ACCEPTED", "BS-003 record originally grounded the retired photo-discrepancy fact."],
+  ["docrec-coc-bs007", "EVIDENCES", "fact-disc-bs007", "ACCEPTED", "BS-007 record originally grounded the retired BS-007 discrepancy fact."],
+  ["docrec-coc-firstpass", "EVIDENCES", "fact-coc-integrity", "ACCEPTED", "First-pass custody review was an earlier source for the custody-integrity fact."],
   [
     "theory-contamination",
     "DERIVED_FROM",
     "theory-investigation-broad",
     "ACCEPTED",
+    "Contamination theory was narrowed from the earlier broad-investigation theory.",
   ],
 ];
 
 const ojLinks: GraphLink[] = linkSpecs.map(
-  ([fromId, type, toId, status = "ACCEPTED", explanation], index) => {
+  ([fromId, type, toId, status, explanation], index) => {
     const fromRecordType = recordTypeById.get(fromId);
     const toRecordType = recordTypeById.get(toId);
 

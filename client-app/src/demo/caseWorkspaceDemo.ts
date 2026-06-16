@@ -29,7 +29,7 @@ import type {
   RecordType,
   TypedCaseRecord,
 } from "#/types/caseRecords";
-import type { CaseDemo } from "#/lib/caseDemoTypes";
+import type { CaseDemo } from "#/demo/caseDemoTypes";
 
 export const demoUserId = "5bdbb6c2-877a-4772-ad9e-00a10d6073b5";
 export const DEMO_WORKSPACE_ID = "11111111-1111-4111-8111-111111111111";
@@ -1716,12 +1716,16 @@ const recordStatusById = new Map<string, RecordStatus>(
 const isAuthoritativeStatus = (status?: RecordStatus) =>
   status === "ACCEPTED" || status === "PENDING_REPLACEMENT";
 
+// Explanation is REQUIRED on every edge (mirrors GraphLink.explanation): the
+// agent must state why a connection exists. Because a tuple can't carry a
+// required element after an optional one, `status` is required too — every spec
+// names its status explicitly.
 type LinkSpec = [
   fromId: string,
   type: RecordLinkType,
   toId: string,
-  status?: LinkStatus,
-  explanation?: string,
+  status: LinkStatus,
+  explanation: string,
 ];
 
 // Links are authored in their CANONICAL direction (fromRecord → type →
@@ -1731,32 +1735,32 @@ type LinkSpec = [
 // specific semantic link available; RELATED_TO should be a sparse last resort.
 const linkSpecs: LinkSpec[] = [
   // Theory 1 (adopted) grounding
-  ["theory-001", "DEPENDS_ON", "fact-001", "ACCEPTED"],
-  ["theory-001", "DEPENDS_ON", "fact-007", "ACCEPTED"],
-  ["theory-001", "DEPENDS_ON", "fact-005", "ACCEPTED"],
-  ["theory-001", "SUPPORTS", "claim-002", "ACCEPTED"],
-  ["theory-001", "CITES", "precedent-001", "PROPOSED"],
+  ["theory-001", "DEPENDS_ON", "fact-001", "ACCEPTED", "The adopted habitability theory rests on the documented move-in pest and maintenance conditions."],
+  ["theory-001", "DEPENDS_ON", "fact-007", "ACCEPTED", "Theory needs the payment history showing rent was substantially paid, defeating any willful-nonpayment narrative."],
+  ["theory-001", "DEPENDS_ON", "fact-005", "ACCEPTED", "Theory leans on the missing management records, since the absence of remediation proof strengthens the habitability defense."],
+  ["theory-001", "SUPPORTS", "claim-002", "ACCEPTED", "The habitability theory is the through-line that carries the c. 93A and quiet-enjoyment counterclaims."],
+  ["theory-001", "CITES", "precedent-001", "PROPOSED", "Theory invokes the Massachusetts quiet-enjoyment and 93A authorities, still pending a cite check."],
 
   // Theory 2 (proposed equitable prejudice)
-  ["theory-002", "DERIVED_FROM", "arg-003", "PROPOSED"],
-  ["theory-002", "DEPENDS_ON", "fact-002", "PROPOSED"],
-  ["theory-002", "DEPENDS_ON", "fact-010", "PROPOSED"],
-  ["docrec-cert-letter", "EVIDENCES", "theory-002", "PROPOSED"],
-  ["docrec-agreement-deadline", "EVIDENCES", "theory-002", "PROPOSED"],
-  ["theory-002", "EXPLAINS", "issue-003", "PROPOSED"],
+  ["theory-002", "DERIVED_FROM", "arg-003", "PROPOSED", "Equitable-prejudice theory was synthesized from the filing-delay argument about the agreed cure deadline."],
+  ["theory-002", "DEPENDS_ON", "fact-002", "PROPOSED", "Theory turns on the RAFT application date establishing a timely cure attempt."],
+  ["theory-002", "DEPENDS_ON", "fact-010", "PROPOSED", "Theory relies on the RAFT cure payment as proof the arrears were actively being resolved."],
+  ["docrec-cert-letter", "EVIDENCES", "theory-002", "PROPOSED", "QCAP certification letter is the primary source for the timely-cure premise the theory depends on."],
+  ["docrec-agreement-deadline", "EVIDENCES", "theory-002", "PROPOSED", "Agreement deadline document anchors the claim that plaintiffs filed despite an agreed timeline."],
+  ["theory-002", "EXPLAINS", "issue-003", "PROPOSED", "Theory frames why the filing-delay issue matters: plaintiffs proceeded against their own agreed deadline."],
 
   // Claims
-  ["docrec-notice-first", "EVIDENCES", "claim-001", "ACCEPTED"],
-  ["claim-001", "INVOLVES", "person-fc-management", "ACCEPTED"],
-  ["claim-002", "DEPENDS_ON", "fact-001", "ACCEPTED"],
-  ["claim-002", "DEPENDS_ON", "fact-008", "ACCEPTED"],
-  ["docrec-maintenance-orders", "EVIDENCES", "claim-002", "ACCEPTED"],
+  ["docrec-notice-first", "EVIDENCES", "claim-001", "ACCEPTED", "The first notice to quit is the founding document for plaintiffs' nonpayment claim."],
+  ["claim-001", "INVOLVES", "person-fc-management", "ACCEPTED", "The nonpayment claim is asserted by Faxon Commons management as plaintiff and landlord."],
+  ["claim-002", "DEPENDS_ON", "fact-001", "ACCEPTED", "The counterclaims rest on the move-in habitability conditions as their factual core."],
+  ["claim-002", "DEPENDS_ON", "fact-008", "ACCEPTED", "The counterclaims draw on the documented hardship and disability-accommodation facts."],
+  ["docrec-maintenance-orders", "EVIDENCES", "claim-002", "ACCEPTED", "Maintenance work orders evidence the conditions underlying the habitability counterclaim."],
 
   // Objectives
-  ["objective-001", "REQUIRES", "theory-001", "ACCEPTED"],
-  ["objective-002", "REQUIRES", "issue-003", "ACCEPTED"],
-  ["objective-003", "REQUIRES", "issue-002", "PROPOSED"],
-  ["objective-003", "REQUIRES", "arg-002", "PROPOSED"],
+  ["objective-001", "REQUIRES", "theory-001", "ACCEPTED", "This objective can't be pursued until the habitability theory is settled as the case's spine."],
+  ["objective-002", "REQUIRES", "issue-003", "ACCEPTED", "Objective depends on resolving the filing-delay issue in our favor first."],
+  ["objective-003", "REQUIRES", "issue-002", "PROPOSED", "Objective hinges on the discovery-gaps issue being established."],
+  ["objective-003", "REQUIRES", "arg-002", "PROPOSED", "Objective needs the unreliable-records argument to land before it is achievable."],
 
   // Posture
   [
@@ -1766,34 +1770,34 @@ const linkSpecs: LinkSpec[] = [
     "ACCEPTED",
     "Current trial posture was synthesized after replacing the older discovery-complete posture.",
   ],
-  ["posture-002", "LEADS_TO", "task-001", "ACCEPTED"],
-  ["posture-002", "LEADS_TO", "task-002", "ACCEPTED"],
-  ["posture-002", "SUPPORTS", "objective-003", "ACCEPTED"],
+  ["posture-002", "LEADS_TO", "task-001", "ACCEPTED", "The trial posture makes the trial-prep task the immediate next step."],
+  ["posture-002", "LEADS_TO", "task-002", "ACCEPTED", "The trial posture drives the outstanding discovery task before trial."],
+  ["posture-002", "SUPPORTS", "objective-003", "ACCEPTED", "The current posture is favorable to the discovery-leverage objective."],
 
   // Issues
-  ["issue-001", "DEPENDS_ON", "fact-001", "ACCEPTED"],
-  ["issue-001", "DEPENDS_ON", "fact-003", "ACCEPTED"],
-  ["issue-002", "DEPENDS_ON", "fact-005", "PROPOSED"],
-  ["docrec-discovery-gaps", "EVIDENCES", "issue-002", "PROPOSED"],
-  ["issue-003", "DEPENDS_ON", "fact-002", "PROPOSED"],
-  ["issue-003", "DEPENDS_ON", "fact-010", "PROPOSED"],
-  ["issue-006", "DEPENDS_ON", "fact-010", "PROPOSED"],
-  ["docrec-raft-approval", "EVIDENCES", "issue-006", "PROPOSED"],
+  ["issue-001", "DEPENDS_ON", "fact-001", "ACCEPTED", "Whether habitability offsets the rent claim turns first on the move-in conditions fact."],
+  ["issue-001", "DEPENDS_ON", "fact-003", "ACCEPTED", "The offset issue must also weigh the landlord's contrary completion-code records."],
+  ["issue-002", "DEPENDS_ON", "fact-005", "PROPOSED", "The discovery-gaps issue is defined by the specific management records that are missing."],
+  ["docrec-discovery-gaps", "EVIDENCES", "issue-002", "PROPOSED", "Discovery-gaps memo documents the categories of records plaintiffs failed to produce."],
+  ["issue-003", "DEPENDS_ON", "fact-002", "PROPOSED", "Filing-delay issue rests on the RAFT application date showing a cure in progress."],
+  ["issue-003", "DEPENDS_ON", "fact-010", "PROPOSED", "Issue also relies on the RAFT cure payment as evidence of good-faith resolution."],
+  ["issue-006", "DEPENDS_ON", "fact-010", "PROPOSED", "The RAFT issue is framed around the cure-payment fact."],
+  ["docrec-raft-approval", "EVIDENCES", "issue-006", "PROPOSED", "RAFT approval record is the source that defines the RAFT issue."],
 
   // Arguments
-  ["arg-002", "DERIVED_FROM", "arg-old-discovery-sanctions", "PROPOSED"],
-  ["arg-002", "DEPENDS_ON", "issue-002", "PROPOSED"],
-  ["arg-002", "DEPENDS_ON", "fact-005", "PROPOSED"],
-  ["docrec-discovery-gaps", "EVIDENCES", "arg-002", "PROPOSED"],
-  ["arg-002", "INVOLVES", "person-fc-management", "PROPOSED"],
-  ["arg-002", "CITES", "precedent-003", "PROPOSED"],
-  ["arg-old-discovery-sanctions", "DEPENDS_ON", "issue-002", "ACCEPTED"],
-  ["arg-003", "DEPENDS_ON", "fact-002", "ACCEPTED"],
-  ["docrec-cert-letter", "EVIDENCES", "arg-003", "ACCEPTED"],
-  ["arg-005", "DEPENDS_ON", "fact-003", "PROPOSED"],
-  ["docrec-maintenance-orders", "EVIDENCES", "arg-005", "PROPOSED"],
-  ["arg-006", "DEPENDS_ON", "fact-010", "PROPOSED"],
-  ["docrec-raft-approval", "EVIDENCES", "arg-006", "PROPOSED"],
+  ["arg-002", "DERIVED_FROM", "arg-old-discovery-sanctions", "PROPOSED", "Reframed from the older sanctions-first argument into a narrower records-reliability attack."],
+  ["arg-002", "DEPENDS_ON", "issue-002", "PROPOSED", "Argument is built on the discovery-gaps issue."],
+  ["arg-002", "DEPENDS_ON", "fact-005", "PROPOSED", "Argument needs the specific missing records to show the clean-record story is incomplete."],
+  ["docrec-discovery-gaps", "EVIDENCES", "arg-002", "PROPOSED", "Discovery-gaps memo is the evidentiary basis for the unreliable-records argument."],
+  ["arg-002", "INVOLVES", "person-fc-management", "PROPOSED", "Argument targets management as the party that controlled and withheld the records."],
+  ["arg-002", "CITES", "precedent-003", "PROPOSED", "Argument cites discovery authority on the consequences of incomplete production."],
+  ["arg-old-discovery-sanctions", "DEPENDS_ON", "issue-002", "ACCEPTED", "The retired sanctions argument also rested on the discovery-gaps issue."],
+  ["arg-003", "DEPENDS_ON", "fact-002", "ACCEPTED", "Filing-delay argument depends on the RAFT application date."],
+  ["docrec-cert-letter", "EVIDENCES", "arg-003", "ACCEPTED", "Certification letter evidences the timely-cure premise of the filing-delay argument."],
+  ["arg-005", "DEPENDS_ON", "fact-003", "PROPOSED", "Conditions argument engages the landlord's completion-code records directly."],
+  ["docrec-maintenance-orders", "EVIDENCES", "arg-005", "PROPOSED", "Work orders supply the maintenance record the conditions argument turns on."],
+  ["arg-006", "DEPENDS_ON", "fact-010", "PROPOSED", "RAFT-timing argument rests on the cure-payment fact."],
+  ["docrec-raft-approval", "EVIDENCES", "arg-006", "PROPOSED", "RAFT approval record evidences the timing the argument asserts."],
   // Conflict demo: this proposed argument leans on fact-old-raft-timing, which
   // is itself mid-replacement (fact-002 would replace it). arg-006 therefore
   // can't be accepted until it is re-evaluated against fact-002.
@@ -1806,8 +1810,8 @@ const linkSpecs: LinkSpec[] = [
   ],
 
   // Facts → sources / people / contradictions
-  ["docrec-maintenance-orders", "EVIDENCES", "fact-001", "ACCEPTED"],
-  ["docrec-photos-metadata", "EVIDENCES", "fact-001", "ACCEPTED"],
+  ["docrec-maintenance-orders", "EVIDENCES", "fact-001", "ACCEPTED", "Work orders corroborate the persistent pest and maintenance conditions."],
+  ["docrec-photos-metadata", "EVIDENCES", "fact-001", "ACCEPTED", "Time-stamped photos document the move-in conditions firsthand."],
   [
     "fact-003",
     "CONTRADICTS",
@@ -1815,26 +1819,26 @@ const linkSpecs: LinkSpec[] = [
     "PROPOSED",
     "Landlord completion codes conflict with tenant condition evidence.",
   ],
-  ["fact-001", "INVOLVES", "person-msweeney", "ACCEPTED"],
-  ["docrec-cert-letter", "EVIDENCES", "fact-002", "PROPOSED"],
-  ["docrec-affidavit-hardship", "EVIDENCES", "fact-002", "PROPOSED"],
-  ["fact-002", "DERIVED_FROM", "fact-old-raft-timing", "PROPOSED"],
-  ["fact-002", "INVOLVES", "person-dferreira", "PROPOSED"],
-  ["docrec-cert-letter", "EVIDENCES", "fact-old-raft-timing", "ACCEPTED"],
-  ["docrec-maintenance-orders", "EVIDENCES", "fact-003", "PROPOSED"],
-  ["fact-003", "INVOLVES", "person-fc-management", "PROPOSED"],
-  ["docrec-discovery-gaps", "EVIDENCES", "fact-005", "ACCEPTED"],
-  ["docrec-affidavit-payments", "EVIDENCES", "fact-007", "ACCEPTED"],
-  ["docrec-raft-approval", "EVIDENCES", "fact-007", "ACCEPTED"],
-  ["docrec-affidavit-hardship", "EVIDENCES", "fact-008", "ACCEPTED"],
-  ["fact-008", "INVOLVES", "person-msweeney", "ACCEPTED"],
-  ["docrec-affidavit-raft", "EVIDENCES", "fact-010", "PROPOSED"],
-  ["docrec-raft-approval", "EVIDENCES", "fact-010", "PROPOSED"],
+  ["fact-001", "INVOLVES", "person-msweeney", "ACCEPTED", "The conditions fact is grounded in the tenant's own lived experience."],
+  ["docrec-cert-letter", "EVIDENCES", "fact-002", "PROPOSED", "Certification letter establishes the RAFT application date asserted by the fact."],
+  ["docrec-affidavit-hardship", "EVIDENCES", "fact-002", "PROPOSED", "Affidavit hardship section corroborates the timing of the RAFT application."],
+  ["fact-002", "DERIVED_FROM", "fact-old-raft-timing", "PROPOSED", "Sharpened from the older, vaguer RAFT-timing fact with a specific date."],
+  ["fact-002", "INVOLVES", "person-dferreira", "PROPOSED", "RAFT fact involves Ferreira, whose contributions funded part of the cure."],
+  ["docrec-cert-letter", "EVIDENCES", "fact-old-raft-timing", "ACCEPTED", "Certification letter was the original source for the now-superseded timing fact."],
+  ["docrec-maintenance-orders", "EVIDENCES", "fact-003", "PROPOSED", "Completion codes in the work orders are the basis for the landlord's remediation fact."],
+  ["fact-003", "INVOLVES", "person-fc-management", "PROPOSED", "The completion-code fact reflects management's own record-keeping."],
+  ["docrec-discovery-gaps", "EVIDENCES", "fact-005", "ACCEPTED", "Discovery-gaps memo identifies precisely which management records are missing."],
+  ["docrec-affidavit-payments", "EVIDENCES", "fact-007", "ACCEPTED", "Affidavit payment section documents the rent and arrears paid over the tenancy."],
+  ["docrec-raft-approval", "EVIDENCES", "fact-007", "ACCEPTED", "RAFT approval shows the assistance portion of the total payments."],
+  ["docrec-affidavit-hardship", "EVIDENCES", "fact-008", "ACCEPTED", "Affidavit hardship section establishes the disability and hardship facts."],
+  ["fact-008", "INVOLVES", "person-msweeney", "ACCEPTED", "The hardship fact concerns the tenant's own household circumstances."],
+  ["docrec-affidavit-raft", "EVIDENCES", "fact-010", "PROPOSED", "Affidavit RAFT section documents the cure payment."],
+  ["docrec-raft-approval", "EVIDENCES", "fact-010", "PROPOSED", "RAFT approval letter corroborates the cure amount and date."],
 
   // Timeline events
-  ["docrec-notice-first", "EVIDENCES", "timeline-001", "ACCEPTED"],
-  ["docrec-cert-letter", "EVIDENCES", "timeline-002", "PROPOSED"],
-  ["timeline-002", "INVOLVES", "person-msweeney", "PROPOSED"],
+  ["docrec-notice-first", "EVIDENCES", "timeline-001", "ACCEPTED", "The notice-to-quit document fixes the date the first notice was served."],
+  ["docrec-cert-letter", "EVIDENCES", "timeline-002", "PROPOSED", "Certification letter dates the RAFT certification event."],
+  ["timeline-002", "INVOLVES", "person-msweeney", "PROPOSED", "The RAFT certification event involves the tenant as the applicant."],
   [
     "docrec-raft-approval",
     "EVIDENCES",
@@ -1842,38 +1846,38 @@ const linkSpecs: LinkSpec[] = [
     "PROPOSED",
     "Approval date asserted as July 28; timeline file lists July 24.",
   ],
-  ["docrec-affidavit-raft", "EVIDENCES", "timeline-007", "PROPOSED"],
-  ["fact-010", "CONTEXTUALIZES", "timeline-009", "ACCEPTED"],
-  ["docrec-agreement-deadline", "EVIDENCES", "timeline-011", "ACCEPTED"],
-  ["timeline-011", "LEADS_TO", "issue-003", "ACCEPTED"],
-  ["docrec-discovery-gaps", "EVIDENCES", "timeline-013", "ACCEPTED"],
-  ["timeline-013", "SUPPORTS", "issue-002", "ACCEPTED"],
+  ["docrec-affidavit-raft", "EVIDENCES", "timeline-007", "PROPOSED", "Affidavit RAFT section gives the tenant's account of the approval date."],
+  ["fact-010", "CONTEXTUALIZES", "timeline-009", "ACCEPTED", "The RAFT cure payment frames the notice event, showing arrears were being addressed when notice issued."],
+  ["docrec-agreement-deadline", "EVIDENCES", "timeline-011", "ACCEPTED", "Agreement document dates the agreed cure/move-out deadline event."],
+  ["timeline-011", "LEADS_TO", "issue-003", "ACCEPTED", "The agreed deadline is what gives rise to the filing-delay issue."],
+  ["docrec-discovery-gaps", "EVIDENCES", "timeline-013", "ACCEPTED", "Discovery-gaps memo marks when the production deficiencies first surfaced."],
+  ["timeline-013", "SUPPORTS", "issue-002", "ACCEPTED", "The discovery-deficiency event substantiates the discovery-gaps issue."],
 
   // Testimony
-  ["testimony-001", "INVOLVES", "person-msweeney", "ACCEPTED"],
-  ["testimony-001", "DEPENDS_ON", "fact-001", "ACCEPTED"],
-  ["testimony-001", "DEPENDS_ON", "fact-008", "ACCEPTED"],
-  ["docrec-affidavit-entry", "EVIDENCES", "testimony-001", "ACCEPTED"],
-  ["testimony-002", "INVOLVES", "person-fc-management", "PROPOSED"],
-  ["testimony-002", "DEPENDS_ON", "fact-005", "PROPOSED"],
-  ["testimony-002", "DEPENDS_ON", "fact-003", "PROPOSED"],
+  ["testimony-001", "INVOLVES", "person-msweeney", "ACCEPTED", "The anticipated testimony is the tenant's own."],
+  ["testimony-001", "DEPENDS_ON", "fact-001", "ACCEPTED", "Tenant testimony anchors the move-in conditions fact."],
+  ["testimony-001", "DEPENDS_ON", "fact-008", "ACCEPTED", "Testimony also carries the hardship and accommodation facts."],
+  ["docrec-affidavit-entry", "EVIDENCES", "testimony-001", "ACCEPTED", "Affidavit entry section previews the tenant's testimony on the entry incident."],
+  ["testimony-002", "INVOLVES", "person-fc-management", "PROPOSED", "The proposed testimony would come from management."],
+  ["testimony-002", "DEPENDS_ON", "fact-005", "PROPOSED", "Management would be examined on the records shown to be missing."],
+  ["testimony-002", "DEPENDS_ON", "fact-003", "PROPOSED", "Examination would probe the completion-code records management asserts."],
 
   // Precedent
-  ["precedent-001", "SUPPORTS", "issue-001", "PROPOSED"],
-  ["precedent-003", "SUPPORTS", "issue-002", "PROPOSED"],
+  ["precedent-001", "SUPPORTS", "issue-001", "PROPOSED", "Quiet-enjoyment and 93A authority supports our side of the habitability-offset issue."],
+  ["precedent-003", "SUPPORTS", "issue-002", "PROPOSED", "Discovery authority supports the consequences we seek on the discovery-gaps issue."],
 
   // Tasks
-  ["task-001", "REQUIRES", "theory-001", "ACCEPTED"],
-  ["task-001", "REQUIRES", "claim-002", "ACCEPTED"],
-  ["task-002", "DEPENDS_ON", "issue-002", "PROPOSED"],
-  ["task-002", "DEPENDS_ON", "fact-005", "PROPOSED"],
-  ["task-006", "REQUIRES", "timeline-007", "ACCEPTED"],
-  ["task-006", "REQUIRES", "timeline-011", "ACCEPTED"],
+  ["task-001", "REQUIRES", "theory-001", "ACCEPTED", "Trial-prep task can't proceed until the habitability theory is locked."],
+  ["task-001", "REQUIRES", "claim-002", "ACCEPTED", "Task organizes the proof for the habitability counterclaim."],
+  ["task-002", "DEPENDS_ON", "issue-002", "PROPOSED", "Discovery task is scoped by the discovery-gaps issue."],
+  ["task-002", "DEPENDS_ON", "fact-005", "PROPOSED", "Task targets the specific records shown to be missing."],
+  ["task-006", "REQUIRES", "timeline-007", "ACCEPTED", "Task needs the RAFT approval date resolved before it can proceed."],
+  ["task-006", "REQUIRES", "timeline-011", "ACCEPTED", "Task depends on the agreed-deadline event for its timeline."],
 
   // Notes
-  ["note-001", "EXPLAINS", "issue-002", "ACCEPTED"],
-  ["note-001", "SUPPORTS", "arg-002", "ACCEPTED"],
-  ["note-003", "EXPLAINS", "fact-005", "ACCEPTED"],
+  ["note-001", "EXPLAINS", "issue-002", "ACCEPTED", "Strategy note explains how to exploit the discovery-gaps issue at cross-examination."],
+  ["note-001", "SUPPORTS", "arg-002", "ACCEPTED", "Note reinforces the unreliable-records argument with a concrete cross-exam plan."],
+  ["note-003", "EXPLAINS", "fact-005", "ACCEPTED", "Note clarifies the human-corrected framing of the missing-records fact."],
   [
     "note-003",
     "ATTACKS",
@@ -1891,67 +1895,67 @@ const linkSpecs: LinkSpec[] = [
 
   // ── New records: grounding for the expanded document set ──────────────────
   // Entry fact + its sources / witness
-  ["docrec-affidavit-entry", "EVIDENCES", "fact-012", "ACCEPTED"],
-  ["fact-012", "INVOLVES", "person-msweeney", "ACCEPTED"],
-  ["docrec-affidavit-entry", "EVIDENCES", "fact-014", "ACCEPTED"],
-  ["fact-014", "INVOLVES", "person-msweeney", "ACCEPTED"],
-  ["claim-002", "DEPENDS_ON", "fact-012", "ACCEPTED"],
-  ["testimony-001", "DEPENDS_ON", "fact-012", "ACCEPTED"],
+  ["docrec-affidavit-entry", "EVIDENCES", "fact-012", "ACCEPTED", "Affidavit entry section is the source for the July 2025 entry-while-asleep fact."],
+  ["fact-012", "INVOLVES", "person-msweeney", "ACCEPTED", "The entry incident happened to the tenant's household."],
+  ["docrec-affidavit-entry", "EVIDENCES", "fact-014", "ACCEPTED", "Affidavit entry section also grounds the safety-needs framing fact."],
+  ["fact-014", "INVOLVES", "person-msweeney", "ACCEPTED", "The safety-needs fact concerns the tenant's household."],
+  ["claim-002", "DEPENDS_ON", "fact-012", "ACCEPTED", "The quiet-enjoyment counterclaim depends on the unauthorized-entry fact."],
+  ["testimony-001", "DEPENDS_ON", "fact-012", "ACCEPTED", "Tenant testimony will recount the entry incident."],
 
   // Habitability argument (accepted) grounding
-  ["arg-007", "DEPENDS_ON", "fact-001", "ACCEPTED"],
-  ["arg-007", "SUPPORTS", "issue-001", "ACCEPTED"],
-  ["docrec-maintenance-orders", "EVIDENCES", "arg-007", "ACCEPTED"],
+  ["arg-007", "DEPENDS_ON", "fact-001", "ACCEPTED", "Habitability argument rests on the move-in conditions fact."],
+  ["arg-007", "SUPPORTS", "issue-001", "ACCEPTED", "Argument advances our position on the habitability-offset issue."],
+  ["docrec-maintenance-orders", "EVIDENCES", "arg-007", "ACCEPTED", "Work orders evidence the conditions the habitability argument asserts."],
 
   // Affidavit notice/filing-delay sections ground accepted timeline events
-  ["docrec-affidavit-notices", "EVIDENCES", "timeline-009", "ACCEPTED"],
-  ["docrec-affidavit-filing-delay", "EVIDENCES", "timeline-011", "ACCEPTED"],
+  ["docrec-affidavit-notices", "EVIDENCES", "timeline-009", "ACCEPTED", "Affidavit notices section dates the notice event on the timeline."],
+  ["docrec-affidavit-filing-delay", "EVIDENCES", "timeline-011", "ACCEPTED", "Affidavit filing-delay section corroborates the agreed-deadline event."],
 
   // Payment fact grounded by the rent ledger section
-  ["docrec-raft-ledger", "EVIDENCES", "fact-007", "ACCEPTED"],
-  ["docrec-raft-cure-detail", "EVIDENCES", "fact-010", "PROPOSED"],
+  ["docrec-raft-ledger", "EVIDENCES", "fact-007", "ACCEPTED", "Rent ledger section documents the payment-history total."],
+  ["docrec-raft-cure-detail", "EVIDENCES", "fact-010", "PROPOSED", "RAFT cure-detail section breaks down the cure payment."],
 
   // Missing-record fact grounded by the per-category discovery sections
-  ["docrec-discovery-entry-logs", "EVIDENCES", "fact-005", "ACCEPTED"],
-  ["docrec-discovery-vendor-records", "EVIDENCES", "fact-005", "ACCEPTED"],
-  ["docrec-discovery-internal-comms", "EVIDENCES", "issue-002", "PROPOSED"],
-  ["docrec-discovery-decision-docs", "EVIDENCES", "issue-002", "PROPOSED"],
+  ["docrec-discovery-entry-logs", "EVIDENCES", "fact-005", "ACCEPTED", "Entry-log discovery section shows that record category was never produced."],
+  ["docrec-discovery-vendor-records", "EVIDENCES", "fact-005", "ACCEPTED", "Vendor-records discovery section confirms another missing category."],
+  ["docrec-discovery-internal-comms", "EVIDENCES", "issue-002", "PROPOSED", "Missing internal communications feed the discovery-gaps issue."],
+  ["docrec-discovery-decision-docs", "EVIDENCES", "issue-002", "PROPOSED", "Missing decision documents further the discovery-gaps issue."],
 
   // Proposed records (sequencing, conditions, completion codes)
-  ["docrec-affidavit-notices", "EVIDENCES", "fact-013", "PROPOSED"],
-  ["fact-013", "DEPENDS_ON", "fact-010", "PROPOSED"],
-  ["docrec-maintenance-completion-codes", "EVIDENCES", "fact-003", "PROPOSED"],
-  ["docrec-affidavit-conditions", "CONTEXTUALIZES", "fact-003", "PROPOSED"],
-  ["docrec-notice-first-service", "EVIDENCES", "claim-001", "PROPOSED"],
-  ["docrec-agreement-sept-emails", "EVIDENCES", "theory-002", "PROPOSED"],
-  ["docrec-raft-payment-breakdown", "EVIDENCES", "arg-006", "PROPOSED"],
-  ["docrec-agreement-nofault-terms", "EVIDENCES", "timeline-011", "ACCEPTED"],
+  ["docrec-affidavit-notices", "EVIDENCES", "fact-013", "PROPOSED", "Affidavit notices section supports the notice-sequencing fact."],
+  ["fact-013", "DEPENDS_ON", "fact-010", "PROPOSED", "Sequencing fact relies on the RAFT cure-payment timing."],
+  ["docrec-maintenance-completion-codes", "EVIDENCES", "fact-003", "PROPOSED", "Completion-codes record is the source for the landlord's remediation fact."],
+  ["docrec-affidavit-conditions", "CONTEXTUALIZES", "fact-003", "PROPOSED", "Affidavit conditions section provides the tenant's context against the completion codes."],
+  ["docrec-notice-first-service", "EVIDENCES", "claim-001", "PROPOSED", "Proof-of-service record supports the nonpayment claim's procedural footing."],
+  ["docrec-agreement-sept-emails", "EVIDENCES", "theory-002", "PROPOSED", "September emails evidence the parties' agreed timeline behind the equitable theory."],
+  ["docrec-raft-payment-breakdown", "EVIDENCES", "arg-006", "PROPOSED", "Payment breakdown evidences the RAFT timing the argument asserts."],
+  ["docrec-agreement-nofault-terms", "EVIDENCES", "timeline-011", "ACCEPTED", "No-fault agreement terms date and define the agreed-deadline event."],
 
   // Proposed corroborating-witness testimony
-  ["testimony-003", "INVOLVES", "person-dferreira", "PROPOSED"],
-  ["testimony-003", "DEPENDS_ON", "fact-002", "PROPOSED"],
-  ["docrec-affidavit-hardship", "EVIDENCES", "testimony-003", "PROPOSED"],
+  ["testimony-003", "INVOLVES", "person-dferreira", "PROPOSED", "The corroborating testimony would come from Ferreira."],
+  ["testimony-003", "DEPENDS_ON", "fact-002", "PROPOSED", "Ferreira's testimony would corroborate the RAFT application timing."],
+  ["docrec-affidavit-hardship", "EVIDENCES", "testimony-003", "PROPOSED", "Affidavit hardship section previews the corroborating testimony."],
 
   // ── Facts cite narrow, single-point document records ──────────────────────
-  ["docrec-affidavit-116k-figure", "EVIDENCES", "fact-007", "ACCEPTED"],
-  ["docrec-affidavit-autism-dx", "EVIDENCES", "fact-008", "ACCEPTED"],
-  ["docrec-affidavit-netting", "EVIDENCES", "fact-012", "ACCEPTED"],
-  ["docrec-affidavit-entry-asleep", "EVIDENCES", "fact-012", "ACCEPTED"],
-  ["docrec-affidavit-netting", "EVIDENCES", "fact-014", "ACCEPTED"],
-  ["docrec-affidavit-qcap-statement", "EVIDENCES", "fact-002", "PROPOSED"],
-  ["docrec-affidavit-raft-date", "EVIDENCES", "fact-010", "PROPOSED"],
-  ["docrec-raft-approval-letter", "EVIDENCES", "fact-010", "PROPOSED"],
-  ["docrec-affidavit-raft-date", "EVIDENCES", "timeline-007", "PROPOSED"],
-  ["docrec-raft-approval-letter", "EVIDENCES", "timeline-007", "PROPOSED"],
+  ["docrec-affidavit-116k-figure", "EVIDENCES", "fact-007", "ACCEPTED", "The affidavit's $116k figure is the precise source for the payment-total fact."],
+  ["docrec-affidavit-autism-dx", "EVIDENCES", "fact-008", "ACCEPTED", "The affidavit's diagnosis line grounds the disability hardship fact."],
+  ["docrec-affidavit-netting", "EVIDENCES", "fact-012", "ACCEPTED", "The affidavit's window-netting passage supports the entry-incident fact."],
+  ["docrec-affidavit-entry-asleep", "EVIDENCES", "fact-012", "ACCEPTED", "The affidavit's 'entry while asleep' line is the direct source for the entry fact."],
+  ["docrec-affidavit-netting", "EVIDENCES", "fact-014", "ACCEPTED", "The affidavit's window-netting passage also grounds the safety-needs fact."],
+  ["docrec-affidavit-qcap-statement", "EVIDENCES", "fact-002", "PROPOSED", "The affidavit's QCAP statement evidences the RAFT application date."],
+  ["docrec-affidavit-raft-date", "EVIDENCES", "fact-010", "PROPOSED", "The affidavit's RAFT-date line documents the cure-payment date."],
+  ["docrec-raft-approval-letter", "EVIDENCES", "fact-010", "PROPOSED", "RAFT approval letter corroborates the cure payment."],
+  ["docrec-affidavit-raft-date", "EVIDENCES", "timeline-007", "PROPOSED", "The affidavit's RAFT-date line gives the tenant's account of the approval timeline."],
+  ["docrec-raft-approval-letter", "EVIDENCES", "timeline-007", "PROPOSED", "Approval letter is the documentary source for the RAFT approval event."],
 
   // ── Historical links retained on replaced records ───────────────────────
   // Specified as ACCEPTED (they were real when authored); the builder normalizes
   // them to PROPOSED because an endpoint is now retired, so they stay hidden on
   // the live records and surface only inside the replaced record's inspector.
-  ["posture-003", "CONTEXTUALIZES", "objective-001", "ACCEPTED"],
-  ["posture-003", "CONTEXTUALIZES", "task-001", "ACCEPTED"],
-  ["docrec-affidavit-entry", "EVIDENCES", "fact-old-entry-vague", "ACCEPTED"],
-  ["fact-old-entry-vague", "INVOLVES", "person-msweeney", "ACCEPTED"],
+  ["posture-003", "CONTEXTUALIZES", "objective-001", "ACCEPTED", "The retired discovery-complete posture framed this objective when it was authored."],
+  ["posture-003", "CONTEXTUALIZES", "task-001", "ACCEPTED", "The retired posture set the original context for this trial-prep task."],
+  ["docrec-affidavit-entry", "EVIDENCES", "fact-old-entry-vague", "ACCEPTED", "Affidavit entry section was the source for the now-superseded vague entry fact."],
+  ["fact-old-entry-vague", "INVOLVES", "person-msweeney", "ACCEPTED", "The superseded entry fact concerned the tenant's household."],
   [
     "fact-014",
     "DERIVED_FROM",
@@ -1959,21 +1963,21 @@ const linkSpecs: LinkSpec[] = [
     "ACCEPTED",
     "Accepted entry fact replaces the earlier vague netting description with a more specific safety-needs framing.",
   ],
-  ["docrec-discovery-gaps-v0", "EVIDENCES", "fact-005", "ACCEPTED"],
+  ["docrec-discovery-gaps-v0", "EVIDENCES", "fact-005", "ACCEPTED", "Earlier discovery-gaps draft originally grounded the missing-records fact."],
 
   // ── Grounding for the split/merge version-history facts ───────────────────
   // Live successors are grounded in authoritative document records.
-  ["docrec-maintenance-orders", "EVIDENCES", "fact-habitability-mold", "ACCEPTED"],
-  ["docrec-maintenance-orders", "EVIDENCES", "fact-habitability-heat", "ACCEPTED"],
-  ["docrec-raft-ledger", "EVIDENCES", "fact-payment-cured", "ACCEPTED"],
+  ["docrec-maintenance-orders", "EVIDENCES", "fact-habitability-mold", "ACCEPTED", "Work orders evidence the mold-specific habitability successor fact."],
+  ["docrec-maintenance-orders", "EVIDENCES", "fact-habitability-heat", "ACCEPTED", "Work orders evidence the heat-specific habitability successor fact."],
+  ["docrec-raft-ledger", "EVIDENCES", "fact-payment-cured", "ACCEPTED", "Rent ledger evidences the merged cured-payment fact."],
   // Retired sources keep their original grounding (normalized to PROPOSED by the
   // builder because the fact endpoint is now REPLACED) so it shows in-inspector.
-  ["docrec-maintenance-orders", "EVIDENCES", "fact-habitability-broad", "ACCEPTED"],
-  ["docrec-raft-ledger", "EVIDENCES", "fact-payment-raft-only", "ACCEPTED"],
+  ["docrec-maintenance-orders", "EVIDENCES", "fact-habitability-broad", "ACCEPTED", "Work orders were the original grounding for the retired broad habitability fact."],
+  ["docrec-raft-ledger", "EVIDENCES", "fact-payment-raft-only", "ACCEPTED", "Rent ledger originally grounded the retired RAFT-only payment fact."],
 ];
 
 export const demoLinks: GraphLink[] = linkSpecs.map(
-  ([fromId, type, toId, status = "ACCEPTED", explanation], index) => {
+  ([fromId, type, toId, status, explanation], index) => {
     const fromRecordType = recordTypeById.get(fromId);
     const toRecordType = recordTypeById.get(toId);
 

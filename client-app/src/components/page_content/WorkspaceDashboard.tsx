@@ -8,7 +8,7 @@ import WorkspaceRoleBadge, {
 } from "#/components/ui/WorkspaceRoleBadge";
 import type { MembershipRole } from "#/api/generated/graphql";
 import type { WorkspaceDetail } from "#/api/workspace/hooks";
-import { defaultWorkspaceCases } from "#/lib/defaultWorkspaceCases";
+import { defaultWorkspaceCases } from "#/demo/defaultWorkspaceCases";
 
 interface WorkspaceProps {
   workspace: WorkspaceDetail;

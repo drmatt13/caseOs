@@ -1,25 +1,16 @@
 import { ChevronRight, Repeat } from "lucide-react";
 
-import type { TypedCaseRecord } from "#/types/caseRecords";
+import type { GraphLink, TypedCaseRecord } from "#/types/caseRecords";
 import {
+  RECORD_CHIP_STATUS_CLASSES,
   RECORD_DISPLAY_STATUS_CLASSES,
   RECORD_DISPLAY_STATUS_LABELS,
   RECORD_TYPE_LABELS,
 } from "#/lib/caseRecordPresentation";
-import { TONES } from "#/lib/tones";
 
 import { recordDisplayStatus } from "./helpers";
+import LinkInfoPopover from "./LinkInfoPopover";
 import type { WorkspaceGraph } from "./useWorkspaceGraph";
-
-const RECORD_CHIP_STATUS_CLASSES: Record<TypedCaseRecord["status"], string> = {
-  ACCEPTED: "border-black/15 bg-white/80 hover:border-black/25 hover:bg-white",
-  PROPOSED: `${TONES.info.surface} hover:border-sky-700/30 hover:bg-sky-50/60`,
-  REJECTED: `${TONES.critical.surface} hover:border-red-700/30 hover:bg-red-50/60`,
-  PENDING_REPLACEMENT: `${TONES.caution.surface} hover:border-amber-600/35 hover:bg-amber-50/70`,
-  REPLACED:
-    // "border-black/12 bg-black/[0.04] hover:border-black/20 hover:bg-black/[0.06]",
-    "border-black/15 bg-white/80 hover:border-black/25 hover:bg-white",
-};
 
 // Clickable reference to another record — the core graph-traversal affordance.
 // The chip shell gets a light status wash, while the right pill carries the
@@ -41,6 +32,8 @@ function RecordChip({
   showPendingReplacement = false,
   hidePill = false,
   hideProposedReplacementPill = false,
+  link,
+  linkDirection = "outbound",
 }: {
   record: TypedCaseRecord;
   graph: WorkspaceGraph;
@@ -65,6 +58,14 @@ function RecordChip({
   // True when the surrounding copy already explains replacement context and
   // the proposed pill would repeat the same signal.
   hideProposedReplacementPill?: boolean;
+  // The graph edge this chip was reached through. When provided, a small Info
+  // affordance is rendered beside the chip that opens the edge's explanation.
+  // Absent on non-link surfaces (version history, sibling docs, overview, agent
+  // proposals), so no icon appears there.
+  link?: GraphLink;
+  // Which phrasing the explanation popover uses: "outbound" (the viewed record
+  // is the source) or "inbound" (it is the target). Only meaningful with `link`.
+  linkDirection?: "outbound" | "inbound";
 }) {
   let displayStatus = recordDisplayStatus(record, graph);
   if (displayStatus === "PROPOSED_REPLACEMENT" && !pairedReplacement) {
@@ -94,7 +95,7 @@ function RecordChip({
     (displayStatus !== "PENDING_REPLACEMENT" || showPendingReplacement);
   const showAnyPill = isCycle || showStatusPill;
 
-  return (
+  const chipButton = (
     <button
       type="button"
       title={
@@ -102,7 +103,9 @@ function RecordChip({
           ? "Already open in this path — following it again would loop"
           : record.title
       }
-      className={`group flex w-full min-w-0 items-center gap-2 overflow-hidden rounded-lg border px-2.5 py-1.5 text-left text-sm transition-colors ${
+      className={`group flex ${
+        link ? "flex-1" : "w-full"
+      } min-w-0 items-center gap-2 overflow-hidden rounded-lg border px-2.5 py-1.5 text-left text-sm transition-colors ${
         isCycle
           ? "border-black/15 bg-black/[0.03] opacity-70 cursor-not-allowed"
           : chipStatusClass
@@ -148,6 +151,20 @@ function RecordChip({
         }`}
       />
     </button>
+  );
+
+  // Non-link surfaces render the bare chip — byte-identical to before.
+  if (!link) return chipButton;
+
+  // With an edge in hand, pair the chip with its explanation affordance. The
+  // chip flexes to fill the row; the Info button sits alongside and stays
+  // interactive even when the chip is a locked cycle — the *why* of an edge is
+  // still worth reading when you can't traverse it.
+  return (
+    <div className="group/chiprow flex w-full min-w-0 items-stretch gap-1">
+      {chipButton}
+      <LinkInfoPopover link={link} direction={linkDirection} graph={graph} />
+    </div>
   );
 }
 

@@ -97,7 +97,11 @@ function RecordLinksPanel({
   ) => {
     const groups = new Map<
       string,
-      { record: TypedCaseRecord; link: GraphLink }[]
+      {
+        record: TypedCaseRecord;
+        link: GraphLink;
+        direction: "outbound" | "inbound";
+      }[]
     >();
     for (const link of links) {
       const targetId =
@@ -110,7 +114,7 @@ function RecordLinksPanel({
           : LINK_TYPE_INBOUND_LABELS[link.type];
       groups.set(label, [
         ...(groups.get(label) ?? []),
-        { record: target, link },
+        { record: target, link, direction },
       ]);
     }
     return groups;
@@ -124,7 +128,7 @@ function RecordLinksPanel({
           {label}
         </p>
         <div className="flex flex-col gap-1.5">
-          {entries.map(({ record: target, link }) => {
+          {entries.map(({ record: target, link, direction }) => {
             // If this link's target is mid-replacement, show the proposal that
             // would replace it inline — but only the proposal(s) that carry THIS
             // relationship forward to the record being viewed. A target's split
@@ -178,12 +182,16 @@ function RecordLinksPanel({
                   onOpenRecord={onOpenRecord}
                   isCycle={visitedIds?.has(target.id)}
                   showPendingReplacement={showTargetPendingReplacement}
+                  link={link}
+                  linkDirection={direction}
                 />
-                {(recordIsProposed || recordIsReplaced) && link.explanation && (
-                  <p className="mt-0.5 pl-1 text-xs text-black/55">
-                    {link.explanation}
-                  </p>
-                )}
+                {/* Every edge now states its rationale, so the inspector shows
+                    it inline on every link (a clamped preview) — no longer
+                    gated to proposed/replaced records. The chip's Info icon
+                    opens the full, untruncated explanation with confidence. */}
+                {/* <p className="mt-0.5 pl-1 text-xs leading-snug text-black/55 line-clamp-2">
+                  {link.explanation}
+                </p> */}
                 {visibleReplacements.length > 0 && (
                   <div className="ml-3 mt-1 flex flex-col">
                     {/* <span className="mb-1 flex items-center gap-1 text-[0.7rem] uppercase tracking-wide text-black/40">

@@ -3,9 +3,9 @@
 // matter of authoring another bundle and listing it here (and adding the case to
 // defaultWorkspaceCases so it shows up in the workspace dashboard).
 
-import type { CaseDemo } from "#/lib/caseDemoTypes";
-import { faxonCaseDemo } from "#/lib/caseWorkspaceDemo";
-import { ojCaseDemo } from "#/lib/caseWorkspaceDemoOj";
+import type { CaseDemo } from "#/demo/caseDemoTypes";
+import { faxonCaseDemo } from "#/demo/caseWorkspaceDemo";
+import { ojCaseDemo } from "#/demo/caseWorkspaceDemoOj";
 
 export const caseDemos: CaseDemo[] = [faxonCaseDemo, ojCaseDemo];
 

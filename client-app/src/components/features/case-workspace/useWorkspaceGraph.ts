@@ -6,7 +6,7 @@ import type {
   RecordStatus,
   TypedCaseRecord,
 } from "#/types/caseRecords";
-import type { CaseDemo } from "#/lib/caseDemoTypes";
+import type { CaseDemo } from "#/demo/caseDemoTypes";
 
 export type ProposalDecision = {
   status: "accepted" | "rejected";

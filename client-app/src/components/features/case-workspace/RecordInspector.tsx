@@ -7,7 +7,7 @@ import {
   X,
 } from "lucide-react";
 
-import type { TypedCaseRecord } from "#/types/caseRecords";
+import type { CaseDocument, TypedCaseRecord } from "#/types/caseRecords";
 import { RECORD_TYPE_LABELS } from "#/lib/caseRecordPresentation";
 
 import {
@@ -16,6 +16,7 @@ import {
   formatEventDate,
   isImageDocument,
   recordDisplayStatus,
+  recordRelationshipSummary,
 } from "./helpers";
 import { DocumentViewButton } from "./common";
 import {
@@ -165,6 +166,63 @@ function RecordInspector({
   );
 }
 
+// The source-file panel shown for a DOCUMENT record: the originating file, the
+// portion of it this record draws from, and any sibling records extracted from
+// the same file. Lifted verbatim out of the inspector body so that body reads as
+// a straight top-to-bottom list of record sections.
+function DocumentSourceSection({
+  record,
+  document,
+  siblingDocumentRecords,
+  graph,
+  onOpenRecord,
+  visitedIds,
+}: {
+  record: Extract<TypedCaseRecord, { type: "DOCUMENT" }>;
+  document: CaseDocument;
+  siblingDocumentRecords: TypedCaseRecord[];
+  graph: WorkspaceGraph;
+  onOpenRecord: (recordId: string) => void;
+  visitedIds: Set<string>;
+}) {
+  return (
+    <div className="mt-3 rounded-lg border border-black/15 bg-white/75 p-3">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-2 text-sm text-black/70">
+          {isImageDocument(document) ? (
+            <ImageIcon className="h-4 w-4 shrink-0" />
+          ) : (
+            <FileText className="h-4 w-4 shrink-0" />
+          )}
+          <span className="truncate">{document.fileName}</span>
+        </div>
+        <DocumentViewButton document={document} />
+      </div>
+      <p className="mt-1 text-xs text-black/50">
+        {documentScopeLabel(record, document)} · {document.processingStatus}
+      </p>
+      {siblingDocumentRecords.length > 0 && (
+        <div className="mt-3">
+          <p className="mb-1.5 text-xs text-black/65">
+            Other records from this file ({siblingDocumentRecords.length})
+          </p>
+          <div className="flex flex-col gap-1.5">
+            {siblingDocumentRecords.map((sibling) => (
+              <RecordChip
+                key={sibling.id}
+                record={sibling}
+                graph={graph}
+                onOpenRecord={onOpenRecord}
+                isCycle={visitedIds.has(sibling.id)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function RecordInspectorBody({
   record,
   graph,
@@ -180,6 +238,7 @@ function RecordInspectorBody({
 }) {
   const status = graph.effectiveStatus(record);
   const displayStatus = recordDisplayStatus(record, graph);
+  const relationshipSummary = recordRelationshipSummary(record, graph);
   const sourceDocument =
     record.type === "DOCUMENT"
       ? graph.demo.documents.find(
@@ -218,6 +277,29 @@ function RecordInspectorBody({
       <h2 className="font-serif text-xl leading-snug">{record.title}</h2>
       {record.summary && (
         <p className="mt-1 text-sm text-black/70">{record.summary}</p>
+      )}
+
+      {/* The record's role in the case, at a glance — its settled graph
+          neighborhood read as one quiet line ("Evidenced by 2 documents ·
+          Supports 3 arguments · Contradicted by 1 fact"). The full edge list,
+          with each rationale, lives in the knowledge-graph panel below. */}
+      {relationshipSummary.length > 0 && (
+        <div className="mt-2.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-black/55">
+          {relationshipSummary.map((entry, index) => (
+            <span key={entry.label} className="inline-flex items-center gap-2.5">
+              {index > 0 && (
+                <span aria-hidden className="text-black/20">
+                  ·
+                </span>
+              )}
+              <span>
+                {entry.label}{" "}
+                <span className="font-medium text-black/75">{entry.count}</span>
+                {entry.noun ? ` ${entry.noun}` : ""}
+              </span>
+            </span>
+          ))}
+        </div>
       )}
 
       <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-black/50">
@@ -265,41 +347,14 @@ function RecordInspectorBody({
       )}
 
       {record.type === "DOCUMENT" && sourceDocument && (
-        <div className="mt-3 rounded-lg border border-black/15 bg-white/75 p-3">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex min-w-0 items-center gap-2 text-sm text-black/70">
-              {isImageDocument(sourceDocument) ? (
-                <ImageIcon className="h-4 w-4 shrink-0" />
-              ) : (
-                <FileText className="h-4 w-4 shrink-0" />
-              )}
-              <span className="truncate">{sourceDocument.fileName}</span>
-            </div>
-            <DocumentViewButton document={sourceDocument} />
-          </div>
-          <p className="mt-1 text-xs text-black/50">
-            {documentScopeLabel(record, sourceDocument)} ·{" "}
-            {sourceDocument.processingStatus}
-          </p>
-          {siblingDocumentRecords.length > 0 && (
-            <div className="mt-3">
-              <p className="mb-1.5 text-xs text-black/65">
-                Other records from this file ({siblingDocumentRecords.length})
-              </p>
-              <div className="flex flex-col gap-1.5">
-                {siblingDocumentRecords.map((sibling) => (
-                  <RecordChip
-                    key={sibling.id}
-                    record={sibling}
-                    graph={graph}
-                    onOpenRecord={onOpenRecord}
-                    isCycle={visitedIds.has(sibling.id)}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+        <DocumentSourceSection
+          record={record}
+          document={sourceDocument}
+          siblingDocumentRecords={siblingDocumentRecords}
+          graph={graph}
+          onOpenRecord={onOpenRecord}
+          visitedIds={visitedIds}
+        />
       )}
 
       <p className="mt-4 text-md leading-6 text-black/80">{record.content}</p>

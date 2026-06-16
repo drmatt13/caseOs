@@ -1,6 +1,6 @@
 import { ArrowLeft, PlusIcon } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { defaultWorkspaceCases } from "#/lib/defaultWorkspaceCases";
+import { defaultWorkspaceCases } from "#/demo/defaultWorkspaceCases";
 
 interface SelectCaseMenuProps {
   workspaceId: string;

@@ -2,10 +2,13 @@ import type { ClientRole } from "#/types/caseDomain";
 import type {
   CaseDocument,
   DatePrecision,
+  GraphLink,
+  RecordType,
   TimelineEventRecord,
   TypedCaseRecord,
 } from "#/types/caseRecords";
 import {
+  linkTypeLabel,
   RECORD_DISPLAY_STATUS_CLASSES,
   RECORD_DISPLAY_STATUS_LABELS,
   RECORD_STATUS_LABELS,
@@ -249,4 +252,86 @@ export function resolveStatePill(
   }
 
   return null;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Relationship summary — a record's role in the graph, at a glance
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Compact, lowercase nouns for the relationship summary. RECORD_TYPE_LABELS are
+// title-case and a couple read clunky inline ("Document record"), so the summary
+// uses these short singulars and pluralizes per count.
+const RELATIONSHIP_SUMMARY_NOUNS: Record<RecordType, string> = {
+  CASE_SUMMARY: "summary",
+  PERSON: "person",
+  OBJECTIVE: "objective",
+  POSTURE: "posture",
+  CLAIM: "claim",
+  THEORY: "theory",
+  ISSUE: "issue",
+  ARGUMENT: "argument",
+  TASK: "task",
+  FACT: "fact",
+  TIMELINE_EVENT: "event",
+  TESTIMONY: "testimony",
+  LEGAL_PRECEDENT: "precedent",
+  NOTE: "note",
+  DOCUMENT: "document",
+};
+
+function pluralizeNoun(noun: string, count: number): string {
+  if (count === 1) return noun;
+  if (noun === "person") return "people";
+  if (noun.endsWith("y")) return `${noun.slice(0, -1)}ies`;
+  return `${noun}s`;
+}
+
+export interface RelationshipSummaryEntry {
+  // Directional relationship label, e.g. "Evidenced by", "Supports".
+  label: string;
+  count: number;
+  // Pluralized target-type noun when the group points at a single record type
+  // ("documents"); omitted when a group spans mixed types.
+  noun?: string;
+}
+
+// How a record sits in the graph, distilled to one glance: its AUTHORITATIVE
+// relationships grouped by directional label, ordered by weight —
+// "Evidenced by 2 documents · Supports 3 arguments · Contradicted by 1 fact".
+// Only settled edges count; proposed links belong in the links panel, not in
+// this at-a-glance read. Returns [] when there are no authoritative links so the
+// inspector renders nothing rather than an empty row.
+export function recordRelationshipSummary(
+  record: TypedCaseRecord,
+  graph: WorkspaceGraph,
+): RelationshipSummaryEntry[] {
+  const groups = new Map<string, { count: number; types: Set<RecordType> }>();
+
+  const tally = (links: GraphLink[], direction: "outbound" | "inbound") => {
+    for (const link of links) {
+      if (graph.effectiveLinkStatus(link) !== "ACCEPTED") continue;
+      const otherId =
+        direction === "outbound" ? link.toRecordId : link.fromRecordId;
+      const other = graph.recordsById.get(otherId);
+      if (!other) continue;
+      const label = linkTypeLabel(link.type, direction);
+      const group = groups.get(label) ?? { count: 0, types: new Set() };
+      group.count += 1;
+      group.types.add(other.type);
+      groups.set(label, group);
+    }
+  };
+
+  tally(graph.outboundLinks.get(record.id) ?? [], "outbound");
+  tally(graph.inboundLinks.get(record.id) ?? [], "inbound");
+
+  return [...groups.entries()]
+    .map(([label, { count, types }]) => {
+      const onlyType = types.size === 1 ? [...types][0] : undefined;
+      const noun = onlyType
+        ? pluralizeNoun(RELATIONSHIP_SUMMARY_NOUNS[onlyType], count)
+        : undefined;
+      return { label, count, noun };
+    })
+    .sort((a, b) => b.count - a.count);
 }

@@ -217,14 +217,14 @@ survive the replacement. Section and badge are mutually exclusive.
 | Concern | File |
 |---|---|
 | Record + link types, enums | `client-app/src/types/caseRecords.ts` |
-| Labels, status/tone classes, link label pairs | `client-app/src/lib/caseRecordPresentation.ts` |
+| Labels, status/tone classes (incl. `RECORD_CHIP_STATUS_CLASSES`), link label pairs | `client-app/src/lib/caseRecordPresentation.ts` |
 | Status → color recipes ("Ink & Tint") | `client-app/src/lib/tones.ts` |
 | Graph derivations + lifecycle simulation | `client-app/src/components/features/case-workspace/useWorkspaceGraph.ts` |
 | Pill selection / attention derivation | `client-app/src/components/features/case-workspace/helpers.ts` |
 | Universal record reference chip | `client-app/src/components/features/case-workspace/RecordChip.tsx` |
 | Knowledge-graph link lists + carry-forward rule | `client-app/src/components/features/case-workspace/RecordLinksPanel.tsx` |
 | Replacement / version-history notices | `client-app/src/components/features/case-workspace/RecordNotices.tsx` |
-| Demo graph (records + `links` tuples) | `client-app/src/lib/caseWorkspaceDemoOj.ts` |
+| Demo graph (records + `links` tuples) | `client-app/src/demo/caseWorkspaceDemoOj.ts` |
 
 Related briefs: `lawstruct-ai-product-architecture-agent.md` (Human-In-The-Loop
 Lifecycle), `frontend-style-parity-agent.md` (chip/pill visual language).

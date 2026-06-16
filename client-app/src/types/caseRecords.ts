@@ -18,29 +18,29 @@ export type { PersonRole };
 
 export type RecordType =
   // Level 0 – meta / orthogonal
-  | "CASE_SUMMARY"    // synthesized case overview (agent-generated)
-  | "PERSON"          // a party, witness, or attorney; referenced across all levels
+  | "CASE_SUMMARY" // synthesized case overview (agent-generated)
+  | "PERSON" // a party, witness, or attorney; referenced across all levels
 
   // Level 1 – strategic frame
-  | "OBJECTIVE"       // what we're trying to accomplish
-  | "POSTURE"         // current litigation posture
-  | "CLAIM"           // claims or allegations in the case
+  | "OBJECTIVE" // what we're trying to accomplish
+  | "POSTURE" // current litigation posture
+  | "CLAIM" // claims or allegations in the case
 
   // Level 2 – legal & analytical layer
-  | "THEORY"          // legal/factual theory of the case
-  | "ISSUE"           // discrete legal or factual issue
-  | "ARGUMENT"        // argument in support of a claim or theory
-  | "TASK"            // action item
+  | "THEORY" // legal/factual theory of the case
+  | "ISSUE" // discrete legal or factual issue
+  | "ARGUMENT" // argument in support of a claim or theory
+  | "TASK" // action item
 
   // Level 3 – evidentiary grounding
-  | "FACT"            // a discrete fact
-  | "TIMELINE_EVENT"  // a dated event in the case timeline
-  | "TESTIMONY"       // witness testimony (anticipated or actual)
+  | "FACT" // a discrete fact
+  | "TIMELINE_EVENT" // a dated event in the case timeline
+  | "TESTIMONY" // witness testimony (anticipated or actual)
   | "LEGAL_PRECEDENT" // case law, statute, or regulation
-  | "NOTE"            // open-ended note or question
+  | "NOTE" // open-ended note or question
 
   // Level 4 – source grounding layer (bridges raw files and the graph)
-  | "DOCUMENT";       // record representing content extracted from a source file
+  | "DOCUMENT"; // record representing content extracted from a source file
 
 // Natural information flow: high level depends on lower levels.
 // PERSON (0) and CASE_SUMMARY (0) sit outside the main directional hierarchy.
@@ -118,8 +118,16 @@ export type RecordPriority = "low" | "medium" | "high";
 // CASE_SUMMARY).
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type ObjectiveSubstatus = "ACTIVE" | "AT_RISK" | "ACHIEVED" | "ABANDONED";
-export type ClaimSubstatus = "ASSERTED" | "ANTICIPATED" | "WITHDRAWN" | "DISMISSED";
+export type ObjectiveSubstatus =
+  | "ACTIVE"
+  | "AT_RISK"
+  | "ACHIEVED"
+  | "ABANDONED";
+export type ClaimSubstatus =
+  | "ASSERTED"
+  | "ANTICIPATED"
+  | "WITHDRAWN"
+  | "DISMISSED";
 export type TheorySubstatus = "ADOPTED" | "EXPLORING" | "BACKUP" | "ABANDONED";
 export type IssueSubstatus = "OPEN" | "RESERVED" | "RESOLVED";
 export type ArgumentSubstatus = "DRAFT" | "TRIAL_READY";
@@ -160,20 +168,20 @@ export type DatePrecision = "year" | "month" | "day" | "minute" | "second";
 // on the document and "Evidenced by" on the fact). See
 // caseRecordPresentation.LINK_TYPE_LABEL_PAIRS for the label mapping.
 export type RecordLinkType =
-  | "DEPENDS_ON"         // fromRecord relies on toRecord (follows RECORD_LEVEL flow)
-  | "SUPPORTS"           // fromRecord strengthens / supports toRecord
-  | "EVIDENCES"          // fromRecord provides evidence for toRecord (usually from a DOCUMENT record)
-  | "CONTRADICTS"        // fromRecord directly conflicts with toRecord
-  | "ATTACKS"            // fromRecord undermines credibility/reliability/validity of toRecord
-  | "EXPLAINS"           // fromRecord clarifies or explains toRecord
-  | "CONTEXTUALIZES"     // fromRecord provides surrounding context for toRecord
-  | "CITES"              // fromRecord explicitly cites toRecord (e.g. a LEGAL_PRECEDENT)
-  | "DERIVED_FROM"       // fromRecord was synthesized from toRecord
-  | "REQUIRES"           // fromRecord requires toRecord before it is valid or actionable
-  | "LEADS_TO"           // fromRecord causes or leads to toRecord
-  | "INVOLVES"           // fromRecord involves toRecord (always a PERSON record)
-  | "DUPLICATES"         // fromRecord is a potential duplicate of toRecord (flag for review)
-  | "RELATED_TO";        // fallback relationship when no specific type applies
+  | "DEPENDS_ON" // fromRecord relies on toRecord (follows RECORD_LEVEL flow)
+  | "SUPPORTS" // fromRecord strengthens / supports toRecord
+  | "EVIDENCES" // fromRecord provides evidence for toRecord (usually from a DOCUMENT record)
+  | "CONTRADICTS" // fromRecord directly conflicts with toRecord
+  | "ATTACKS" // fromRecord undermines credibility/reliability/validity of toRecord
+  | "EXPLAINS" // fromRecord clarifies or explains toRecord
+  | "CONTEXTUALIZES" // fromRecord provides surrounding context for toRecord
+  | "CITES" // fromRecord explicitly cites toRecord (e.g. a LEGAL_PRECEDENT)
+  | "DERIVED_FROM" // fromRecord was synthesized from toRecord
+  | "REQUIRES" // fromRecord requires toRecord before it is valid or actionable
+  | "LEADS_TO" // fromRecord causes or leads to toRecord
+  | "INVOLVES" // fromRecord involves toRecord (always a PERSON record)
+  | "DUPLICATES" // fromRecord is a potential duplicate of toRecord (flag for review)
+  | "RELATED_TO"; // fallback relationship when no specific type applies
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Base record interface
@@ -208,10 +216,9 @@ export interface CaseRecord {
   // The two arrays are inverse views of the same predecessor→successor edges.
   version: number;
   replacedByIds?: string[]; // IDs of the record(s) that replace this one
-  replacesIds?: string[];   // IDs of older record(s) this one replaces
+  replacesIds?: string[]; // IDs of older record(s) this one replaces
 
   // Authorship & approval
-  createdBy: "human" | "agent";
   createdByUserId?: string;
   approvedByUserId?: string;
   approvedAt?: string;
@@ -240,7 +247,12 @@ export interface PostureRecord extends CaseRecord {
 export interface ClaimRecord extends CaseRecord {
   type: "CLAIM";
   substatus: ClaimSubstatus;
-  claimType?: "affirmative" | "counterclaim" | "cross" | "third_party" | "defense";
+  claimType?:
+    | "affirmative"
+    | "counterclaim"
+    | "cross"
+    | "third_party"
+    | "defense";
 }
 
 export interface TheoryRecord extends CaseRecord {
@@ -300,7 +312,7 @@ export interface LegalPrecedentRecord extends CaseRecord {
   substatus?: PrecedentSubstatus;
   // False while the citation still needs verification (was "NEEDS_CITE_CHECK").
   citeChecked?: boolean;
-  citation?: string;    // e.g. "410 U.S. 113 (1973)"
+  citation?: string; // e.g. "410 U.S. 113 (1973)"
   jurisdiction?: string;
   court?: string;
 }
@@ -334,8 +346,8 @@ export interface PersonRecord extends CaseRecord {
 export interface DocumentRecord extends CaseRecord {
   type: "DOCUMENT";
   substatus?: undefined;
-  documentId: string;               // FK → CaseDocument.id (the actual stored file)
-  fileName: string;                 // display label of the source file
+  documentId: string; // FK → CaseDocument.id (the actual stored file)
+  fileName: string; // display label of the source file
   pageRange?: { start: number; end: number };
 }
 
@@ -428,15 +440,12 @@ export interface GraphLink {
   replacesIds?: string[];
 
   confidence?: number; // 0–1, agent confidence in this connection
-  explanation?: string;
-
-  createdBy: "human" | "agent";
-  createdByUserId?: string;
-  approvedByUserId?: string;
-  approvedAt?: string;
+  // Required: every edge must state WHY the connection exists. This rationale is
+  // the connective tissue agents traverse and the justification human operators
+  // read in the record inspector — an unexplained edge is not allowed.
+  explanation: string;
 
   createdAt: string;
-  updatedAt: string;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -484,11 +493,11 @@ export interface Chunk {
   workspaceId: string;
   caseId: string;
   ownerType: ChunkOwnerType;
-  ownerId: string;     // CaseDocument.id or CaseRecord.id
-  fileName: string;    // display label for the source (file name or record label)
+  ownerId: string; // CaseDocument.id or CaseRecord.id
+  fileName: string; // display label for the source (file name or record label)
   pageNumber?: number; // for document chunks
   content: string;
-  vectorKey: string;   // reference key in the external vector store
+  vectorKey: string; // reference key in the external vector store
   createdAt: string;
   updatedAt: string;
 }

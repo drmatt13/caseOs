@@ -48,6 +48,21 @@ export const RECORD_STATUS_CARD_CLASSES: Record<RecordStatus, string> = {
   REPLACED: TONES.neutral.surface,
 };
 
+// Chip-shell wash keyed by status, with per-status hover deepening. A clickable
+// RecordChip gets a lighter, interactive variant of the card surface above:
+// accepted/replaced read as plain glass, the rest carry their tone wash plus a
+// hover state. Lives here with the other status→class maps so the presentation
+// layer owns all status styling.
+export const RECORD_CHIP_STATUS_CLASSES: Record<RecordStatus, string> = {
+  ACCEPTED: "border-black/15 bg-white/80 hover:border-black/25 hover:bg-white",
+  PROPOSED: `${TONES.info.surface} hover:border-sky-700/30 hover:bg-sky-50/60`,
+  REJECTED: `${TONES.critical.surface} hover:border-red-700/30 hover:bg-red-50/60`,
+  PENDING_REPLACEMENT: `${TONES.caution.surface} hover:border-amber-600/35 hover:bg-amber-50/70`,
+  REPLACED:
+    // "border-black/12 bg-black/[0.04] hover:border-black/20 hover:bg-black/[0.06]",
+    "border-black/15 bg-white/80 hover:border-black/25 hover:bg-white",
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Display status (presentation only)
 // ─────────────────────────────────────────────────────────────────────────────

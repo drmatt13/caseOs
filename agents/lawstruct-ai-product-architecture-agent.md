@@ -51,7 +51,7 @@ Important current constraints:
 
 - The Prisma schema contains lawstruct-ai domain models for workspaces, managed cases, document indexes, record indexes, view indexes, state manifests, and LLM usage events — but the case-related models (`ManagedCase`, `CaseDocumentIndex`, `CaseRecordIndex`, `CaseViewIndex`, `CaseStateManifest`, `LlmUsageEvent`) are currently commented out in `packages/database/prisma/schema.prisma`. Un-comment them when the case persistence layer is ready.
 - The active GraphQL schema currently exposes only current-user and user-profile operations. Case, workspace, document, record, manifest, and view APIs are not yet exposed through GraphQL.
-- The frontend case workspace route (`client-app/src/routes/workspaces.$workspaceId_.cases.$caseId.tsx`) is a full-featured demo UI shell backed by the demo dataset in `client-app/src/lib/caseWorkspaceDemo.ts`. It renders record views, the review queue, timeline, documents, people, the agent panel, and the overview. It does not yet load real case data from the backend.
+- The frontend case workspace route (`client-app/src/routes/workspaces.$workspaceId_.cases.$caseId.tsx`) is a full-featured demo UI shell backed by the demo dataset in `client-app/src/demo/caseWorkspaceDemo.ts`. It renders record views, the review queue, timeline, documents, people, the agent panel, and the overview. It does not yet load real case data from the backend. (The route delegates its local UI state to the `useCaseWorkspace` hook in `components/features/case-workspace/`.)
 - The frontend domain type system is fully defined (see "Existing Product Model" below) and is the authoritative contract for the case knowledge graph domain. When adding GraphQL/backend support, reconcile Prisma field names with these types deliberately.
 - The LangGraph service exists as a Bedrock-backed demo service with simple routing/tools. It is not yet a lawstruct-ai record-generation or enrichment workflow.
 - S3/STS support exists today for profile picture upload. Case document storage and scoped document upload/download flows still need product-specific expansion.
@@ -97,7 +97,7 @@ Defines: `WorkspaceViewType`, `VIEW_RECORD_TYPE` (view → RecordType map), `REC
 All UI strings and Tailwind classes keyed by domain enums: `RECORD_STATUS_LABELS`, `RECORD_STATUS_CLASSES`, `RECORD_SUBSTATUS_LABELS`, `ATTENTION_SUBSTATUSES`, `SUPPORT_STATUS_LABELS`, `RECORD_PARTY_CLASSES`, `RECORD_TYPE_LABELS`, `LINK_TYPE_LABELS`, `LINK_TYPE_INBOUND_LABELS`, `VIEW_LABELS`, `VIEW_DESCRIPTIONS`, `SINGULAR_VIEW_LABELS`, `recordPartyLabel()`.
 
 ### Demo dataset
-`client-app/src/lib/caseWorkspaceDemo.ts` contains the full Faxon Commons v. Sweeney demo (Matthew's real housing case): `demoCase`, `demoCaseContext`, `demoRecords`, `demoLinks`, `demoDocuments`, `demoActivity`, `demoAgentThread`, `demoAgentInstructions`, plus constants `DEMO_CASE_ID`, `DEMO_WORKSPACE_ID`, `demoUserId`.
+`client-app/src/demo/caseWorkspaceDemo.ts` contains the full Faxon Commons v. Sweeney demo (Matthew's real housing case): `demoCase`, `demoCaseContext`, `demoRecords`, `demoLinks`, `demoDocuments`, `demoActivity`, `demoAgentThread`, `demoAgentInstructions`, plus constants `DEMO_CASE_ID`, `DEMO_WORKSPACE_ID`, `demoUserId`. (All hardcoded demo bundles live under `client-app/src/demo/`, resolved by `getCaseDemo` in `caseDemos.ts`.)
 
 ### Persistence model
 `packages/database/prisma/schema.prisma` defines the case-related models (ManagedCase, CaseDocumentIndex, CaseRecordIndex, CaseViewIndex, CaseStateManifest, LlmUsageEvent) but they remain commented out. The active schema handles Users, Workspaces, WorkspaceMemberships, and WorkspaceInvitations. When un-commenting, reconcile Prisma field names with the frontend types above — Prisma uses SCREAMING_SNAKE_CASE enum values and snake_case column names; the frontend types use the same enum values (also SCREAMING_SNAKE_CASE for status/type fields), so the mapping is straightforward.
@@ -312,7 +312,7 @@ Current relevant UI:
 - `/workspaces/new`: new workspace creation.
 - `/workspaces/:id`: workspace dashboard — members, invitations, workspace actions.
 - `/workspaces/:workspaceId/cases/new`: case intake wizard (multi-step form).
-- `/workspaces/:workspaceId/cases/:caseId`: the main case workspace shell (file: `workspaces.$workspaceId_.cases.$caseId.tsx`). Currently fully functional with demo data from `caseWorkspaceDemo.ts`.
+- `/workspaces/:workspaceId/cases/:caseId`: the main case workspace shell (file: `workspaces.$workspaceId_.cases.$caseId.tsx`). Currently fully functional with demo data from `src/demo/caseWorkspaceDemo.ts`.
 - `ActiveWorkspaceMenu.tsx`: left menu with groups — agent/overview/review, Strategy, Analysis, Grounding, Sources.
 - `agents/frontend-style-parity-agent.md`: visual style guide for app UI.
 
