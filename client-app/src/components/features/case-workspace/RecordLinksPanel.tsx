@@ -72,6 +72,43 @@ function RecordLinksPanel({
     return shouldShowProposedLinks && proposedLinkVisible(link);
   };
 
+  const hasVisiblePredecessorLink = (
+    replacement: TypedCaseRecord,
+    carriedLink: GraphLink,
+    direction: "outbound" | "inbound",
+  ) =>
+    (replacement.replacesIds ?? []).some((predecessorId) =>
+      (direction === "outbound"
+        ? graph.outboundLinks.get(record.id)
+        : graph.inboundLinks.get(record.id)
+      )?.some((candidate) => {
+        const predecessorEndpoint =
+          direction === "outbound"
+            ? candidate.toRecordId
+            : candidate.fromRecordId;
+        return (
+          predecessorEndpoint === predecessorId &&
+          candidate.type === carriedLink.type &&
+          visibleLink(candidate)
+        );
+      }),
+    );
+
+  // When a pending-replacement target is shown with its successor nested
+  // beneath it, suppress the successor's proposed carry-forward edge from the
+  // main list. Otherwise the same proposal appears twice: once as dependency
+  // context and once as a standalone proposed link.
+  const visibleNonDuplicateLink =
+    (direction: "outbound" | "inbound") => (link: GraphLink) => {
+      if (!visibleLink(link)) return false;
+      if (graph.effectiveLinkStatus(link) === "ACCEPTED") return true;
+
+      const other = graph.recordsById.get(otherEndpointId(link));
+      if (!other?.replacesIds?.length) return true;
+
+      return !hasVisiblePredecessorLink(other, link, direction);
+    };
+
   const allLinks = [
     ...(graph.outboundLinks.get(record.id) ?? []),
     ...(graph.inboundLinks.get(record.id) ?? []),
@@ -86,9 +123,11 @@ function RecordLinksPanel({
     );
 
   const outbound = (graph.outboundLinks.get(record.id) ?? []).filter(
-    visibleLink,
+    visibleNonDuplicateLink("outbound"),
   );
-  const inbound = (graph.inboundLinks.get(record.id) ?? []).filter(visibleLink);
+  const inbound = (graph.inboundLinks.get(record.id) ?? []).filter(
+    visibleNonDuplicateLink("inbound"),
+  );
   const hasVisibleLinks = outbound.length > 0 || inbound.length > 0;
 
   const groupLinks = (
@@ -149,22 +188,34 @@ function RecordLinksPanel({
             // replacement → record. Outbound group (target is `to`): it's
             // record → replacement.
             const targetIsFrom = link.fromRecordId === target.id;
-            const carriesLinkToRecord = (replacement: TypedCaseRecord) =>
+            const carriedLinkToRecord = (replacement: TypedCaseRecord) =>
               (targetIsFrom
                 ? graph.inboundLinks.get(record.id)
                 : graph.outboundLinks.get(record.id)
-              )?.some((candidate) => {
+              )?.find((candidate) => {
                 const replacementEndpoint = targetIsFrom
                   ? candidate.fromRecordId
                   : candidate.toRecordId;
                 return (
                   replacementEndpoint === replacement.id &&
+                  candidate.type === link.type &&
                   graph.effectiveLinkStatus(candidate) === "PROPOSED"
                 );
-              }) ?? false;
+              });
 
-            const carriedReplacements =
-              otherReplacements.filter(carriesLinkToRecord);
+            const carriedReplacements = otherReplacements
+              .map((replacement) => ({
+                replacement,
+                carriedLink: carriedLinkToRecord(replacement),
+              }))
+              .filter(
+                (
+                  entry,
+                ): entry is {
+                  replacement: TypedCaseRecord;
+                  carriedLink: GraphLink;
+                } => Boolean(entry.carriedLink),
+              );
             const visibleReplacements =
               recordIsAccepted && !shouldShowProposedLinks
                 ? []
@@ -199,14 +250,16 @@ function RecordLinksPanel({
                       Proposed Replacement{" "}
                       {visibleReplacements.length > 1 ? "Records" : "Record"}
                     </span> */}
-                    {visibleReplacements.map((replacement, index) => {
-                      const isLast = index === visibleReplacements.length - 1;
-                      return (
-                        <div
-                          key={replacement.id}
-                          className="relative flex items-center py-0.5"
-                        >
-                          {/* Tree connector, drawn as two non-overlapping
+                    {visibleReplacements.map(
+                      ({ replacement, carriedLink }, index) => {
+                        const isLast =
+                          index === visibleReplacements.length - 1;
+                        return (
+                          <div
+                            key={replacement.id}
+                            className="relative flex items-center py-0.5"
+                          >
+                            {/* Tree connector, drawn as two non-overlapping
                               layers so the trunk stays unbroken while every chip
                               gets its own rounded elbow:
                                 • a straight vertical trunk down the left. While
@@ -218,28 +271,31 @@ function RecordLinksPanel({
                                   corner radius, so it has no straight vertical
                                   run — it only meets the trunk tangentially and
                                   curves out to the chip at its vertical center. */}
-                          <span
-                            aria-hidden
-                            className={`absolute left-0 top-0 w-px bg-black/15 ${
-                              isLast ? "h-[calc(50%-0.5rem)]" : "bottom-0"
-                            }`}
-                          />
-                          <span
-                            aria-hidden
-                            className="absolute bottom-1/2 left-0 h-2 w-4 rounded-bl-lg border-b border-l border-black/15"
-                          />
-                          <div className="min-w-0 flex-1 pl-4">
-                            <RecordChip
-                              record={replacement}
-                              graph={graph}
-                              onOpenRecord={onOpenRecord}
-                              isCycle={visitedIds?.has(replacement.id)}
-                              pairedReplacement
+                            <span
+                              aria-hidden
+                              className={`absolute left-0 top-0 w-px bg-black/15 ${
+                                isLast ? "h-[calc(50%-0.5rem)]" : "bottom-0"
+                              }`}
                             />
+                            <span
+                              aria-hidden
+                              className="absolute bottom-1/2 left-0 h-2 w-4 rounded-bl-lg border-b border-l border-black/15"
+                            />
+                            <div className="min-w-0 flex-1 pl-4">
+                              <RecordChip
+                                record={replacement}
+                                graph={graph}
+                                onOpenRecord={onOpenRecord}
+                                isCycle={visitedIds?.has(replacement.id)}
+                                pairedReplacement
+                                link={carriedLink}
+                                linkDirection={direction}
+                              />
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      },
+                    )}
                   </div>
                 )}
               </div>
