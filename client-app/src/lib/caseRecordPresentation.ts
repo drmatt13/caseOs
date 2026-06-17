@@ -399,7 +399,7 @@ export const VIEW_DESCRIPTIONS: Partial<Record<WorkspaceViewType, string>> = {
   facts:
     "Discrete factual assertions with dispute posture, source support, and proof gaps.",
   timeline:
-    "Chronological case events with date confidence and links to facts and filings.",
+    "Chronological case events with date precision and links to facts and filings.",
   testimony:
     "Witness modules — anticipated testimony, preparation guardrails, and cross-examination themes.",
   precedent:

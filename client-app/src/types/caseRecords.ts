@@ -101,6 +101,7 @@ export type RecordStatus =
   | "REPLACED";
 
 export type LinkStatus = "PROPOSED" | "ACCEPTED" | "REJECTED";
+export type LinkStrength = "WEAK" | "MODERATE" | "STRONG";
 
 // Evidentiary grounding — a first-class axis on assertion-bearing records
 // (FACT, TIMELINE_EVENT, TESTIMONY, CLAIM, ARGUMENT, THEORY, ISSUE) and PERSON
@@ -476,7 +477,8 @@ export interface GraphLink {
   replacedById?: string;
   replacesIds?: string[];
 
-  confidence?: number; // 0–1, agent confidence in this connection
+  // Qualitative strength of this relationship as authored/reviewed.
+  strength: LinkStrength;
   // Required: every edge must state WHY the connection exists. This rationale is
   // the connective tissue agents traverse and the justification human operators
   // read in the record inspector — an unexplained edge is not allowed.

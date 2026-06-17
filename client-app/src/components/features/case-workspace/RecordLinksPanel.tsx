@@ -268,7 +268,7 @@ function RecordLinksPanel({
                 {/* Every edge now states its rationale, so the inspector shows
                     it inline on every link (a clamped preview) — no longer
                     gated to proposed/replaced records. The chip's Info icon
-                    opens the full, untruncated explanation with confidence. */}
+                    opens the full, untruncated explanation with strength. */}
                 {/* <p className="mt-0.5 pl-1 text-xs leading-snug text-black/55 line-clamp-2">
                   {link.explanation}
                 </p> */}

@@ -2,6 +2,7 @@ import { ArrowDown, ArrowLeftRight, ArrowUp, Info } from "lucide-react";
 
 import type {
   GraphLink,
+  LinkStrength,
   RecordLinkType,
   TypedCaseRecord,
 } from "#/types/caseRecords";
@@ -42,6 +43,18 @@ type EndpointRejection = {
   typeLabel: string;
   here: boolean;
   reason: string;
+};
+
+const LINK_STRENGTH_LABELS: Record<LinkStrength, string> = {
+  WEAK: "Weak",
+  MODERATE: "Moderate",
+  STRONG: "Strong",
+};
+
+const LINK_STRENGTH_CLASSES: Record<LinkStrength, string> = {
+  WEAK: "border-amber-600/25 bg-amber-50/70 text-amber-900",
+  MODERATE: "border-sky-600/20 bg-sky-50/70 text-sky-900",
+  STRONG: "border-emerald-600/20 bg-emerald-50/70 text-emerald-900",
 };
 
 // One end of the edge, rendered as a calm white-glass card sitting *in* the
@@ -175,8 +188,19 @@ function LinkInfoPopover({
       triggerLabel={`Why this link: ${here.title} ${verb.toLowerCase()} ${other.title}`}
       triggerClassName="flex shrink-0 items-center rounded-md px-1 text-black/35 transition-colors hover:text-black/70"
       trigger={<Info className="h-3.5 w-3.5" />}
-      className={`z-10001 flex w-72 max-w-[90vw] flex-col gap-1.5 rounded-xl border ${tone.surface} p-3 shadow-md backdrop-blur-sm`}
+      className={`z-10001 flex w-72 max-w-[90vw] flex-col gap-1.5 rounded-xl border ${tone.surface} p-3 shadow-md backdrop-blur-xl`}
     >
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-black/45">
+          Link strength
+        </span>
+        <span
+          className={`rounded-full border px-2 py-0.5 text-xs ${LINK_STRENGTH_CLASSES[link.strength]}`}
+        >
+          {LINK_STRENGTH_LABELS[link.strength]}
+        </span>
+      </div>
+
       <RecordRow typeLabel={here.typeLabel} title={here.title} here />
 
       {/* Relationship verb: the heart of the edge. Color lives in the ink; the
@@ -195,7 +219,9 @@ function LinkInfoPopover({
       {/* Why the edge was rejected — the reason the agent reads in lieu of
           following it. Inked critical to match the red panel. */}
       {isRejected && link.rejectionReason && (
-        <p className={`border-t border-black/10 pt-2 text-sm leading-5 ${tone.ink}`}>
+        <p
+          className={`border-t border-black/10 pt-2 text-sm leading-5 ${tone.ink}`}
+        >
           <span className="font-medium">Rejected:</span>{" "}
           {displayRejectionReason(link.rejectionReason)}
         </p>

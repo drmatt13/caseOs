@@ -23,6 +23,7 @@ import type { CaseContext } from "#/types/caseContext";
 import type {
   CaseDocument,
   GraphLink,
+  LinkStrength,
   LinkStatus,
   RecordLinkType,
   RecordStatus,
@@ -1754,6 +1755,12 @@ const recordStatusById = new Map<string, RecordStatus>(
 const isAuthoritativeStatus = (status?: RecordStatus) =>
   status === "ACCEPTED" || status === "PENDING_REPLACEMENT";
 
+const linkStrengthForStatus = (status: LinkStatus): LinkStrength => {
+  if (status === "ACCEPTED") return "STRONG";
+  if (status === "REJECTED") return "WEAK";
+  return "MODERATE";
+};
+
 // Explanation is REQUIRED on every edge (mirrors GraphLink.explanation): the
 // agent must state why a connection exists. Because a tuple can't carry a
 // required element after an optional one, `status` is required too — every spec
@@ -2041,6 +2048,7 @@ export const demoLinks: GraphLink[] = linkSpecs.map(
       toRecordType,
       type,
       status: normalizedStatus,
+      strength: linkStrengthForStatus(normalizedStatus),
       explanation,
       ...(normalizedStatus === "REJECTED" && rejectionReason
         ? { rejectionReason }

@@ -676,6 +676,7 @@ function ProposalManualEditor({
       toRecordType: target.type,
       type: "RELATED_TO",
       status: "PROPOSED",
+      strength: "MODERATE",
       explanation: "",
       createdAt: new Date().toISOString(),
     };
