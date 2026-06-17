@@ -13,6 +13,7 @@ import {
   RECORD_TYPE_LABELS,
   SUPPORT_STATUS_CLASSES,
   SUPPORT_STATUS_LABELS,
+  type RecordDisplayStatus,
 } from "#/lib/caseRecordPresentation";
 import Button from "#/components/ui/Button";
 
@@ -25,11 +26,7 @@ import {
   recordRelationshipSummary,
 } from "./helpers";
 import { DocumentViewButton } from "./common";
-import {
-  PartyBadge,
-  SubstatusBadge,
-  SupportBadge,
-} from "./RecordBadges";
+import { PartyBadge, SubstatusBadge, SupportBadge } from "./RecordBadges";
 import RecordChip from "./RecordChip";
 import {
   PendingReplacementNotice,
@@ -57,6 +54,49 @@ import type {
 // a centered card over a blur + tint backdrop, kept mounted so it can animate
 // open and closed.
 // ─────────────────────────────────────────────────────────────────────────────
+
+const RECORD_STATE_BANNER_CLASSES: Record<RecordDisplayStatus, string> = {
+  ACCEPTED: "border-emerald-700/15 bg-emerald-50/45 text-emerald-950",
+  PROPOSED: "border-sky-700/20 bg-sky-50/55 text-sky-950",
+  PROPOSED_REPLACEMENT:
+    "border-violet-700/20 bg-violet-50/55 text-violet-950",
+  PENDING_REPLACEMENT: "border-amber-700/25 bg-amber-50/60 text-amber-950",
+  REPLACED: "border-black/12 bg-black/[0.035] text-black/75",
+  REJECTED: "border-red-700/20 bg-red-50/60 text-red-950",
+};
+
+const RECORD_STATE_BANNER_TITLES: Record<RecordDisplayStatus, string> = {
+  ACCEPTED: "Accepted record",
+  PROPOSED: "Proposed record",
+  PROPOSED_REPLACEMENT: "Proposed replacement",
+  PENDING_REPLACEMENT: "Pending replacement",
+  REPLACED: "Replaced record",
+  REJECTED: "Rejected record",
+};
+
+const RECORD_STATE_BANNER_DESCRIPTIONS: Record<RecordDisplayStatus, string> = {
+  ACCEPTED: "Canonical record in this workspace.",
+  PROPOSED: "Review before accepting it into the workspace.",
+  PROPOSED_REPLACEMENT: "Review as a proposed replacement for existing record content.",
+  PENDING_REPLACEMENT: "Locked while a replacement proposal is pending.",
+  REPLACED: "Retired record kept for version history.",
+  REJECTED: "Dismissed proposal retained for context.",
+};
+
+function RecordStateBanner({ status }: { status: RecordDisplayStatus }) {
+  return (
+    <div
+      className={`mb-3 rounded-lg border px-3 py-2 ${RECORD_STATE_BANNER_CLASSES[status]}`}
+    >
+      <p className="text-xs font-semibold uppercase tracking-wide">
+        {RECORD_STATE_BANNER_TITLES[status]}
+      </p>
+      <p className="mt-0.5 text-sm leading-5 opacity-80">
+        {RECORD_STATE_BANNER_DESCRIPTIONS[status]}
+      </p>
+    </div>
+  );
+}
 
 function RecordInspector({
   stack,
@@ -363,12 +403,17 @@ function RecordInspectorBody({
       : [];
   const pendingProposals = graph.pendingReplacementByTargetId.get(record.id);
   const proposalDecision = graph.proposalDecisions[record.id];
-  const supportMetadataProposal =
-    graph.supportMetadataProposalsByRecordId.get(record.id);
+  const supportMetadataProposal = graph.supportMetadataProposalsByRecordId.get(
+    record.id,
+  );
 
   return (
     <div className="flex-1 overflow-y-auto p-4">
-      <div className="mb-2 flex flex-wrap items-center gap-2">
+      <RecordStateBanner status={displayStatus} />
+
+      <h2 className="font-serif text-xl leading-snug">{record.title}</h2>
+
+      <div className="mt-2 flex flex-wrap items-center gap-2">
         <span className="rounded border border-black/15 bg-black/[0.03] px-1.5 py-0.5 text-[0.65rem] uppercase tracking-wide text-black/50">
           {RECORD_TYPE_LABELS[record.type]}
         </span>
@@ -380,7 +425,6 @@ function RecordInspectorBody({
         />
       </div>
 
-      <h2 className="font-serif text-xl leading-snug">{record.title}</h2>
       {record.summary && (
         <p className="mt-1 text-sm text-black/70">{record.summary}</p>
       )}
@@ -392,7 +436,10 @@ function RecordInspectorBody({
       {relationshipSummary.length > 0 && (
         <div className="mt-2.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-black/55">
           {relationshipSummary.map((entry, index) => (
-            <span key={entry.label} className="inline-flex items-center gap-2.5">
+            <span
+              key={entry.label}
+              className="inline-flex items-center gap-2.5"
+            >
               {index > 0 && (
                 <span aria-hidden className="text-black/20">
                   ·
@@ -538,9 +585,7 @@ function RecordInspectorBody({
         </p>
       )}
 
-      {proposalDecision?.status === "accepted" && (
-        <ProposalDecisionNote />
-      )}
+      {proposalDecision?.status === "accepted" && <ProposalDecisionNote />}
 
       <div className="mt-4">
         <p className="mb-1.5 text-xs text-black/65">Knowledge graph</p>
