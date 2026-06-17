@@ -4,6 +4,7 @@ import type { TypedCaseRecord } from "#/types/caseRecords";
 import {
   RECORD_DISPLAY_STATUS_CARD_CLASSES,
   RECORD_DISPLAY_STATUS_LABELS,
+  RECORD_TYPE_LABELS,
   type RecordDisplayStatus,
 } from "#/lib/caseRecordPresentation";
 
@@ -35,11 +36,6 @@ function RecordCard({
   // Display status splits PROPOSED into plain "Proposed" vs "Proposed
   // Replacement" (green badge, purple card); raw `status` still drives logic.
   const displayStatus = recordDisplayStatus(record, graph);
-  const showMetadataPills = Boolean(
-    record.supportStatus ||
-      record.substatus ||
-      (record.party && record.party !== "neutral"),
-  );
 
   return (
     <article
@@ -74,16 +70,17 @@ function RecordCard({
           </span>
           <span>{record.title}</span>
         </h3>
-        {showMetadataPills && (
-          <div className="mt-2 flex flex-wrap items-center gap-1.5">
-            <SupportBadge record={record} />
-            <SubstatusBadge record={record} />
-            <PartyBadge
-              record={record}
-              clientRole={graph.demo.caseContext.representation.clientRole}
-            />
-          </div>
-        )}
+        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+          <span className="rounded border border-black/15 bg-black/[0.03] px-1.5 py-0.5 text-[0.65rem] uppercase tracking-wide text-black/50">
+            {RECORD_TYPE_LABELS[record.type]}
+          </span>
+          <SupportBadge record={record} />
+          <SubstatusBadge record={record} />
+          <PartyBadge
+            record={record}
+            clientRole={graph.demo.caseContext.representation.clientRole}
+          />
+        </div>
         {record.summary && (
           <p className="mt-1 line-clamp-2 text-sm leading-5 text-black/70">
             {record.summary}
