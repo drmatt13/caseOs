@@ -89,6 +89,17 @@ const OPTIONAL_SUBSTATUS_TYPES = new Set<RecordType>([
   "LEGAL_PRECEDENT",
   "NOTE",
 ]);
+const SUBSTATUS_FIELD_LABELS_BY_TYPE: Partial<Record<RecordType, string>> = {
+  OBJECTIVE: "Objective state",
+  CLAIM: "Claim posture",
+  THEORY: "Theory posture",
+  ISSUE: "Issue state",
+  ARGUMENT: "Argument readiness",
+  TASK: "Task progress",
+  TESTIMONY: "Testimony stage",
+  LEGAL_PRECEDENT: "Precedent treatment",
+  NOTE: "Note state",
+};
 
 const compactSelectClass =
   "rounded-lg border border-black/15 bg-white/80 px-2 py-1 text-sm text-black/75 outline-none transition focus:border-black/30";
@@ -183,13 +194,16 @@ function RecordAttributeEditor({
   const substatusOptions = SUBSTATUS_OPTIONS_BY_TYPE[record.type];
   const substatusIsOptional = OPTIONAL_SUBSTATUS_TYPES.has(record.type);
   const clientRole = graph.demo.caseContext.representation.clientRole;
+  const substatusFieldLabel =
+    SUBSTATUS_FIELD_LABELS_BY_TYPE[record.type] ??
+    `${RECORD_TYPE_LABELS[record.type]} state`;
 
   return (
     <div className="mt-5 rounded-lg border border-black/15 bg-black/[0.025] p-3">
       <p className="mb-2 text-xs text-black/65">Record attributes</p>
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="flex flex-col gap-1.5">
-          <FieldLabel>Record party</FieldLabel>
+          <FieldLabel>Side</FieldLabel>
           <select
             className={compactSelectClass}
             value={draft.party ?? ""}
@@ -216,7 +230,7 @@ function RecordAttributeEditor({
 
         {substatusOptions && (
           <label className="flex flex-col gap-1.5">
-            <FieldLabel>Record phase</FieldLabel>
+            <FieldLabel>{substatusFieldLabel}</FieldLabel>
             <select
               className={compactSelectClass}
               value={
@@ -232,7 +246,9 @@ function RecordAttributeEditor({
               }
             >
               {substatusIsOptional && (
-                <option value="">No record phase</option>
+                <option value="">
+                  No {substatusFieldLabel.toLowerCase()}
+                </option>
               )}
               {substatusOptions.map((substatus) => (
                 <option key={substatus} value={substatus}>
@@ -247,7 +263,7 @@ function RecordAttributeEditor({
         )}
 
         <div className="flex flex-col gap-1.5">
-          <FieldLabel>Support status</FieldLabel>
+          <FieldLabel>Evidence support</FieldLabel>
           <select
             className={compactSelectClass}
             value={draft.supportStatus ?? ""}
@@ -260,7 +276,7 @@ function RecordAttributeEditor({
               })
             }
           >
-            <option value="">No support status</option>
+            <option value="">No evidence support</option>
             {SUPPORT_STATUS_OPTIONS.map((status) => (
               <option key={status} value={status}>
                 {SUPPORT_STATUS_LABELS[status]}
@@ -268,20 +284,20 @@ function RecordAttributeEditor({
             ))}
           </select>
           <p className="text-xs leading-4 text-black/45">
-            How strongly current evidence supports this record's identity, role,
-            or assertion.
+            How strongly the current record graph supports this record's
+            identity, role, or assertion.
           </p>
         </div>
 
         <TextAreaField
           className="w-full sm:col-span-2"
-          label="Support explanation"
+          label="Support rationale"
           description={
             draft.supportStatus
               ? undefined
-              : "Choose a support status before adding an explanation."
+              : "Choose an evidence support level before adding a rationale."
           }
-          placeholder="Why is this support status appropriate? Cite the evidence, conflict, or gap."
+          placeholder="Why is this support level appropriate? Cite the evidence, conflict, or gap."
           value={draft.supportStatus ? draft.supportStatusExplanation : ""}
           onChange={(event) =>
             onChange({ supportStatusExplanation: event.target.value })
