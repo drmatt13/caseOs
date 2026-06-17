@@ -16,6 +16,7 @@ export type TextAreaFieldProps = {
   rows?: number;
   minRows?: number;
   maxRows?: number;
+  disabled?: boolean;
 };
 
 const textareaShellClassName =
@@ -40,6 +41,7 @@ const TextAreaField = ({
   rows = 2,
   minRows = 2,
   maxRows = 5,
+  disabled = false,
   className = "",
 }: TextAreaFieldProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -106,20 +108,43 @@ const TextAreaField = ({
   return (
     <label className={`grid self-start items-start gap-2 ${className}`.trim()}>
       <span className="flex flex-col gap-0.5 justify-end h-full">
-        <span className="text-md font-medium text-black">{label}</span>
+        <span
+          className={`text-md font-medium ${
+            disabled ? "text-black/45" : "text-black"
+          }`}
+        >
+          {label}
+        </span>
         {description ? (
-          <span className="text-sm text-black/60">{description}</span>
+          <span
+            className={`text-sm ${
+              disabled ? "text-black/40" : "text-black/60"
+            }`}
+          >
+            {description}
+          </span>
         ) : null}
       </span>
-      <span className={textareaShellClassName}>
+      <span
+        className={`${textareaShellClassName} ${
+          disabled
+            ? "!border-black/10 !bg-black/[0.045] !shadow-none focus-within:!border-black/10 focus-within:!ring-0"
+            : ""
+        }`}
+      >
         <textarea
           ref={textareaRef}
-          className={textareaClassName}
+          className={`${textareaClassName} ${
+            disabled
+              ? "cursor-not-allowed !text-black/40 placeholder:!text-black/35"
+              : ""
+          }`}
           style={textareaStyle}
           value={value}
           onChange={handleChange}
           placeholder={placeholder}
           rows={initialRows}
+          disabled={disabled}
         />
       </span>
     </label>

@@ -504,6 +504,8 @@ export const demoRecords: TypedCaseRecord[] = [
     status: "PROPOSED",
     substatus: "DRAFT",
     supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by the missing production categories and accepted discovery-gap facts, but still needs tighter linkage to the actual requests, responses, and trial prejudice.",
     party: "ours",
     category: "Discovery",
     replacesIds: ["arg-old-discovery-sanctions"],
@@ -537,6 +539,8 @@ export const demoRecords: TypedCaseRecord[] = [
     status: "PENDING_REPLACEMENT",
     substatus: "DRAFT",
     supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported because filing delay is documented, but the record still needs concrete causation evidence tying that delay to a specific mitigation pathway or assistance consequence.",
     party: "ours",
     category: "Mitigation",
     approvedByUserId: demoUserId,
@@ -555,6 +559,8 @@ export const demoRecords: TypedCaseRecord[] = [
     status: "PROPOSED",
     substatus: "DRAFT",
     supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by completed maintenance entries and tenant condition evidence; the argument is plausible but depends on showing recurrence or incomplete remediation.",
     party: "ours",
     category: "Evidence interpretation",
     title:
@@ -571,6 +577,8 @@ export const demoRecords: TypedCaseRecord[] = [
     status: "PROPOSED",
     substatus: "DRAFT",
     supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by the RAFT cure sequence and later arrears history, while still requiring ledger confirmation and careful framing that does not deny later nonpayment.",
     party: "ours",
     category: "Procedural framing",
     title: "RAFT payment weakens a clean nonpayment-only chronology",
@@ -588,6 +596,8 @@ export const demoRecords: TypedCaseRecord[] = [
     id: "fact-001",
     type: "FACT",
     supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the tenant affidavit and repeated notice history describing pest activity from move-in with inconsistent remediation.",
     party: "ours",
     category: "Habitability",
     title: "Move-in conditions included persistent pest activity",
@@ -603,6 +613,8 @@ export const demoRecords: TypedCaseRecord[] = [
     type: "FACT",
     status: "PROPOSED",
     supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by communications about hardship and filing timing, but the downstream effect on RAFT, shelter access, or mitigation still needs corroborating records.",
     party: "ours",
     category: "Mitigation",
     replacesIds: ["fact-old-raft-timing"],
@@ -635,6 +647,8 @@ export const demoRecords: TypedCaseRecord[] = [
     type: "FACT",
     status: "PROPOSED",
     supportStatus: "CONFLICTED",
+    supportStatusExplanation:
+      "Conflicted because landlord maintenance materials mark pest work as completed, while tenant chronology and later condition evidence suggest recurrence or incomplete remediation.",
     party: "opposing",
     category: "Habitability",
     title: "Landlord records characterize pest remediation as completed",
@@ -650,6 +664,8 @@ export const demoRecords: TypedCaseRecord[] = [
     id: "fact-005",
     type: "FACT",
     supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by apparent gaps in entry logs, access records, and internal communications; completeness still depends on comparing the production against the actual requests.",
     party: "opposing",
     category: "Discovery",
     title: "Discovery production does not show a complete entry-log chain",
@@ -665,6 +681,8 @@ export const demoRecords: TypedCaseRecord[] = [
     id: "fact-007",
     type: "FACT",
     supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by Matthew Sweeney's affidavit itemizing family payments and RAFT assistance totaling approximately $116,290.41 during the tenancy.",
     party: "ours",
     category: "Payment history",
     title: "Family and RAFT payments exceeded $116,000 during tenancy",
@@ -681,6 +699,8 @@ export const demoRecords: TypedCaseRecord[] = [
     type: "FACT",
     isContextual: true,
     supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the affidavit's description of the child's autism diagnosis, local services, therapy supports, and household stability needs.",
     party: "ours",
     category: "Household stability",
     title: "Child's local autism services made relocation materially harder",
@@ -695,6 +715,8 @@ export const demoRecords: TypedCaseRecord[] = [
     type: "FACT",
     status: "PROPOSED",
     supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by the affidavit's RAFT cure account, but the exact approval and payment dates still need reconciliation against the RAFT record and ledger.",
     party: "ours",
     category: "RAFT",
     title: "Initial arrears were allegedly cured by RAFT before any court filing",
@@ -741,6 +763,8 @@ export const demoRecords: TypedCaseRecord[] = [
     type: "TIMELINE_EVENT",
     status: "PROPOSED",
     supportStatus: "CONFLICTED",
+    supportStatusExplanation:
+      "Conflicted because the affidavit says RAFT was approved on July 28, while the timeline file lists July 24 and the date should be reconciled against Exhibit B.",
     eventDate: "2025-07-28",
     party: "ours",
     category: "RAFT",
@@ -1495,6 +1519,8 @@ export const demoRecords: TypedCaseRecord[] = [
     id: "fact-012",
     type: "FACT",
     supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the affidavit's July 24 entry account, including maintenance entering after the balcony notice and removing protective netting.",
     party: "ours",
     category: "Entry",
     title: "Maintenance entered the unit on July 24 and removed balcony netting",
@@ -1510,6 +1536,8 @@ export const demoRecords: TypedCaseRecord[] = [
     type: "FACT",
     status: "PROPOSED",
     supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by the stated RAFT cure and August 19 second notice sequence, but needs ledger and notice-date confirmation before being treated as fully proven.",
     party: "ours",
     category: "Procedural framing",
     title: "Second notice issued after the initial arrears were already cured",
@@ -1526,6 +1554,8 @@ export const demoRecords: TypedCaseRecord[] = [
     type: "FACT",
     isContextual: true,
     supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the refined entry context tying the removed balcony netting to a child's documented safety needs rather than a vague protective item.",
     version: 2,
     replacesIds: ["fact-old-entry-vague"],
     party: "ours",
@@ -1581,6 +1611,8 @@ export const demoRecords: TypedCaseRecord[] = [
     id: "fact-habitability-mold",
     type: "FACT",
     supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by dated maintenance-order history showing visible bathroom mold reports and an approximately three-month delay before remediation was attempted.",
     version: 2,
     replacesIds: ["fact-habitability-broad"],
     party: "ours",
@@ -1598,6 +1630,8 @@ export const demoRecords: TypedCaseRecord[] = [
     id: "fact-habitability-heat",
     type: "FACT",
     supportStatus: "CONFLICTED",
+    supportStatusExplanation:
+      "Conflicted because loss of heat is corroborated, but the tenant's claimed 11-day duration conflicts with landlord records suggesting a shorter outage.",
     version: 2,
     replacesIds: ["fact-habitability-broad"],
     party: "ours",
@@ -1652,6 +1686,8 @@ export const demoRecords: TypedCaseRecord[] = [
     id: "fact-payment-cured",
     type: "FACT",
     supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the merged RAFT and direct-payment facts showing the June and July arrears were cured before the nonpayment action advanced.",
     version: 2,
     replacesIds: ["fact-payment-raft-only", "fact-payment-direct-only"],
     party: "ours",
@@ -1671,6 +1707,8 @@ export const demoRecords: TypedCaseRecord[] = [
     type: "ARGUMENT",
     substatus: "TRIAL_READY",
     supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by accepted habitability facts and payment context; the argument can proceed even if the ledger is accepted because abatement depends on condition evidence.",
     party: "ours",
     category: "Habitability",
     title: "Persistent conditions support rent abatement regardless of the ledger",

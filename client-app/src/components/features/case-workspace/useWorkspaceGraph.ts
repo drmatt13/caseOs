@@ -3,22 +3,44 @@ import { useMemo, useState } from "react";
 import type {
   GraphLink,
   LinkStatus,
+  RecordParty,
   RecordStatus,
+  RecordSubstatus,
+  SupportStatus,
   TaskSubstatus,
   TypedCaseRecord,
 } from "#/types/caseRecords";
 import type { CaseDemo } from "#/demo/caseDemoTypes";
+import {
+  linkTypeLabel,
+  RECORD_TYPE_LABELS,
+  SUPPORT_STATUS_LABELS,
+} from "#/lib/caseRecordPresentation";
 
 export type ProposalDraftUpdate = {
   title: string;
   summary: string;
   content: string;
   category: string;
+  supportStatus?: SupportStatus;
+  supportStatusExplanation: string;
+  substatus?: RecordSubstatus;
+  party?: RecordParty;
   links: GraphLink[];
 };
 
 export type ProposalDecision = {
   status: "accepted";
+};
+
+export type SupportMetadataProposal = {
+  id: string;
+  recordId: string;
+  sourceRecordId: string;
+  sourceLinkId: string;
+  supportStatus?: SupportStatus;
+  supportStatusExplanation: string;
+  createdAt: string;
 };
 
 type RecordDecision =
@@ -48,6 +70,9 @@ export function useWorkspaceGraph(demo: CaseDemo) {
   const [deletedLinkIds, setDeletedLinkIds] = useState<string[]>([]);
   const [proposalDecisions, setProposalDecisions] = useState<
     Record<string, RecordDecision>
+  >({});
+  const [supportMetadataProposals, setSupportMetadataProposals] = useState<
+    Record<string, SupportMetadataProposal>
   >({});
   // Per-task work-phase overrides set from the quick status control.
   const [taskSubstatusOverrides, setTaskSubstatusOverrides] = useState<
@@ -247,6 +272,96 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     [records, proposalDecisions],
   );
 
+  const supportMetadataProposalsByRecordId = useMemo(
+    () =>
+      new Map(
+        Object.values(supportMetadataProposals).map((proposal) => [
+          proposal.recordId,
+          proposal,
+        ]),
+      ),
+    [supportMetadataProposals],
+  );
+
+  const proposedSupportStatusFor = (
+    link: GraphLink,
+    record: TypedCaseRecord,
+  ): SupportStatus | undefined => {
+    if (record.supportStatus === "SUPPORT_NOT_REQUIRED") return undefined;
+
+    if (
+      link.type === "CONTRADICTS" ||
+      link.type === "ATTACKS" ||
+      link.type === "DUPLICATES"
+    ) {
+      return "CONFLICTED";
+    }
+
+    if (
+      link.type === "EVIDENCES" ||
+      link.type === "SUPPORTS" ||
+      link.type === "CITES"
+    ) {
+      if (
+        !record.supportStatus ||
+        record.supportStatus === "UNKNOWN" ||
+        record.supportStatus === "UNSUPPORTED"
+      ) {
+        return "PARTIALLY_SUPPORTED";
+      }
+      return record.supportStatus;
+    }
+
+    return undefined;
+  };
+
+  const generateSupportMetadataProposals = (source: TypedCaseRecord) => {
+    const incidentLinks = [
+      ...(outboundLinks.get(source.id) ?? []),
+      ...(inboundLinks.get(source.id) ?? []),
+    ];
+    const now = new Date().toISOString();
+    const nextProposals: Record<string, SupportMetadataProposal> = {};
+
+    for (const link of incidentLinks) {
+      const targetId =
+        link.fromRecordId === source.id ? link.toRecordId : link.fromRecordId;
+      if (source.replacesIds?.includes(targetId)) continue;
+
+      const target = recordsById.get(targetId);
+      if (!target || recordIsFrozen(target)) continue;
+
+      const targetStatus = effectiveStatus(target);
+      if (targetStatus !== "ACCEPTED" && targetStatus !== "PENDING_REPLACEMENT")
+        continue;
+
+      const proposedStatus = proposedSupportStatusFor(link, target);
+      if (!proposedStatus) continue;
+
+      const direction =
+        link.fromRecordId === target.id ? "outbound" : "inbound";
+      const relationship = linkTypeLabel(link.type, direction).toLowerCase();
+      const sourceType = RECORD_TYPE_LABELS[source.type].toLowerCase();
+      const proposedLabel = SUPPORT_STATUS_LABELS[proposedStatus].toLowerCase();
+
+      nextProposals[target.id] = {
+        id: `support-meta-${target.id}-${Date.now()}-${link.id}`,
+        recordId: target.id,
+        sourceRecordId: source.id,
+        sourceLinkId: link.id,
+        supportStatus: proposedStatus,
+        supportStatusExplanation: `Newly accepted ${sourceType} "${source.title}" is now connected to this record as "${relationship}". Suggested support status: ${proposedLabel}. Review the linked record and edge rationale before accepting this metadata update.`,
+        createdAt: now,
+      };
+    }
+
+    if (Object.keys(nextProposals).length === 0) return;
+    setSupportMetadataProposals((existing) => ({
+      ...existing,
+      ...nextProposals,
+    }));
+  };
+
   const decideProposal = (recordId: string, decision: ProposalDecision) => {
     const record = recordsById.get(recordId);
     if (!record || effectiveStatus(record) !== "PROPOSED") return;
@@ -258,6 +373,7 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     // Accepting a replacement proposal retires its targets.
     if (decision.status === "accepted") {
       const record = recordsById.get(recordId);
+      if (record) generateSupportMetadataProposals(record);
       if (record?.replacesIds?.length) {
         setReplacedIds((ids) => [
           ...ids,
@@ -306,6 +422,12 @@ export function useWorkspaceGraph(demo: CaseDemo) {
       summary: draft.summary.trim() ? draft.summary : undefined,
       content: draft.content,
       category: draft.category.trim() ? draft.category : undefined,
+      supportStatus: draft.supportStatus,
+      supportStatusExplanation: draft.supportStatus && draft.supportStatusExplanation.trim()
+        ? draft.supportStatusExplanation
+        : undefined,
+      substatus: draft.substatus,
+      party: draft.party,
       updatedAt: now,
     } as TypedCaseRecord;
 
@@ -340,6 +462,46 @@ export function useWorkspaceGraph(demo: CaseDemo) {
       ...ids.filter((id) => !draftLinkIds.has(id)),
       ...removedLinkIds.filter((id) => !ids.includes(id)),
     ]);
+  };
+
+  const acceptSupportMetadataProposal = (proposalId: string) => {
+    const proposal = Object.values(supportMetadataProposals).find(
+      (candidate) => candidate.id === proposalId,
+    );
+    if (!proposal) return;
+
+    const record = recordsById.get(proposal.recordId);
+    if (!record) return;
+
+    const now = new Date().toISOString();
+    const editedRecord = {
+      ...record,
+      supportStatus: proposal.supportStatus,
+      supportStatusExplanation: proposal.supportStatusExplanation.trim()
+        ? proposal.supportStatusExplanation
+        : undefined,
+      updatedAt: now,
+    } as TypedCaseRecord;
+
+    setEditedRecords((existing) => ({
+      ...existing,
+      [record.id]: editedRecord,
+    }));
+    setSupportMetadataProposals((existing) => {
+      const next = { ...existing };
+      delete next[proposal.recordId];
+      return next;
+    });
+  };
+
+  const dismissSupportMetadataProposal = (proposalId: string) => {
+    setSupportMetadataProposals((existing) => {
+      const next = { ...existing };
+      for (const proposal of Object.values(existing)) {
+        if (proposal.id === proposalId) delete next[proposal.recordId];
+      }
+      return next;
+    });
   };
 
   // Freeze (retire) a live record. The reason is persisted onto the record (see
@@ -389,6 +551,18 @@ export function useWorkspaceGraph(demo: CaseDemo) {
       delete next[recordId];
       return next;
     });
+    setSupportMetadataProposals((existing) => {
+      const next = { ...existing };
+      for (const proposal of Object.values(existing)) {
+        if (
+          proposal.recordId === recordId ||
+          proposal.sourceRecordId === recordId
+        ) {
+          delete next[proposal.recordId];
+        }
+      }
+      return next;
+    });
   };
 
   const createNote = (content: string) => {
@@ -429,12 +603,15 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     effectiveLinkStatus,
     pendingReplacementByTargetId,
     acceptedReplacementsByTargetId,
+    supportMetadataProposalsByRecordId,
     proposedRecords,
     proposalDecisions,
     decideProposal,
     rejectRecord,
     restoreRecord,
     setTaskSubstatus,
+    acceptSupportMetadataProposal,
+    dismissSupportMetadataProposal,
     requestAgentRevision,
     saveProposalDraft,
     deleteRecord,

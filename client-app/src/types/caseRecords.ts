@@ -103,9 +103,10 @@ export type RecordStatus =
 export type LinkStatus = "PROPOSED" | "ACCEPTED" | "REJECTED";
 
 // Evidentiary grounding — a first-class axis on assertion-bearing records
-// (FACT, TIMELINE_EVENT, TESTIMONY, CLAIM, ARGUMENT, THEORY, ISSUE). The agent
-// reasons over this directly ("find evidence for every UNSUPPORTED argument").
-// CONFLICTED captures "evidence cuts both ways"; UNKNOWN means not yet verified.
+// (FACT, TIMELINE_EVENT, TESTIMONY, CLAIM, ARGUMENT, THEORY, ISSUE) and PERSON
+// records. The agent reasons over this directly ("find evidence for every
+// UNSUPPORTED argument"). CONFLICTED captures "evidence cuts both ways";
+// UNKNOWN means not yet verified.
 export type SupportStatus =
   | "SUPPORTED"
   | "PARTIALLY_SUPPORTED"
@@ -225,6 +226,9 @@ export interface CaseRecord {
   // Typed per record type; narrowed in each typed interface below.
   substatus?: RecordSubstatus;
   supportStatus?: SupportStatus;
+  // Human/agent-readable rationale for why supportStatus is set the way it is:
+  // the evidence, conflict, or gap behind the support assessment.
+  supportStatusExplanation?: string;
 
   // Versioning – follows the replacement lifecycle. Both directions are
   // many-valued so the graph can model splits and merges, not just 1:1 edits:
@@ -361,6 +365,9 @@ export interface NoteRecord extends CaseRecord {
 export interface PersonRecord extends CaseRecord {
   type: "PERSON";
   substatus?: undefined;
+  // People can still be source-grounded: identity, role, affiliation, or
+  // involvement may be supported, conflicted, or unverified.
+  supportStatus?: SupportStatus;
   name: string;
   roles: PersonRole[];
   primaryRole?: PersonRole;

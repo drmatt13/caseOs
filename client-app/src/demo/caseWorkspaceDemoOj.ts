@@ -343,6 +343,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "person-oj",
     type: "PERSON",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the charging posture, client statement, and case context identifying Simpson as the represented defendant.",
     name: "Orenthal James Simpson",
     roles: ["CLIENT", "DEFENDANT"],
     primaryRole: "CLIENT",
@@ -357,6 +360,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "person-nicole",
     type: "PERSON",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the case context and source records identifying Nicole Brown Simpson as a decedent at the Bundy scene.",
     name: "Nicole Brown Simpson",
     roles: ["THIRD_PARTY"],
     primaryRole: "THIRD_PARTY",
@@ -371,6 +377,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "person-goldman",
     type: "PERSON",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the case context and source records identifying Ronald Goldman as a decedent at the Bundy scene.",
     name: "Ronald Lyle Goldman",
     roles: ["THIRD_PARTY"],
     primaryRole: "THIRD_PARTY",
@@ -385,6 +394,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "person-fuhrman",
     type: "PERSON",
+    supportStatus: "CONFLICTED",
+    supportStatusExplanation:
+      "Supported as an LAPD detective and witness associated with the Rockingham glove, but conflicted because the scope and documentation of his discovery role are disputed.",
     name: "Mark Fuhrman",
     roles: ["POLICE_OFFICER", "WITNESS"],
     primaryRole: "POLICE_OFFICER",
@@ -401,6 +413,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "person-vannatter",
     type: "PERSON",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by custody records tying Vannatter to the reference draw and transport of the blood vial.",
     name: "Philip Vannatter",
     roles: ["POLICE_OFFICER", "WITNESS"],
     primaryRole: "POLICE_OFFICER",
@@ -417,6 +432,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "person-park",
     type: "PERSON",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the Allan Park witness statement identifying him as the limousine driver and timeline witness.",
     name: "Allan Park",
     roles: ["WITNESS", "FACT_WITNESS"],
     primaryRole: "FACT_WITNESS",
@@ -432,6 +450,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "person-kato",
     type: "PERSON",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the Kato Kaelin statement identifying him as the guest-house occupant who heard the thumps.",
     name: 'Brian "Kato" Kaelin',
     roles: ["WITNESS", "FACT_WITNESS"],
     primaryRole: "FACT_WITNESS",
@@ -446,6 +467,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "person-wu",
     type: "PERSON",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by the DNA report materials identifying the analyst role; the witness profile remains proposed pending confirmation of testimony scope.",
     status: "PROPOSED",
     name: "Dr. Karen Wu",
     roles: ["EXPERT_WITNESS", "WITNESS"],
@@ -464,6 +488,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "person-cochran",
     type: "PERSON",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the case context and defense-team records identifying Cochran as lead defense counsel.",
     name: "Johnnie Cochran",
     roles: ["ATTORNEY"],
     primaryRole: "ATTORNEY",
@@ -478,6 +505,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "person-clark",
     type: "PERSON",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the case context identifying Clark as lead prosecutor for the State.",
     name: "Marcia Clark",
     roles: ["ATTORNEY"],
     primaryRole: "ATTORNEY",
@@ -496,6 +526,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "objective-001",
     type: "OBJECTIVE",
+    supportStatus: "SUPPORT_NOT_REQUIRED",
+    supportStatusExplanation:
+      "This is a defense strategy objective, not an evidentiary assertion; linked facts and theories supply the proof beneath it.",
     substatus: "ACTIVE",
     priority: "high",
     party: "ours",
@@ -513,6 +546,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "objective-002",
     type: "OBJECTIVE",
+    supportStatus: "SUPPORT_NOT_REQUIRED",
+    supportStatusExplanation:
+      "This is a litigation objective about preserving disputed evidence issues; support belongs to the linked forensic and glove records.",
     substatus: "ACTIVE",
     priority: "high",
     party: "ours",
@@ -531,6 +567,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "objective-doubt-broad",
     type: "OBJECTIVE",
+    supportStatus: "SUPPORT_NOT_REQUIRED",
+    supportStatusExplanation:
+      "This is a jury-strategy objective under version review, so it does not require factual support as a standalone proposition.",
     substatus: "ACTIVE",
     priority: "high",
     party: "ours",
@@ -545,6 +584,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "objective-doubt-forensic",
     type: "OBJECTIVE",
+    supportStatus: "SUPPORT_NOT_REQUIRED",
+    supportStatusExplanation:
+      "This proposed objective organizes forensic reliability work; linked contamination, DNA, and custody records carry the evidentiary support.",
     status: "PROPOSED",
     substatus: "AT_RISK",
     priority: "high",
@@ -561,6 +603,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "objective-doubt-investigation",
     type: "OBJECTIVE",
+    supportStatus: "SUPPORT_NOT_REQUIRED",
+    supportStatusExplanation:
+      "This proposed objective organizes investigative-integrity work; linked Fuhrman and custody records carry the evidentiary support.",
     status: "PROPOSED",
     substatus: "AT_RISK",
     priority: "high",
@@ -577,6 +622,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "objective-003",
     type: "OBJECTIVE",
+    supportStatus: "SUPPORT_NOT_REQUIRED",
+    supportStatusExplanation:
+      "This proposed objective describes how to use discovery gaps strategically rather than asserting a discrete fact.",
     status: "PROPOSED",
     substatus: "AT_RISK",
     priority: "medium",
@@ -596,6 +644,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "claim-001",
     type: "CLAIM",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the case posture and charging context alleging two first-degree murder counts.",
     substatus: "ASSERTED",
     claimType: "affirmative",
     party: "opposing",
@@ -612,6 +663,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "claim-002",
     type: "CLAIM",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by linked forensic, chain-of-custody, timeline, and impeachment records, but it remains the defense theory rather than a proven fact.",
     substatus: "ASSERTED",
     claimType: "defense",
     party: "ours",
@@ -630,6 +684,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "posture-002",
     type: "POSTURE",
+    supportStatus: "SUPPORT_NOT_REQUIRED",
+    supportStatusExplanation:
+      "This is the current litigation posture and strategic framing; it is not an evidentiary assertion needing proof.",
     category: "Trial posture",
     version: 2,
     replacesIds: ["posture-003"],
@@ -643,6 +700,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "posture-003",
     type: "POSTURE",
+    supportStatus: "SUPPORT_NOT_REQUIRED",
+    supportStatusExplanation:
+      "This replaced posture is retained as version history for strategy, not as a fact requiring support.",
     status: "REPLACED",
     category: "Motion posture",
     replacedByIds: ["posture-002"],
@@ -661,6 +721,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "theory-investigation-broad",
     type: "THEORY",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by multiple investigative-integrity records, but replaced because it was too broad to show how each proof point worked.",
     status: "REPLACED",
     substatus: "ABANDONED",
     party: "ours",
@@ -684,6 +747,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "theory-contamination",
     type: "THEORY",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by handling, access, and forensic-note records; the defense still needs expert development to convert risk into trial proof.",
     substatus: "ADOPTED",
     priority: "high",
     party: "ours",
@@ -702,6 +768,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "theory-fuhrman",
     type: "THEORY",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by the Rockingham glove chronology and impeachment research, but still depends on fuller personnel and credibility materials.",
     substatus: "ADOPTED",
     priority: "high",
     party: "ours",
@@ -720,6 +789,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "theory-coc",
     type: "THEORY",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by accepted custody discrepancies including the BS-010 volume gap, BS-007 correction, and BS-003 documentation mismatch.",
     substatus: "ADOPTED",
     party: "ours",
     category: "Chain-of-custody theory",
@@ -735,6 +807,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "theory-alt-timeline",
     type: "THEORY",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by Park, Kato, and time-of-death records, but the physical-impossibility framing remains proposed pending reconciliation of timing assumptions.",
     status: "PROPOSED",
     substatus: "EXPLORING",
     party: "ours",
@@ -753,6 +828,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "issue-001",
     type: "ISSUE",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by the Rockingham glove records and warrantless-entry dispute; legal authority still needs motion-level development.",
     substatus: "OPEN",
     issueType: "legal",
     party: "ours",
@@ -768,6 +846,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "issue-002",
     type: "ISSUE",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by the DNA report mixture caveats and proposed Kelly/Frye research, but cite-checking and expert foundation remain open.",
     status: "PROPOSED",
     substatus: "RESERVED",
     issueType: "procedural",
@@ -783,6 +864,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "issue-003",
     type: "ISSUE",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by glove-fit variables and demonstration-risk records, but the practical trial risk is unresolved.",
     status: "PROPOSED",
     substatus: "OPEN",
     issueType: "strategic",
@@ -800,6 +884,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "issue-prior-domestic",
     type: "ISSUE",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the domestic-incident records and Evidence Code framing for motive, propensity, and prejudice.",
     substatus: "OPEN",
     issueType: "legal",
     party: "ours",
@@ -822,6 +909,8 @@ const ojRecords: TypedCaseRecord[] = [
     type: "ARGUMENT",
     substatus: "DRAFT",
     supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Supported by impeachment research and the glove-discovery dispute, but only partially because the accepted record frames Fuhrman as collateral rather than a necessary evidence witness.",
     party: "ours",
     category: "Impeachment",
     title: "Fuhrman bias is collateral impeachment",
@@ -837,6 +926,8 @@ const ojRecords: TypedCaseRecord[] = [
     status: "PROPOSED",
     substatus: "DRAFT",
     supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by the Rockingham glove record and Fuhrman impeachment materials; remains proposed because the defense still needs stronger personnel or internal-affairs grounding before making him central.",
     party: "ours",
     category: "Impeachment",
     replacesIds: ["arg-fuhrman-collateral"],
@@ -852,6 +943,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "arg-glove-fit-leather",
     type: "ARGUMENT",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by fit-condition variables in the glove report, but replaced because it was too narrow standing alone.",
     status: "REPLACED",
     substatus: "DRAFT",
     party: "ours",
@@ -868,6 +962,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "arg-glove-fit-size",
     type: "ARGUMENT",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by glove-fit uncertainty, but replaced because size alone invited an avoidable factual fight without the demonstration frame.",
     status: "REPLACED",
     substatus: "DRAFT",
     party: "ours",
@@ -888,6 +985,8 @@ const ojRecords: TypedCaseRecord[] = [
     type: "ARGUMENT",
     substatus: "DRAFT",
     supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by the fit-history and glove reports; the demonstrative force is clear, but trial risk and common-origin proof remain unresolved.",
     party: "ours",
     category: "Glove evidence",
     version: 2,
@@ -905,6 +1004,8 @@ const ojRecords: TypedCaseRecord[] = [
     status: "PROPOSED",
     substatus: "DRAFT",
     supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by the BS-010 volume discrepancy and Vannatter handling records; the missing-volume premise is grounded, but the planting inference still requires expert and legal development.",
     party: "ours",
     category: "Blood evidence",
     title: "The unaccounted reference-vial volume supports a planting inference",
@@ -920,6 +1021,8 @@ const ojRecords: TypedCaseRecord[] = [
     status: "PROPOSED",
     substatus: "DRAFT",
     supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by the DNA report's mixture and contributor-judgment limits; it does not yet defeat the prosecution's matching evidence outright.",
     party: "ours",
     category: "DNA",
     title: "Mixture interpretation rests on analyst judgment, not objective matching",
@@ -935,6 +1038,8 @@ const ojRecords: TypedCaseRecord[] = [
     status: "PROPOSED",
     substatus: "DRAFT",
     supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by Park's arrival account, Kato's thumps, and timeline reconstruction; the full compression argument still depends on resolving disputed timing assumptions.",
     party: "ours",
     category: "Timeline",
     title: "The State's sequence does not fit the available window",
@@ -951,6 +1056,8 @@ const ojRecords: TypedCaseRecord[] = [
     type: "ARGUMENT",
     substatus: "TRIAL_READY",
     supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the prior-incident record and prejudice theory; the argument is trial-ready because the record can be framed as propensity evidence with high unfair-prejudice risk.",
     party: "ours",
     category: "Character evidence",
     title: "Prior incidents are propensity evidence, more prejudicial than probative",
@@ -968,6 +1075,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "task-001",
     type: "TASK",
+    supportStatus: "SUPPORT_NOT_REQUIRED",
+    supportStatusExplanation:
+      "This is a work item for trial preparation; linked custody records support why the task matters.",
     substatus: "OPEN",
     priority: "high",
     dueDate: "2026-06-25",
@@ -982,6 +1092,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "task-002",
     type: "TASK",
+    supportStatus: "SUPPORT_NOT_REQUIRED",
+    supportStatusExplanation:
+      "This is a work item for a risk memo; the underlying glove-fit issue carries the evidentiary support.",
     status: "ACCEPTED",
     substatus: "IN_PROGRESS",
     priority: "medium",
@@ -998,6 +1111,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "task-coc",
     type: "TASK",
+    supportStatus: "SUPPORT_NOT_REQUIRED",
+    supportStatusExplanation:
+      "This is a discovery task; the Fuhrman and chain-of-custody records support why it should be done.",
     substatus: "IN_PROGRESS",
     priority: "high",
     dueDate: "2026-06-20",
@@ -1016,6 +1132,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "fact-glove-v1",
     type: "FACT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported at a high level by glove evidence records, but replaced because it was too vague to identify the disputed discovery details.",
     status: "REPLACED",
     isContextual: true,
     party: "ours",
@@ -1032,6 +1151,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "fact-glove-v2",
     type: "FACT",
+    supportStatus: "CONFLICTED",
+    supportStatusExplanation:
+      "Conflicted because Fuhrman is tied to the Rockingham glove, but the warrantless-entry framing overstates a disputed legal characterization.",
     status: "REPLACED",
     version: 2,
     party: "ours",
@@ -1053,6 +1175,8 @@ const ojRecords: TypedCaseRecord[] = [
     id: "fact-glove-v3",
     type: "FACT",
     supportStatus: "CONFLICTED",
+    supportStatusExplanation:
+      "Conflicted because the glove reports document a Rockingham discovery, while Fuhrman's entry chronology and documentation leave the discovery sequence open to attack.",
     version: 3,
     party: "ours",
     category: "Glove evidence",
@@ -1071,6 +1195,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "fact-tod-v1",
     type: "FACT",
+    supportStatus: "CONFLICTED",
+    supportStatusExplanation:
+      "Conflicted because a prosecution summary supports the approximate time, while medical-examiner materials do not support that single-point precision.",
     status: "REPLACED",
     isContextual: true,
     party: "opposing",
@@ -1087,6 +1214,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "fact-tod-v2",
     type: "FACT",
+    supportStatus: "CONFLICTED",
+    supportStatusExplanation:
+      "Conflicted because investigative summaries support the half-hour window, while the medical-examiner estimate remains broader.",
     status: "REPLACED",
     isContextual: true,
     version: 2,
@@ -1105,6 +1235,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "fact-tod-v3",
     type: "FACT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported as a general uncertainty point by the medical-examiner materials, but replaced for not tying the uncertainty to the actual range.",
     status: "REPLACED",
     isContextual: true,
     version: 3,
@@ -1127,6 +1260,8 @@ const ojRecords: TypedCaseRecord[] = [
     id: "fact-tod-v4",
     type: "FACT",
     supportStatus: "CONFLICTED",
+    supportStatusExplanation:
+      "Conflicted because the medical examiner supports a broad death window, but the prosecution's narrower timeline relies on additional assumptions the defense disputes.",
     version: 4,
     party: "ours",
     category: "Time of death",
@@ -1145,6 +1280,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "fact-blood-broad",
     type: "FACT",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by multiple blood-handling concerns, but replaced because the broad phrasing blended distinct evidence problems.",
     status: "REPLACED",
     isContextual: true,
     party: "ours",
@@ -1165,6 +1303,8 @@ const ojRecords: TypedCaseRecord[] = [
     id: "fact-edta-vial",
     type: "FACT",
     supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the custody and volume log showing a discrepancy in the reference draw after collection, with Vannatter tied to the vial's handling.",
     version: 2,
     party: "ours",
     category: "Blood evidence",
@@ -1183,6 +1323,8 @@ const ojRecords: TypedCaseRecord[] = [
     id: "fact-bronco-late",
     type: "FACT",
     supportStatus: "CONFLICTED",
+    supportStatusExplanation:
+      "Conflicted because Bronco inventory records support later collection timing, while DNA reports still treat the blood evidence as probative unless handling and access concerns are accepted.",
     version: 2,
     party: "ours",
     category: "Blood evidence",
@@ -1200,6 +1342,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "fact-disc-photo",
     type: "FACT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the BS-003 photo-numbering mismatch between crime-scene and property records, though merged into the broader custody-integrity fact.",
     status: "REPLACED",
     isContextual: true,
     party: "ours",
@@ -1216,6 +1361,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "fact-disc-bs007",
     type: "FACT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the BS-007 transfer sheet showing an uninitialed 4:11 to 5:11 PM correction, later merged into the custody-integrity fact.",
     status: "REPLACED",
     isContextual: true,
     party: "ours",
@@ -1232,6 +1380,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "fact-disc-volume",
     type: "FACT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the BS-010 collection and lab-intake volume discrepancy, later merged into the custody-integrity fact.",
     status: "REPLACED",
     isContextual: true,
     party: "ours",
@@ -1251,6 +1402,8 @@ const ojRecords: TypedCaseRecord[] = [
     id: "fact-coc-integrity",
     type: "FACT",
     supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by multiple accepted custody discrepancies, including BS-003 documentation, BS-007 correction issues, and the BS-010 volume gap.",
     version: 2,
     party: "ours",
     category: "Chain of custody",
@@ -1271,6 +1424,8 @@ const ojRecords: TypedCaseRecord[] = [
     id: "fact-bronco-his",
     type: "FACT",
     supportStatus: "CONFLICTED",
+    supportStatusExplanation:
+      "Conflicted because the DNA report supports consistency with Simpson's blood, while the defense challenges how probative that is given vehicle ownership and collection timing.",
     party: "opposing",
     category: "Blood evidence",
     title: "DNA in the Bronco is consistent with the defendant's blood",
@@ -1285,6 +1440,8 @@ const ojRecords: TypedCaseRecord[] = [
     type: "FACT",
     status: "PROPOSED",
     supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported because ordinary use of Simpson's own vehicle explains some blood presence, but the proposal still needs stronger evidence separating innocent transfer from case-relevant traces.",
     party: "ours",
     category: "Blood evidence",
     replacesIds: ["fact-bronco-his"],
@@ -1300,6 +1457,8 @@ const ojRecords: TypedCaseRecord[] = [
     type: "FACT",
     status: "PROPOSED",
     supportStatus: "CONFLICTED",
+    supportStatusExplanation:
+      "Conflicted because the DNA report supports consistency with Simpson, while collection, mixture interpretation, and contamination theories challenge reliability and weight.",
     party: "opposing",
     category: "DNA",
     title: "Bundy blood drops are reported consistent with the defendant",
@@ -1314,6 +1473,8 @@ const ojRecords: TypedCaseRecord[] = [
     id: "fact-park-timeline",
     type: "FACT",
     supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by Allan Park's statement and limo timing records documenting arrival around 10:25 PM and the initial non-observation.",
     party: "ours",
     category: "Timeline",
     title: "Allan Park arrived ~10:25 PM and did not initially see the defendant",
@@ -1329,6 +1490,8 @@ const ojRecords: TypedCaseRecord[] = [
     id: "fact-kato-thumps",
     type: "FACT",
     supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by Kato Kaelin's statement documenting thumps near the guest house around 10:40 PM, while preserving that the source was unidentified.",
     party: "ours",
     category: "Timeline",
     title: "Kato Kaelin heard thumps near the guest house ~10:40 PM",
@@ -1344,6 +1507,8 @@ const ojRecords: TypedCaseRecord[] = [
     type: "FACT",
     status: "PROPOSED",
     supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by retrospective witness and source references, but the timing appears reconstructed after the fact and is not independently fixed.",
     party: "ours",
     category: "Timeline",
     title: "Neighbor dog-activity times are retrospective and unverified",
@@ -1358,6 +1523,8 @@ const ojRecords: TypedCaseRecord[] = [
     type: "FACT",
     status: "PROPOSED",
     supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by glove records and fit-history materials, but the current sources do not establish common origin or resolve fit-condition variables.",
     party: "ours",
     category: "Glove evidence",
     title: "Whether the two gloves originate from the same pair is unestablished",
@@ -1378,6 +1545,8 @@ const ojRecords: TypedCaseRecord[] = [
     status: "PROPOSED",
     rejectedAt: "2026-06-13T12:00:00Z",
     supportStatus: "UNSUPPORTED",
+    supportStatusExplanation:
+      "Unsupported because no grounded source identifies a third-party perpetrator; the assertion overcommits the defense beyond reasonable-doubt strategy.",
     party: "ours",
     category: "Alternative theory",
     title: "An unidentified third party committed the murders",
@@ -1395,6 +1564,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "timeline-dinner",
     type: "TIMELINE_EVENT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported as a background anchor by witness and restaurant-context records for the evening of June 12.",
     eventDate: "1994-06-12",
     party: "neutral",
     category: "Background",
@@ -1410,6 +1582,8 @@ const ojRecords: TypedCaseRecord[] = [
     type: "TIMELINE_EVENT",
     status: "PROPOSED",
     supportStatus: "CONFLICTED",
+    supportStatusExplanation:
+      "Conflicted because the proposed minute window narrows the medical examiner's broader estimate and depends on disputed prosecution sequencing.",
     // Bounded uncertainty: the killings happened at one moment known only to
     // fall within this window — not an event that occupied the whole interval.
     eventDate: "1994-06-12T22:15:00",
@@ -1428,6 +1602,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "timeline-park",
     type: "TIMELINE_EVENT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by Allan Park statement materials placing the limousine arrival at approximately 10:22 to 10:25 PM.",
     eventDate: "1994-06-12T22:25:00",
     datePrecision: "minute",
     party: "ours",
@@ -1442,6 +1619,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "timeline-kato",
     type: "TIMELINE_EVENT",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by Kato Kaelin statement materials; the exact time and source of the thumps remain approximate.",
     status: "PROPOSED",
     datePrecision: "minute",
     eventDate: "1994-06-12T22:40:00",
@@ -1457,6 +1637,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "timeline-departure",
     type: "TIMELINE_EVENT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by timeline and client/travel records placing the LAX departure around 11:00 PM.",
     eventDate: "1994-06-12T23:00:00",
     datePrecision: "minute",
     party: "ours",
@@ -1472,6 +1655,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "timeline-bodies",
     type: "TIMELINE_EVENT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by initial police response records documenting discovery of the victims at Bundy after midnight.",
     eventDate: "1994-06-13",
     party: "neutral",
     category: "Discovery",
@@ -1487,6 +1673,8 @@ const ojRecords: TypedCaseRecord[] = [
     id: "timeline-rockingham-glove",
     type: "TIMELINE_EVENT",
     supportStatus: "CONFLICTED",
+    supportStatusExplanation:
+      "Conflicted because the reported 3:17 PM discovery is documented, but the entry and discovery chronology and Fuhrman's role remain disputed.",
     eventDate: "1994-06-13T15:17:00",
     datePrecision: "minute",
     party: "ours",
@@ -1503,6 +1691,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "timeline-bronco-pursuit",
     type: "TIMELINE_EVENT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported as a procedural event by case chronology records documenting the June 17 Bronco pursuit and arrest.",
     // True extent: the pursuit genuinely spanned the interval (~6:45–8:50 PM),
     // unlike the time-of-death window which is a single instant known only
     // approximately.
@@ -1522,6 +1713,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "timeline-prior-1989",
     type: "TIMELINE_EVENT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by prior domestic-incident records documenting the January 1, 1989 response and arrest-related event.",
     eventDate: "1989-01-01",
     party: "opposing",
     category: "Prior incidents",
@@ -1539,6 +1733,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "testimony-park",
     type: "TESTIMONY",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by Park statement records for arrival, contact attempts, and early non-observation, with the figure observation treated carefully.",
     substatus: "ANTICIPATED",
     witnessPersonRecordId: "person-park",
     party: "ours",
@@ -1555,6 +1752,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "testimony-kato",
     type: "TESTIMONY",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by Kato statement records confirming thumps while preserving that their source was unidentified.",
     substatus: "ANTICIPATED",
     witnessPersonRecordId: "person-kato",
     party: "ours",
@@ -1570,6 +1770,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "testimony-fuhrman-cross",
     type: "TESTIMONY",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by glove chronology and impeachment materials; final cross topics depend on personnel and prior-statement records.",
     status: "PROPOSED",
     substatus: "PREPARED",
     witnessPersonRecordId: "person-fuhrman",
@@ -1585,6 +1788,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "testimony-wu-cross",
     type: "TESTIMONY",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by DNA report mixture caveats; final cross scope depends on analyst testimony and expert review.",
     status: "PROPOSED",
     substatus: "PREPARED",
     witnessPersonRecordId: "person-wu",
@@ -1602,6 +1808,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "precedent-kelly-frye",
     type: "LEGAL_PRECEDENT",
+    supportStatus: "UNKNOWN",
+    supportStatusExplanation:
+      "Unknown until the candidate Kelly/Frye authority is cite-checked and confirmed as current, applicable California law.",
     status: "PROPOSED",
     citeChecked: false,
     jurisdiction: "California",
@@ -1616,6 +1825,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "precedent-fourth-amendment",
     type: "LEGAL_PRECEDENT",
+    supportStatus: "UNKNOWN",
+    supportStatusExplanation:
+      "Unknown until the warrantless-entry authorities are cite-checked and matched to the Rockingham entry facts.",
     status: "PROPOSED",
     citeChecked: false,
     jurisdiction: "Federal / California",
@@ -1630,6 +1842,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "precedent-1101b",
     type: "LEGAL_PRECEDENT",
+    supportStatus: "UNKNOWN",
+    supportStatusExplanation:
+      "Unknown until the Evidence Code section 1101(b) and section 352 authorities are cite-checked for the prior-acts issue.",
     status: "PROPOSED",
     citeChecked: false,
     jurisdiction: "California",
@@ -1648,6 +1863,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "note-cross-theme",
     type: "NOTE",
+    supportStatus: "SUPPORT_NOT_REQUIRED",
+    supportStatusExplanation:
+      "This is a pinned strategy note; its value comes from organizing linked forensic and handling records rather than asserting a discrete fact.",
     pinned: true,
     category: "Strategy",
     title: "Cross theme: trust the science, distrust the handling",
@@ -1662,6 +1880,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "note-fuhrman-caution",
     type: "NOTE",
+    supportStatus: "SUPPORT_NOT_REQUIRED",
+    supportStatusExplanation:
+      "This is a human correction governing agent behavior and does not need evidentiary support as a standalone record.",
     pinned: true,
     category: "Human correction",
     title: "Do not assert evidence was planted as established fact",
@@ -1674,6 +1895,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "note-glove-demo-question",
     type: "NOTE",
+    supportStatus: "SUPPORT_NOT_REQUIRED",
+    supportStatusExplanation:
+      "This is an open strategic question; linked glove-fit and demonstration-risk records carry the evidentiary support.",
     status: "PROPOSED",
     substatus: "OPEN_QUESTION",
     category: "Open question",
@@ -1691,6 +1915,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "docrec-glove-bundy",
     type: "DOCUMENT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the processed glove report section documenting GE-001 recovery, condition, and collection time.",
     documentId: "doc-glove",
     fileName: "Glove Evidence Report.pdf",
     pageRange: { start: 3, end: 5 },
@@ -1707,6 +1934,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "docrec-glove-rockingham",
     type: "DOCUMENT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the processed glove report section documenting GE-002 recovery near the Rockingham guest house and collection time.",
     documentId: "doc-glove",
     fileName: "Glove Evidence Report.pdf",
     pageRange: { start: 6, end: 8 },
@@ -1723,6 +1953,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "docrec-glove-discrepancy",
     type: "DOCUMENT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the glove report documentation-issues section noting inconsistent Bundy glove visibility descriptions.",
     documentId: "doc-glove",
     fileName: "Glove Evidence Report.pdf",
     pageRange: { start: 13, end: 14 },
@@ -1738,6 +1971,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "docrec-glove-fit-history",
     type: "DOCUMENT",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by the glove report fit-considerations section, but still proposed pending review of fit variables and conclusions.",
     status: "PROPOSED",
     documentId: "doc-glove",
     fileName: "Glove Evidence Report.pdf",
@@ -1754,6 +1990,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "docrec-coc-firstpass",
     type: "DOCUMENT",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported as an initial OCR extraction, but replaced because the tabular custody data was flattened and partly unreliable.",
     status: "REPLACED",
     replacedByIds: ["docrec-coc-bs010-volume"],
     documentId: "doc-coc",
@@ -1772,6 +2011,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "docrec-coc-bs010-volume",
     type: "DOCUMENT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the processed custody-log section documenting the BS-010 reference draw and lab-intake volume discrepancy.",
     documentId: "doc-coc",
     fileName: "Biological Evidence Chain-of-Custody Log.pdf",
     pageRange: { start: 12, end: 13 },
@@ -1788,6 +2030,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "docrec-coc-bs007",
     type: "DOCUMENT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the processed custody-log entry showing the uninitialed BS-007 time correction.",
     documentId: "doc-coc",
     fileName: "Biological Evidence Chain-of-Custody Log.pdf",
     pageRange: { start: 9, end: 9 },
@@ -1803,6 +2048,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "docrec-coc-bs003",
     type: "DOCUMENT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the processed custody-log entry showing the BS-003 photo-numbering discrepancy.",
     documentId: "doc-coc",
     fileName: "Biological Evidence Chain-of-Custody Log.pdf",
     pageRange: { start: 6, end: 6 },
@@ -1817,6 +2065,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "docrec-coc-access-log",
     type: "DOCUMENT",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by the custody-log access review, but still proposed pending review for the handling-timeline chart.",
     status: "PROPOSED",
     documentId: "doc-coc",
     fileName: "Biological Evidence Chain-of-Custody Log.pdf",
@@ -1834,6 +2085,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "docrec-dna-bundy",
     type: "DOCUMENT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the processed DNA report section covering Bundy samples BS-001 through BS-004.",
     documentId: "doc-dna",
     fileName: "DNA Laboratory Analysis Report.pdf",
     pageRange: { start: 5, end: 9 },
@@ -1850,6 +2104,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "docrec-dna-gloves",
     type: "DOCUMENT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the processed DNA report section covering glove mixture samples BS-005 and BS-006.",
     documentId: "doc-dna",
     fileName: "DNA Laboratory Analysis Report.pdf",
     pageRange: { start: 10, end: 12 },
@@ -1866,6 +2123,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "docrec-dna-mixture-limits",
     type: "DOCUMENT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the DNA report limitations section describing analyst judgment in mixture interpretation.",
     documentId: "doc-dna",
     fileName: "DNA Laboratory Analysis Report.pdf",
     pageRange: { start: 16, end: 17 },
@@ -1881,6 +2141,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "docrec-dna-bronco",
     type: "DOCUMENT",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by the DNA report Bronco sample section, but still proposed pending review of collection timing and probative value.",
     status: "PROPOSED",
     documentId: "doc-dna",
     fileName: "DNA Laboratory Analysis Report.pdf",
@@ -1898,6 +2161,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "docrec-timeline-tod",
     type: "DOCUMENT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the defense timeline memo section describing time-of-death uncertainty.",
     documentId: "doc-defense-timeline",
     fileName: "Defense Timeline Reconstruction Memo.pdf",
     pageRange: { start: 4, end: 6 },
@@ -1914,6 +2180,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "docrec-timeline-compression",
     type: "DOCUMENT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the defense timeline memo section analyzing travel and sequence compression.",
     documentId: "doc-defense-timeline",
     fileName: "Defense Timeline Reconstruction Memo.pdf",
     pageRange: { start: 10, end: 12 },
@@ -1931,6 +2200,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "docrec-park-arrival",
     type: "DOCUMENT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the Park statement section on arrival time and contact attempts.",
     documentId: "doc-park",
     fileName: "Allan Park Witness Statement.pdf",
     pageRange: { start: 2, end: 3 },
@@ -1946,6 +2218,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "docrec-park-figure",
     type: "DOCUMENT",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by Park statement materials, but proposed because the figure observation is variable and needs careful treatment.",
     status: "PROPOSED",
     documentId: "doc-park",
     fileName: "Allan Park Witness Statement.pdf",
@@ -1962,6 +2237,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "docrec-kato-thumps",
     type: "DOCUMENT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the Kato statement section documenting thumps near the guest house.",
     documentId: "doc-kato",
     fileName: "Kato Kaelin Statement.pdf",
     pageRange: { start: 2, end: 3 },
@@ -1979,6 +2257,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "docrec-me-tod",
     type: "DOCUMENT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the medical-examiner report section describing the estimated time-of-death range.",
     documentId: "doc-me",
     fileName: "Medical Examiner Report.pdf",
     pageRange: { start: 8, end: 10 },
@@ -1996,6 +2277,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "docrec-fuhrman-glove",
     type: "DOCUMENT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by Fuhrman research materials focused on glove-discovery questions.",
     documentId: "doc-fuhrman",
     fileName: "Mark Fuhrman Impeachment Research.pdf",
     pageRange: { start: 6, end: 8 },
@@ -2011,6 +2295,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "docrec-fuhrman-bias",
     type: "DOCUMENT",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by Fuhrman research categories, but proposed pending verification of specific bias and prior-statement materials.",
     status: "PROPOSED",
     documentId: "doc-fuhrman",
     fileName: "Mark Fuhrman Impeachment Research.pdf",
@@ -2028,6 +2315,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "docrec-domestic-1989",
     type: "DOCUMENT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the prior domestic records section for the 1989 incident.",
     documentId: "doc-domestic",
     fileName: "Prior Domestic Incident Records.pdf",
     pageRange: { start: 4, end: 6 },
@@ -2043,6 +2333,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "docrec-domestic-911",
     type: "DOCUMENT",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by domestic-record materials, but proposed pending review of the 911-call details and admissibility value.",
     status: "PROPOSED",
     documentId: "doc-domestic",
     fileName: "Prior Domestic Incident Records.pdf",
@@ -2060,6 +2353,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "docrec-motion-suppress",
     type: "DOCUMENT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the draft motion section framing the Rockingham entry argument.",
     documentId: "doc-motion",
     fileName: "Draft Motion to Suppress Evidence.docx",
     pageRange: { start: 1, end: 6 },
@@ -2076,6 +2372,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "docrec-client-statement",
     type: "DOCUMENT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the client statement section covering whereabouts and denial.",
     documentId: "doc-client",
     fileName: "O.J. Simpson Client Statement.txt",
     category: "Client statement",
@@ -2091,6 +2390,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "docrec-bronco-inventory",
     type: "DOCUMENT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the Bronco inventory section documenting interior blood and collection notes.",
     documentId: "doc-bronco",
     fileName: "Ford Bronco Evidence Inventory.pdf",
     pageRange: { start: 2, end: 5 },
@@ -2107,6 +2409,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...acceptedByUser,
     id: "docrec-bundy-map",
     type: "DOCUMENT",
+    supportStatus: "SUPPORTED",
+    supportStatusExplanation:
+      "Supported by the Bundy scene diagram record showing victim and evidence positions.",
     documentId: "doc-bundy-map",
     fileName: "875 Bundy Drive Scene Diagram.jpg",
     category: "Scene",
@@ -2121,6 +2426,9 @@ const ojRecords: TypedCaseRecord[] = [
     ...recordDefaults,
     id: "docrec-forensic-notes-contam",
     type: "DOCUMENT",
+    supportStatus: "PARTIALLY_SUPPORTED",
+    supportStatusExplanation:
+      "Partially supported by defense forensic notes, but proposed pending expert review and translation into admissible testimony.",
     status: "PROPOSED",
     documentId: "doc-forensic-notes",
     fileName: "Defense Forensic Expert Notes.txt",

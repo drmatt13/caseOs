@@ -12,14 +12,20 @@ import {
 import type {
   GraphLink,
   RecordLinkType,
+  RecordParty,
+  RecordSubstatus,
   RecordType,
+  SupportStatus,
   TypedCaseRecord,
 } from "#/types/caseRecords";
 import {
   isSymmetricLink,
   LINK_TYPE_LABEL_PAIRS,
   RECORD_DISPLAY_STATUS_CARD_CLASSES,
+  RECORD_SUBSTATUS_LABELS,
   RECORD_TYPE_LABELS,
+  SUPPORT_STATUS_LABELS,
+  recordPartyLabel,
 } from "#/lib/caseRecordPresentation";
 import Button from "#/components/ui/Button";
 import TextAreaField from "#/components/ui/TextAreaField";
@@ -49,10 +55,40 @@ export type ProposalDraft = {
   summary: string;
   content: string;
   category: string;
+  supportStatus?: SupportStatus;
+  supportStatusExplanation: string;
+  substatus?: RecordSubstatus;
+  party?: RecordParty;
   links: GraphLink[];
 };
 
 const LINK_TYPES = Object.keys(LINK_TYPE_LABEL_PAIRS) as RecordLinkType[];
+const SUPPORT_STATUS_OPTIONS = Object.keys(
+  SUPPORT_STATUS_LABELS,
+) as SupportStatus[];
+const PARTY_OPTIONS: RecordParty[] = ["ours", "opposing"];
+const SUBSTATUS_OPTIONS_BY_TYPE: Partial<
+  Record<RecordType, readonly RecordSubstatus[]>
+> = {
+  OBJECTIVE: ["ACTIVE", "AT_RISK", "ACHIEVED", "ABANDONED"],
+  CLAIM: ["ASSERTED", "ANTICIPATED", "WITHDRAWN", "DISMISSED"],
+  THEORY: ["ADOPTED", "EXPLORING", "BACKUP", "ABANDONED"],
+  ISSUE: ["OPEN", "RESERVED", "RESOLVED"],
+  ARGUMENT: ["DRAFT", "TRIAL_READY"],
+  TASK: ["OPEN", "IN_PROGRESS", "DONE"],
+  TESTIMONY: ["ANTICIPATED", "PREPARED", "GIVEN"],
+  LEGAL_PRECEDENT: [
+    "GOOD_LAW",
+    "DISTINGUISHED",
+    "QUESTIONED",
+    "OVERRULED",
+  ],
+  NOTE: ["OPEN_QUESTION", "RESOLVED"],
+};
+const OPTIONAL_SUBSTATUS_TYPES = new Set<RecordType>([
+  "LEGAL_PRECEDENT",
+  "NOTE",
+]);
 
 const compactSelectClass =
   "rounded-lg border border-black/15 bg-white/80 px-2 py-1 text-sm text-black/75 outline-none transition focus:border-black/30";
@@ -108,13 +144,156 @@ function seedDraft(
   record: TypedCaseRecord,
   graph: WorkspaceGraph,
 ): ProposalDraft {
+  const substatusOptions = SUBSTATUS_OPTIONS_BY_TYPE[record.type];
+  const substatus =
+    record.substatus && substatusOptions?.includes(record.substatus)
+      ? record.substatus
+      : substatusOptions && !OPTIONAL_SUBSTATUS_TYPES.has(record.type)
+        ? substatusOptions[0]
+        : undefined;
+
   return {
     title: record.title,
     summary: record.summary ?? "",
     content: record.content,
     category: record.category ?? "",
+    supportStatus: record.supportStatus,
+    supportStatusExplanation: record.supportStatusExplanation ?? "",
+    substatus,
+    party: record.party === "neutral" ? undefined : record.party,
     links: incidentLinks(graph, record.id),
   };
+}
+
+function FieldLabel({ children }: { children: string }) {
+  return <span className="text-xs text-black/60">{children}</span>;
+}
+
+function RecordAttributeEditor({
+  record,
+  graph,
+  draft,
+  onChange,
+}: {
+  record: TypedCaseRecord;
+  graph: WorkspaceGraph;
+  draft: ProposalDraft;
+  onChange: (next: Partial<ProposalDraft>) => void;
+}) {
+  const substatusOptions = SUBSTATUS_OPTIONS_BY_TYPE[record.type];
+  const substatusIsOptional = OPTIONAL_SUBSTATUS_TYPES.has(record.type);
+  const clientRole = graph.demo.caseContext.representation.clientRole;
+
+  return (
+    <div className="mt-5 rounded-lg border border-black/15 bg-black/[0.025] p-3">
+      <p className="mb-2 text-xs text-black/65">Record attributes</p>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <label className="flex flex-col gap-1.5">
+          <FieldLabel>Record party</FieldLabel>
+          <select
+            className={compactSelectClass}
+            value={draft.party ?? ""}
+            onChange={(event) =>
+              onChange({
+                party: event.target.value
+                  ? (event.target.value as RecordParty)
+                  : undefined,
+              })
+            }
+          >
+            <option value="">No party</option>
+            {PARTY_OPTIONS.map((party) => (
+              <option key={party} value={party}>
+                {recordPartyLabel(party, clientRole)}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs leading-4 text-black/45">
+            Which side this record mainly concerns. Leave blank when it is not
+            tied to either party.
+          </p>
+        </label>
+
+        {substatusOptions && (
+          <label className="flex flex-col gap-1.5">
+            <FieldLabel>Record phase</FieldLabel>
+            <select
+              className={compactSelectClass}
+              value={
+                draft.substatus ??
+                (substatusIsOptional ? "" : substatusOptions[0])
+              }
+              onChange={(event) =>
+                onChange({
+                  substatus: event.target.value
+                    ? (event.target.value as RecordSubstatus)
+                    : undefined,
+                })
+              }
+            >
+              {substatusIsOptional && (
+                <option value="">No record phase</option>
+              )}
+              {substatusOptions.map((substatus) => (
+                <option key={substatus} value={substatus}>
+                  {RECORD_SUBSTATUS_LABELS[substatus]}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs leading-4 text-black/45">
+              Where this record sits in its own workflow or legal lifecycle.
+            </p>
+          </label>
+        )}
+
+        <div className="flex flex-col gap-1.5">
+          <FieldLabel>Support status</FieldLabel>
+          <select
+            className={compactSelectClass}
+            value={draft.supportStatus ?? ""}
+            onChange={(event) =>
+              onChange({
+                supportStatus: event.target.value
+                  ? (event.target.value as SupportStatus)
+                  : undefined,
+                ...(event.target.value ? {} : { supportStatusExplanation: "" }),
+              })
+            }
+          >
+            <option value="">No support status</option>
+            {SUPPORT_STATUS_OPTIONS.map((status) => (
+              <option key={status} value={status}>
+                {SUPPORT_STATUS_LABELS[status]}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs leading-4 text-black/45">
+            How strongly current evidence supports this record's identity, role,
+            or assertion.
+          </p>
+        </div>
+
+        <TextAreaField
+          className="w-full sm:col-span-2"
+          label="Support explanation"
+          description={
+            draft.supportStatus
+              ? undefined
+              : "Choose a support status before adding an explanation."
+          }
+          placeholder="Why is this support status appropriate? Cite the evidence, conflict, or gap."
+          value={draft.supportStatus ? draft.supportStatusExplanation : ""}
+          onChange={(event) =>
+            onChange({ supportStatusExplanation: event.target.value })
+          }
+          rows={2}
+          minRows={2}
+          maxRows={4}
+          disabled={!draft.supportStatus}
+        />
+      </div>
+    </div>
+  );
 }
 
 // Small read-only chip for the "other" record on a link — mirrors the type tag
@@ -525,12 +704,12 @@ function ProposalManualEditor({
           />
           <TextAreaField
             className="w-full"
-            label="Summary"
+            label="Mini summary"
             value={draft.summary}
             onChange={(event) =>
               setDraft((prev) => ({ ...prev, summary: event.target.value }))
             }
-            placeholder="One-line description for cards and search."
+            placeholder="Short blurb for cards and search."
             rows={2}
             minRows={2}
           />
@@ -546,6 +725,13 @@ function ProposalManualEditor({
             minRows={6}
           />
         </div>
+
+        <RecordAttributeEditor
+          record={record}
+          graph={graph}
+          draft={draft}
+          onChange={(next) => setDraft((prev) => ({ ...prev, ...next }))}
+        />
 
         <div className="mt-5">
           <div className="mb-2 flex items-center justify-between gap-2">

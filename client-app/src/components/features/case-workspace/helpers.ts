@@ -13,7 +13,6 @@ import {
   RECORD_DISPLAY_STATUS_CLASSES,
   RECORD_DISPLAY_STATUS_LABELS,
   RECORD_STATUS_LABELS,
-  RECORD_SUBSTATUS_CLASSES,
   RECORD_SUBSTATUS_LABELS,
   RECORD_TYPE_LABELS,
   SUPPORT_STATUS_CLASSES,
@@ -141,6 +140,7 @@ export function recordMatchesSearch(
     record.category ?? "",
     record.substatus ? RECORD_SUBSTATUS_LABELS[record.substatus] : "",
     record.supportStatus ? SUPPORT_STATUS_LABELS[record.supportStatus] : "",
+    record.supportStatusExplanation ?? "",
     record.party ? recordPartyLabel(record.party, clientRole) : "",
     // Index the display label so search finds the derived states: a frozen record
     // by "Rejected" (it carries a rejectionReason), and a proposal that replaces
@@ -227,6 +227,19 @@ export function recordAttention(record: TypedCaseRecord): string | null {
   return null;
 }
 
+function recordStatePillAttention(record: TypedCaseRecord): string | null {
+  const support = record.supportStatus;
+  if (support === "CONFLICTED") return "Conflicted";
+  if (support === "UNSUPPORTED") return "Unsupported";
+  if (support === "UNKNOWN") return "Unverified";
+
+  if (record.type === "LEGAL_PRECEDENT" && record.citeChecked === false)
+    return "Needs cite check";
+
+  if (isStale(record)) return "Stale";
+  return null;
+}
+
 // True when a live (non-replaced, non-rejected) record needs attention. The
 // single source of truth for the Overview "Needs Attention" panel.
 export function needsAttention(
@@ -240,7 +253,7 @@ export function needsAttention(
 
 // The ONE pill a dense view (card / chip) shows for a record, chosen by a
 // priority cascade so a record never wears a stack of competing badges:
-//   review status (if unsettled) → attention → support → phase
+//   review status (if unsettled) → non-phase attention → support
 // Returns null when an accepted, well-grounded record has nothing to flag — its
 // calm blankness is itself the "settled" signal. The full decomposition (every
 // axis at once) lives in the inspector, not here.
@@ -256,20 +269,13 @@ export function resolveStatePill(
     };
   }
 
-  const attention = recordAttention(record);
+  const attention = recordStatePillAttention(record);
   if (attention) return { label: attention, className: TONES.caution.badge };
 
   if (record.supportStatus === "PARTIALLY_SUPPORTED") {
     return {
       label: SUPPORT_STATUS_LABELS.PARTIALLY_SUPPORTED,
       className: SUPPORT_STATUS_CLASSES.PARTIALLY_SUPPORTED,
-    };
-  }
-
-  if (record.substatus) {
-    return {
-      label: RECORD_SUBSTATUS_LABELS[record.substatus],
-      className: RECORD_SUBSTATUS_CLASSES[record.substatus],
     };
   }
 

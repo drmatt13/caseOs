@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   CalendarDays,
+  CheckCircle2,
   ChevronLeft,
   FileText,
   Image as ImageIcon,
@@ -8,7 +9,12 @@ import {
 } from "lucide-react";
 
 import type { CaseDocument, TypedCaseRecord } from "#/types/caseRecords";
-import { RECORD_TYPE_LABELS } from "#/lib/caseRecordPresentation";
+import {
+  RECORD_TYPE_LABELS,
+  SUPPORT_STATUS_CLASSES,
+  SUPPORT_STATUS_LABELS,
+} from "#/lib/caseRecordPresentation";
+import Button from "#/components/ui/Button";
 
 import {
   documentScopeLabel,
@@ -21,7 +27,6 @@ import {
 import { DocumentViewButton } from "./common";
 import {
   PartyBadge,
-  StatusBadge,
   SubstatusBadge,
   SupportBadge,
 } from "./RecordBadges";
@@ -41,7 +46,10 @@ import {
   TaskStatusControl,
 } from "./RecordActions";
 import ProposalManualEditor from "./ProposalManualEditor";
-import type { WorkspaceGraph } from "./useWorkspaceGraph";
+import type {
+  SupportMetadataProposal,
+  WorkspaceGraph,
+} from "./useWorkspaceGraph";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Record inspector modal (graph traversal)
@@ -252,6 +260,70 @@ function DocumentSourceSection({
   );
 }
 
+function SupportExplanationSection({ explanation }: { explanation?: string }) {
+  if (!explanation) return null;
+
+  return (
+    <div className="mt-3 rounded-lg border border-black/15 bg-white/70 px-3 py-2 text-sm leading-5 text-black/70">
+      <p className="mb-1 text-xs font-medium uppercase tracking-wide text-black/45">
+        Support explanation
+      </p>
+      <p>{explanation}</p>
+    </div>
+  );
+}
+
+function SupportMetadataProposalNotice({
+  proposal,
+  graph,
+  onAccept,
+  onDismiss,
+}: {
+  proposal: SupportMetadataProposal;
+  graph: WorkspaceGraph;
+  onAccept: (proposalId: string) => void;
+  onDismiss: (proposalId: string) => void;
+}) {
+  const source = graph.recordsById.get(proposal.sourceRecordId);
+
+  return (
+    <div className="mt-3 rounded-lg border border-amber-600/25 bg-amber-50/50 p-3 text-sm text-amber-950">
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="font-medium">Support metadata proposal</p>
+        {proposal.supportStatus && (
+          <span
+            className={`rounded-full border px-2 py-0.5 text-xs ${SUPPORT_STATUS_CLASSES[proposal.supportStatus]}`}
+          >
+            {SUPPORT_STATUS_LABELS[proposal.supportStatus]}
+          </span>
+        )}
+      </div>
+      {source && (
+        <p className="mt-1 text-xs leading-5 text-amber-900/85">
+          Triggered by accepted {RECORD_TYPE_LABELS[source.type].toLowerCase()}:{" "}
+          {source.title}
+        </p>
+      )}
+      <p className="mt-2 leading-5">{proposal.supportStatusExplanation}</p>
+      <div className="mt-3 flex flex-wrap justify-end gap-2">
+        <Button
+          style="ghost"
+          size="sm"
+          text="Dismiss"
+          onClick={() => onDismiss(proposal.id)}
+        />
+        <Button
+          style="primary"
+          size="sm"
+          icon={CheckCircle2}
+          text="Accept metadata"
+          onClick={() => onAccept(proposal.id)}
+        />
+      </div>
+    </div>
+  );
+}
+
 function RecordInspectorBody({
   record,
   graph,
@@ -291,6 +363,8 @@ function RecordInspectorBody({
       : [];
   const pendingProposals = graph.pendingReplacementByTargetId.get(record.id);
   const proposalDecision = graph.proposalDecisions[record.id];
+  const supportMetadataProposal =
+    graph.supportMetadataProposalsByRecordId.get(record.id);
 
   return (
     <div className="flex-1 overflow-y-auto p-4">
@@ -298,11 +372,8 @@ function RecordInspectorBody({
         <span className="rounded border border-black/15 bg-black/[0.03] px-1.5 py-0.5 text-[0.65rem] uppercase tracking-wide text-black/50">
           {RECORD_TYPE_LABELS[record.type]}
         </span>
-        {/* The inspector shows the FULL decomposition — every axis at once —
-            unlike the single resolved pill on dense cards. */}
-        <StatusBadge status={displayStatus} />
-        <SubstatusBadge record={record} />
         <SupportBadge record={record} />
+        <SubstatusBadge record={record} />
         <PartyBadge
           record={record}
           clientRole={graph.demo.caseContext.representation.clientRole}
@@ -401,6 +472,21 @@ function RecordInspectorBody({
       )}
 
       <p className="mt-4 text-md leading-6 text-black/80">{record.content}</p>
+
+      <SupportExplanationSection
+        explanation={record.supportStatusExplanation}
+      />
+
+      {supportMetadataProposal &&
+        (status === "ACCEPTED" || status === "PENDING_REPLACEMENT") &&
+        !frozen && (
+          <SupportMetadataProposalNotice
+            proposal={supportMetadataProposal}
+            graph={graph}
+            onAccept={graph.acceptSupportMetadataProposal}
+            onDismiss={graph.dismissSupportMetadataProposal}
+          />
+        )}
 
       {/* Replacement state mirrors the case-record card so the inspector reads
           the same way: the amber "would replace" and red "locked, pending

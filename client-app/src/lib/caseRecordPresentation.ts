@@ -244,7 +244,7 @@ const OUR_SIDE_LABELS: Partial<Record<ClientRole, string>> = {
 
 const OPPOSING_SIDE_LABELS: Partial<Record<ClientRole, string>> = {
   plaintiff: "Defense",
-  defendant: "Plaintiffs",
+  defendant: "Plaintiff",
   petitioner: "Respondent",
   respondent: "Petitioner",
   appellant: "Appellee",

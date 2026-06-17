@@ -87,7 +87,7 @@ export function PartyBadge({
   record: TypedCaseRecord;
   clientRole: ClientRole;
 }) {
-  if (!record.party) return null;
+  if (!record.party || record.party === "neutral") return null;
 
   return (
     <Pill
