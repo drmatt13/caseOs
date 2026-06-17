@@ -1,12 +1,26 @@
 import { SquareArrowOutUpRight } from "lucide-react";
 
 import type { TypedCaseRecord } from "#/types/caseRecords";
-import { RECORD_DISPLAY_STATUS_CARD_CLASSES } from "#/lib/caseRecordPresentation";
+import {
+  RECORD_DISPLAY_STATUS_CARD_CLASSES,
+  RECORD_DISPLAY_STATUS_LABELS,
+  type RecordDisplayStatus,
+} from "#/lib/caseRecordPresentation";
 
 import { recordDisplayStatus } from "./helpers";
 import { PartyBadge, SubstatusBadge, SupportBadge } from "./RecordBadges";
 import { RecordSettingsMenu } from "./RecordActions";
 import type { WorkspaceGraph } from "./useWorkspaceGraph";
+
+const RECORD_DISPLAY_STATUS_TEXT_CLASSES: Record<RecordDisplayStatus, string> =
+  {
+    ACCEPTED: "text-black/45",
+    PROPOSED: "text-sky-700",
+    PROPOSED_REPLACEMENT: "text-violet-700",
+    PENDING_REPLACEMENT: "text-amber-700",
+    REPLACED: "text-black/50",
+    REJECTED: "text-red-700",
+  };
 
 function RecordCard({
   record,
@@ -52,8 +66,16 @@ function RecordCard({
             {record.category}
           </p>
         )}
+        <h3 className="text-md font-semibold leading-snug">
+          <span
+            className={`mr-1 text-[0.7rem] font-semibold uppercase tracking-wide ${RECORD_DISPLAY_STATUS_TEXT_CLASSES[displayStatus]}`}
+          >
+            {RECORD_DISPLAY_STATUS_LABELS[displayStatus]}:
+          </span>
+          <span>{record.title}</span>
+        </h3>
         {showMetadataPills && (
-          <div className="mb-2 flex flex-wrap items-center gap-1.5">
+          <div className="mt-2 flex flex-wrap items-center gap-1.5">
             <SupportBadge record={record} />
             <SubstatusBadge record={record} />
             <PartyBadge
@@ -62,7 +84,6 @@ function RecordCard({
             />
           </div>
         )}
-        <h3 className="text-md font-semibold">{record.title}</h3>
         {record.summary && (
           <p className="mt-1 line-clamp-2 text-sm leading-5 text-black/70">
             {record.summary}
