@@ -132,8 +132,7 @@ function RouteComponent() {
                 </h1>
                 <p className="mt-1 text-sm text-black/70">
                   {demo.caseContext.jurisdictionOrCourt} ·{" "}
-                  {recordPartyLabel("ours", clientRole)} side · Case id:{" "}
-                  {caseId}
+                  {recordPartyLabel("ours", clientRole)} side
                 </p>
               </div>
             </header>

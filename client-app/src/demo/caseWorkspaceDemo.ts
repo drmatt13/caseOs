@@ -36,16 +36,13 @@ export const demoUserId = "5bdbb6c2-877a-4772-ad9e-00a10d6073b5";
 export const DEMO_WORKSPACE_ID = "11111111-1111-4111-8111-111111111111";
 export const DEMO_CASE_ID = "case-faxon-commons-demo";
 
-// Workspace-level display metrics for the overview dashboard.
+// Workspace-level display metadata. Quantified vitals are derived from the graph.
 export const demoCase = {
   id: DEMO_CASE_ID,
   title: "Faxon Commons v. Sweeney",
   court: "Massachusetts Housing Court, Metro South Division",
   caseNumber: "25H82SP02904",
   client: "Matthew Sweeney",
-  health: 78,
-  trialReadiness: 64,
-  unresolvedGaps: 7,
 };
 
 export const demoCaseContext: CaseContext = {
@@ -1733,6 +1730,96 @@ export const demoRecords: TypedCaseRecord[] = [
       "Proposed testimony module for the QCAP coordinator's no-fault pathway statements.",
     content:
       "Denise Ferreira may corroborate that EA Family Shelter access was tied to a no-fault Housing Court pathway and a court-ordered move-out date, supporting the reliance and prejudice theory. Availability and willingness to testify still need confirmation.",
+  },
+
+  // ── Case summary (level 0) ────────────────────────────────────────────────
+  // The evolving master brief synthesized from the live graph. Sections link
+  // back to the records that ground them so the Overview can render chips.
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "case-summary-faxon",
+    type: "CASE_SUMMARY",
+    party: "neutral",
+    title: "Faxon Commons v. Sweeney — Case Brief",
+    summary:
+      "Synthesized brief: a nonpayment eviction the defense is reframing around habitability, unlawful entry, and discovery prejudice.",
+    content:
+      "Living summary of the Faxon Commons matter, regenerated as records are accepted.",
+    createdAt: "2026-05-16T18:30:00Z",
+    updatedAt: "2026-05-16T18:30:00Z",
+    summaryData: {
+      caseContextSnapshot: demoCaseContext,
+      overview:
+        "Faxon Commons brought a summary-process action framed as straightforward nonpayment, seeking possession and a money judgment of roughly $116k. The defense's strategy is to deny the court a ledger-only story: the same period is marked by persistent habitability defects, an unauthorized entry while the household slept, and a RAFT cure plus direct payments that together resolved the June–July arrears before the case advanced. A parallel theme is prejudice — the landlord's filing timing and missing discovery have made key facts harder to prove.\n\nThe graph currently anchors on accepted habitability and payment-cure facts and a trial-ready abatement argument, while the higher-risk equitable-prejudice theory and corroborating case-worker testimony remain proposed pending stronger support. Discovery gaps are the through-line: they weaken causation on the prejudice theory and are the largest open exposure heading toward trial.",
+      sections: [
+        {
+          id: "sum-faxon-claims",
+          type: "CLAIMS",
+          title: "Claims & posture",
+          content:
+            "Plaintiffs seek possession and money on a nonpayment theory. Defendants assert habitability, quiet enjoyment, unauthorized entry, failure to mitigate, and c. 93A counterclaims. Posture: motion stage with active discovery disputes.",
+          recordIds: ["claim-001", "claim-002", "posture-002"],
+          updatedAt: "2026-05-16T18:30:00Z",
+        },
+        {
+          id: "sum-faxon-facts",
+          type: "FACTS",
+          title: "Load-bearing facts",
+          content:
+            "The strongest grounded facts are the cured June–July arrears (RAFT approval plus direct payments) and the documented entry-while-asleep incident. Habitability conditions are evidenced by maintenance work orders.",
+          recordIds: ["fact-payment-cured", "fact-012", "fact-014"],
+          updatedAt: "2026-05-16T18:30:00Z",
+        },
+        {
+          id: "sum-faxon-arguments",
+          type: "ARGUMENTS",
+          title: "Theory & arguments",
+          content:
+            "The trial-ready position is that persistent conditions support abatement regardless of the ledger. The equitable-prejudice theory tying filing delay to provable harm is more ambitious and still needs causation support.",
+          recordIds: ["arg-007", "arg-003", "theory-002"],
+          updatedAt: "2026-05-16T18:30:00Z",
+        },
+        {
+          id: "sum-faxon-risks",
+          type: "RISKS",
+          title: "Biggest current risk",
+          content:
+            "Plaintiffs may compress the matter into nonpayment while key discovery stays missing — collapsing the conduct and prejudice themes and leaving the abatement and counterclaim value hard to prove.",
+          recordIds: ["fact-002", "arg-003", "objective-001"],
+          updatedAt: "2026-05-16T18:30:00Z",
+        },
+        {
+          id: "sum-faxon-next",
+          type: "NEXT_STEPS",
+          title: "Next steps",
+          content:
+            "Close the discovery gaps into a proof structure, confirm the corroborating case-worker testimony, and finish exhibit mapping for the affidavit sections.",
+          recordIds: ["task-001", "task-002", "task-006"],
+          updatedAt: "2026-05-16T18:30:00Z",
+        },
+        {
+          id: "sum-faxon-open",
+          type: "OPEN_QUESTIONS",
+          title: "Open questions",
+          content:
+            "How far the prejudice/causation framing can go without overclaiming, and which records custodian the management witness will be.",
+          recordIds: ["note-001", "note-003"],
+          updatedAt: "2026-05-16T18:30:00Z",
+        },
+      ],
+      generatedFromRecordIds: [
+        "claim-001",
+        "claim-002",
+        "fact-payment-cured",
+        "fact-012",
+        "fact-014",
+        "arg-007",
+        "arg-003",
+        "theory-002",
+      ],
+      generatedAt: "2026-05-16T18:30:00Z",
+    },
   },
 ];
 

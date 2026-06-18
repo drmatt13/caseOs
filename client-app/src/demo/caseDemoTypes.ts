@@ -12,16 +12,14 @@ import type {
   TypedCaseRecord,
 } from "#/types/caseRecords";
 
-// Workspace-level display metrics for the overview dashboard.
+// Workspace-level display metadata. Quantified case vitals are derived from the
+// live record graph (see caseVitals in the case-workspace helpers), not stored.
 export type DemoCaseMeta = {
   id: string;
   title: string;
   court: string;
   caseNumber: string;
   client: string;
-  health: number;
-  trialReadiness: number;
-  unresolvedGaps: number;
 };
 
 export type DemoActivity = {

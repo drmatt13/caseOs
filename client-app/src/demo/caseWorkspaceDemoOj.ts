@@ -49,9 +49,6 @@ const ojCase = {
   court: "Superior Court of California, County of Los Angeles",
   caseNumber: "BA097211",
   client: "Orenthal James Simpson",
-  health: 54,
-  trialReadiness: 46,
-  unresolvedGaps: 13,
 };
 
 const ojCaseContext: CaseContext = {
@@ -2439,6 +2436,95 @@ const ojRecords: TypedCaseRecord[] = [
       "Proposed extraction of the consultant's contamination and collection concerns.",
     content:
       "The defense consultant's notes identifying contamination risk, sample-handling concerns, testing-interpretation issues, and collection-procedure questions. Proposed; the specific concerns should be matched to individual evidence items before trial use.",
+  },
+
+  // ── Case summary (level 0) ────────────────────────────────────────────────
+  // The evolving master brief synthesized from the live graph. Sections link
+  // back to the records that ground them so the Overview can render chips.
+  {
+    ...recordDefaults,
+    ...acceptedByUser,
+    id: "case-summary-oj",
+    type: "CASE_SUMMARY",
+    party: "neutral",
+    title: "People v. Simpson — Case Brief",
+    summary:
+      "Synthesized brief: a double-murder prosecution the defense meets with a reasonable-doubt strategy built on forensic-handling and investigative-integrity challenges.",
+    content:
+      "Living summary of the People v. Simpson defense, regenerated as records are accepted.",
+    createdAt: "2026-06-13T18:30:00Z",
+    updatedAt: "2026-06-13T18:30:00Z",
+    summaryData: {
+      caseContextSnapshot: ojCaseContext,
+      overview:
+        "The State charges Simpson with two counts of first-degree murder, building its case on blood, glove, and timeline evidence and presenting the investigation as careful and conclusive. The defense does not commit to an alternative narrative; it manufactures reasonable doubt by attacking forensic reliability, evidence collection, chain of custody, and investigator credibility — consolidating a scattered set of evidentiary objections into one jury-facing credibility-and-handling story.\n\nThe accepted graph now centers on a merged chain-of-custody-integrity fact, the EDTA-vial blood-handling fact, and the glove evidence in its latest form, supporting a unified glove-demonstration argument and a contamination theory. The Fuhrman-bias framing is mid-transition (a proposed reframe from \"collateral\" to \"central\"), and several forensic records remain proposed pending expert review. The dominant risk is that the jury accepts the DNA and glove evidence as conclusive despite the collection and chain-of-custody challenges.",
+      sections: [
+        {
+          id: "sum-oj-claims",
+          type: "CLAIMS",
+          title: "Charges & posture",
+          content:
+            "Two counts of first-degree murder. The defense challenges probable cause, the Rockingham search, forensic collection, chain of custody, DNA mixture interpretation, glove evidence, the timeline, and investigator bias. Posture: trial prep with active suppression and admissibility motions.",
+          recordIds: ["claim-001", "claim-002", "posture-002"],
+          updatedAt: "2026-06-13T18:30:00Z",
+        },
+        {
+          id: "sum-oj-facts",
+          type: "FACTS",
+          title: "Load-bearing facts",
+          content:
+            "The merged chain-of-custody-integrity fact consolidates three documentation discrepancies. The EDTA-vial fact and the current glove-discovery fact anchor the handling and identity challenges.",
+          recordIds: ["fact-coc-integrity", "fact-edta-vial", "fact-glove-v3"],
+          updatedAt: "2026-06-13T18:30:00Z",
+        },
+        {
+          id: "sum-oj-arguments",
+          type: "ARGUMENTS",
+          title: "Theory & arguments",
+          content:
+            "The merged glove-demonstration argument carries the identity challenge; the contamination theory frames the forensic attack. A proposed reframe would move the Fuhrman bias argument from collateral to central.",
+          recordIds: ["arg-glove-demo", "theory-contamination", "arg-fuhrman-central"],
+          updatedAt: "2026-06-13T18:30:00Z",
+        },
+        {
+          id: "sum-oj-risks",
+          type: "RISKS",
+          title: "Biggest current risk",
+          content:
+            "The jury accepts the DNA and glove evidence as conclusive despite collection, contamination, and chain-of-custody challenges — and the prior-domestic-violence evidence prejudices the identity question.",
+          recordIds: ["fact-dna-bundy", "issue-prior-domestic", "objective-doubt-forensic"],
+          updatedAt: "2026-06-13T18:30:00Z",
+        },
+        {
+          id: "sum-oj-next",
+          type: "NEXT_STEPS",
+          title: "Next steps",
+          content:
+            "Tighten the chain-of-custody timeline into exhibits, prepare the Fuhrman cross, and finalize the glove-demonstration sequence.",
+          recordIds: ["task-001", "task-coc", "task-002"],
+          updatedAt: "2026-06-13T18:30:00Z",
+        },
+        {
+          id: "sum-oj-open",
+          type: "OPEN_QUESTIONS",
+          title: "Open questions",
+          content:
+            "How far to push the Fuhrman-bias theme without overreaching, and whether to stage the glove demonstration live before the jury.",
+          recordIds: ["note-fuhrman-caution", "note-glove-demo-question"],
+          updatedAt: "2026-06-13T18:30:00Z",
+        },
+      ],
+      generatedFromRecordIds: [
+        "claim-001",
+        "claim-002",
+        "fact-coc-integrity",
+        "fact-edta-vial",
+        "fact-glove-v3",
+        "arg-glove-demo",
+        "theory-contamination",
+      ],
+      generatedAt: "2026-06-13T18:30:00Z",
+    },
   },
 ];
 

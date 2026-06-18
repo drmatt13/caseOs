@@ -1,6 +1,7 @@
 import type { ClientRole } from "#/types/caseDomain";
 import type {
   CaseDocument,
+  CaseSummaryRecord,
   DatePrecision,
   GraphLink,
   RecordStatus,
@@ -362,4 +363,33 @@ export function recordRelationshipSummary(
       return { label, count, noun };
     })
     .sort((a, b) => b.count - a.count);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Overview landing-page selectors
+// ─────────────────────────────────────────────────────────────────────────────
+
+// True for a record that is authoritative right now: accepted lifecycle and not
+// frozen. The Overview reasons over the live case, not retired/rejected nodes.
+function isLiveRecord(record: TypedCaseRecord, graph: WorkspaceGraph): boolean {
+  return (
+    graph.effectiveStatus(record) === "ACCEPTED" && !graph.recordIsFrozen(record)
+  );
+}
+
+// The case's evolving master brief: the live CASE_SUMMARY record, newest first if
+// several were ever synthesized. Null until an agent has generated one.
+export function latestCaseSummary(
+  graph: WorkspaceGraph,
+): CaseSummaryRecord | null {
+  const summaries = graph.records.filter(
+    (record): record is CaseSummaryRecord =>
+      record.type === "CASE_SUMMARY" && isLiveRecord(record, graph),
+  );
+  if (summaries.length === 0) return null;
+  return summaries.sort(
+    (a, b) =>
+      Date.parse(b.summaryData.generatedAt) -
+      Date.parse(a.summaryData.generatedAt),
+  )[0];
 }

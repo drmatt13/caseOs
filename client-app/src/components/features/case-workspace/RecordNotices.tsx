@@ -24,7 +24,9 @@ export function ReplacementNotice({
   if (targets.length === 0) return null;
 
   return (
-    <div className="mb-3 rounded-lg border border-green-300 bg-green-100 px-3 py-2 text-sm text-green-900">
+    <div
+      className={`mb-3 rounded-lg border px-3 py-2 text-sm ${TONES.positive.surface} ${TONES.positive.ink}`}
+    >
       <div className="flex items-center gap-1.5 font-medium">
         <GitBranch className="h-3.5 w-3.5" />
         <span>This proposed record would replace:</span>
@@ -41,7 +43,7 @@ export function ReplacementNotice({
           />
         ))}
       </div>
-      <p className="mt-2 leading-5 text-green-900/80">
+      <p className="mt-2 leading-5 text-emerald-900/80">
         Accepting it retires the records above and removes their chunks from
         retrieval.
       </p>
