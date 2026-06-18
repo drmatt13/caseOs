@@ -146,11 +146,7 @@ function RouteComponent() {
                 onOpenRecord={openRecord}
               />
             ) : activeView === "overview" ? (
-              <OverviewView
-                graph={graph}
-                onOpenRecord={openRecord}
-                onSelectView={handleSelectView}
-              />
+              <OverviewView graph={graph} onOpenRecord={openRecord} />
             ) : activeView === "agent" ? (
               <AgentView graph={graph} onOpenRecord={openRecord} />
             ) : activeView === "review" ? (

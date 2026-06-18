@@ -149,6 +149,9 @@ export const RECORD_SUBSTATUS_LABELS: Record<RecordSubstatus, string> = {
   // Argument
   DRAFT: "Draft",
   TRIAL_READY: "Trial ready",
+  // Question
+  UNANSWERED: "Unanswered",
+  ANSWERED: "Answered",
   // Testimony
   PREPARED: "Prepared",
   GIVEN: "Given",
@@ -173,12 +176,14 @@ const POSITIVE_PHASES: RecordSubstatus[] = [
   "GOOD_LAW",
   "RESOLVED",
   "GIVEN",
+  "ANSWERED",
 ];
 const CAUTION_PHASES: RecordSubstatus[] = [
   "AT_RISK",
   "QUESTIONED",
   "OVERRULED",
   "OPEN_QUESTION",
+  "UNANSWERED",
 ];
 
 export const RECORD_SUBSTATUS_CLASSES: Record<RecordSubstatus, string> =
@@ -276,6 +281,7 @@ export const RECORD_TYPE_LABELS: Record<RecordType, string> = {
   CLAIM: "Claim",
   THEORY: "Theory",
   ISSUE: "Issue",
+  QUESTION: "Question",
   ARGUMENT: "Argument",
   TASK: "Task",
   FACT: "Fact",
@@ -368,6 +374,7 @@ export const VIEW_LABELS: Record<WorkspaceViewType, string> = {
   posture: "Posture",
   theories: "Theories",
   issues: "Issues",
+  questions: "Questions",
   arguments: "Arguments",
   tasks: "Tasks",
   facts: "Facts",
@@ -392,6 +399,8 @@ export const VIEW_DESCRIPTIONS: Partial<Record<WorkspaceViewType, string>> = {
     "Integrated theories of the case that frame how claims, facts, and arguments fit together.",
   issues:
     "The legal, factual, procedural, and strategic questions the case must answer.",
+  questions:
+    "Open analytical and strategic questions to resolve, each answered with linked support.",
   arguments:
     "Arguments in support of claims and theories, each grounded in facts and sources.",
   tasks:
@@ -418,6 +427,7 @@ export const SINGULAR_VIEW_LABELS: Partial<Record<WorkspaceViewType, string>> =
     posture: "posture update",
     theories: "theory",
     issues: "issue",
+    questions: "question",
     arguments: "argument",
     tasks: "task",
     facts: "fact",

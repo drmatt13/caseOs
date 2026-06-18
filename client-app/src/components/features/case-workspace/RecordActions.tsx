@@ -404,6 +404,102 @@ export function TaskStatusControl({
   );
 }
 
+// Answer surface for a live question. Answering and the answer text are one
+// action: saving a non-empty answer marks the question ANSWERED (handled by the
+// graph), and "Reopen" clears it back to UNANSWERED. There is no way to be
+// answered without an answer. Editing an already-answered question re-opens this
+// composer in place without losing the prior text until the user saves.
+export function QuestionAnswerControl({
+  record,
+  onChange,
+}: {
+  record: Extract<TypedCaseRecord, { type: "QUESTION" }>;
+  onChange: (recordId: string, answer: string) => void;
+}) {
+  const answered = record.substatus === "ANSWERED";
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(record.answer ?? "");
+
+  // Settled answer — read-only until the user chooses to edit or reopen it.
+  if (answered && !editing) {
+    return (
+      <div
+        className={`mt-3 rounded-lg border px-3 py-2.5 ${TONES.positive.surface}`}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="flex items-center justify-between gap-3">
+          <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-black/55">
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            Answer
+          </p>
+          <div className="flex items-center gap-1.5">
+            <Button
+              style="ghost"
+              size="sm"
+              icon={PencilLine}
+              text="Edit"
+              onClick={() => {
+                setDraft(record.answer ?? "");
+                setEditing(true);
+              }}
+            />
+            <Button
+              style="ghost"
+              size="sm"
+              icon={RotateCcw}
+              text="Reopen"
+              onClick={() => onChange(record.id, "")}
+            />
+          </div>
+        </div>
+        <p className="mt-1.5 text-md leading-6 text-black/80">{record.answer}</p>
+      </div>
+    );
+  }
+
+  // Compose / edit the answer. The save is disabled until there is real text, so
+  // the question can never flip to ANSWERED empty-handed.
+  const trimmed = draft.trim();
+  return (
+    <div
+      className="mt-3 rounded-lg border border-black/15 bg-white/75 p-2"
+      onClick={(event) => event.stopPropagation()}
+    >
+      <TextAreaField
+        label="Answer"
+        placeholder="Write the answer that resolves this question. Saving marks it answered."
+        value={draft}
+        onChange={(event) => setDraft(event.target.value)}
+        rows={3}
+        minRows={3}
+      />
+      <div className="mt-2 flex items-center justify-end gap-2">
+        {answered && (
+          <Button
+            style="ghost"
+            size="sm"
+            text="Cancel"
+            onClick={() => {
+              setDraft(record.answer ?? "");
+              setEditing(false);
+            }}
+          />
+        )}
+        <Button
+          style="primary"
+          size="sm"
+          text={answered ? "Save answer" : "Save & mark answered"}
+          disabled={!trimmed}
+          onClick={() => {
+            onChange(record.id, trimmed);
+            setEditing(false);
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
 // Notice shown on a rejected record: why it is kept for context, plus Restore.
 export function FrozenNote({
   reason,
@@ -419,7 +515,7 @@ export function FrozenNote({
       <div className="flex items-center justify-between gap-3">
         <p className="flex items-center gap-1.5 font-medium">
           <CircleSlash className="h-4 w-4" />
-          Rejected · kept for context
+          Rejected
         </p>
         <Button
           style="secondary"

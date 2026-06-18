@@ -39,6 +39,7 @@ import {
   FrozenNote,
   ProposalActions,
   ProposalDecisionNote,
+  QuestionAnswerControl,
   RejectedRecordActions,
   TaskStatusControl,
 } from "./RecordActions";
@@ -80,7 +81,7 @@ const RECORD_STATE_BANNER_DESCRIPTIONS: Record<RecordDisplayStatus, string> = {
   PROPOSED_REPLACEMENT: "Review as a proposed replacement for existing record content.",
   PENDING_REPLACEMENT: "Locked while a replacement proposal is pending.",
   REPLACED: "Retired record kept for version history.",
-  REJECTED: "Dismissed proposal retained for context.",
+  REJECTED: "Set aside, but preserved for reference.",
 };
 
 function RecordStateBanner({ status }: { status: RecordDisplayStatus }) {
@@ -409,7 +410,11 @@ function RecordInspectorBody({
 
   return (
     <div className="flex-1 overflow-y-auto p-4">
-      <RecordStateBanner status={displayStatus} />
+      {/* Accepted records are the canonical baseline — no banner needed; every
+          other state surfaces its banner so the deviation is explicit. */}
+      {displayStatus !== "ACCEPTED" && (
+        <RecordStateBanner status={displayStatus} />
+      )}
 
       <h2 className="font-serif text-xl leading-snug">{record.title}</h2>
 
@@ -519,6 +524,25 @@ function RecordInspectorBody({
       )}
 
       <p className="mt-4 text-md leading-6 text-black/80">{record.content}</p>
+
+      {record.type === "QUESTION" &&
+        (status === "ACCEPTED" && !frozen ? (
+          <QuestionAnswerControl
+            record={record}
+            onChange={graph.answerQuestion}
+          />
+        ) : record.answer ? (
+          <div className="mt-3 rounded-lg border border-black/15 bg-white/75 px-3 py-2.5">
+            <p className="text-xs font-medium uppercase tracking-wide text-black/45">
+              Answer
+            </p>
+            <p className="mt-1.5 text-md leading-6 text-black/80">
+              {record.answer}
+            </p>
+          </div>
+        ) : (
+          <p className="mt-3 text-sm italic text-black/50">Not yet answered.</p>
+        ))}
 
       <SupportExplanationSection
         explanation={record.supportStatusExplanation}

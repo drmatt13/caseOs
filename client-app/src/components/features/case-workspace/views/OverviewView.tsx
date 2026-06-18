@@ -15,14 +15,11 @@ import {
 
 import type { LucideIcon } from "lucide-react";
 
-import type { WorkspaceViewType } from "#/types/caseWorkspace";
 import type { CaseSummarySectionType } from "#/types/caseRecords";
-import { TONES } from "#/lib/tones";
 import { recordPartyLabel } from "#/lib/caseRecordPresentation";
-import Button from "#/components/ui/Button";
 
 import { EmptyState } from "../common";
-import { formatDate, latestCaseSummary, needsAttention } from "../helpers";
+import { formatDate, latestCaseSummary } from "../helpers";
 import RecordChip from "../RecordChip";
 import type { WorkspaceGraph } from "../useWorkspaceGraph";
 
@@ -53,16 +50,11 @@ function GlanceRow({ label, value }: { label: string; value: string }) {
 function OverviewView({
   graph,
   onOpenRecord,
-  onSelectView,
 }: {
   graph: WorkspaceGraph;
   onOpenRecord: (recordId: string) => void;
-  onSelectView: (view: WorkspaceViewType) => void;
 }) {
   const summary = latestCaseSummary(graph);
-  const attentionRecords = graph.records.filter((record) =>
-    needsAttention(record, graph),
-  );
 
   const ctx = graph.demo.caseContext;
   const clientRole = ctx.representation.clientRole;
@@ -148,34 +140,13 @@ function OverviewView({
         </dl>
       </section>
 
-      {/* Needs Attention — flagged records */}
-      {attentionRecords.length > 0 && (
-        <section className={`rounded-xl border p-4 ${TONES.caution.surface}`}>
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="font-serif text-lg">Needs Attention</h2>
-            <Button
-              style="primary"
-              size="sm"
-              text="Open review queue"
-              onClick={() => onSelectView("review")}
-            />
-          </div>
-          <p className="mt-1 text-sm text-black/65">
-            Records flagged for source review, missing support, date conflicts,
-            or pending replacement.
-          </p>
-          <div className="mt-3 flex flex-col gap-1.5">
-            {attentionRecords.slice(0, 8).map((record) => (
-              <RecordChip
-                key={record.id}
-                record={record}
-                graph={graph}
-                onOpenRecord={onOpenRecord}
-              />
-            ))}
-          </div>
-        </section>
-      )}
+      {/* Needs Attention — placeholder for the upcoming attention queue */}
+      <section className="rounded-xl border border-black/15 bg-white/65 p-4">
+        <h2 className="font-serif text-lg">Needs Attention</h2>
+        <div className="mt-3">
+          <EmptyState message="Needs attention" />
+        </div>
+      </section>
 
       {/* Workspace Activity */}
       <section className="rounded-xl border border-black/15 bg-white/65 p-4">

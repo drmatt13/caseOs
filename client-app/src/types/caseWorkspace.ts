@@ -29,6 +29,7 @@ export type WorkspaceViewType =
   | "posture"
   | "theories"
   | "issues"
+  | "questions"
   | "arguments"
   | "tasks"
   | "facts"
@@ -46,6 +47,7 @@ export const VIEW_RECORD_TYPE = {
   posture: "POSTURE",
   theories: "THEORY",
   issues: "ISSUE",
+  questions: "QUESTION",
   arguments: "ARGUMENT",
   tasks: "TASK",
   facts: "FACT",
@@ -67,6 +69,7 @@ export const RECORD_TYPE_VIEW: Record<RecordType, WorkspaceViewType> = {
   POSTURE: "posture",
   THEORY: "theories",
   ISSUE: "issues",
+  QUESTION: "questions",
   ARGUMENT: "arguments",
   TASK: "tasks",
   FACT: "facts",
@@ -86,7 +89,10 @@ export const WORKSPACE_MENU_GROUPS: Array<{
 }> = [
   { views: ["agent", "overview", "review"] },
   { label: "Scenario", views: ["objectives", "claims", "posture"] },
-  { label: "Analysis", views: ["theories", "issues", "arguments", "tasks"] },
+  {
+    label: "Analysis",
+    views: ["theories", "issues", "questions", "arguments", "tasks"],
+  },
   {
     label: "Grounding",
     views: ["facts", "timeline", "testimony", "precedent", "notes"],

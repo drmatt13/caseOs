@@ -29,6 +29,7 @@ export type RecordType =
   // Level 2 – legal & analytical layer
   | "THEORY" // legal/factual theory of the case
   | "ISSUE" // discrete legal or factual issue
+  | "QUESTION" // open analytical/strategic question to resolve with an answer
   | "ARGUMENT" // argument in support of a claim or theory
   | "TASK" // action item
 
@@ -54,6 +55,7 @@ export const RECORD_LEVEL: Record<RecordType, number> = {
 
   THEORY: 2,
   ISSUE: 2,
+  QUESTION: 2,
   ARGUMENT: 2,
   TASK: 2,
 
@@ -151,6 +153,11 @@ export type ArgumentSubstatus = "DRAFT" | "TRIAL_READY";
 // orthogonal to phase and is derived (an unmet REQUIRES prerequisite) or set as
 // a separate manual block, never authored as a phase. See recordAttention.
 export type TaskSubstatus = "OPEN" | "IN_PROGRESS" | "DONE";
+// A question is either still open or resolved with a written answer. Being
+// ANSWERED is inseparable from having an `answer` on the record (see
+// QuestionRecord): you answer a question by writing the answer, which is the act
+// that moves it to ANSWERED.
+export type QuestionSubstatus = "UNANSWERED" | "ANSWERED";
 export type TestimonySubstatus = "ANTICIPATED" | "PREPARED" | "GIVEN";
 // Precedent treatment — the authority's standing in current law. (Whether the
 // cite has been verified is the separate `citeChecked` flag on the record.)
@@ -168,6 +175,7 @@ export type RecordSubstatus =
   | IssueSubstatus
   | ArgumentSubstatus
   | TaskSubstatus
+  | QuestionSubstatus
   | TestimonySubstatus
   | PrecedentSubstatus
   | NoteSubstatus;
@@ -313,6 +321,17 @@ export interface TaskRecord extends CaseRecord {
   assignedToUserId?: string;
 }
 
+// An open question the team needs to resolve — the analytical-layer counterpart
+// to a task. `content` holds the question; `answer` holds its resolution. The
+// two states are coupled: a question is ANSWERED iff `answer` is present and
+// non-empty. Writing the answer is what marks it answered; clearing it reopens
+// the question. (Stored in `typedMeta` server-side, like TaskRecord.dueDate.)
+export interface QuestionRecord extends CaseRecord {
+  type: "QUESTION";
+  substatus: QuestionSubstatus;
+  answer?: string; // present iff substatus === "ANSWERED"
+}
+
 export interface FactRecord extends CaseRecord {
   type: "FACT";
   // A fact's state is its evidentiary grounding (`supportStatus`), not a phase.
@@ -445,6 +464,7 @@ export type TypedCaseRecord =
   | IssueRecord
   | ArgumentRecord
   | TaskRecord
+  | QuestionRecord
   | FactRecord
   | TimelineEventRecord
   | TestimonyRecord

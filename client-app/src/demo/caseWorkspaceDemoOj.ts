@@ -1123,6 +1123,103 @@ const ojRecords: TypedCaseRecord[] = [
       "Request and review Fuhrman's personnel file, internal-affairs materials, prior complaints, and any prior recorded statements, then map them to specific evidence-discovery actions for admissibility briefing.",
   },
 
+  // ── Questions (level 2) ───────────────────────────────────────────────────
+  // Open analytical questions the team needs to resolve — the analysis-layer
+  // counterpart to tasks. UNANSWERED questions surface in Needs Attention;
+  // ANSWERED ones carry the written answer (`answer`) on the record itself.
+  {
+    ...recordDefaults,
+    id: "question-glove-demo",
+    type: "QUESTION",
+    supportStatus: "SUPPORT_NOT_REQUIRED",
+    supportStatusExplanation:
+      "An open strategic question; the linked glove-demonstration issue and risk records carry the evidentiary support.",
+    status: "PROPOSED",
+    substatus: "UNANSWERED",
+    party: "ours",
+    category: "Demonstrative risk",
+    title: "Is a live glove demonstration worth the downside risk?",
+    summary:
+      "Proposed open question feeding the issue-003 strategic decision (migrated from a working note).",
+    content:
+      "If the glove demonstration is ambiguous or cuts the wrong way in front of the jury, is the potential reasonable-doubt payoff still worth it? A decision is needed before the glove-demonstration risk memo (task-002) can be finalized.",
+  },
+  {
+    ...recordDefaults,
+    ...humanAuthored,
+    ...acceptedByUser,
+    id: "question-edta-trace",
+    type: "QUESTION",
+    supportStatus: "SUPPORT_NOT_REQUIRED",
+    supportStatusExplanation:
+      "An open research question; the reference-vial fact and EDTA argument it points at carry the support.",
+    substatus: "UNANSWERED",
+    party: "ours",
+    category: "Blood evidence",
+    title: "Can the missing 1.5 mL be tied to a specific custody handoff?",
+    summary:
+      "Open question on whether the unaccounted reference volume can be localized to one transfer.",
+    content:
+      "The reference draw is short by roughly 1.5 mL with no explanatory memo. Can we localize where in the custody chain the volume goes missing — collection, booking, or laboratory intake — closely enough to put a name and a time on it for cross-examination?",
+  },
+  {
+    ...recordDefaults,
+    ...humanAuthored,
+    ...acceptedByUser,
+    id: "question-tod-window",
+    type: "QUESTION",
+    supportStatus: "SUPPORT_NOT_REQUIRED",
+    supportStatusExplanation:
+      "An analytical question now resolved; the accepted time-of-death fact and alternative-timeline theory carry the support.",
+    substatus: "ANSWERED",
+    party: "ours",
+    category: "Time of death",
+    title:
+      "What is the narrowest time-of-death window the medical evidence supports?",
+    summary:
+      "Answered question fixing how tightly the defense can argue the death window.",
+    content:
+      "How tightly can we honestly argue the time-of-death window? The prosecution leans on a single-point estimate; we need to know the narrowest range the medical-examiner materials will actually bear before committing to it on cross.",
+    answer:
+      "Only a broad window — roughly an hour — is defensible. The medical-examiner materials support an approximate range, not the single 10:15 PM point in the prosecution summary, which rests on assumptions the examiner did not make. Anchor cross on the range and on the uncertainty itself, never on a competing point estimate.",
+  },
+  {
+    ...recordDefaults,
+    id: "question-fuhrman-scope",
+    type: "QUESTION",
+    supportStatus: "SUPPORT_NOT_REQUIRED",
+    supportStatusExplanation:
+      "A strategic question now resolved; the Fuhrman arguments and theory it points at carry the support.",
+    status: "ACCEPTED",
+    substatus: "ANSWERED",
+    party: "ours",
+    category: "Witness strategy",
+    title: "Do we make Fuhrman central or keep him collateral?",
+    summary:
+      "Answered question setting how far to foreground Fuhrman before the personnel records land.",
+    content:
+      "Should the Fuhrman-bias line be the centerpiece of the defense, or a collateral impeachment that supports the contamination story? Going central raises both the payoff and the risk if the personnel records underdeliver.",
+    answer:
+      "Keep him collateral until the subpoenaed personnel and internal-affairs records are reviewed (task-coc). The collateral framing (arg-fuhrman-collateral) is the accepted line; the central reframing stays a proposal we adopt only if the records support it. Staking reasonable doubt on impeachment we cannot yet prove is the larger risk.",
+  },
+  {
+    ...recordDefaults,
+    id: "question-jury-narrative",
+    type: "QUESTION",
+    supportStatus: "SUPPORT_NOT_REQUIRED",
+    supportStatusExplanation:
+      "An open strategic question; the contamination theory and cross-theme note it points at carry the support.",
+    status: "ACCEPTED",
+    substatus: "UNANSWERED",
+    party: "ours",
+    category: "Strategy",
+    title: "Will a contamination story hold without naming an alternative suspect?",
+    summary:
+      "Open question on whether reasonable doubt can rest on contamination and handling alone.",
+    content:
+      "Can the jury sustain reasonable doubt on a contamination-and-handling story alone, or does the absence of a named alternative suspect leave a gap they will fill against us? This governs how much weight the contamination theory can carry by itself.",
+  },
+
   // ── Facts (level 3) ───────────────────────────────────────────────────────
   // 3-GENERATION lineage: the glove-discovery fact was sharpened twice; the
   // middle version both replaces v1 and is itself replaced by v3.
@@ -1889,22 +1986,6 @@ const ojRecords: TypedCaseRecord[] = [
     content:
       "Agent drafts should argue the conditions and opportunity that make planting or contamination possible, and let the jury draw the inference. They should not state as fact that any item was planted unless the record supports it.",
   },
-  {
-    ...recordDefaults,
-    id: "note-glove-demo-question",
-    type: "NOTE",
-    supportStatus: "SUPPORT_NOT_REQUIRED",
-    supportStatusExplanation:
-      "This is an open strategic question; linked glove-fit and demonstration-risk records carry the evidentiary support.",
-    status: "PROPOSED",
-    substatus: "OPEN_QUESTION",
-    category: "Open question",
-    title: "Is a live glove demonstration worth the downside risk?",
-    summary:
-      "Proposed open-question note feeding the issue-003 strategic decision.",
-    content:
-      "Open question for the team: if the glove demonstration is ambiguous or cuts the wrong way in front of the jury, is the potential reasonable-doubt payoff still worth it? Needs a decision before task-002 can proceed.",
-  },
 
   // ── Document records (level 4) ────────────────────────────────────────────
   // Glove report split into several DOCUMENT records.
@@ -2510,7 +2591,7 @@ const ojRecords: TypedCaseRecord[] = [
           title: "Open questions",
           content:
             "How far to push the Fuhrman-bias theme without overreaching, and whether to stage the glove demonstration live before the jury.",
-          recordIds: ["note-fuhrman-caution", "note-glove-demo-question"],
+          recordIds: ["note-fuhrman-caution", "question-glove-demo"],
           updatedAt: "2026-06-13T18:30:00Z",
         },
       ],
@@ -2721,7 +2802,21 @@ const linkSpecs: LinkSpec[] = [
     "Human correction undercuts the overreaching warrantless-entry characterization that v2 asserted.",
   ],
   ["note-fuhrman-caution", "EXPLAINS", "fact-glove-v3", "ACCEPTED", "Caution note explains the documented-and-disputed framing of the current glove fact."],
-  ["note-glove-demo-question", "EXPLAINS", "issue-003", "PROPOSED", "Note flags the open question about staging the glove demonstration."],
+
+  // Questions (level 2) — each open question wired to the records that answer it
+  ["question-glove-demo", "RELATED_TO", "issue-003", "PROPOSED", "Whether the demonstration's payoff beats its risk is the strategic core of the glove-demonstration issue."],
+  ["question-glove-demo", "DEPENDS_ON", "arg-glove-demo", "PROPOSED", "Answering the question means weighing the glove-demonstration argument's upside against its failure modes."],
+  ["task-002", "REQUIRES", "question-glove-demo", "PROPOSED", "The glove-demonstration risk memo can't be finalized until this question is decided."],
+  ["question-edta-trace", "DEPENDS_ON", "fact-edta-vial", "ACCEPTED", "The question builds directly on the unaccounted reference-volume fact."],
+  ["question-edta-trace", "RELATED_TO", "arg-edta", "PROPOSED", "Localizing the missing volume would sharpen the still-proposed EDTA/handling argument."],
+  ["question-edta-trace", "RELATED_TO", "theory-contamination", "ACCEPTED", "A located custody gap would feed the contamination theory."],
+  ["question-tod-window", "DEPENDS_ON", "fact-tod-v4", "ACCEPTED", "The answer rests on the accepted medical-examiner time-of-death window."],
+  ["question-tod-window", "RELATED_TO", "theory-alt-timeline", "PROPOSED", "Fixing the defensible window supports the still-proposed alternative-timeline theory."],
+  ["question-fuhrman-scope", "RELATED_TO", "arg-fuhrman-collateral", "ACCEPTED", "The answer adopts the collateral-impeachment framing of Fuhrman."],
+  ["question-fuhrman-scope", "RELATED_TO", "theory-fuhrman", "ACCEPTED", "The decision governs how far the Fuhrman-bias theory is foregrounded."],
+  ["question-fuhrman-scope", "REQUIRES", "task-coc", "ACCEPTED", "Going central is deferred until the subpoenaed Fuhrman records are reviewed."],
+  ["question-jury-narrative", "RELATED_TO", "theory-contamination", "ACCEPTED", "Whether contamination alone sustains reasonable doubt governs how much the theory must carry."],
+  ["question-jury-narrative", "RELATED_TO", "note-cross-theme", "ACCEPTED", "The cross-exam theme note frames the contamination-over-suspect narrative the question tests."],
 
   // People cross-references
   ["claim-001", "INVOLVES", "person-clark", "ACCEPTED", "Murder charge is prosecuted by Marcia Clark."],

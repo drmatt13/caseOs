@@ -931,6 +931,45 @@ export const demoRecords: TypedCaseRecord[] = [
       "Compare the affidavit, case timeline, RAFT approval record, notices, certified letter receipt, Agreement to Vacate, and Summary Process docket so trial materials distinguish exact dates from asserted or reconstructed dates.",
   },
 
+  // ── Questions (level 2) ───────────────────────────────────────────────────
+  {
+    ...recordDefaults,
+    id: "question-adverse-inference",
+    type: "QUESTION",
+    supportStatus: "SUPPORT_NOT_REQUIRED",
+    supportStatusExplanation:
+      "An open strategic question; the missing-discovery issue and discovery demonstrative it points at carry the support.",
+    status: "ACCEPTED",
+    substatus: "UNANSWERED",
+    party: "ours",
+    category: "Discovery",
+    title: "Is the missing-records gap strong enough to seek an adverse inference?",
+    summary:
+      "Open question on whether to ask for an adverse-inference instruction or merely argue the gap.",
+    content:
+      "Do the missing entry logs, internal communications, and extermination records justify asking for an adverse-inference instruction, or do we get more mileage arguing the gap to the fact-finder without the risk of a denied motion?",
+  },
+  {
+    ...recordDefaults,
+    ...humanAuthored,
+    ...acceptedByUser,
+    id: "question-prejudice-frame",
+    type: "QUESTION",
+    supportStatus: "SUPPORT_NOT_REQUIRED",
+    supportStatusExplanation:
+      "A strategic question now resolved; the trial theory and equitable-prejudice theory it points at carry the support.",
+    substatus: "ANSWERED",
+    party: "ours",
+    category: "Strategic",
+    title: "Do we lead with strict mitigation or equitable prejudice?",
+    summary:
+      "Answered question choosing the cleaner frame for the filing-delay harm.",
+    content:
+      "Should the filing-delay harm be framed as strict mitigation causation, or as equitable prejudice? Strict mitigation is more familiar but harder to prove on this record; equitable prejudice may fit the facts more cleanly.",
+    answer:
+      "Lead with equitable prejudice (theory-002), keeping strict mitigation as a fallback. The record more cleanly supports that Plaintiffs' timing and communications changed Defendants' practical options than that a specific mitigation step would have avoided a specific loss. Frame causation as a change in posture, not a but-for dollar figure.",
+  },
+
   // ── Notes (level 3) ───────────────────────────────────────────────────────
   {
     ...recordDefaults,
@@ -2107,6 +2146,13 @@ const linkSpecs: LinkSpec[] = [
   // builder because the fact endpoint is now REPLACED) so it shows in-inspector.
   ["docrec-maintenance-orders", "EVIDENCES", "fact-habitability-broad", "ACCEPTED", "Work orders were the original grounding for the retired broad habitability fact."],
   ["docrec-raft-ledger", "EVIDENCES", "fact-payment-raft-only", "ACCEPTED", "Rent ledger originally grounded the retired RAFT-only payment fact."],
+
+  // Questions (level 2)
+  ["question-adverse-inference", "DEPENDS_ON", "issue-002", "PROPOSED", "The question turns on the still-proposed missing-discovery issue."],
+  ["question-adverse-inference", "RELATED_TO", "task-002", "ACCEPTED", "However it resolves, the answer shapes the discovery-prejudice demonstrative."],
+  ["question-prejudice-frame", "RELATED_TO", "theory-001", "ACCEPTED", "The framing choice operates inside the broader not-a-ledger-only trial theory."],
+  ["question-prejudice-frame", "RELATED_TO", "theory-002", "PROPOSED", "The answer adopts the still-proposed equitable-prejudice theory as the lead frame."],
+  ["question-prejudice-frame", "RELATED_TO", "issue-003", "PROPOSED", "The question decides how to present the filing-delay prejudice issue."],
 ];
 
 export const demoLinks: GraphLink[] = linkSpecs.map(

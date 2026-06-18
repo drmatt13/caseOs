@@ -597,6 +597,7 @@ enum RecordType {
   CLAIM           @map("claim")
   THEORY          @map("theory")
   ISSUE           @map("issue")
+  QUESTION        @map("question")
   ARGUMENT        @map("argument")
   TASK            @map("task")
   FACT            @map("fact")

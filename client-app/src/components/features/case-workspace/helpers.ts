@@ -220,6 +220,7 @@ export function recordAttention(record: TypedCaseRecord): string | null {
   if (sub === "OVERRULED") return "Overruled";
   if (sub === "QUESTIONED") return "Questioned";
   if (sub === "OPEN_QUESTION") return "Open question";
+  if (sub === "UNANSWERED") return "Unanswered";
 
   if (record.type === "LEGAL_PRECEDENT" && record.citeChecked === false)
     return "Needs cite check";
@@ -298,6 +299,7 @@ const RELATIONSHIP_SUMMARY_NOUNS: Record<RecordType, string> = {
   CLAIM: "claim",
   THEORY: "theory",
   ISSUE: "issue",
+  QUESTION: "question",
   ARGUMENT: "argument",
   TASK: "task",
   FACT: "fact",

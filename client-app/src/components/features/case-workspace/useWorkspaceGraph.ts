@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import type {
   GraphLink,
   LinkStatus,
+  QuestionSubstatus,
   RecordParty,
   RecordStatus,
   RecordSubstatus,
@@ -78,6 +79,12 @@ export function useWorkspaceGraph(demo: CaseDemo) {
   const [taskSubstatusOverrides, setTaskSubstatusOverrides] = useState<
     Record<string, TaskSubstatus>
   >({});
+  // Per-question answer overrides set from the answer control. The substatus and
+  // answer move together: a non-empty answer means ANSWERED, an empty one means
+  // UNANSWERED (a reopen). Keeping both in one entry preserves that invariant.
+  const [questionAnswerOverrides, setQuestionAnswerOverrides] = useState<
+    Record<string, { substatus: QuestionSubstatus; answer?: string }>
+  >({});
   // Records whose replacement completed in this session (proposal accepted).
   const [replacedIds, setReplacedIds] = useState<string[]>([]);
   // Proposed records created in this session from an accepted record (revisions
@@ -100,10 +107,17 @@ export function useWorkspaceGraph(demo: CaseDemo) {
           decision?.status === "rejected" ? decision.reason : undefined;
         const taskSubstatus =
           record.type === "TASK" ? taskSubstatusOverrides[record.id] : undefined;
-        if (!rejectionReason && !taskSubstatus) return record;
+        const questionAnswer =
+          record.type === "QUESTION"
+            ? questionAnswerOverrides[record.id]
+            : undefined;
+        if (!rejectionReason && !taskSubstatus && !questionAnswer) return record;
         return {
           ...record,
           ...(taskSubstatus ? { substatus: taskSubstatus } : {}),
+          ...(questionAnswer
+            ? { substatus: questionAnswer.substatus, answer: questionAnswer.answer }
+            : {}),
           ...(rejectionReason ? { rejectionReason } : {}),
         } as TypedCaseRecord;
       });
@@ -115,6 +129,7 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     deletedRecordIds,
     proposalDecisions,
     taskSubstatusOverrides,
+    questionAnswerOverrides,
   ]);
 
   const recordsById = useMemo(
@@ -537,6 +552,20 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     }));
   };
 
+  // Answer (or reopen) a question. Writing a non-empty answer marks it ANSWERED;
+  // an empty answer reopens it (UNANSWERED, answer cleared). The single setter
+  // keeps the "ANSWERED ⟺ has answer" invariant — there is no way to be answered
+  // without an answer, or to carry an answer while still unanswered.
+  const answerQuestion = (recordId: string, answer: string) => {
+    const trimmed = answer.trim();
+    setQuestionAnswerOverrides((overrides) => ({
+      ...overrides,
+      [recordId]: trimmed
+        ? { substatus: "ANSWERED", answer: trimmed }
+        : { substatus: "UNANSWERED", answer: undefined },
+    }));
+  };
+
   const deleteRecord = (recordId: string) => {
     setDeletedRecordIds((ids) =>
       ids.includes(recordId) ? ids : [...ids, recordId],
@@ -547,6 +576,11 @@ export function useWorkspaceGraph(demo: CaseDemo) {
       return next;
     });
     setTaskSubstatusOverrides((overrides) => {
+      const next = { ...overrides };
+      delete next[recordId];
+      return next;
+    });
+    setQuestionAnswerOverrides((overrides) => {
       const next = { ...overrides };
       delete next[recordId];
       return next;
@@ -610,6 +644,7 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     rejectRecord,
     restoreRecord,
     setTaskSubstatus,
+    answerQuestion,
     acceptSupportMetadataProposal,
     dismissSupportMetadataProposal,
     requestAgentRevision,

@@ -1,6 +1,7 @@
 import {
   AlertCircle,
   Bot,
+  CircleHelp,
   Clock,
   Compass,
   Folder,
@@ -35,6 +36,7 @@ const viewIcons: Record<WorkspaceViewType, LucideIcon> = {
   posture: Compass,
   theories: Lightbulb,
   issues: AlertCircle,
+  questions: CircleHelp,
   arguments: Gavel,
   tasks: SquareCheckBig,
   facts: ListChecks,
