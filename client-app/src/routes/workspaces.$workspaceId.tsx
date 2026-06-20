@@ -43,6 +43,10 @@ function App() {
     return <GetUserError />;
   }
 
+  const canManageWorkspace =
+    workspace.currentUserMembership?.role === "OWNER" ||
+    workspace.currentUserMembership?.role === "ADMIN";
+
   // return <PageLoading />;
 
   return (
@@ -54,7 +58,7 @@ function App() {
           workspaceName={workspace.name}
         />
       </NavigationPanel>
-      <ContentShell>
+      <ContentShell showWorkspaceSettings={canManageWorkspace}>
         <WorkspaceDashboard workspace={workspace} />
       </ContentShell>
     </AppLayout>

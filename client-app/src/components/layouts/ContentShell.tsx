@@ -1,5 +1,6 @@
 import { PanelLeftOpen } from "lucide-react";
 import { type ReactNode, useContext, useEffect, useRef } from "react";
+import ContentHeaderBar from "#/components/layouts/ContentHeaderBar";
 import useWindowWidthCategory from "#/hooks/useWindowWidthCategory";
 
 // context
@@ -8,6 +9,8 @@ import { MenuContext } from "#/context/MenuContext";
 interface ContentShellProps {
   children: ReactNode;
   persistLoadingHeight?: boolean;
+  showHeaderBar?: boolean;
+  showWorkspaceSettings?: boolean;
 }
 
 const contentShellLoadingHeightStorageKeyPrefix =
@@ -18,6 +21,8 @@ const getContentShellLoadingHeightStorageKey = (windowWidthCategory: string) =>
 const ContentShell = ({
   children,
   persistLoadingHeight = true,
+  showHeaderBar = true,
+  showWorkspaceSettings = false,
 }: ContentShellProps) => {
   const { setMenuOpen } = useContext(MenuContext);
   const windowWidthCategory = useWindowWidthCategory();
@@ -113,8 +118,11 @@ const ContentShell = ({
       </div>
       <div
         ref={containerForLoadingHeightRef}
-        className="w-full pt-16 sm:pt-14 pb-6 md:pt-5 md:pb-5 lg:pb-4 lg:pt-4 px-6 sm:px-12 md:px-4 min-h-dvh lg:min-h-auto"
+        className="w-full pt-16 sm:pt-14 pb-6 md:pt-5 md:pb-5 lg:pb-4 lg:pt-4 px-6 sm:px-12 md:px-4 min-h-dvh lg:min-h-auto flex flex-col gap-4"
       >
+        {showHeaderBar && (
+          <ContentHeaderBar showWorkspaceSettings={showWorkspaceSettings} />
+        )}
         {children}
       </div>
     </div>

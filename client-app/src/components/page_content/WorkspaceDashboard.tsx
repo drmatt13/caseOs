@@ -2,7 +2,6 @@ import { Link } from "@tanstack/react-router";
 import { BriefcaseBusiness } from "lucide-react";
 import UserPanel from "#/components/layouts/UserPanel";
 import Button from "#/components/ui/Button";
-import ContentHeaderBar from "#/components/layouts/ContentHeaderBar";
 import WorkspaceRoleBadge, {
   type WorkspaceRoleBadgeRole,
 } from "#/components/ui/WorkspaceRoleBadge";
@@ -22,13 +21,8 @@ const membershipRoleLabels: Record<MembershipRole, WorkspaceRoleBadgeRole> = {
 };
 
 const WorkspaceDashboard = ({ workspace }: WorkspaceProps) => {
-  const canManageWorkspace =
-    workspace.currentUserMembership?.role === "OWNER" ||
-    workspace.currentUserMembership?.role === "ADMIN";
-
   return (
     <div className="flex h-full min-w-0 flex-col gap-4">
-      <ContentHeaderBar showWorkspaceSettings={canManageWorkspace} />
       <div className="flex flex-col px-2 gap-1.5">
         <p className="text-xl font-bold">{workspace.name}</p>
         {workspace.description && (

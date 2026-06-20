@@ -98,6 +98,10 @@ function RouteComponent() {
     return <GetUserError />;
   }
 
+  const canManageWorkspace =
+    workspace.currentUserMembership?.role === "OWNER" ||
+    workspace.currentUserMembership?.role === "ADMIN";
+
   const updateCaseIntakeField = <K extends keyof CaseIntake>(
     field: K,
     value: CaseIntake[K],
@@ -233,7 +237,7 @@ function RouteComponent() {
           hasUnsavedCaseIntake={hasUnsavedCaseIntake}
         />
       </NavigationPanel>
-      <ContentShell>
+      <ContentShell showWorkspaceSettings={canManageWorkspace}>
         <div className="flex flex-col gap-6 h-full justify-between">
           {renderStep()}
           <div className="grid grid-cols-3 items-end gap-3 rounded-2xl">

@@ -12,7 +12,6 @@ import { Link } from "@tanstack/react-router";
 import { useContext } from "react";
 import type { AccountTier } from "#/api/generated/graphql";
 import type { WorkspaceListItem } from "#/api/workspace/hooks";
-import ContentHeaderBar from "#/components/layouts/ContentHeaderBar";
 import { AppModalContext } from "#/context/AppModalContext";
 
 interface WorkspaceOverviewProps {
@@ -140,7 +139,6 @@ const WorkspaceOverview = ({
 
   return (
     <div className="flex h-full min-w-0 flex-col gap-4">
-      <ContentHeaderBar />
       {hasWorkspaces ? (
         <BestFitWorkspace workspaces={workspaces} />
       ) : (

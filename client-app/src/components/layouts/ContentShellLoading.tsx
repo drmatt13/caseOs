@@ -36,7 +36,7 @@ const ContentShellLoading = () => {
   } as CSSProperties;
 
   return (
-    <ContentShell persistLoadingHeight={false}>
+    <ContentShell persistLoadingHeight={false} showHeaderBar={false}>
       <div
         style={{
           ...loadingHeightStyle,

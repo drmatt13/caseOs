@@ -79,6 +79,10 @@ function RouteComponent() {
     return <GetUserError />;
   }
 
+  const canManageWorkspace =
+    workspace.currentUserMembership?.role === "OWNER" ||
+    workspace.currentUserMembership?.role === "ADMIN";
+
   return (
     <ShowProposedLinksContext.Provider value={showProposedLinksValue}>
       <AppLayout>
@@ -109,7 +113,7 @@ function RouteComponent() {
           />
         </NavigationPanel>
 
-        <ContentShell>
+        <ContentShell showWorkspaceSettings={canManageWorkspace}>
           <div className="flex min-w-0 flex-col gap-4">
             <header className="flex flex-wrap items-start justify-between gap-3 border-b border-black/15 pb-4">
               <div className="min-w-0">
