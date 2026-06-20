@@ -45,7 +45,27 @@ const NavigationPanel = ({ children }: NavigationPanelProps) => {
 
     if (!panel) return;
 
-    const panelOffsetRem = getPanelOffsetRem();
+    // The main content column is the panel wrapper's sibling in the flex row.
+    // We want the scroll the body has on its own, independent of the sticky
+    // panel's height (which feeds back into document.scrollHeight). So measure
+    // the content column's bottom in document space plus the frame's bottom
+    // padding — that's where the page ends regardless of how tall the panel is —
+    // and see how far it runs past the viewport. Using the content column (not
+    // document.scrollHeight) is what keeps the panel's own growth out of the gate.
+    const contentColumn = panel.parentElement
+      ?.nextElementSibling as HTMLElement | null;
+    const frame = panel.parentElement?.parentElement ?? null;
+    const framePaddingBottom = frame
+      ? Number.parseFloat(window.getComputedStyle(frame).paddingBottom) || 0
+      : 0;
+    const bodyContentOverflowPx = contentColumn
+      ? contentColumn.getBoundingClientRect().bottom +
+        window.scrollY +
+        framePaddingBottom -
+        window.innerHeight
+      : document.documentElement.scrollHeight - window.innerHeight;
+
+    const panelOffsetRem = getPanelOffsetRem(bodyContentOverflowPx);
 
     if (!animate) {
       panel.style.setProperty(
@@ -143,9 +163,22 @@ const NavigationPanel = ({ children }: NavigationPanelProps) => {
     window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("resize", handleResize);
 
+    // Content can grow/shrink after mount (e.g. async data) without a scroll or
+    // resize event, which would change whether the body overflows. Watch the
+    // content column so the expansion gate stays in sync with it.
+    const contentColumn = panelRef.current?.parentElement
+      ?.nextElementSibling as HTMLElement | null;
+    const contentResizeObserver =
+      contentColumn && "ResizeObserver" in window
+        ? new ResizeObserver(handleResize)
+        : null;
+
+    contentResizeObserver?.observe(contentColumn as HTMLElement);
+
     return () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
+      contentResizeObserver?.disconnect();
 
       if (animationFrameRef.current !== null) {
         window.cancelAnimationFrame(animationFrameRef.current);

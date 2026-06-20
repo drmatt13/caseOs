@@ -17,6 +17,11 @@ const pixelsToRem = (px: number) => px / 21;
 const maxBodyScrollDeltaRem = 5.25;
 const stickyTopRem = 1.75;
 const bottomPaddingRem = 1.8;
+// Subpixel rounding leaves the panel a few px taller than its slot, which is
+// enough to give a content-less body a sliver of scroll. Trim it back only when
+// the body shouldn't scroll; when content genuinely overflows we keep the exact
+// height so the expanded panel still aligns with the content column.
+const overflowGuardRem = pixelsToRem(4);
 export const initialPanelOffsetRem =
   maxBodyScrollDeltaRem + stickyTopRem + bottomPaddingRem;
 export const scrollUpSlowTransitionDurationMs = 90;
@@ -68,7 +73,25 @@ export const getTransitionDurationMs = (
     curvedVelocityProgress,
   );
 };
-export const getPanelOffsetRem = () => {
+// `bodyContentOverflowPx` is the genuine, panel-independent scroll distance: how
+// far the content column (plus the page's own padding) extends past the
+// viewport. It's a gate, not a cap — the moment there's any real scroll the
+// panel expands with scrollY all the way to max, "unzipping" open. The gate is
+// only there so a content-less page, whose only potential scroll would come from
+// the panel's own growth, never starts that runaway.
+export const getPanelOffsetRem = (bodyContentOverflowPx: number) => {
+  // Below ~1px is subpixel rounding, not real scroll. Trim the panel by the
+  // overflow guard so it doesn't give a content-less body a sliver of its own
+  // scroll.
+  if (bodyContentOverflowPx < 1) {
+    return (
+      maxBodyScrollDeltaRem +
+      stickyTopRem +
+      bottomPaddingRem +
+      overflowGuardRem
+    );
+  }
+
   const bodyScrollDelta = Math.min(
     maxBodyScrollDeltaRem,
     pixelsToRem(window.scrollY),

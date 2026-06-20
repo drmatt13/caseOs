@@ -48,7 +48,8 @@ const ContentShell = ({
 
       const containerStyle = window.getComputedStyle(container);
       const paddingTop = Number.parseFloat(containerStyle.paddingTop) || 0;
-      const paddingBottom = Number.parseFloat(containerStyle.paddingBottom) || 0;
+      const paddingBottom =
+        Number.parseFloat(containerStyle.paddingBottom) || 0;
       const height = Math.ceil(
         container.getBoundingClientRect().height - paddingTop - paddingBottom,
       );
