@@ -24,16 +24,32 @@ const bottomPaddingRem = 1.8;
 const overflowGuardRem = pixelsToRem(4);
 export const initialPanelOffsetRem =
   maxBodyScrollDeltaRem + stickyTopRem + bottomPaddingRem;
-export const scrollUpSlowTransitionDurationMs = 90;
-const scrollUpFastTransitionDurationMs = 12;
-const scrollDownSlowTransitionDurationMs = 55;
-const scrollDownFastTransitionDurationMs = 30;
-const slowScrollVelocityPxPerMs = 0.1;
-const fastScrollVelocityPxPerMs = 0.9;
-const scrollVelocityDurationCurve = 1;
-export const scrollUpTransitionTimingFunction = "cubic-bezier(.65,.8,0,.9)";
+// This max-height transition is re-fired every animation frame toward a moving
+// target (each new scrollY yields a new offset), so it behaves as a low-pass
+// filter chasing the scroll rather than a one-shot animation. Two rules keep
+// that smooth:
+//   1. Duration is the filter's time constant. It must stay above the frame
+//      interval (~16ms at 60Hz) — a sub-frame transition completes before the
+//      next frame, so the panel hard-snaps to every target with no smoothing
+//      (the old 12ms fast-up value was the main jitter source). Everything is
+//      floored at ~2.5 frames, and the slow↔fast band is kept narrow so noisy
+//      instantaneous velocity can't whip the time constant around frame to frame.
+//   2. The timing function is an ease-OUT (fast start, flat finish). Re-fired at
+//      a moving target, ease-out covers ground proportional to the remaining gap
+//      each frame — a clean exponential chase — and settles flat when scrolling
+//      stops. Ease-in or S-curves stutter because each re-fire restarts slow.
+export const scrollUpSlowTransitionDurationMs = 115;
+const scrollUpFastTransitionDurationMs = 55;
+const scrollDownSlowTransitionDurationMs = 95;
+const scrollDownFastTransitionDurationMs = 48;
+const slowScrollVelocityPxPerMs = 0.12;
+const fastScrollVelocityPxPerMs = 0.85;
+// Super-linear (>1): keep ordinary, moderate scrolling near the longer/smoother
+// duration and reserve the tightest coupling for genuine fast flings.
+const scrollVelocityDurationCurve = 1.25;
+export const scrollUpTransitionTimingFunction = "cubic-bezier(0.3, 0.65, 0.35, 1)";
 export const scrollDownTransitionTimingFunction =
-  "cubic-bezier(0.3, 0.6, 0.75, 1)";
+  "cubic-bezier(0.25, 0.7, 0.3, 1)";
 // const shouldLogScrollVelocity = true;
 
 const clamp = (value: number, min: number, max: number) =>
