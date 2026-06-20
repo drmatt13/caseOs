@@ -16,7 +16,7 @@ const SelectWorkspaceMenu = ({
 
   return (
     <>
-      <p className="px-2 pb-1 pt-2 text-[0.65rem] font-medium uppercase tracking-wider text-black/55">
+      <p className="px-2 pb-1 pt-1.5 text-[0.65rem] font-medium uppercase tracking-wider text-black/55">
         Workspaces
       </p>
       {canCreateWorkspace ? (
