@@ -95,12 +95,18 @@ export const getPanelOffsetRem = (bodyContentOverflowPx: number) => {
     );
   }
 
+  // Cap: never expand more than the real (panel-independent) overflow, or the
+  // panel's own growth would manufacture the extra scroll that keeps it going.
+  // Shave the overflow guard so subpixel rounding can't leave the fully-expanded
+  // panel a hair taller than the content (that sliver is its own bit of scroll).
+  const overflowCapRem = Math.max(
+    0,
+    pixelsToRem(bodyContentOverflowPx) - overflowGuardRem,
+  );
   const bodyScrollDelta = Math.min(
     maxBodyScrollDeltaRem,
     pixelsToRem(window.scrollY),
-    // Cap: never expand more than the real (panel-independent) overflow, or the
-    // panel's own growth would manufacture the extra scroll that keeps it going.
-    pixelsToRem(bodyContentOverflowPx),
+    overflowCapRem,
   );
 
   return (
