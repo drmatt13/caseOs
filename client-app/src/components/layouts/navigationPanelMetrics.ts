@@ -75,10 +75,13 @@ export const getTransitionDurationMs = (
 };
 // `bodyContentOverflowPx` is the genuine, panel-independent scroll distance: how
 // far the content column (plus the page's own padding) extends past the
-// viewport. It's a gate, not a cap — the moment there's any real scroll the
-// panel expands with scrollY all the way to max, "unzipping" open. The gate is
-// only there so a content-less page, whose only potential scroll would come from
-// the panel's own growth, never starts that runaway.
+// viewport. It's both a gate and a cap. The panel expands with scrollY, but only
+// as far as this real overflow allows — because the panel's own growth feeds
+// back into the document height (taller panel → more scrollable page → room to
+// scroll further → which would grow the panel more). Capping the expansion to
+// the real overflow breaks that runaway: the panel unzips only as far as the
+// genuine content lets you scroll, and stops the moment the real content ends —
+// even if that leaves it short of fully open.
 export const getPanelOffsetRem = (bodyContentOverflowPx: number) => {
   // Below ~1px is subpixel rounding, not real scroll. Trim the panel by the
   // overflow guard so it doesn't give a content-less body a sliver of its own
@@ -95,6 +98,9 @@ export const getPanelOffsetRem = (bodyContentOverflowPx: number) => {
   const bodyScrollDelta = Math.min(
     maxBodyScrollDeltaRem,
     pixelsToRem(window.scrollY),
+    // Cap: never expand more than the real (panel-independent) overflow, or the
+    // panel's own growth would manufacture the extra scroll that keeps it going.
+    pixelsToRem(bodyContentOverflowPx),
   );
 
   return (
