@@ -17,6 +17,12 @@ const pixelsToRem = (px: number) => px / 21;
 const maxBodyScrollDeltaRem = 5.25;
 const stickyTopRem = 1.75;
 const bottomPaddingRem = 1.8;
+// The frame's own bottom padding (PageBackgroundLayout's `lg:pb-7` = 1.75rem;
+// the panel's sticky inset is the matching `lg:top-7`). When the body is
+// scrolled to the end, the content column's bottom edge sits exactly this far
+// above the viewport bottom, so the fully-expanded panel has to stop the same
+// distance up — sticky-top inset + this padding — to sit flush with it.
+const framePaddingBottomRem = 1.75;
 // Subpixel rounding leaves the panel a few px taller than its slot, which is
 // enough to give a content-less body a sliver of scroll. Trim it back only when
 // the body shouldn't scroll; when content genuinely overflows we keep the exact
@@ -99,33 +105,37 @@ export const getTransitionDurationMs = (
 // genuine content lets you scroll, and stops the moment the real content ends —
 // even if that leaves it short of fully open.
 export const getPanelOffsetRem = (bodyContentOverflowPx: number) => {
-  // Below ~1px is subpixel rounding, not real scroll. Trim the panel by the
-  // overflow guard so it doesn't give a content-less body a sliver of its own
-  // scroll.
+  // Resting offset, carried by both branches so the panel is the exact same
+  // height whether or not the body scrolls — otherwise switching between a
+  // scrollable and a non-scrollable route nudges the resting panel by the guard.
+  // The guard keeps the resting panel a hair short of its slot so subpixel
+  // rounding can't hand a content-less body a sliver of the panel's own scroll.
+  const restingOffsetRem =
+    maxBodyScrollDeltaRem + stickyTopRem + bottomPaddingRem + overflowGuardRem;
+
+  // Fully-expanded offset: the panel's bottom sits flush with the content
+  // column's bottom edge — sticky-top inset plus the frame's bottom padding, no
+  // guard. Once the body overflows this far, the content column (not the panel)
+  // drives the document height, so the panel can sit flush without making its
+  // own scroll.
+  const fullyExpandedOffsetRem = stickyTopRem + framePaddingBottomRem;
+
+  // Below ~1px is subpixel rounding, not real scroll: stay at the resting height
+  // and never expand, so a content-less body gets no scroll of the panel's own.
   if (bodyContentOverflowPx < 1) {
-    return (
-      maxBodyScrollDeltaRem +
-      stickyTopRem +
-      bottomPaddingRem +
-      overflowGuardRem
-    );
+    return restingOffsetRem;
   }
 
-  // Cap: never expand more than the real (panel-independent) overflow, or the
-  // panel's own growth would manufacture the extra scroll that keeps it going.
-  // Shave the overflow guard so subpixel rounding can't leave the fully-expanded
-  // panel a hair taller than the content (that sliver is its own bit of scroll).
-  const overflowCapRem = Math.max(
-    0,
-    pixelsToRem(bodyContentOverflowPx) - overflowGuardRem,
-  );
   const bodyScrollDelta = Math.min(
-    maxBodyScrollDeltaRem,
+    // Expand from resting all the way down to flush at full scroll...
+    restingOffsetRem - fullyExpandedOffsetRem,
     pixelsToRem(window.scrollY),
-    overflowCapRem,
+    // ...but never past the real (panel-independent) overflow, or the panel's
+    // own growth would manufacture the extra scroll that keeps it going. Shave
+    // the guard so a short page that barely overflows can't let subpixel
+    // rounding tip the not-yet-flush panel into a sliver of its own scroll.
+    Math.max(0, pixelsToRem(bodyContentOverflowPx) - overflowGuardRem),
   );
 
-  return (
-    maxBodyScrollDeltaRem - bodyScrollDelta + stickyTopRem + bottomPaddingRem
-  );
+  return restingOffsetRem - bodyScrollDelta;
 };
