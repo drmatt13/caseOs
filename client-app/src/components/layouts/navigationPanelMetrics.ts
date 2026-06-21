@@ -139,3 +139,44 @@ export const getPanelOffsetRem = (bodyContentOverflowPx: number) => {
 
   return restingOffsetRem - bodyScrollDelta;
 };
+
+// When the body scrolls back to the top, the panel collapses from the bottom and
+// its inner scroll viewport shrinks with it. If the user just selected a low item,
+// a naive collapse would clip that item off the bottom. `getAnchoredScrollTop`
+// returns the inner scrollTop that keeps the selected item visible during the
+// collapse: hold it at the on-screen position it had when selected (`yRelInitial`,
+// measured from the viewport top), then — once the rising bottom edge gets within
+// `bottomMargin` of it — let it ride up so it stays that margin above the bottom.
+// All inputs are plain px. `itemTopInContent`/`itemHeight`/`yRelInitial` are
+// captured once at selection (content doesn't reflow during the collapse);
+// `viewportH`/`maxScroll` are measured live each frame so we track the real,
+// in-progress max-height transition rather than guessing its timing.
+export const getAnchoredScrollTop = ({
+  itemTopInContent,
+  itemHeight,
+  yRelInitial,
+  viewportH,
+  maxScroll,
+  topMargin,
+  bottomMargin,
+}: {
+  itemTopInContent: number;
+  itemHeight: number;
+  yRelInitial: number;
+  viewportH: number;
+  maxScroll: number;
+  topMargin: number;
+  bottomMargin: number;
+}) => {
+  // Lowest on-screen offset the item may sit at before it would touch the bottom
+  // margin. Clamp the upper bound to `topMargin` so a viewport shorter than
+  // item + margins can't invert the clamp (min > max).
+  const lowestAllowedYRel = viewportH - itemHeight - bottomMargin;
+  const yRelTarget = clamp(
+    Math.min(yRelInitial, lowestAllowedYRel),
+    topMargin,
+    Math.max(topMargin, lowestAllowedYRel),
+  );
+
+  return clamp(itemTopInContent - yRelTarget, 0, Math.max(0, maxScroll));
+};

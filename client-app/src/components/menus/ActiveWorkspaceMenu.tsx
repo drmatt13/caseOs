@@ -101,6 +101,8 @@ const ActiveWorkspaceMenu = ({
             return (
               <div
                 key={view}
+                data-nav-item={view}
+                aria-current={activeView === view ? "page" : undefined}
                 className={`p-2 h-8 rounded-lg flex items-center justify-between gap-2 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100 ${
                   activeView === view
                     ? "bg-black/14 font-medium"

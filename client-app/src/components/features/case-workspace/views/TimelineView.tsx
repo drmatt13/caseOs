@@ -1,10 +1,7 @@
 import { CalendarDays } from "lucide-react";
 
 import type { TimelineEventRecord } from "#/types/caseRecords";
-import {
-  VIEW_DESCRIPTIONS,
-  VIEW_LABELS,
-} from "#/lib/caseRecordPresentation";
+import { VIEW_DESCRIPTIONS, VIEW_LABELS } from "#/lib/caseRecordPresentation";
 import Button from "#/components/ui/Button";
 
 import {
@@ -85,7 +82,7 @@ function TimelineView({
               {/* A point event marks an instant (dot); a ranged event marks an
                   extent (taller capsule) along the spine. */}
               <div
-                className={`absolute -left-[1.05rem] top-5 w-2.5 rounded-full border border-white bg-black/45 ${
+                className={`absolute -left-4 top-5 w-2.5 rounded-full border border-white bg-sky-600 brightness-110 ${
                   isRangedEvent(record) ? "h-6" : "h-2.5"
                 }`}
               />

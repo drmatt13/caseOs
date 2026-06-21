@@ -2,6 +2,7 @@ import {
   type CSSProperties,
   type ReactNode,
   useEffect,
+  useLayoutEffect,
   useCallback,
   useRef,
   // useState,
@@ -10,6 +11,7 @@ import {
 import AppLogo from "#/components/layouts/AppLogo";
 import useWindowWidthCategory from "#/hooks/useWindowWidthCategory";
 import {
+  getAnchoredScrollTop,
   getNavigationPanelLoadingHeightStorageKey,
   getPanelOffsetRem,
   getTransitionDurationMs,
@@ -25,15 +27,23 @@ import { XIcon } from "lucide-react";
 
 interface NavigationPanelProps {
   children: ReactNode;
+  // Key of the currently-selected nav item (e.g. the active workspace view). When
+  // it changes, the panel keeps the matching `[data-nav-item]` row visible as it
+  // collapses on scroll-to-top. Optional — omit it and the behavior is a no-op.
+  activeItemKey?: string;
 }
 
-const NavigationPanel = ({ children }: NavigationPanelProps) => {
+const NavigationPanel = ({ children, activeItemKey }: NavigationPanelProps) => {
   const { menuOpen, setMenuOpen } = useContext(MenuContext);
   const panelRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const containerForLoadingHeightRef = useRef<HTMLDivElement>(null);
   const windowWidthCategory = useWindowWidthCategory();
   const previousWindowWidthCategoryRef = useRef(windowWidthCategory);
   const animationFrameRef = useRef<number | null>(null);
+  const anchorFrameRef = useRef<number | null>(null);
+  const previousActiveItemKeyRef = useRef(activeItemKey);
+  const lastWrittenScrollTopRef = useRef<number | null>(null);
   const lastStoredLoadingHeightRef = useRef<number | null>(null);
   const previousScrollSampleRef = useRef({
     scrollY: 0,
@@ -145,12 +155,21 @@ const NavigationPanel = ({ children }: NavigationPanelProps) => {
     });
   }, [updatePanelHeightOffset]);
 
+  const stopAnchorLoop = useCallback(() => {
+    if (anchorFrameRef.current !== null) {
+      window.cancelAnimationFrame(anchorFrameRef.current);
+      anchorFrameRef.current = null;
+    }
+    lastWrittenScrollTopRef.current = null;
+  }, []);
+
   useEffect(() => {
     if (windowWidthCategory !== "large") {
       if (animationFrameRef.current !== null) {
         window.cancelAnimationFrame(animationFrameRef.current);
         animationFrameRef.current = null;
       }
+      stopAnchorLoop();
 
       return;
     }
@@ -183,8 +202,108 @@ const NavigationPanel = ({ children }: NavigationPanelProps) => {
       if (animationFrameRef.current !== null) {
         window.cancelAnimationFrame(animationFrameRef.current);
       }
+      stopAnchorLoop();
     };
-  }, [handleScroll, updatePanelHeightOffset, windowWidthCategory]);
+  }, [handleScroll, stopAnchorLoop, updatePanelHeightOffset, windowWidthCategory]);
+
+  // When the selected nav item changes, the route scrolls the body back to top,
+  // which collapses this panel from the bottom and shrinks its inner scroll
+  // viewport. Keep the just-selected row visible through that collapse: capture
+  // its geometry now (before the collapse starts), then drive the inner scrollTop
+  // each frame to hold it in view ("anchor-and-lift"). A layout effect on a child
+  // runs before the parent route's passive scroll-to-top effect, so this capture
+  // happens while the panel is still expanded and the row still on screen.
+  useLayoutEffect(() => {
+    const previousActiveItemKey = previousActiveItemKeyRef.current;
+    previousActiveItemKeyRef.current = activeItemKey;
+
+    // Only act on a genuine selection change, only where the collapse exists
+    // (large), and only when the body is actually scrolled (else nothing
+    // collapses — covers initial mount and selecting while already at top).
+    if (
+      activeItemKey == null ||
+      activeItemKey === previousActiveItemKey ||
+      windowWidthCategory !== "large" ||
+      window.scrollY <= 0
+    ) {
+      return;
+    }
+
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const item = container.querySelector<HTMLElement>(
+      `[data-nav-item="${CSS.escape(activeItemKey)}"]`,
+    );
+    if (!item) return;
+
+    // Capture once — the menu doesn't reflow during the collapse, only the
+    // viewport height changes, so these stay valid for the whole animation.
+    const containerTop = container.getBoundingClientRect().top;
+    const itemRect = item.getBoundingClientRect();
+    const yRelInitial = itemRect.top - containerTop; // distance below viewport top
+    const itemTopInContent = yRelInitial + container.scrollTop; // in scroll content
+    const itemHeight = itemRect.height;
+
+    const topMargin = 8;
+    const bottomMargin = 12;
+    const maxDurationMs = 1200;
+    const startTime = performance.now();
+
+    let previousViewportH = -1;
+    let stableFrames = 0;
+
+    stopAnchorLoop();
+
+    const step = () => {
+      if (!container.isConnected) {
+        stopAnchorLoop();
+        return;
+      }
+
+      // Yield to the user: if scrollTop moved away from what we last wrote, a
+      // wheel/drag/keyboard interrupted us — stop fighting them.
+      if (
+        lastWrittenScrollTopRef.current !== null &&
+        Math.abs(container.scrollTop - lastWrittenScrollTopRef.current) > 2
+      ) {
+        stopAnchorLoop();
+        return;
+      }
+
+      const viewportH = container.clientHeight;
+      const maxScroll = container.scrollHeight - viewportH;
+
+      container.scrollTop = getAnchoredScrollTop({
+        itemTopInContent,
+        itemHeight,
+        yRelInitial,
+        viewportH,
+        maxScroll,
+        topMargin,
+        bottomMargin,
+      });
+      lastWrittenScrollTopRef.current = container.scrollTop;
+
+      // The panel's max-height keeps transitioning for a few frames after the
+      // body reaches the top, so wait for the height to settle, not just scrollY.
+      stableFrames =
+        Math.abs(viewportH - previousViewportH) <= 1 ? stableFrames + 1 : 0;
+      previousViewportH = viewportH;
+
+      const settled = window.scrollY === 0 && stableFrames >= 2;
+      if (settled || performance.now() - startTime > maxDurationMs) {
+        stopAnchorLoop();
+        return;
+      }
+
+      anchorFrameRef.current = window.requestAnimationFrame(step);
+    };
+
+    anchorFrameRef.current = window.requestAnimationFrame(step);
+
+    return stopAnchorLoop;
+  }, [activeItemKey, stopAnchorLoop, windowWidthCategory]);
 
   useEffect(() => {
     const container = containerForLoadingHeightRef.current;
@@ -333,7 +452,10 @@ const NavigationPanel = ({ children }: NavigationPanelProps) => {
         {menuOpen && (
           <div className="pointer-events-none absolute right-0 translate-x-full w-[200vw] h-full" />
         )}
-        <div className="overflow-y-auto max-h-[inherit] overflow-x-hidden">
+        <div
+          ref={scrollContainerRef}
+          className="overflow-y-auto max-h-[inherit] overflow-x-hidden"
+        >
           {windowWidthCategory === "small" && (
             <div className="h-0 flex justify-end pointer-events-none">
               <button

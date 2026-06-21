@@ -79,7 +79,13 @@ function RouteComponent() {
     }
 
     previousActiveViewRef.current = activeView;
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    window.scrollTo({
+      top: 0,
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+    });
   }, [activeView]);
 
   if (getUserPending || getWorkspacePending) {
@@ -97,7 +103,7 @@ function RouteComponent() {
   return (
     <ShowProposedLinksContext.Provider value={showProposedLinksValue}>
       <AppLayout>
-        <NavigationPanel>
+        <NavigationPanel activeItemKey={activeView}>
           <UserPanel user={user} settings={true} showTier={true} />
           <div className="text-sm flex gap-1.5 items-center">
             <Link to="/workspaces/$workspaceId" params={{ workspaceId }}>
