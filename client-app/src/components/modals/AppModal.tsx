@@ -3,6 +3,9 @@ import { useContext, useState, useEffect } from "react";
 // context
 import { AppModalContext } from "#/context/AppModalContext";
 
+// hooks
+import useBodyScrollLock from "#/hooks/useBodyScrollLock";
+
 // modals
 import EditUserModal from "./EditUserModal";
 import ModifySubscriptionModal from "./ModifySubscriptionModal";
@@ -13,6 +16,8 @@ const SettingsModal = () => {
   const [prevModal, setPrevModal] = useState(modal);
   const [modalOpenKey, setModalOpenKey] = useState(0);
   const visibleModal = modal ?? prevModal;
+
+  useBodyScrollLock(modal !== null);
 
   const handleBackdropClick = () => {
     requestCloseModal();

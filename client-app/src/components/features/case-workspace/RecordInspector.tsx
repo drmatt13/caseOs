@@ -16,6 +16,7 @@ import {
   type RecordDisplayStatus,
 } from "#/lib/caseRecordPresentation";
 import Button from "#/components/ui/Button";
+import useBodyScrollLock from "#/hooks/useBodyScrollLock";
 
 import {
   documentScopeLabel,
@@ -114,6 +115,8 @@ function RecordInspector({
 }) {
   const open = stack.length > 0;
   const recordId = stack[stack.length - 1];
+
+  useBodyScrollLock(open);
 
   // Keep the last opened record on screen through the close animation,
   // mirroring AppModal's prevModal/visibleModal handling.
