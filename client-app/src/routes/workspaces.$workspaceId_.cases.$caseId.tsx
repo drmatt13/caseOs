@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Search } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 import AppLayout from "#/components/layouts/AppLayout";
 import NavigationPanel from "#/components/layouts/NavigationPanel";
@@ -70,6 +71,16 @@ function RouteComponent() {
     globalSearchResults,
     pendingProposalCount,
   } = useCaseWorkspace(caseId);
+  const previousActiveViewRef = useRef(activeView);
+
+  useEffect(() => {
+    if (previousActiveViewRef.current === activeView) {
+      return;
+    }
+
+    previousActiveViewRef.current = activeView;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [activeView]);
 
   if (getUserPending || getWorkspacePending) {
     return <PageLoading />;
