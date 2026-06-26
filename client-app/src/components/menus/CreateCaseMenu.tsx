@@ -71,7 +71,8 @@ const CreateCaseMenu = ({
       <StepMenu
         steps={7}
         icons={createCaseStepIcons}
-        stepState={devSkipGating ? 7 : caseIntakeState.step}
+        stepState={caseIntakeState.step}
+        maxUnlockedStep={devSkipGating ? 7 : caseIntakeState.step}
         setStepState={(step) => {
           setCaseIntakeState((prev) => ({ ...prev, step }));
         }}

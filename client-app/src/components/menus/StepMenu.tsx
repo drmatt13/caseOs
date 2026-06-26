@@ -31,6 +31,7 @@ export interface StepMenuProps {
   icons: StepMenuIcon[];
   stepState: number;
   setStepState: (step: number) => void;
+  maxUnlockedStep?: number;
   labels?: StepMenuLabel[];
 }
 
@@ -50,6 +51,7 @@ const StepMenu = ({
   icons,
   stepState,
   setStepState,
+  maxUnlockedStep = stepState,
   labels = [],
 }: StepMenuProps) => {
   return (
@@ -57,8 +59,9 @@ const StepMenu = ({
       {Array.from({ length: steps }, (_, index) => {
         const step = index + 1;
         const Icon = preapprovedStepMenuIcons[icons[index] ?? "briefcase"];
-        const isLocked = stepState < step;
-        const isActive = stepState <= step;
+        const isLocked = maxUnlockedStep < step;
+        const isActive = stepState === step;
+        const isComplete = stepState > step;
         const label = labels[index] ?? {
           title: `Step ${step}`,
           subtitle: "",
@@ -77,12 +80,20 @@ const StepMenu = ({
             }}
           >
             <div
-              className={`rounded-full p-2 ${isActive ? "bg-black text-white" : "bg-green-600/60 text-black"} transition-colors ease-in duration-150`}
+              className={`rounded-full p-2 ${
+                isActive
+                  ? "bg-black text-white"
+                  : isComplete
+                    ? "bg-green-600/60 text-black"
+                    : "bg-black/10 text-black/60"
+              } transition-colors ease-in duration-150`}
             >
               {isActive ? (
                 <Icon className="w-4 h-4" />
-              ) : (
+              ) : isComplete ? (
                 <CheckSquare className="w-4 h-4" />
+              ) : (
+                <Icon className="w-4 h-4" />
               )}
             </div>
             <div className="flex flex-col">

@@ -35,6 +35,7 @@ const CaseBasicsForm = ({ caseIntake, onFieldChange }: CaseBasicsFormProps) => {
           className="md:col-span-2"
         />
         <TextInputField
+          className="row-span-2 grid-rows-subgrid"
           label="Intake provided by"
           description="Who supplied this intake information?"
           value={caseIntake.intakeProvidedBy}
@@ -44,6 +45,7 @@ const CaseBasicsForm = ({ caseIntake, onFieldChange }: CaseBasicsFormProps) => {
           placeholder="John Doe, Esq."
         />
         <TextInputField
+          className="row-span-2 grid-rows-subgrid"
           label="Represented party"
           description="The party your team represents (drives the “our side” labels)."
           value={caseIntake.representedPartyName}
