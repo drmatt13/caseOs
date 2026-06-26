@@ -73,6 +73,7 @@ function RouteComponent() {
   );
 
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [devSkipGating, setDevSkipGating] = useState(true);
 
   const hasUnsavedCaseIntake =
     uploadedFiles.length > 0 ||
@@ -134,37 +135,30 @@ function RouteComponent() {
     const filled = (...fields: string[]) =>
       fields.every((f) => f.trim().length > 0);
 
+    // Only the structured spine + the core narrative are hard-required. The rest
+    // is encouraged-but-optional: blank fields become the agent's first task
+    // (it proposes records to fill the gaps, which the user reviews).
+    if (devSkipGating) return true;
+
     switch (step) {
       case 1:
-        return filled(c.caseName, c.intakeProvidedBy, c.jurisdictionOrCourt);
+        return filled(
+          c.caseName,
+          c.intakeProvidedBy,
+          c.representedPartyName,
+          c.jurisdictionOrCourt,
+        );
       case 2:
         return (
-          filled(
-            c.whatIsTheDisputeAbout,
-            c.whatClaimsOrAllegationsAreInvolved,
-          ) &&
+          filled(c.whatIsTheDisputeAbout, c.claimsAndDefenses) &&
           (c.currentCaseStatus === "pre_filing" || filled(c.caseNumber ?? ""))
         );
       case 3:
-        return filled(
-          c.keyEventsSoFar,
-          c.importantFilingsDeadlinesAndIncidents,
-          c.anythingUrgentRightNow,
-        );
+        return true;
       case 4:
-        return filled(
-          c.yourObjective,
-          c.otherSidesLikelyObjective,
-          c.desiredOutcome,
-          c.biggestCurrentRisk,
-        );
+        return filled(c.objective);
       case 5:
-        return filled(
-          c.parties,
-          c.attorneys,
-          c.witnessesAndAnticipatedTestimony,
-          c.whoMattersMostRightNow,
-        );
+        return true;
       case 6:
         return true;
       case 7:
@@ -235,6 +229,7 @@ function RouteComponent() {
           caseIntakeState={caseIntakeState}
           setCaseIntakeState={setCaseIntakeState}
           hasUnsavedCaseIntake={hasUnsavedCaseIntake}
+          devSkipGating={devSkipGating}
         />
       </NavigationPanel>
       <ContentShell showWorkspaceSettings={canManageWorkspace}>
@@ -252,9 +247,19 @@ function RouteComponent() {
                 />
               )}
             </div>
-            <p className="justify-self-center text-md text-black/55">
-              {`Step ${caseIntakeState.step} of ${CASE_INTAKE_TOTAL_STEPS}`}
-            </p>
+            <button
+              type="button"
+              onClick={() => setDevSkipGating((v) => !v)}
+              className={`justify-self-center text-sm px-2 py-1 rounded font-mono transition-colors ${
+                devSkipGating
+                  ? "bg-amber-400/30 text-amber-800"
+                  : "text-black/25 hover:text-black/50"
+              }`}
+            >
+              {devSkipGating
+                ? `⚡ skip on — step ${caseIntakeState.step}/${CASE_INTAKE_TOTAL_STEPS}`
+                : `step ${caseIntakeState.step}/${CASE_INTAKE_TOTAL_STEPS}`}
+            </button>
             <div className="justify-self-end">
               <Button
                 style="primary"

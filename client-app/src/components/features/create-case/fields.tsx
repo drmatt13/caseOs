@@ -8,6 +8,8 @@ import {
   Scale,
   Users,
   FileTextIcon,
+  Plus,
+  X,
 } from "lucide-react";
 
 type FormSectionProps = {
@@ -35,7 +37,7 @@ type SelectFieldProps<T extends string> = FieldBaseProps & {
   options: SelectOption<T>[];
 };
 
-const fieldClassName =
+export const fieldClassName =
   "w-full rounded-xl border border-black/10 bg-white px-3 py-2.5 text-md text-black shadow-sm outline-none transition focus:border-black/30 focus:ring-2 focus:ring-black/5";
 
 const FieldShell = ({
@@ -126,4 +128,139 @@ export const SelectField = <T extends string>({
       ))}
     </select>
   </FieldShell>
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Compact controls + repeater chrome
+// Used inside repeater rows (people / events / claims) where the heavier
+// label+description FieldShell would be too tall. Labels are text-sm; no
+// description slot.
+// ─────────────────────────────────────────────────────────────────────────────
+
+type InlineTextFieldProps = {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  type?: "text" | "date";
+  className?: string;
+};
+
+export const InlineTextField = ({
+  label,
+  value,
+  onChange,
+  placeholder,
+  type = "text",
+  className = "",
+}: InlineTextFieldProps) => (
+  <label className={`grid gap-1.5 ${className}`.trim()}>
+    <span className="text-sm font-medium text-black/80">{label}</span>
+    <input
+      className={fieldClassName}
+      type={type}
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+      placeholder={placeholder}
+    />
+  </label>
+);
+
+type InlineSelectFieldProps<T extends string> = {
+  label: string;
+  value: T;
+  onChange: (value: T) => void;
+  options: SelectOption<T>[];
+  className?: string;
+};
+
+export const InlineSelectField = <T extends string>({
+  label,
+  value,
+  onChange,
+  options,
+  className = "",
+}: InlineSelectFieldProps<T>) => (
+  <label className={`grid gap-1.5 ${className}`.trim()}>
+    <span className="text-sm font-medium text-black/80">{label}</span>
+    <select
+      className={fieldClassName}
+      value={value}
+      onChange={(event) => onChange(event.target.value as T)}
+    >
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
+  </label>
+);
+
+type CheckboxFieldProps = {
+  label: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  className?: string;
+};
+
+export const CheckboxField = ({
+  label,
+  checked,
+  onChange,
+  className = "",
+}: CheckboxFieldProps) => (
+  <label
+    className={`flex items-center gap-2 text-sm text-black/80 ${className}`.trim()}
+  >
+    <input
+      type="checkbox"
+      className="h-4 w-4 rounded border-black/25 accent-[#282828]"
+      checked={checked}
+      onChange={(event) => onChange(event.target.checked)}
+    />
+    {label}
+  </label>
+);
+
+// A single removable entry in a repeater list (a person, event, or claim).
+export const RepeaterCard = ({
+  onRemove,
+  removeLabel = "Remove",
+  children,
+}: {
+  onRemove: () => void;
+  removeLabel?: string;
+  children: ReactNode;
+}) => (
+  <div className="relative rounded-xl border border-black/15 bg-white/50 p-4 pr-11">
+    <button
+      type="button"
+      onClick={onRemove}
+      title={removeLabel}
+      aria-label={removeLabel}
+      className="absolute right-2.5 top-2.5 cursor-pointer rounded-lg p-1.5 text-black/45 transition-colors hover:bg-black/10 hover:text-black"
+    >
+      <X className="h-4 w-4" />
+    </button>
+    {children}
+  </div>
+);
+
+// Dashed "add another" affordance that anchors the bottom of a repeater list.
+export const AddRowButton = ({
+  label,
+  onClick,
+}: {
+  label: string;
+  onClick: () => void;
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-black/25 bg-transparent px-3 py-2.5 text-sm font-medium text-black/65 transition-colors hover:border-black/40 hover:bg-black/3 hover:text-black cursor-pointer"
+  >
+    <Plus className="h-4 w-4" />
+    {label}
+  </button>
 );

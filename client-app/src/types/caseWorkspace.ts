@@ -12,7 +12,17 @@ export type {
   RepresentationPracticeArea,
   RepresentationRole,
 } from "./caseDomain";
-export type { CaseIntake, CaseIntakeDocument } from "./caseIntake";
+export type {
+  CaseIntake,
+  CaseIntakeDocument,
+  CaseIntakePerson,
+  CaseIntakeEvent,
+  CaseIntakeEventKind,
+  CaseIntakeClaim,
+  PersonRole,
+  DatePrecision,
+  RecordParty,
+} from "./caseIntake";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Workspace views

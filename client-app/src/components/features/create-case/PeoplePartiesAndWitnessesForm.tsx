@@ -1,6 +1,22 @@
-import type { CaseIntake } from "#/types/caseWorkspace";
+import type {
+  CaseIntake,
+  CaseIntakePerson,
+  PersonRole,
+} from "#/types/caseWorkspace";
 import TextAreaField from "#/components/ui/TextAreaField";
-import { FormSection } from "#/components/features/create-case/fields";
+import {
+  createIntakeItemId,
+  personRoleOptions,
+  recordPartyOptions,
+} from "#/components/features/create-case/caseIntakeForm";
+import {
+  AddRowButton,
+  CheckboxField,
+  FormSection,
+  InlineSelectField,
+  InlineTextField,
+  RepeaterCard,
+} from "#/components/features/create-case/fields";
 
 type PeoplePartiesAndWitnessesFormProps = {
   caseIntake: CaseIntake;
@@ -14,53 +30,119 @@ const PeoplePartiesAndWitnessesForm = ({
   caseIntake,
   onFieldChange,
 }: PeoplePartiesAndWitnessesFormProps) => {
+  const people = caseIntake.people;
+
+  const updatePerson = (id: string, patch: Partial<CaseIntakePerson>) =>
+    onFieldChange(
+      "people",
+      people.map((person) =>
+        person.id === id ? { ...person, ...patch } : person,
+      ),
+    );
+
+  const addPerson = () =>
+    onFieldChange("people", [
+      ...people,
+      {
+        id: createIntakeItemId("person"),
+        name: "",
+        roles: ["UNKNOWN"],
+        side: "neutral",
+      },
+    ]);
+
+  const removePerson = (id: string) =>
+    onFieldChange(
+      "people",
+      people.filter((person) => person.id !== id),
+    );
+
   return (
     <FormSection
       title="People, Parties, and Witnesses"
-      description="Track the actors in the case and call out who deserves the team’s attention right now."
+      description="Add the key people and which side each is on. Capturing the side here means the assistant never has to guess it — the costliest thing to get wrong."
       icon="users"
     >
-      <div className="grid gap-4 md:grid-cols-2">
-        <TextAreaField
-          className="row-span-2 grid-rows-subgrid"
-          label="Parties"
-          description="List the parties involved and their roles."
-          value={caseIntake.parties}
-          onChange={(event) => onFieldChange("parties", event.target.value)}
-          placeholder="John Smith (Plaintiff), Jane Doe (Defendant)"
-        />
-        <TextAreaField
-          className="row-span-2 grid-rows-subgrid"
-          label="Attorneys"
-          description="List counsel involved on all sides."
-          value={caseIntake.attorneys}
-          onChange={(event) => onFieldChange("attorneys", event.target.value)}
-          placeholder="John Doe, Esq. (Lead Counsel for Plaintiff)..."
-        />
-        <TextAreaField
-          label="Witnesses and anticipated testimony"
-          description="Identify key witnesses and what they are expected to say."
-          value={caseIntake.witnessesAndAnticipatedTestimony}
-          onChange={(event) =>
-            onFieldChange(
-              "witnessesAndAnticipatedTestimony",
-              event.target.value,
-            )
-          }
-          placeholder="Alice Johnson (eyewitness), Bob Lee (expert on industry standards)..."
-          className="md:col-span-2"
-        />
-        <TextAreaField
-          label="Who matters most right now?"
-          description="Name the people or entities most important at this stage."
-          value={caseIntake.whoMattersMostRightNow}
-          onChange={(event) =>
-            onFieldChange("whoMattersMostRightNow", event.target.value)
-          }
-          placeholder="Assigned judge, opposing counsel, and the percipient witness for the upcoming hearing."
-          className="md:col-span-2"
-        />
+      <div className="flex flex-col gap-3">
+        {people.map((person) => (
+          <RepeaterCard
+            key={person.id}
+            onRemove={() => removePerson(person.id)}
+            removeLabel="Remove person"
+          >
+            <div className="grid gap-3 md:grid-cols-2">
+              <InlineTextField
+                label="Name"
+                value={person.name}
+                onChange={(value) => updatePerson(person.id, { name: value })}
+                placeholder="Jane Doe"
+              />
+              <InlineTextField
+                label="Organization (optional)"
+                value={person.organization ?? ""}
+                onChange={(value) =>
+                  updatePerson(person.id, { organization: value })
+                }
+                placeholder="SLG Legal Group"
+              />
+              <InlineSelectField
+                label="Role"
+                value={person.roles[0] ?? "UNKNOWN"}
+                onChange={(value: PersonRole) =>
+                  updatePerson(person.id, { roles: [value] })
+                }
+                options={personRoleOptions}
+              />
+              <InlineSelectField
+                label="Side"
+                value={person.side}
+                onChange={(value) => updatePerson(person.id, { side: value })}
+                options={recordPartyOptions}
+              />
+              <TextAreaField
+                label="Notes (optional)"
+                value={person.notes ?? ""}
+                onChange={(event) =>
+                  updatePerson(person.id, { notes: event.target.value })
+                }
+                placeholder="What they know, why they matter, how they connect to the case..."
+                className="md:col-span-2"
+              />
+              <TextAreaField
+                label="Anticipated testimony (optional)"
+                description="If this person is a witness, what are they expected to say? Seeds a testimony record."
+                value={person.anticipatedTestimony ?? ""}
+                onChange={(event) =>
+                  updatePerson(person.id, {
+                    anticipatedTestimony: event.target.value,
+                  })
+                }
+                placeholder="Will testify to move-in conditions and repeated in-person complaints."
+                className="md:col-span-2"
+              />
+              <CheckboxField
+                label="Key player right now"
+                checked={Boolean(person.isKeyPlayer)}
+                onChange={(checked) =>
+                  updatePerson(person.id, { isKeyPlayer: checked })
+                }
+                className="md:col-span-2"
+              />
+            </div>
+          </RepeaterCard>
+        ))}
+        <AddRowButton label="Add person" onClick={addPerson} />
       </div>
+
+      <TextAreaField
+        label="Anything else about the people involved? (optional)"
+        description="A free-text fallback the assistant also mines for people you didn’t list above."
+        value={caseIntake.peopleNarrative ?? ""}
+        onChange={(event) =>
+          onFieldChange("peopleNarrative", event.target.value)
+        }
+        placeholder="Management may call records witnesses; several neighbors saw the entry but aren’t yet identified."
+      />
     </FormSection>
   );
 };

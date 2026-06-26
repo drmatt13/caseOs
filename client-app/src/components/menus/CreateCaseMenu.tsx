@@ -12,6 +12,7 @@ interface CreateCaseMenuProps {
     React.SetStateAction<CaseIntakeWizardState>
   >;
   hasUnsavedCaseIntake: boolean;
+  devSkipGating?: boolean;
 }
 
 const createCaseStepIcons: StepMenuIcon[] = [
@@ -28,7 +29,7 @@ const createCaseStepLabels = [
   { title: "Case Basics", subtitle: "Name, area, role" },
   { title: "Dispute", subtitle: "Claim & status" },
   { title: "Timeline", subtitle: "Key events" },
-  { title: "Goals", subtitle: "Objectives & risks" },
+  { title: "Goals", subtitle: "Objectives & theory" },
   { title: "Parties & witnesses", subtitle: "Involved parties" },
   { title: "Documents", subtitle: "Upload files" },
   { title: "Review", subtitle: "Generate case records" },
@@ -39,6 +40,7 @@ const CreateCaseMenu = ({
   caseIntakeState,
   setCaseIntakeState,
   hasUnsavedCaseIntake,
+  devSkipGating = false,
 }: CreateCaseMenuProps) => {
   const handleLeaveCreateCase = (event: MouseEvent<HTMLAnchorElement>) => {
     if (hasUnsavedCaseIntake) {
@@ -69,7 +71,7 @@ const CreateCaseMenu = ({
       <StepMenu
         steps={7}
         icons={createCaseStepIcons}
-        stepState={caseIntakeState.step}
+        stepState={devSkipGating ? 7 : caseIntakeState.step}
         setStepState={(step) => {
           setCaseIntakeState((prev) => ({ ...prev, step }));
         }}

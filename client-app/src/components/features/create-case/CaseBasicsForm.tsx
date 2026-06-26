@@ -44,6 +44,15 @@ const CaseBasicsForm = ({ caseIntake, onFieldChange }: CaseBasicsFormProps) => {
           placeholder="John Doe, Esq."
         />
         <TextInputField
+          label="Represented party"
+          description="The party your team represents (drives the “our side” labels)."
+          value={caseIntake.representedPartyName}
+          onChange={(event) =>
+            onFieldChange("representedPartyName", event.target.value)
+          }
+          placeholder="Orenthal James Simpson"
+        />
+        <TextInputField
           label="Jurisdiction or court"
           description="Court, tribunal, or governing jurisdiction."
           value={caseIntake.jurisdictionOrCourt}
@@ -51,6 +60,7 @@ const CaseBasicsForm = ({ caseIntake, onFieldChange }: CaseBasicsFormProps) => {
             onFieldChange("jurisdictionOrCourt", event.target.value)
           }
           placeholder="Superior Court of California, County of Los Angeles"
+          className="md:col-span-2"
         />
         <SelectField
           label="Practice area"
