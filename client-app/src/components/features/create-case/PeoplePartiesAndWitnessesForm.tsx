@@ -6,6 +6,7 @@ import type {
 import TextAreaField from "#/components/ui/TextAreaField";
 import {
   createIntakeItemId,
+  personHasAnchor,
   personRoleOptions,
   recordPartyOptions,
 } from "#/components/features/create-case/caseIntakeForm";
@@ -15,6 +16,7 @@ import {
   FormSection,
   InlineSelectField,
   InlineTextField,
+  PinnedAnchorsHeader,
   RepeaterCard,
 } from "#/components/features/create-case/fields";
 
@@ -64,11 +66,17 @@ const PeoplePartiesAndWitnessesForm = ({
       icon="users"
     >
       <div className="flex flex-col gap-3">
+        <PinnedAnchorsHeader
+          title="Add the key people (recommended)"
+          rationale="Locking each person's side here is the single highest-value input on the form — it's the costliest thing for the assistant to get wrong."
+        />
         {people.map((person) => (
           <RepeaterCard
             key={person.id}
             onRemove={() => removePerson(person.id)}
             removeLabel="Remove person"
+            incomplete={!personHasAnchor(person)}
+            incompleteHint="Add a name to keep this — empty rows aren't saved."
           >
             <div className="grid gap-3 md:grid-cols-2">
               <InlineTextField

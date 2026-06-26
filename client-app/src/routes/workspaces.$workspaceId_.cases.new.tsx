@@ -12,7 +12,9 @@ import ReviewForm from "#/components/features/create-case/ReviewForm";
 import NavigationPanel from "#/components/layouts/NavigationPanel";
 import {
   CASE_INTAKE_TOTAL_STEPS,
+  claimHasAnchor,
   initialCaseIntake,
+  pruneCaseIntake,
 } from "#/components/features/create-case/caseIntakeForm";
 import ContentShell from "#/components/layouts/ContentShell";
 import CreateCaseMenu from "#/components/menus/CreateCaseMenu";
@@ -117,9 +119,13 @@ function RouteComponent() {
   };
 
   const goToNextStep = () => {
+    // Prune anchorless repeater rows on advance so the agent only ever receives
+    // rows the user actually filled in (this also covers the final "Generate
+    // Workspace" press, which caps the step but still runs the prune).
     setCaseIntakeState((prev) => ({
       ...prev,
       step: Math.min(prev.step + 1, CASE_INTAKE_TOTAL_STEPS),
+      caseIntake: pruneCaseIntake(prev.caseIntake),
     }));
   };
 
@@ -149,8 +155,13 @@ function RouteComponent() {
           c.jurisdictionOrCourt,
         );
       case 2:
+        // Claims are "captured" by either the prose field or at least one
+        // anchored pinned claim — so pinning a claim without re-typing it as
+        // prose still satisfies the step.
         return (
-          filled(c.whatIsTheDisputeAbout, c.claimsAndDefenses) &&
+          filled(c.whatIsTheDisputeAbout) &&
+          (filled(c.claimsAndDefenses) ||
+            (c.claims ?? []).some(claimHasAnchor)) &&
           (c.currentCaseStatus === "pre_filing" || filled(c.caseNumber ?? ""))
         );
       case 3:

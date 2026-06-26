@@ -32,7 +32,14 @@ import {
   SUPPORT_STATUS_LABELS,
   recordPartyLabel,
 } from "#/lib/caseRecordPresentation";
+import {
+  coerceDateToPrecision,
+  DATE_PRECISION_SELECT_OPTIONS,
+} from "#/lib/datePrecision";
 import Button from "#/components/ui/Button";
+import PrecisionDateField, {
+  OptionalEndDateField,
+} from "#/components/ui/PrecisionDateField";
 import TextAreaField from "#/components/ui/TextAreaField";
 import { TextInputField } from "#/components/features/create-case/fields";
 
@@ -100,13 +107,6 @@ const SUPPORT_STATUS_OPTIONS = (
   Object.keys(SUPPORT_STATUS_LABELS) as SupportStatus[]
 ).filter((status) => status !== "UNKNOWN");
 const PARTY_OPTIONS: RecordParty[] = ["ours", "opposing"];
-const DATE_PRECISION_OPTIONS: DatePrecision[] = [
-  "year",
-  "month",
-  "day",
-  "minute",
-  "second",
-];
 const CLAIM_TYPE_OPTIONS: NonNullable<ClaimRecord["claimType"]>[] = [
   "affirmative",
   "counterclaim",
@@ -420,47 +420,58 @@ function RecordTypeFields({
   onChange: (next: Partial<RecordDraft>) => void;
 }) {
   switch (record.type) {
-    case "TIMELINE_EVENT":
+    case "TIMELINE_EVENT": {
+      const precision = draft.datePrecision ?? "day";
       return (
         <FieldBox title="Event details">
-          <label className="flex flex-col gap-1.5">
-            <FieldLabel>Event date (required)</FieldLabel>
-            <input
-              type="date"
-              className={compactInputClass}
-              value={draft.eventDate?.slice(0, 10) ?? ""}
-              onChange={(event) => onChange({ eventDate: event.target.value })}
-            />
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <FieldLabel>End date (optional)</FieldLabel>
-            <input
-              type="date"
-              className={compactInputClass}
-              value={draft.eventEndDate?.slice(0, 10) ?? ""}
-              onChange={(event) =>
-                onChange({ eventEndDate: event.target.value })
-              }
-            />
-          </label>
+          <PrecisionDateField
+            label="Event date (required)"
+            value={draft.eventDate}
+            precision={precision}
+            onChange={(next) => onChange({ eventDate: next })}
+            inputClassName={compactInputClass}
+          />
+          <OptionalEndDateField
+            value={draft.eventEndDate}
+            precision={precision}
+            onChange={(next) => onChange({ eventEndDate: next })}
+            inputClassName={compactInputClass}
+            min={draft.eventDate}
+          />
           <label className="flex flex-col gap-1.5">
             <FieldLabel>Date precision</FieldLabel>
             <select
               className={compactSelectClass}
-              value={draft.datePrecision ?? "day"}
-              onChange={(event) =>
-                onChange({ datePrecision: event.target.value as DatePrecision })
-              }
+              value={precision}
+              onChange={(event) => {
+                // Re-fit the stored dates to the new grain so display and the
+                // adaptive input never disagree (drop time when coarsening,
+                // seed a time when refining to a sub-day precision).
+                const next = event.target.value as DatePrecision;
+                onChange({
+                  datePrecision: next,
+                  eventDate: coerceDateToPrecision(draft.eventDate, next),
+                  ...(draft.eventEndDate
+                    ? {
+                        eventEndDate: coerceDateToPrecision(
+                          draft.eventEndDate,
+                          next,
+                        ),
+                      }
+                    : {}),
+                });
+              }}
             >
-              {DATE_PRECISION_OPTIONS.map((precision) => (
-                <option key={precision} value={precision}>
-                  {precision}
+              {DATE_PRECISION_SELECT_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
                 </option>
               ))}
             </select>
           </label>
         </FieldBox>
       );
+    }
 
     case "PERSON":
       return (

@@ -1,16 +1,23 @@
 import type { CaseIntake, CaseIntakeEvent } from "#/types/caseWorkspace";
+import { coerceDateToPrecision } from "#/lib/datePrecision";
+import PrecisionDateField, {
+  OptionalEndDateField,
+} from "#/components/ui/PrecisionDateField";
 import TextAreaField from "#/components/ui/TextAreaField";
 import {
   createIntakeItemId,
   datePrecisionOptions,
+  eventHasAnchor,
   eventKindOptions,
 } from "#/components/features/create-case/caseIntakeForm";
 import {
   AddRowButton,
   CheckboxField,
+  fieldClassName,
   FormSection,
   InlineSelectField,
   InlineTextField,
+  PinnedAnchorsHeader,
   RepeaterCard,
 } from "#/components/features/create-case/fields";
 
@@ -74,56 +81,82 @@ const TimelineAndUrgencyForm = ({
       </div>
 
       <div className="flex flex-col gap-3">
-        <p className="text-sm text-black/60">
-          Optional: pin the handful of dates that must be exact. Everything else
-          the assistant will extract from your narrative.
-        </p>
-        {keyEvents.map((event) => (
-          <RepeaterCard
-            key={event.id}
-            onRemove={() => removeEvent(event.id)}
-            removeLabel="Remove event"
-          >
-            <div className="grid gap-3 md:grid-cols-2">
-              <InlineTextField
-                label="What happened"
-                value={event.label}
-                onChange={(value) => updateEvent(event.id, { label: value })}
-                placeholder="Demand letter sent"
-                className="md:col-span-2"
-              />
-              <InlineTextField
-                label="Date"
-                type="date"
-                value={event.date ?? ""}
-                onChange={(value) => updateEvent(event.id, { date: value })}
-              />
-              <InlineSelectField
-                label="Date precision"
-                value={event.datePrecision ?? "day"}
-                onChange={(value) =>
-                  updateEvent(event.id, { datePrecision: value })
-                }
-                options={datePrecisionOptions}
-              />
-              <InlineSelectField
-                label="Kind"
-                value={event.kind ?? "incident"}
-                onChange={(value) => updateEvent(event.id, { kind: value })}
-                options={eventKindOptions}
-              />
-              <div className="flex items-end">
-                <CheckboxField
-                  label="Time-sensitive right now"
-                  checked={Boolean(event.isUrgent)}
-                  onChange={(checked) =>
-                    updateEvent(event.id, { isUrgent: checked })
-                  }
+        <PinnedAnchorsHeader
+          title="Pin an exact date (optional)"
+          rationale="For the handful of dates that must be precise. Everything else is extracted from your story above."
+        />
+        {keyEvents.map((event) => {
+          const precision = event.datePrecision ?? "day";
+          return (
+            <RepeaterCard
+              key={event.id}
+              onRemove={() => removeEvent(event.id)}
+              removeLabel="Remove event"
+              incomplete={!eventHasAnchor(event)}
+              incompleteHint="Add what happened or a date to keep this — empty rows aren't saved."
+            >
+              <div className="grid gap-3 md:grid-cols-2">
+                <InlineTextField
+                  label="What happened"
+                  value={event.label}
+                  onChange={(value) => updateEvent(event.id, { label: value })}
+                  placeholder="Demand letter sent"
+                  className="md:col-span-2"
                 />
+                <PrecisionDateField
+                  label="Date"
+                  value={event.date}
+                  precision={precision}
+                  onChange={(value) => updateEvent(event.id, { date: value })}
+                  className="grid gap-1.5"
+                  labelClassName="text-sm font-medium text-black/80"
+                  inputClassName={fieldClassName}
+                />
+                <OptionalEndDateField
+                  value={event.endDate}
+                  precision={precision}
+                  onChange={(value) => updateEvent(event.id, { endDate: value })}
+                  min={event.date}
+                  className="grid gap-1.5"
+                  labelClassName="text-sm font-medium text-black/80"
+                  inputClassName={fieldClassName}
+                />
+                <InlineSelectField
+                  label="Date precision"
+                  value={precision}
+                  onChange={(value) =>
+                    // Re-fit the pinned date(s) to the new grain so a fuzzy
+                    // "month" date and a precise "minute" timestamp round-trip
+                    // cleanly into the timeline event.
+                    updateEvent(event.id, {
+                      datePrecision: value,
+                      date: coerceDateToPrecision(event.date, value),
+                      ...(event.endDate
+                        ? { endDate: coerceDateToPrecision(event.endDate, value) }
+                        : {}),
+                    })
+                  }
+                  options={datePrecisionOptions}
+                />
+                <InlineSelectField
+                  label="Kind"
+                  value={event.kind ?? "incident"}
+                  onChange={(value) => updateEvent(event.id, { kind: value })}
+                  options={eventKindOptions}
+                />
+                <div className="flex items-end">
+                  <CheckboxField
+                    label="Time-sensitive right now"
+                    checked={Boolean(event.isUrgent)}
+                    onChange={(checked) =>
+                      updateEvent(event.id, { isUrgent: checked })
+                    }
+                  />
+                </div>
               </div>
-            </div>
-          </RepeaterCard>
-        ))}
+            </RepeaterCard>
+          );
+        })}
         <AddRowButton label="Add key date" onClick={addEvent} />
       </div>
 

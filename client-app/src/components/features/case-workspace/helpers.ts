@@ -2,13 +2,13 @@ import type { ClientRole } from "#/types/caseDomain";
 import type {
   CaseDocument,
   CaseSummaryRecord,
-  DatePrecision,
   GraphLink,
   RecordStatus,
   RecordType,
   TimelineEventRecord,
   TypedCaseRecord,
 } from "#/types/caseRecords";
+import { EVENT_DATE_FORMAT_OPTIONS } from "#/lib/datePrecision";
 import {
   linkTypeLabel,
   RECORD_DISPLAY_STATUS_CLASSES,
@@ -35,32 +35,6 @@ export function formatDate(iso?: string) {
     year: "numeric",
   });
 }
-
-// Intl options per precision. Coarse precisions read as approximate;
-// "minute"/"second" surface the time-of-day stored in `eventDate`.
-const EVENT_DATE_FORMAT_OPTIONS: Record<
-  DatePrecision,
-  Intl.DateTimeFormatOptions
-> = {
-  year: { year: "numeric" },
-  month: { month: "short", year: "numeric" },
-  day: { month: "short", day: "numeric", year: "numeric" },
-  minute: {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  },
-  second: {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit",
-  },
-};
 
 // Formats a timeline event's date at the granularity declared by its
 // `datePrecision` (default "day"). When the event carries an `eventEndDate`, the

@@ -223,14 +223,38 @@ export const CheckboxField = ({
   </label>
 );
 
+// Header for an optional "pin an anchor" repeater (claims / key dates / people).
+// Frames the repeater as subordinate to the prose narrative above it: a compact
+// title with the optionality inline, plus a one-line rationale for *why* you'd
+// pin a row instead of leaving it to the assistant.
+export const PinnedAnchorsHeader = ({
+  title,
+  rationale,
+}: {
+  title: string;
+  rationale: string;
+}) => (
+  <div className="flex flex-col gap-0.5">
+    <span className="text-md font-medium text-black">{title}</span>
+    <span className="text-sm text-black/60">{rationale}</span>
+  </div>
+);
+
 // A single removable entry in a repeater list (a person, event, or claim).
+// When `incomplete` is set, the row is missing its identifying anchor (name /
+// label) and will be discarded on advance — surfaced as a subtle inline note
+// (neutral, no pastel fill).
 export const RepeaterCard = ({
   onRemove,
   removeLabel = "Remove",
+  incomplete = false,
+  incompleteHint,
   children,
 }: {
   onRemove: () => void;
   removeLabel?: string;
+  incomplete?: boolean;
+  incompleteHint?: string;
   children: ReactNode;
 }) => (
   <div className="relative rounded-xl border border-black/15 bg-white/50 p-4 pr-11">
@@ -244,6 +268,9 @@ export const RepeaterCard = ({
       <X className="h-4 w-4" />
     </button>
     {children}
+    {incomplete && incompleteHint ? (
+      <p className="mt-3 text-sm text-black/50">{incompleteHint}</p>
+    ) : null}
   </div>
 );
 

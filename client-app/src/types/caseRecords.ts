@@ -181,10 +181,19 @@ export type RecordSubstatus =
   | NoteSubstatus;
 
 // Granularity of a timeline event's date — controls how much of the timestamp
-// is meaningful and therefore displayed. "day" is the default; "minute"/"second"
-// require a time component in `eventDate` (ISO 8601, e.g. "1994-06-12T22:25:00").
-// Coarser values ("year"/"month") also read as an approximate date.
-export type DatePrecision = "year" | "month" | "day" | "minute" | "second";
+// is meaningful and therefore displayed. Ordered coarse → fine. "day" is the
+// default; the sub-day precisions ("hour"/"minute"/"second") require a time
+// component in `eventDate` (ISO 8601, e.g. "1994-06-12T22:25:00") and "hour"
+// renders the hour only ("… 10 PM"). Coarser values ("year"/"month") read as an
+// approximate date. The single source of truth for the ordered set, display
+// formatting, and input behavior is `#/lib/datePrecision`.
+export type DatePrecision =
+  | "year"
+  | "month"
+  | "day"
+  | "hour"
+  | "minute"
+  | "second";
 
 // Semantic edge types in the knowledge graph.
 // Direction: fromRecord → type → toRecord

@@ -1,7 +1,9 @@
 import type {
   CaseIntake,
   CaseIntakeClaim,
+  CaseIntakeEvent,
   CaseIntakeEventKind,
+  CaseIntakePerson,
   CaseStatus,
   ClientRole,
   DatePrecision,
@@ -11,6 +13,7 @@ import type {
   RepresentationRole,
 } from "#/types/caseWorkspace";
 import type { RecordType } from "#/types/caseRecords";
+import { DATE_PRECISION_SELECT_OPTIONS } from "#/lib/datePrecision";
 
 export type CaseIntakeWizardState = {
   step: number;
@@ -165,13 +168,12 @@ export const eventKindOptions = buildOptions([
   "other",
 ] as const satisfies readonly CaseIntakeEventKind[]);
 
-// Intake offers the human-meaningful precisions; the type itself allows finer
-// (minute/second) values that the agent can set from a document.
-export const datePrecisionOptions: SelectOption<DatePrecision>[] = [
-  { value: "day", label: "Exact day" },
-  { value: "month", label: "Month only" },
-  { value: "year", label: "Year only" },
-];
+// Precision options for the timeline key-date anchors. Re-exported from the
+// single source of truth (#/lib/datePrecision) so intake, the workspace record
+// editor, and the date display all offer the same ordered set — coarse
+// "year"/"month" pins through exact "hour"/"minute"/"second" timestamps.
+export const datePrecisionOptions: SelectOption<DatePrecision>[] =
+  DATE_PRECISION_SELECT_OPTIONS;
 
 // Claim-anchor option set ─────────────────────────────────────────────────────
 
@@ -216,6 +218,36 @@ export const INTAKE_FIELD_SEEDS: Partial<Record<keyof CaseIntake, RecordType[]>>
     additionalContext: ["NOTE"],
     documents: ["DOCUMENT"],
   };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Anchor predicates + pruning.
+//
+// The structured repeaters (claims / key dates / people) are *optional anchors*
+// layered on top of the prose narratives — a user can "Add" a row and leave it
+// blank. A row "counts" only once its identifying anchor is present; anchorless
+// rows are pruned before the intake reaches the agent so it never seeds a record
+// from an empty row. The forms negate these same predicates to show the
+// "finish-or-it-won't-be-saved" hint.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const claimHasAnchor = (claim: CaseIntakeClaim) =>
+  claim.label.trim().length > 0;
+
+export const eventHasAnchor = (event: CaseIntakeEvent) =>
+  event.label.trim().length > 0 || Boolean(event.date);
+
+export const personHasAnchor = (person: CaseIntakePerson) =>
+  person.name.trim().length > 0;
+
+// Returns a copy of the intake with anchorless repeater rows removed. Run on
+// step advance and again before generation so the agent only ever sees rows
+// the user actually filled in.
+export const pruneCaseIntake = (intake: CaseIntake): CaseIntake => ({
+  ...intake,
+  claims: (intake.claims ?? []).filter(claimHasAnchor),
+  keyEvents: (intake.keyEvents ?? []).filter(eventHasAnchor),
+  people: intake.people.filter(personHasAnchor),
+});
 
 export const initialCaseIntake: CaseIntake = {
   id: "",

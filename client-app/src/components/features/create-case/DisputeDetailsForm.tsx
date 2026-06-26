@@ -2,6 +2,7 @@ import type { CaseIntake, CaseIntakeClaim } from "#/types/caseWorkspace";
 import TextAreaField from "#/components/ui/TextAreaField";
 import {
   caseStatusOptions,
+  claimHasAnchor,
   claimKindOptions,
   createIntakeItemId,
   recordPartyOptions,
@@ -11,6 +12,7 @@ import {
   FormSection,
   InlineSelectField,
   InlineTextField,
+  PinnedAnchorsHeader,
   RepeaterCard,
   SelectField,
   TextInputField,
@@ -73,7 +75,7 @@ const DisputeDetailsForm = ({
         />
         <TextAreaField
           label="Claims, defenses, and allegations"
-          description="Describe the claims, counterclaims, and defenses in play. The assistant will turn these into individual claim records."
+          description="Describe every claim, counterclaim, and defense in plain language. The assistant drafts a separate claim record for each one."
           value={caseIntake.claimsAndDefenses}
           onChange={(event) =>
             onFieldChange("claimsAndDefenses", event.target.value)
@@ -84,16 +86,17 @@ const DisputeDetailsForm = ({
       </div>
 
       <div className="flex flex-col gap-3">
-        <p className="text-sm text-black/60">
-          Optional: pin specific claims so each one starts as its own record with
-          the right side and type. Leave this empty and the assistant will draft
-          them from your description above.
-        </p>
+        <PinnedAnchorsHeader
+          title="Pin a claim (optional)"
+          rationale="Only to lock a claim's side and type so the assistant doesn't infer them. Otherwise leave this empty — claims are drafted from your description above."
+        />
         {claims.map((claim) => (
           <RepeaterCard
             key={claim.id}
             onRemove={() => removeClaim(claim.id)}
             removeLabel="Remove claim"
+            incomplete={!claimHasAnchor(claim)}
+            incompleteHint="Add a claim or defense to keep this — empty rows aren't saved."
           >
             <div className="grid gap-3 md:grid-cols-2">
               <InlineTextField
