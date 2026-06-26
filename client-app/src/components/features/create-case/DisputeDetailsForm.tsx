@@ -68,7 +68,7 @@ const DisputeDetailsForm = ({
           onChange={(event) =>
             onFieldChange("whatIsTheDisputeAbout", event.target.value)
           }
-          placeholder="Outline the underlying dispute and why the matter exists."
+          placeholder="Summarize the conflict, key events, and why legal action is being considered."
           className="md:col-span-2"
         />
         <TextAreaField
@@ -78,7 +78,7 @@ const DisputeDetailsForm = ({
           onChange={(event) =>
             onFieldChange("claimsAndDefenses", event.target.value)
           }
-          placeholder="Breach of contract and negligence; defenses of waiver and failure to mitigate; a c. 93A counterclaim."
+          placeholder="Breach of contract, negligence, statutory claim; defenses of waiver, consent, or failure to mitigate."
           className="md:col-span-2"
         />
       </div>
@@ -100,7 +100,7 @@ const DisputeDetailsForm = ({
                 label="Claim or defense"
                 value={claim.label}
                 onChange={(value) => updateClaim(claim.id, { label: value })}
-                placeholder="Breach of the implied warranty of habitability"
+                placeholder="Breach of contract"
                 className="md:col-span-2"
               />
               <InlineSelectField
@@ -121,7 +121,7 @@ const DisputeDetailsForm = ({
                 onChange={(event) =>
                   updateClaim(claim.id, { description: event.target.value })
                 }
-                placeholder="Elements at issue, who it runs against, current status..."
+                placeholder="Elements at issue, affected parties, current posture, and supporting facts..."
                 className="md:col-span-2"
               />
             </div>
@@ -152,7 +152,7 @@ const DisputeDetailsForm = ({
           onChange={(event) =>
             onFieldChange("knownAuthorities", event.target.value)
           }
-          placeholder="G.L. c. 93A; G.L. c. 186 §14; Berman v. Parker..."
+          placeholder="Relevant statute, rule, regulation, contract provision, or leading case..."
           className="md:col-span-2"
         />
       </div>

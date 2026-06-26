@@ -68,7 +68,7 @@ const TimelineAndUrgencyForm = ({
           onChange={(event) =>
             onFieldChange("narrativeOfEvents", event.target.value)
           }
-          placeholder="Tenants moved in 2021 and reported pest issues; landlord served a notice to quit on June 17, 2025; summary process filed October 14, 2025..."
+          placeholder="Agreement signed in March 2025; performance issue surfaced in June; demand letter sent October 14, 2025..."
           minRows={4}
         />
       </div>
@@ -89,7 +89,7 @@ const TimelineAndUrgencyForm = ({
                 label="What happened"
                 value={event.label}
                 onChange={(value) => updateEvent(event.id, { label: value })}
-                placeholder="Notice to quit served"
+                placeholder="Demand letter sent"
                 className="md:col-span-2"
               />
               <InlineTextField
@@ -135,7 +135,7 @@ const TimelineAndUrgencyForm = ({
           onChange={(event) =>
             onFieldChange("urgentDeadlines", event.target.value)
           }
-          placeholder="Opposition due April 22; discovery cutoff May 3; preservation risk on the entry logs..."
+          placeholder="Response due April 22; discovery cutoff May 3; preservation risk for key records..."
         />
       </div>
     </FormSection>

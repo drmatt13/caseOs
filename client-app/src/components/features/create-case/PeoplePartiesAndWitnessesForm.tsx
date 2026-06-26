@@ -75,7 +75,7 @@ const PeoplePartiesAndWitnessesForm = ({
                 label="Name"
                 value={person.name}
                 onChange={(value) => updatePerson(person.id, { name: value })}
-                placeholder="Jane Doe"
+                placeholder="Jordan Lee"
               />
               <InlineTextField
                 label="Organization (optional)"
@@ -83,7 +83,7 @@ const PeoplePartiesAndWitnessesForm = ({
                 onChange={(value) =>
                   updatePerson(person.id, { organization: value })
                 }
-                placeholder="SLG Legal Group"
+                placeholder="Acme Corporation"
               />
               <InlineSelectField
                 label="Role"
@@ -117,7 +117,7 @@ const PeoplePartiesAndWitnessesForm = ({
                     anticipatedTestimony: event.target.value,
                   })
                 }
-                placeholder="Will testify to move-in conditions and repeated in-person complaints."
+                placeholder="Will explain the key communications, decision process, and timeline."
                 className="md:col-span-2"
               />
               <CheckboxField
@@ -141,7 +141,7 @@ const PeoplePartiesAndWitnessesForm = ({
         onChange={(event) =>
           onFieldChange("peopleNarrative", event.target.value)
         }
-        placeholder="Management may call records witnesses; several neighbors saw the entry but aren’t yet identified."
+        placeholder="The opposing party may call records custodians; a former employee may have firsthand knowledge."
       />
     </FormSection>
   );

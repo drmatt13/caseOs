@@ -27,7 +27,7 @@ const GoalsObjectivesAndRisksForm = ({
           description="The principal goal for this matter."
           value={caseIntake.objective}
           onChange={(event) => onFieldChange("objective", event.target.value)}
-          placeholder="Dismiss claims, narrow discovery burden, obtain early settlement leverage..."
+          placeholder="Resolve early, narrow disputed issues, preserve leverage, or prepare for trial..."
         />
         <TextAreaField
           className="row-span-2 grid-rows-subgrid"
@@ -37,7 +37,7 @@ const GoalsObjectivesAndRisksForm = ({
           onChange={(event) =>
             onFieldChange("desiredOutcome", event.target.value)
           }
-          placeholder="Defense verdict, favorable settlement, injunction denied..."
+          placeholder="Favorable settlement, dispositive ruling, claims dismissed, injunction denied..."
         />
         <TextAreaField
           className="md:col-span-2"
@@ -47,7 +47,7 @@ const GoalsObjectivesAndRisksForm = ({
           onChange={(event) =>
             onFieldChange("theoryOfTheCase", event.target.value)
           }
-          placeholder="This was never a simple nonpayment case — the landlord's own delay and unauthorized entry drove the damages they now claim."
+          placeholder="The record shows our client acted reasonably, the other side ignored key facts, and the claimed relief is unsupported."
         />
         <TextAreaField
           className="md:col-span-2"
@@ -57,7 +57,7 @@ const GoalsObjectivesAndRisksForm = ({
           onChange={(event) =>
             onFieldChange("keyDisputedIssues", event.target.value)
           }
-          placeholder="Whether entry was authorized; whether habitability notice was given; whether damages were mitigated..."
+          placeholder="Whether the agreement was breached; whether notice was adequate; whether damages are supported..."
         />
         <TextAreaField
           className="row-span-2 grid-rows-subgrid"
@@ -67,7 +67,7 @@ const GoalsObjectivesAndRisksForm = ({
           onChange={(event) =>
             onFieldChange("opposingObjective", event.target.value)
           }
-          placeholder="Maximize damages, force business change, delay production..."
+          placeholder="Maximize recovery, force business change, delay resolution, or expand discovery..."
         />
         <TextAreaField
           className="row-span-2 grid-rows-subgrid"
@@ -75,7 +75,7 @@ const GoalsObjectivesAndRisksForm = ({
           description="The fact, motion, witness, or timeline risk that matters most now."
           value={caseIntake.biggestRisk ?? ""}
           onChange={(event) => onFieldChange("biggestRisk", event.target.value)}
-          placeholder="Adverse email chain, unprepared witness, discovery sanctions exposure..."
+          placeholder="Weak document trail, unprepared witness, adverse ruling, looming deadline..."
         />
         <TextAreaField
           className="md:col-span-2"
@@ -83,7 +83,7 @@ const GoalsObjectivesAndRisksForm = ({
           description="Sets the assistant’s initial priorities as it builds the workspace."
           value={caseIntake.focusFirst ?? ""}
           onChange={(event) => onFieldChange("focusFirst", event.target.value)}
-          placeholder="Reconstruct the entry timeline and flag every record missing documentary support."
+          placeholder="Build the core timeline, identify missing records, and flag unsupported allegations."
         />
         <TextAreaField
           className="md:col-span-2"

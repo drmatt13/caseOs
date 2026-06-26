@@ -31,7 +31,7 @@ const CaseBasicsForm = ({ caseIntake, onFieldChange }: CaseBasicsFormProps) => {
           description="Use the working matter name your team will recognize."
           value={caseIntake.caseName}
           onChange={(event) => onFieldChange("caseName", event.target.value)}
-          placeholder="Smith v. Jones"
+          placeholder="Client v. Counterparty"
           className="md:col-span-2"
         />
         <TextInputField
@@ -42,7 +42,7 @@ const CaseBasicsForm = ({ caseIntake, onFieldChange }: CaseBasicsFormProps) => {
           onChange={(event) =>
             onFieldChange("intakeProvidedBy", event.target.value)
           }
-          placeholder="John Doe, Esq."
+          placeholder="Case lead or intake attorney"
         />
         <TextInputField
           className="row-span-2 grid-rows-subgrid"
@@ -52,7 +52,7 @@ const CaseBasicsForm = ({ caseIntake, onFieldChange }: CaseBasicsFormProps) => {
           onChange={(event) =>
             onFieldChange("representedPartyName", event.target.value)
           }
-          placeholder="Orenthal James Simpson"
+          placeholder="Client name or represented entity"
         />
         <TextInputField
           label="Jurisdiction or court"
@@ -61,7 +61,7 @@ const CaseBasicsForm = ({ caseIntake, onFieldChange }: CaseBasicsFormProps) => {
           onChange={(event) =>
             onFieldChange("jurisdictionOrCourt", event.target.value)
           }
-          placeholder="Superior Court of California, County of Los Angeles"
+          placeholder="Court, agency, arbitral forum, or governing jurisdiction"
           className="md:col-span-2"
         />
         <SelectField
