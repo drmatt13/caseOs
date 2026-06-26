@@ -1,21 +1,26 @@
 import { ChevronRight } from "lucide-react";
 
+import type { RecordType } from "#/types/caseRecords";
 import {
   VIEW_DESCRIPTIONS,
   VIEW_LABELS,
 } from "#/lib/caseRecordPresentation";
-import Button from "#/components/ui/Button";
 
 import { recordDisplayStatus } from "../helpers";
+import { RecordCreateActions } from "../common";
 import { StatusBadge } from "../RecordBadges";
 import type { WorkspaceGraph } from "../useWorkspaceGraph";
 
 function PeopleView({
   graph,
   onOpenRecord,
+  onCreateRecord,
+  onGenerateRecord,
 }: {
   graph: WorkspaceGraph;
   onOpenRecord: (recordId: string) => void;
+  onCreateRecord: (type: RecordType) => void;
+  onGenerateRecord: (type: RecordType) => void;
 }) {
   const people = graph.records.filter((record) => record.type === "PERSON");
 
@@ -28,7 +33,12 @@ function PeopleView({
             {VIEW_DESCRIPTIONS.people}
           </p>
         </div>
-        <Button style="secondary" text="Add person" icon="userPlus" />
+        <RecordCreateActions
+          type="PERSON"
+          singular="person"
+          onCreate={onCreateRecord}
+          onGenerate={onGenerateRecord}
+        />
       </div>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         {people.map((person) => {

@@ -1,8 +1,14 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import type { ViewCount } from "#/components/menus/ActiveWorkspaceMenu";
+import type { RecordType } from "#/types/caseRecords";
 import { RECORD_TYPE_VIEW, type WorkspaceViewType } from "#/types/caseWorkspace";
 import { getCaseDemo } from "#/demo/caseDemos";
+
+// A request to open the create or generate modal for one record type. The `key`
+// changes on every open so the modal mounts a fresh editor (no stale draft)
+// while its shell still animates closed after the target clears.
+export type RecordCreationTarget = { type: RecordType; key: number };
 
 import { useWorkspaceGraph } from "./useWorkspaceGraph";
 import { recordMatchesSearch, type RecordFilterStatus } from "./helpers";
@@ -27,6 +33,13 @@ export function useCaseWorkspace(caseId: string) {
   );
   // Graph traversal: a stack of record ids opened in the inspector drawer.
   const [inspectorStack, setInspectorStack] = useState<string[]>([]);
+  // Create / Generate modal targets (the record type being authored or drafted).
+  const [createTarget, setCreateTarget] = useState<RecordCreationTarget | null>(
+    null,
+  );
+  const [generateTarget, setGenerateTarget] =
+    useState<RecordCreationTarget | null>(null);
+  const targetKeyRef = useRef(0);
   // Sticky inspector preference for accepted records as graph traversal moves
   // from one inspected record to the next.
   const [showProposedLinks, setShowProposedLinks] = useState(true);
@@ -53,6 +66,18 @@ export function useCaseWorkspace(caseId: string) {
 
   const inspectorBack = () => setInspectorStack((stack) => stack.slice(0, -1));
   const closeInspector = () => setInspectorStack([]);
+
+  const openCreate = (type: RecordType) => {
+    targetKeyRef.current += 1;
+    setCreateTarget({ type, key: targetKeyRef.current });
+  };
+  const closeCreate = () => setCreateTarget(null);
+
+  const openGenerate = (type: RecordType) => {
+    targetKeyRef.current += 1;
+    setGenerateTarget({ type, key: targetKeyRef.current });
+  };
+  const closeGenerate = () => setGenerateTarget(null);
 
   const handleSelectView = (view: WorkspaceViewType) => {
     setActiveView(view);
@@ -120,6 +145,12 @@ export function useCaseWorkspace(caseId: string) {
     openRecord,
     inspectorBack,
     closeInspector,
+    createTarget,
+    openCreate,
+    closeCreate,
+    generateTarget,
+    openGenerate,
+    closeGenerate,
     showProposedLinksValue,
     viewCounts,
     globalSearchResults,

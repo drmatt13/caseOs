@@ -1,21 +1,20 @@
+import type { RecordType } from "#/types/caseRecords";
 import { VIEW_RECORD_TYPE, type RecordViewType } from "#/types/caseWorkspace";
 import {
   SINGULAR_VIEW_LABELS,
   VIEW_DESCRIPTIONS,
   VIEW_LABELS,
 } from "#/lib/caseRecordPresentation";
-import Button from "#/components/ui/Button";
 
 import {
   recordFilterStatus,
   recordMatchesSearch,
   type RecordFilterStatus,
 } from "../helpers";
-import { EmptyState } from "../common";
+import { EmptyState, RecordCreateActions } from "../common";
 import { StatusFilter, WorkPanelSearch } from "../RecordFilters";
 import RecordCard from "../RecordCard";
 import type { WorkspaceGraph } from "../useWorkspaceGraph";
-import CaseNoteComposer from "./CaseNoteComposer";
 
 function RecordsView({
   activeView,
@@ -25,6 +24,8 @@ function RecordsView({
   selectedStatuses,
   setSelectedStatuses,
   onOpenRecord,
+  onCreateRecord,
+  onGenerateRecord,
 }: {
   activeView: RecordViewType;
   graph: WorkspaceGraph;
@@ -33,6 +34,8 @@ function RecordsView({
   selectedStatuses: RecordFilterStatus[];
   setSelectedStatuses: (statuses: RecordFilterStatus[]) => void;
   onOpenRecord: (recordId: string) => void;
+  onCreateRecord: (type: RecordType) => void;
+  onGenerateRecord: (type: RecordType) => void;
 }) {
   const recordType = VIEW_RECORD_TYPE[activeView];
   const singular = SINGULAR_VIEW_LABELS[activeView] ?? "record";
@@ -61,11 +64,12 @@ function RecordsView({
         </p>
       </div>
 
-      {activeView !== "notes" && (
-        <div className="flex justify-end">
-          <Button style="secondary" text={`Create ${singular}`} icon="plus" />
-        </div>
-      )}
+      <RecordCreateActions
+        type={recordType}
+        singular={singular}
+        onCreate={onCreateRecord}
+        onGenerate={onGenerateRecord}
+      />
 
       <WorkPanelSearch
         value={panelSearch}
@@ -77,10 +81,6 @@ function RecordsView({
         selectedStatuses={selectedStatuses}
         onSelectStatuses={setSelectedStatuses}
       />
-
-      {activeView === "notes" && (
-        <CaseNoteComposer onCreateCaseNote={graph.createNote} />
-      )}
 
       <div className="grid grid-cols-1 gap-3">
         {filteredRecords.length === 0 ? (

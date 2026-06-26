@@ -1,9 +1,41 @@
 import { FileText, Image as ImageIcon } from "lucide-react";
 
-import type { CaseDocument } from "#/types/caseRecords";
+import type { CaseDocument, RecordType } from "#/types/caseRecords";
 import Button from "#/components/ui/Button";
 
 import { isImageDocument } from "./helpers";
+
+// The Create + Generate action pair shown above every record list. Create opens
+// the manual editor; Generate opens the (stub) agent draft modal. Both are bound
+// to the view's record type, so the same pair drops into every record view.
+export function RecordCreateActions({
+  type,
+  singular,
+  onCreate,
+  onGenerate,
+}: {
+  type: RecordType;
+  singular: string;
+  onCreate: (type: RecordType) => void;
+  onGenerate: (type: RecordType) => void;
+}) {
+  return (
+    <div className="flex flex-wrap items-center justify-end gap-2">
+      <Button
+        style="secondary"
+        icon="plus"
+        text={`Create ${singular}`}
+        onClick={() => onCreate(type)}
+      />
+      <Button
+        style="secondary"
+        icon="sparkles"
+        text={`Generate ${singular}`}
+        onClick={() => onGenerate(type)}
+      />
+    </div>
+  );
+}
 
 // Placeholder affordance to open the underlying file/image. Wired to nothing
 // yet — the real viewer will stream the stored object. Lives in clickable card

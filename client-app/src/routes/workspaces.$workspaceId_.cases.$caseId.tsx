@@ -19,6 +19,8 @@ import { recordPartyLabel } from "#/lib/caseRecordPresentation";
 import { useCaseWorkspace } from "#/components/features/case-workspace/useCaseWorkspace";
 import { ShowProposedLinksContext } from "#/components/features/case-workspace/showProposedLinksContext";
 import RecordInspector from "#/components/features/case-workspace/RecordInspector";
+import RecordCreateModal from "#/components/features/case-workspace/RecordCreateModal";
+import GenerateRecordModal from "#/components/features/case-workspace/GenerateRecordModal";
 import GlobalSearchView from "#/components/features/case-workspace/views/GlobalSearchView";
 import OverviewView from "#/components/features/case-workspace/views/OverviewView";
 import AgentView from "#/components/features/case-workspace/views/AgentView";
@@ -66,6 +68,12 @@ function RouteComponent() {
     openRecord,
     inspectorBack,
     closeInspector,
+    createTarget,
+    openCreate,
+    closeCreate,
+    generateTarget,
+    openGenerate,
+    closeGenerate,
     showProposedLinksValue,
     viewCounts,
     globalSearchResults,
@@ -175,7 +183,12 @@ function RouteComponent() {
             ) : activeView === "documents" ? (
               <DocumentsView graph={graph} onOpenRecord={openRecord} />
             ) : activeView === "people" ? (
-              <PeopleView graph={graph} onOpenRecord={openRecord} />
+              <PeopleView
+                graph={graph}
+                onOpenRecord={openRecord}
+                onCreateRecord={openCreate}
+                onGenerateRecord={openGenerate}
+              />
             ) : activeView === "timeline" ? (
               <TimelineView
                 graph={graph}
@@ -184,6 +197,8 @@ function RouteComponent() {
                 selectedStatuses={selectedStatuses}
                 setSelectedStatuses={setSelectedStatuses}
                 onOpenRecord={openRecord}
+                onCreateRecord={openCreate}
+                onGenerateRecord={openGenerate}
               />
             ) : (
               <RecordsView
@@ -194,6 +209,8 @@ function RouteComponent() {
                 selectedStatuses={selectedStatuses}
                 setSelectedStatuses={setSelectedStatuses}
                 onOpenRecord={openRecord}
+                onCreateRecord={openCreate}
+                onGenerateRecord={openGenerate}
               />
             )}
           </div>
@@ -208,6 +225,18 @@ function RouteComponent() {
           onBack={inspectorBack}
           onClose={closeInspector}
         />
+
+        <RecordCreateModal
+          target={createTarget}
+          graph={graph}
+          onClose={closeCreate}
+          onCreated={(record) => {
+            closeCreate();
+            openRecord(record.id);
+          }}
+        />
+
+        <GenerateRecordModal target={generateTarget} onClose={closeGenerate} />
       </AppLayout>
     </ShowProposedLinksContext.Provider>
   );

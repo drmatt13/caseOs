@@ -24,7 +24,7 @@ function AgentView({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      {/* <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="flex items-center gap-2 font-serif text-lg">
             <Bot className="h-5 w-5" />
@@ -41,9 +41,9 @@ function AgentView({
           text={showInstructions ? "Hide instructions" : "Agent instructions"}
           onClick={() => setShowInstructions((value) => !value)}
         />
-      </div>
+      </div> */}
 
-      {showInstructions && (
+      {/* {showInstructions && (
         <section className="rounded-xl border border-black/15 bg-black/[0.03] p-4">
           <h3 className="text-sm font-medium text-black/70">
             Standing instructions
@@ -87,7 +87,7 @@ function AgentView({
             </div>
           </div>
         </section>
-      )}
+      )} */}
 
       <section className="flex flex-col gap-3 rounded-xl border border-black/15 bg-white/65 p-4">
         {graph.demo.agentThread.map((message) => (

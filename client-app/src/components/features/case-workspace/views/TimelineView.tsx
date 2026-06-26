@@ -1,8 +1,7 @@
 import { CalendarDays } from "lucide-react";
 
-import type { TimelineEventRecord } from "#/types/caseRecords";
+import type { RecordType, TimelineEventRecord } from "#/types/caseRecords";
 import { VIEW_DESCRIPTIONS, VIEW_LABELS } from "#/lib/caseRecordPresentation";
-import Button from "#/components/ui/Button";
 
 import {
   formatEventDate,
@@ -11,7 +10,7 @@ import {
   recordMatchesSearch,
   type RecordFilterStatus,
 } from "../helpers";
-import { EmptyState } from "../common";
+import { EmptyState, RecordCreateActions } from "../common";
 import { StatusFilter, WorkPanelSearch } from "../RecordFilters";
 import RecordCard from "../RecordCard";
 import type { WorkspaceGraph } from "../useWorkspaceGraph";
@@ -23,6 +22,8 @@ function TimelineView({
   selectedStatuses,
   setSelectedStatuses,
   onOpenRecord,
+  onCreateRecord,
+  onGenerateRecord,
 }: {
   graph: WorkspaceGraph;
   panelSearch: string;
@@ -30,6 +31,8 @@ function TimelineView({
   selectedStatuses: RecordFilterStatus[];
   setSelectedStatuses: (statuses: RecordFilterStatus[]) => void;
   onOpenRecord: (recordId: string) => void;
+  onCreateRecord: (type: RecordType) => void;
+  onGenerateRecord: (type: RecordType) => void;
 }) {
   const events = graph.records
     .filter((record): record is TimelineEventRecord => {
@@ -57,9 +60,12 @@ function TimelineView({
         </p>
       </div>
 
-      <div className="flex justify-end">
-        <Button style="secondary" text="Create timeline event" icon="plus" />
-      </div>
+      <RecordCreateActions
+        type="TIMELINE_EVENT"
+        singular="timeline event"
+        onCreate={onCreateRecord}
+        onGenerate={onGenerateRecord}
+      />
 
       <WorkPanelSearch
         value={panelSearch}

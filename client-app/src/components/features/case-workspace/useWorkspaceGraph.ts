@@ -4,9 +4,8 @@ import type {
   GraphLink,
   LinkStatus,
   QuestionSubstatus,
-  RecordParty,
   RecordStatus,
-  RecordSubstatus,
+  RecordType,
   SupportStatus,
   TaskSubstatus,
   TypedCaseRecord,
@@ -18,17 +17,7 @@ import {
   SUPPORT_STATUS_LABELS,
 } from "#/lib/caseRecordPresentation";
 
-export type ProposalDraftUpdate = {
-  title: string;
-  summary: string;
-  content: string;
-  category: string;
-  supportStatus?: SupportStatus;
-  supportStatusExplanation: string;
-  substatus?: RecordSubstatus;
-  party?: RecordParty;
-  links: GraphLink[];
-};
+import type { RecordDraft } from "./RecordDraftEditor";
 
 export type ProposalDecision = {
   status: "accepted";
@@ -61,8 +50,65 @@ function isAuthoritative(status: RecordStatus) {
   return status === "ACCEPTED" || status === "PENDING_REPLACEMENT";
 }
 
+// The type-specific fields a draft contributes to a record, keyed by record
+// type. Returned as a loose object spread onto the record being built/edited, so
+// both createRecord and saveProposalDraft persist per-type essentials uniformly.
+// QUESTION couples answer⟺substatus (ANSWERED iff a non-empty answer exists).
+function typedFieldsFromDraft(
+  type: RecordType,
+  draft: RecordDraft,
+): Record<string, unknown> {
+  switch (type) {
+    case "QUESTION": {
+      const answer = draft.answer?.trim() ? draft.answer : undefined;
+      return { answer, substatus: answer ? "ANSWERED" : "UNANSWERED" };
+    }
+    case "TASK":
+      return { dueDate: draft.dueDate?.trim() ? draft.dueDate : undefined };
+    case "FACT":
+      return { isContextual: draft.isContextual ?? false };
+    case "TIMELINE_EVENT":
+      return {
+        eventDate: draft.eventDate ?? "",
+        eventEndDate: draft.eventEndDate?.trim()
+          ? draft.eventEndDate
+          : undefined,
+        datePrecision: draft.datePrecision ?? "day",
+      };
+    case "LEGAL_PRECEDENT":
+      return {
+        citation: draft.citation?.trim() ? draft.citation : undefined,
+        jurisdiction: draft.jurisdiction?.trim()
+          ? draft.jurisdiction
+          : undefined,
+        court: draft.court?.trim() ? draft.court : undefined,
+        citeChecked: draft.citeChecked ?? false,
+      };
+    case "NOTE":
+      return { pinned: draft.pinned ?? false };
+    case "CLAIM":
+      return { claimType: draft.claimType };
+    case "ISSUE":
+      return { issueType: draft.issueType };
+    case "PERSON": {
+      // Title is hidden for people; keep it synced to the name so cards, search,
+      // and the inspector (which read `title`) still show the person's name.
+      const name = draft.name?.trim() ? draft.name.trim() : draft.title.trim();
+      return {
+        name,
+        title: name,
+        roles: draft.roles ?? [],
+        organization: draft.organization?.trim()
+          ? draft.organization
+          : undefined,
+      };
+    }
+    default:
+      return {};
+  }
+}
+
 export function useWorkspaceGraph(demo: CaseDemo) {
-  const [localNotes, setLocalNotes] = useState<TypedCaseRecord[]>([]);
   const [deletedRecordIds, setDeletedRecordIds] = useState<string[]>([]);
   const [editedRecords, setEditedRecords] = useState<
     Record<string, TypedCaseRecord>
@@ -93,7 +139,7 @@ export function useWorkspaceGraph(demo: CaseDemo) {
   const [addedRecords, setAddedRecords] = useState<TypedCaseRecord[]>([]);
 
   const records = useMemo(() => {
-    const baseRecords = [...addedRecords, ...localNotes, ...demo.records];
+    const baseRecords = [...addedRecords, ...demo.records];
     return baseRecords
       .map((record) => editedRecords[record.id] ?? record)
       .filter((record) => !deletedRecordIds.includes(record.id))
@@ -123,7 +169,6 @@ export function useWorkspaceGraph(demo: CaseDemo) {
       });
   }, [
     addedRecords,
-    localNotes,
     demo.records,
     editedRecords,
     deletedRecordIds,
@@ -426,7 +471,7 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     setAddedRecords((existing) => [revision, ...existing]);
   };
 
-  const saveProposalDraft = (recordId: string, draft: ProposalDraftUpdate) => {
+  const saveProposalDraft = (recordId: string, draft: RecordDraft) => {
     const source = recordsById.get(recordId);
     if (!source || effectiveStatus(source) !== "PROPOSED") return;
 
@@ -444,6 +489,9 @@ export function useWorkspaceGraph(demo: CaseDemo) {
       substatus: draft.substatus,
       party: draft.party,
       updatedAt: now,
+      // Per-type essentials (event date, person name/roles, answer, …). Spread
+      // last so the QUESTION answer⟺substatus coupling overrides draft.substatus.
+      ...typedFieldsFromDraft(source.type, draft),
     } as TypedCaseRecord;
 
     const incidentLinkIds = new Set<string>();
@@ -599,31 +647,60 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     });
   };
 
-  const createNote = (content: string) => {
-    const trimmed = content.trim();
-    if (!trimmed) return;
+  // Author a brand-new record from a manual draft (the create counterpart to
+  // saveProposalDraft). `id` is the skeleton id the create editor used, so links
+  // curated during creation already point at it. `asProposal` routes the record
+  // through the review queue (PROPOSED); otherwise it is added directly as an
+  // ACCEPTED, human-approved record. Like every mutation here, it lives in
+  // session state only. Returns the created record so the caller can open it.
+  const createRecord = (input: {
+    id: string;
+    type: RecordType;
+    draft: RecordDraft;
+    asProposal: boolean;
+  }): TypedCaseRecord | undefined => {
+    const { id, type, draft, asProposal } = input;
+    if (!draft.title.trim()) return undefined;
 
-    setLocalNotes((notes) => [
-      {
-        id: `note-local-${Date.now()}`,
-        workspaceId: demo.workspaceId,
-        caseId: demo.caseId,
-        type: "NOTE",
-        title: trimmed.split("\n")[0].slice(0, 72),
-        summary: "New working case note captured in the workspace.",
-        content: trimmed,
-        category: "Case note",
-        status: "ACCEPTED",
-        version: 1,
-        createdBy: "human",
-        createdByUserId: demo.userId,
-        approvedByUserId: demo.userId,
-        approvedAt: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-      ...notes,
-    ]);
+    const now = new Date().toISOString();
+    const record = {
+      id,
+      workspaceId: demo.workspaceId,
+      caseId: demo.caseId,
+      type,
+      title: draft.title.trim(),
+      summary: draft.summary.trim() ? draft.summary : undefined,
+      content: draft.content,
+      category: draft.category.trim() ? draft.category : undefined,
+      party: draft.party,
+      supportStatus: draft.supportStatus,
+      supportStatusExplanation:
+        draft.supportStatus && draft.supportStatusExplanation.trim()
+          ? draft.supportStatusExplanation
+          : undefined,
+      substatus: draft.substatus,
+      status: asProposal ? "PROPOSED" : "ACCEPTED",
+      version: 1,
+      createdBy: "human",
+      createdByUserId: demo.userId,
+      approvedByUserId: asProposal ? undefined : demo.userId,
+      approvedAt: asProposal ? undefined : now,
+      createdAt: now,
+      updatedAt: now,
+      ...typedFieldsFromDraft(type, draft),
+    } as TypedCaseRecord;
+
+    setAddedRecords((existing) => [record, ...existing]);
+    if (draft.links.length > 0) {
+      setEditedLinks((existing) => {
+        const next = { ...existing };
+        for (const link of draft.links) {
+          next[link.id] = link;
+        }
+        return next;
+      });
+    }
+    return record;
   };
 
   return {
@@ -649,8 +726,8 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     dismissSupportMetadataProposal,
     requestAgentRevision,
     saveProposalDraft,
+    createRecord,
     deleteRecord,
-    createNote,
   };
 }
 
