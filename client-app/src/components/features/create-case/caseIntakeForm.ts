@@ -7,15 +7,18 @@ import type {
   CaseIntakeTask,
   CaseStatus,
   ClientRole,
+  CourtSystem,
   DatePrecision,
   IntakePerspective,
   PersonRole,
   RecordParty,
   RepresentationPracticeArea,
   RepresentationRole,
+  UsStateCode,
 } from "#/types/caseWorkspace";
 import type { RecordType } from "#/types/caseRecords";
 import { DATE_PRECISION_SELECT_OPTIONS } from "#/lib/datePrecision";
+import { US_STATES } from "#/lib/usJurisdictions";
 
 export type CaseIntakeWizardState = {
   step: number;
@@ -114,6 +117,34 @@ export const caseStatusOptions = buildOptions([
   "post_trial",
   "appeal",
 ] as const satisfies readonly CaseStatus[]);
+
+// Court-system + state anchors ────────────────────────────────────────────────
+
+// Structured complement to the free-text court name. "other" covers the tribal,
+// administrative, arbitral, and foreign forums the prose field still spells out.
+export const courtSystemOptions: SelectOption<CourtSystem>[] = [
+  { value: "federal", label: "Federal" },
+  { value: "state", label: "State" },
+  { value: "other", label: "Other" },
+];
+
+// Same enum values, plain-language labels for a self-represented litigant.
+const courtSystemProSeOptions: SelectOption<CourtSystem>[] = [
+  { value: "federal", label: "Federal court" },
+  { value: "state", label: "State court" },
+  { value: "other", label: "Not sure / another court" },
+];
+
+export const getCourtSystemOptions = (
+  perspective: IntakePerspective,
+): SelectOption<CourtSystem>[] =>
+  perspective === "self" ? courtSystemProSeOptions : courtSystemOptions;
+
+// US states / DC shown when courtSystem is "state". Built from the shared lib
+// list so corpus-selection features reuse one source of truth.
+export const usStateOptions: SelectOption<UsStateCode>[] = US_STATES.map(
+  ({ value, label }) => ({ value, label }),
+);
 
 // People-repeater option sets ────────────────────────────────────────────────
 

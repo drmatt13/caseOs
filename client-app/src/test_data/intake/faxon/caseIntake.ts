@@ -11,6 +11,8 @@ const caseIntake: CaseIntake = {
   clientRole: "defendant",
   representedPartyName: "Matthew Sweeney and household",
   jurisdictionOrCourt: "Massachusetts Housing Court, Metro South Division",
+  courtSystem: "state",
+  jurisdictionState: "MA",
 
   whatIsTheDisputeAbout:
     "This is a residential landlord-tenant dispute arising from a summary process eviction at Faxon Commons in Quincy, Massachusetts. Although Plaintiffs frame the matter as a simple nonpayment case, Defendants contend the case also involves long-standing habitability issues, unauthorized entry into the apartment, interference with quiet enjoyment, unfair and deceptive conduct, and damages that were increased by Plaintiffs' delay in filing and handling the eviction process.",

@@ -8,6 +8,7 @@ import type { RecordType } from "./caseRecords";
 export type {
   CaseStatus,
   ClientRole,
+  CourtSystem,
   DocumentCategory,
   IntakePerspective,
   RepresentationPracticeArea,
@@ -24,6 +25,7 @@ export type {
   PersonRole,
   DatePrecision,
   RecordParty,
+  UsStateCode,
 } from "./caseIntake";
 
 // ─────────────────────────────────────────────────────────────────────────────

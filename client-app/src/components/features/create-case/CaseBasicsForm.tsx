@@ -1,13 +1,21 @@
 import { useEffect, useRef } from "react";
 
-import type { CaseIntake, IntakePerspective } from "#/types/caseWorkspace";
+import type {
+  CaseIntake,
+  CourtSystem,
+  IntakePerspective,
+  UsStateCode,
+} from "#/types/caseWorkspace";
 import {
   clientRoleOptions,
   clientRoleToProSeStance,
+  getCourtSystemOptions,
   proSeStanceOptions,
   proSeStanceToClientRole,
   representationPracticeAreaOptions,
   representationRoleOptions,
+  usStateOptions,
+  type SelectOption,
 } from "#/components/features/create-case/caseIntakeForm";
 import {
   FormSection,
@@ -91,6 +99,26 @@ const CaseBasicsForm = ({
     onFieldChange("intakeProvidedBy", value);
   };
 
+  // Jurisdiction is optional and never guessed, so both selects lead with an
+  // empty placeholder: blank means "not chosen yet", written back as undefined.
+  const courtSystemOpts: SelectOption<CourtSystem | "">[] = [
+    { value: "", label: "Select court system…" },
+    ...getCourtSystemOptions(caseIntake.intakePerspective),
+  ];
+  const stateOpts: SelectOption<UsStateCode | "">[] = [
+    { value: "", label: "Select a state…" },
+    ...usStateOptions,
+  ];
+
+  const handleCourtSystemChange = (value: CourtSystem | "") => {
+    onFieldChange("courtSystem", value || undefined);
+    // Leaving "State" makes a pinned state stale — drop it so the two never
+    // disagree.
+    if (value !== "state" && caseIntake.jurisdictionState) {
+      onFieldChange("jurisdictionState", undefined);
+    }
+  };
+
   return (
     <FormSection
       title="Case Basics"
@@ -146,6 +174,24 @@ const CaseBasicsForm = ({
               }
               options={representationPracticeAreaOptions}
             />
+            <SelectField
+              label="Is this in federal or state court?"
+              description="You can change this later if you're not sure yet."
+              value={caseIntake.courtSystem ?? ""}
+              onChange={handleCourtSystemChange}
+              options={courtSystemOpts}
+            />
+            {caseIntake.courtSystem === "state" && (
+              <SelectField
+                label="Which state?"
+                description="The state whose courts are handling your case."
+                value={caseIntake.jurisdictionState ?? ""}
+                onChange={(value) =>
+                  onFieldChange("jurisdictionState", value || undefined)
+                }
+                options={stateOpts}
+              />
+            )}
             <TextInputField
               label="Which court? (if you know)"
               description="The court or agency handling your case. Leave blank if you're not sure yet."
@@ -189,6 +235,24 @@ const CaseBasicsForm = ({
               placeholder="Court, agency, arbitral forum, or governing jurisdiction"
               className="md:col-span-2"
             />
+            <SelectField
+              label="Court system"
+              description="Federal, state, or another forum — helps target the right body of law later."
+              value={caseIntake.courtSystem ?? ""}
+              onChange={handleCourtSystemChange}
+              options={courtSystemOpts}
+            />
+            {caseIntake.courtSystem === "state" && (
+              <SelectField
+                label="State"
+                description="Which state's law governs. Drives state-specific legal references."
+                value={caseIntake.jurisdictionState ?? ""}
+                onChange={(value) =>
+                  onFieldChange("jurisdictionState", value || undefined)
+                }
+                options={stateOpts}
+              />
+            )}
             <SelectField
               label="Practice area"
               description="Primary practice area for this representation."

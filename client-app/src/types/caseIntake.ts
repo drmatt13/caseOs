@@ -1,6 +1,7 @@
 import type {
   CaseStatus,
   ClientRole,
+  CourtSystem,
   DocumentCategory,
   DocumentProcessingStatus,
   IntakePerspective,
@@ -9,11 +10,13 @@ import type {
   RepresentationRole,
 } from "./caseDomain";
 import type { DatePrecision, RecordParty } from "./caseRecords";
+import type { UsStateCode } from "#/lib/usJurisdictions";
 
 // Re-export so intake-adjacent code can import from one place
 export type {
   CaseStatus,
   ClientRole,
+  CourtSystem,
   DocumentCategory,
   DocumentProcessingStatus,
   IntakePerspective,
@@ -22,6 +25,7 @@ export type {
   RepresentationRole,
   DatePrecision,
   RecordParty,
+  UsStateCode,
 };
 
 export interface CaseIntakeDocument {
@@ -161,6 +165,12 @@ export interface CaseIntake {
   // the whole workspace. (Was defined-but-never-collected previously.)
   representedPartyName: string;
   jurisdictionOrCourt: string;
+  // Structured complement to the free-text court name above. Optional like the
+  // court name itself (not part of the step-1 gate): when present they give later
+  // features (e.g. corpus selection) a stable signal without parsing the prose.
+  // `jurisdictionState` is only meaningful when `courtSystem` is "state".
+  courtSystem?: CourtSystem;
+  jurisdictionState?: UsStateCode;
 
   // ── Dispute (required narrative + procedural spine) ──────────────────────
   whatIsTheDisputeAbout: string;

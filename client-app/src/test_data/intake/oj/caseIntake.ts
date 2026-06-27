@@ -11,6 +11,8 @@ const caseIntake: CaseIntake = {
   clientRole: "defendant",
   representedPartyName: "Orenthal James Simpson",
   jurisdictionOrCourt: "Superior Court of California, County of Los Angeles",
+  courtSystem: "state",
+  jurisdictionState: "CA",
 
   whatIsTheDisputeAbout:
     "The State alleges that Orenthal James Simpson committed the murders of Nicole Brown Simpson and Ronald Goldman. The defense disputes the allegations and intends to challenge the reliability of the physical evidence, the police investigation, witness timelines, and the prosecution's theory of identity and motive.",

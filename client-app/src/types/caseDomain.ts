@@ -67,6 +67,12 @@ export type CaseStatus =
   | "post_trial"
   | "appeal";
 
+// The court system a matter sits in. A structured complement to the free-text
+// `jurisdictionOrCourt` so later features (e.g. selecting the right legal corpus)
+// can branch on federal vs. state law without parsing prose. "other" covers
+// tribal, administrative, arbitral, and foreign forums the free-text still names.
+export type CourtSystem = "federal" | "state" | "other";
+
 export type DocumentCategory =
   | "evidence"
   | "research"
