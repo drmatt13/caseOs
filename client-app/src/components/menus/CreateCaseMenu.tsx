@@ -15,6 +15,9 @@ interface CreateCaseMenuProps {
   // Highest step the user may jump to: every step before it is valid. Computed in
   // the route from isStepComplete so the menu and the Next button share one rule.
   maxUnlockedStep: number;
+  // Steps 1..completedThroughStep render as checked: moved past (visited) AND
+  // still valid. Shrinks when an earlier step is broken, regardless of cursor.
+  completedThroughStep: number;
 }
 
 const createCaseStepIcons: StepMenuIcon[] = [
@@ -45,6 +48,7 @@ const CreateCaseMenu = ({
   setCaseIntakeState,
   hasUnsavedCaseIntake,
   maxUnlockedStep,
+  completedThroughStep,
 }: CreateCaseMenuProps) => {
   const handleLeaveCreateCase = (event: MouseEvent<HTMLAnchorElement>) => {
     if (hasUnsavedCaseIntake) {
@@ -77,6 +81,7 @@ const CreateCaseMenu = ({
         icons={createCaseStepIcons}
         stepState={caseIntakeState.step}
         maxUnlockedStep={maxUnlockedStep}
+        completedThroughStep={completedThroughStep}
         setStepState={(step) => {
           setCaseIntakeState((prev) => ({ ...prev, step }));
         }}

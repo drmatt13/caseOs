@@ -77,7 +77,11 @@ function RouteComponent() {
   );
 
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-  const [devSkipGating, setDevSkipGating] = useState(true);
+  const [devSkipGating, setDevSkipGating] = useState(false);
+  // High-water mark: the furthest step the user has ever navigated to (by Next or
+  // menu). Both unlocking and check marks key off visitation, not raw validity,
+  // so optional steps don't cascade-unlock or pre-check before they're visited.
+  const [maxStepReached, setMaxStepReached] = useState(1);
 
   const hasUnsavedCaseIntake =
     uploadedFiles.length > 0 ||
@@ -93,6 +97,8 @@ function RouteComponent() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
+    // Record any new high-water step reached (covers Next, Back, and menu jumps).
+    setMaxStepReached((prev) => Math.max(prev, caseIntakeState.step));
   }, [caseIntakeState.step]);
 
   if (getUserPending || getWorkspacePending) {
@@ -182,17 +188,30 @@ function RouteComponent() {
     }
   };
 
-  // How far the user may jump in the step menu. Best-practice wizard navigation:
-  // you can always go back, and you can skip *forward* only through a valid
-  // prefix — every step before the target must be complete. The first incomplete
-  // step is the frontier; you can reach it but not jump past it. The current step
-  // stays reachable even if an earlier edit broke the chain.
-  let furthestUnlockedStep = 1;
-  for (let s = 1; s < CASE_INTAKE_TOTAL_STEPS; s++) {
-    if (!isStepComplete(s)) break;
-    furthestUnlockedStep = s + 1;
+  // The furthest step the user has actually navigated to. Using the live cursor
+  // here too avoids a one-render lag when this render is the one that moved.
+  const reachedStep = Math.max(maxStepReached, caseIntakeState.step);
+
+  // The leading run of *visited AND valid* steps. Gating on visitation is what
+  // stops trivially-valid optional steps (Timeline, Tasks) from cascade-unlocking
+  // before they're opened: the frontier only ever advances one visited step at a
+  // time. Editing an earlier step back to invalid shrinks this run, so later
+  // steps gray out; fixing it re-extends the run.
+  let clearedThroughStep = 0;
+  for (let s = 1; s <= CASE_INTAKE_TOTAL_STEPS; s++) {
+    if (s > reachedStep || !isStepComplete(s)) break;
+    clearedThroughStep = s;
   }
-  furthestUnlockedStep = Math.max(furthestUnlockedStep, caseIntakeState.step);
+  // You can reach any cleared step, plus the first uncleared one (the frontier),
+  // plus wherever the cursor currently is (never lock the visible screen).
+  const maxUnlockedStep = Math.min(
+    CASE_INTAKE_TOTAL_STEPS,
+    Math.max(clearedThroughStep + 1, caseIntakeState.step),
+  );
+  // A step is checked once it's been *moved past* (a later step was reached) and
+  // is still cleared — so the furthest step you're sitting on isn't checked until
+  // you proceed, and navigating back keeps every earned check.
+  const completedThroughStep = Math.min(clearedThroughStep, reachedStep - 1);
 
   const renderStep = () => {
     switch (caseIntakeState.step) {
@@ -277,7 +296,8 @@ function RouteComponent() {
           caseIntakeState={caseIntakeState}
           setCaseIntakeState={setCaseIntakeState}
           hasUnsavedCaseIntake={hasUnsavedCaseIntake}
-          maxUnlockedStep={furthestUnlockedStep}
+          maxUnlockedStep={maxUnlockedStep}
+          completedThroughStep={completedThroughStep}
         />
       </NavigationPanel>
       <ContentShell showWorkspaceSettings={canManageWorkspace}>
