@@ -3,10 +3,11 @@ import type { CaseIntake } from "#/types/caseWorkspace";
 const caseIntake: CaseIntake = {
   id: "case-intake-faxon-commons-001",
 
+  intakePerspective: "self",
   caseName: "Faxon Commons v. Sweeney",
   intakeProvidedBy: "Matthew Sweeney, Defendant (Pro Se)",
   representationPracticeArea: "landlord_tenant",
-  representationRole: "other",
+  representationRole: "pro_se",
   clientRole: "defendant",
   representedPartyName: "Matthew Sweeney and household",
   jurisdictionOrCourt: "Massachusetts Housing Court, Metro South Division",

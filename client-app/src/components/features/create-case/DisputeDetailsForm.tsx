@@ -1,10 +1,10 @@
 import type { CaseIntake, CaseIntakeClaim } from "#/types/caseWorkspace";
 import TextAreaField from "#/components/ui/TextAreaField";
 import {
-  caseStatusOptions,
   claimHasAnchor,
-  claimKindOptions,
   createIntakeItemId,
+  getCaseStatusOptions,
+  getClaimKindOptions,
   recordPartyOptions,
 } from "#/components/features/create-case/caseIntakeForm";
 import {
@@ -30,6 +30,7 @@ const DisputeDetailsForm = ({
   caseIntake,
   onFieldChange,
 }: DisputeDetailsFormProps) => {
+  const perspective = caseIntake.intakePerspective;
   const claims = caseIntake.claims ?? [];
 
   const updateClaim = (id: string, patch: Partial<CaseIntakeClaim>) =>
@@ -87,8 +88,8 @@ const DisputeDetailsForm = ({
 
       <div className="flex flex-col gap-3">
         <PinnedAnchorsHeader
-          title="Pin a claim (optional)"
-          rationale="Only to lock a claim's side and type so the assistant doesn't infer them. Otherwise leave this empty — claims are drafted from your description above."
+          title="Individual claims (optional)"
+          rationale="Add claims here only to lock the side and type so the assistant doesn't have to infer them. Otherwise leave this empty — claims are drafted from your description above."
         />
         {claims.map((claim) => (
           <RepeaterCard
@@ -116,7 +117,7 @@ const DisputeDetailsForm = ({
                 label="Type"
                 value={claim.kind ?? "affirmative"}
                 onChange={(value) => updateClaim(claim.id, { kind: value })}
-                options={claimKindOptions}
+                options={getClaimKindOptions(perspective)}
               />
               <TextAreaField
                 label="Notes (optional)"
@@ -146,7 +147,7 @@ const DisputeDetailsForm = ({
           description="Choose the stage that best matches the case right now."
           value={caseIntake.currentCaseStatus}
           onChange={(value) => onFieldChange("currentCaseStatus", value)}
-          options={caseStatusOptions}
+          options={getCaseStatusOptions(perspective)}
         />
         <TextAreaField
           label="Known authorities (optional)"

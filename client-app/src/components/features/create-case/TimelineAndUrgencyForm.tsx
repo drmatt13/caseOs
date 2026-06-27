@@ -82,8 +82,8 @@ const TimelineAndUrgencyForm = ({
 
       <div className="flex flex-col gap-3">
         <PinnedAnchorsHeader
-          title="Pin an exact date (optional)"
-          rationale="For the handful of dates that must be precise. Everything else is extracted from your story above."
+          title="Exact dates (optional)"
+          rationale="Add only the dates that must be precise. Everything else is extracted from your story above."
         />
         {keyEvents.map((event) => {
           const precision = event.datePrecision ?? "day";

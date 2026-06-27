@@ -35,7 +35,13 @@ export type ClientRole =
   | "interested_party"
   | "other";
 
+// Who is setting up the case — drives a presentation + smart-default layer over
+// the intake wizard (attorney vocabulary vs. plain-language pro-se vocabulary).
+// The underlying CaseIntake contract is identical for both.
+export type IntakePerspective = "attorney" | "self";
+
 export type RepresentationRole =
+  | "pro_se"
   | "lead_counsel"
   | "co_counsel"
   | "local_counsel"

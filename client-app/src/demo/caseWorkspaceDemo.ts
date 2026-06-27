@@ -36,15 +36,6 @@ export const demoUserId = "5bdbb6c2-877a-4772-ad9e-00a10d6073b5";
 export const DEMO_WORKSPACE_ID = "11111111-1111-4111-8111-111111111111";
 export const DEMO_CASE_ID = "case-faxon-commons-demo";
 
-// Workspace-level display metadata. Quantified vitals are derived from the graph.
-export const demoCase = {
-  id: DEMO_CASE_ID,
-  title: "Faxon Commons v. Sweeney",
-  court: "Massachusetts Housing Court, Metro South Division",
-  caseNumber: "25H82SP02904",
-  client: "Matthew Sweeney",
-};
-
 export const demoCaseContext: CaseContext = {
   id: "context-faxon-commons",
   workspaceId: DEMO_WORKSPACE_ID,
@@ -52,9 +43,22 @@ export const demoCaseContext: CaseContext = {
   sourceIntakeId: "case-intake-faxon-commons-001",
   version: 3,
   caseName: "Faxon Commons v. Sweeney",
-  caseNumberOrDocket: "25H82SP02904",
+  caption: "Faxon Commons v. Sweeney",
+  identifiers: [
+    {
+      id: "identifier-faxon-housing-court-docket",
+      kind: "court_docket",
+      value: "25H82SP02904",
+      label: "Housing Court docket",
+      issuingBody: "Massachusetts Housing Court, Metro South Division",
+      jurisdiction: "Massachusetts",
+      isPrimary: true,
+      sourceIntakeId: "case-intake-faxon-commons-001",
+    },
+  ],
   jurisdictionOrCourt: "Massachusetts Housing Court, Metro South Division",
   practiceArea: "landlord_tenant",
+  proceduralStage: "motion_stage",
   representation: {
     clientRole: "defendant",
     representationRole: "other",
@@ -2337,7 +2341,6 @@ export const faxonCaseDemo: CaseDemo = {
   workspaceId: DEMO_WORKSPACE_ID,
   caseId: DEMO_CASE_ID,
   userId: demoUserId,
-  meta: demoCase,
   caseContext: demoCaseContext,
   documents: demoDocuments,
   records: demoRecords,

@@ -7,6 +7,7 @@ import type {
   CaseStatus,
   ClientRole,
   DatePrecision,
+  IntakePerspective,
   PersonRole,
   RecordParty,
   RepresentationPracticeArea,
@@ -86,6 +87,8 @@ export const clientRoleOptions = buildOptions([
   "other",
 ] as const satisfies readonly ClientRole[]);
 
+// Attorney-only: "pro_se" is intentionally absent — a self-represented litigant
+// is captured by the intake perspective toggle, not by this counsel-role dropdown.
 export const representationRoleOptions = buildOptions([
   "lead_counsel",
   "co_counsel",
@@ -188,6 +191,69 @@ export const claimKindOptions: SelectOption<
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Perspective-aware option resolvers (attorney vs. pro se).
+//
+// The data contract is identical — same enum *values* — but a self-represented
+// litigant gets plain-language *labels* and a trimmed set (advanced cross /
+// third-party claims are hidden). Forms pick a variant from
+// `caseIntake.intakePerspective`; nothing downstream changes.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const caseStatusProSeOptions: SelectOption<CaseStatus>[] = [
+  { value: "pre_filing", label: "Haven't filed yet" },
+  { value: "filed", label: "Filed and served" },
+  { value: "discovery", label: "Exchanging evidence" },
+  { value: "motion_stage", label: "Waiting on a motion or hearing" },
+  { value: "settlement_negotiations", label: "Trying to settle" },
+  { value: "trial_preparation", label: "Getting ready for trial" },
+  { value: "trial", label: "In trial" },
+  { value: "post_trial", label: "After trial" },
+  { value: "appeal", label: "On appeal" },
+];
+
+export const getCaseStatusOptions = (
+  perspective: IntakePerspective,
+): SelectOption<CaseStatus>[] =>
+  perspective === "self" ? caseStatusProSeOptions : caseStatusOptions;
+
+const claimKindProSeOptions: SelectOption<
+  NonNullable<CaseIntakeClaim["kind"]>
+>[] = [
+  { value: "affirmative", label: "Something I'm claiming" },
+  { value: "counterclaim", label: "A claim against me" },
+  { value: "defense", label: "A defense I'm raising" },
+];
+
+export const getClaimKindOptions = (
+  perspective: IntakePerspective,
+): SelectOption<NonNullable<CaseIntakeClaim["kind"]>>[] =>
+  perspective === "self" ? claimKindProSeOptions : claimKindOptions;
+
+// Pro-se plain-language stance → ClientRole. Lets a self-represented litigant
+// answer "did you start this case, or are you responding to it?" without the
+// plaintiff/defendant vocabulary, while still writing a correct ClientRole enum.
+export type ProSeStance = "started" | "responding" | "unsure";
+
+export const proSeStanceOptions: SelectOption<ProSeStance>[] = [
+  { value: "started", label: "I started this case" },
+  { value: "responding", label: "I'm responding to it" },
+  { value: "unsure", label: "I'm not sure yet" },
+];
+
+export const proSeStanceToClientRole: Record<ProSeStance, ClientRole> = {
+  started: "plaintiff",
+  responding: "defendant",
+  unsure: "other",
+};
+
+export const clientRoleToProSeStance = (role: ClientRole): ProSeStance =>
+  role === "plaintiff"
+    ? "started"
+    : role === "defendant"
+      ? "responding"
+      : "unsure";
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Field → record-type seed map.
 //
 // The connective tissue between the form and the knowledge graph: each intake
@@ -251,6 +317,7 @@ export const pruneCaseIntake = (intake: CaseIntake): CaseIntake => ({
 
 export const initialCaseIntake: CaseIntake = {
   id: "",
+  intakePerspective: "attorney",
   caseName: "",
   intakeProvidedBy: "",
   representationPracticeArea: "civil_litigation",

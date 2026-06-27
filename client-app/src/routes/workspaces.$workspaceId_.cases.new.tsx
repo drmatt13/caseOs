@@ -148,12 +148,7 @@ function RouteComponent() {
 
     switch (step) {
       case 1:
-        return filled(
-          c.caseName,
-          c.intakeProvidedBy,
-          c.representedPartyName,
-          c.jurisdictionOrCourt,
-        );
+        return filled(c.caseName, c.intakeProvidedBy, c.representedPartyName);
       case 2:
         // Claims are "captured" by either the prose field or at least one
         // anchored pinned claim — so pinning a claim without re-typing it as
@@ -186,6 +181,14 @@ function RouteComponent() {
           <CaseBasicsForm
             caseIntake={caseIntakeState.caseIntake}
             onFieldChange={updateCaseIntakeField}
+            defaultUserName={
+              user.displayName?.trim() ||
+              [user.firstName, user.lastName]
+                .filter(Boolean)
+                .join(" ")
+                .trim() ||
+              undefined
+            }
           />
         );
       case 2:

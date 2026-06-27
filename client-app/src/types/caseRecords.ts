@@ -18,7 +18,7 @@ export type { PersonRole };
 
 export type RecordType =
   // Level 0 – meta / orthogonal
-  | "CASE_SUMMARY" // synthesized case overview (agent-generated)
+  | "CASE_SUMMARY" // synthesized case brief (agent-generated)
   | "PERSON" // a party, witness, or attorney; referenced across all levels
 
   // Level 1 – strategic frame

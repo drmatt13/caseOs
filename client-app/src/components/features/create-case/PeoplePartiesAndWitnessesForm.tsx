@@ -150,6 +150,7 @@ const PeoplePartiesAndWitnessesForm = ({
           onFieldChange("peopleNarrative", event.target.value)
         }
         placeholder="The opposing party may call records custodians; a former employee may have firsthand knowledge."
+        className="w-full"
       />
     </FormSection>
   );

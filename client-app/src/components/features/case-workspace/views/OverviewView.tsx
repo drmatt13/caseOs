@@ -16,6 +16,12 @@ import {
 import type { LucideIcon } from "lucide-react";
 
 import type { CaseSummarySectionType } from "#/types/caseRecords";
+import {
+  caseDisplayName,
+  caseForumLabel,
+  caseIdentifierDisplayLabel,
+  caseStageLabel,
+} from "#/lib/caseContext";
 import { recordPartyLabel } from "#/lib/caseRecordPresentation";
 
 import { EmptyState } from "../common";
@@ -125,6 +131,16 @@ function OverviewView({
       <section className="rounded-xl border border-black/15 bg-white/65 p-4">
         <h2 className="font-serif text-lg">Case at a Glance</h2>
         <dl className="mt-3 flex flex-col gap-3">
+          <GlanceRow label="Matter" value={caseDisplayName(ctx)} />
+          <GlanceRow
+            label="Identifier"
+            value={caseIdentifierDisplayLabel(ctx)}
+          />
+          <GlanceRow label="Forum" value={caseForumLabel(ctx)} />
+          <GlanceRow
+            label="Procedural stage"
+            value={caseStageLabel(ctx.proceduralStage)}
+          />
           {ctx.currentPosture && (
             <GlanceRow label="Current posture" value={ctx.currentPosture} />
           )}

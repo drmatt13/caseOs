@@ -9,6 +9,7 @@ export type {
   CaseStatus,
   ClientRole,
   DocumentCategory,
+  IntakePerspective,
   RepresentationPracticeArea,
   RepresentationRole,
 } from "./caseDomain";

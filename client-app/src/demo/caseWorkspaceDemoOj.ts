@@ -43,14 +43,6 @@ import { demoUserId } from "#/demo/caseWorkspaceDemo";
 export const OJ_WORKSPACE_ID = "22222222-2222-4222-8222-222222222222";
 export const OJ_CASE_ID = "case-oj-simpson-demo";
 
-const ojCase = {
-  id: OJ_CASE_ID,
-  title: "People v. Simpson",
-  court: "Superior Court of California, County of Los Angeles",
-  caseNumber: "BA097211",
-  client: "Orenthal James Simpson",
-};
-
 const ojCaseContext: CaseContext = {
   id: "context-oj-simpson",
   workspaceId: OJ_WORKSPACE_ID,
@@ -58,9 +50,22 @@ const ojCaseContext: CaseContext = {
   sourceIntakeId: "case_oj_simpson_defense_1994",
   version: 4,
   caseName: "People of the State of California v. Orenthal James Simpson",
-  caseNumberOrDocket: "BA097211",
+  caption: "People v. Simpson",
+  identifiers: [
+    {
+      id: "identifier-oj-lasc-criminal-docket",
+      kind: "court_docket",
+      value: "BA097211",
+      label: "Los Angeles Superior Court criminal docket",
+      issuingBody: "Superior Court of California, County of Los Angeles",
+      jurisdiction: "California",
+      isPrimary: true,
+      sourceIntakeId: "case_oj_simpson_defense_1994",
+    },
+  ],
   jurisdictionOrCourt: "Superior Court of California, County of Los Angeles",
   practiceArea: "criminal",
+  proceduralStage: "trial_preparation",
   representation: {
     clientRole: "defendant",
     representationRole: "defense_counsel",
@@ -3031,7 +3036,6 @@ export const ojCaseDemo: CaseDemo = {
   workspaceId: OJ_WORKSPACE_ID,
   caseId: OJ_CASE_ID,
   userId: demoUserId,
-  meta: ojCase,
   caseContext: ojCaseContext,
   documents: ojDocuments,
   records: ojRecords,

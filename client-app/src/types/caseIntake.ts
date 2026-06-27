@@ -3,6 +3,7 @@ import type {
   ClientRole,
   DocumentCategory,
   DocumentProcessingStatus,
+  IntakePerspective,
   PersonRole,
   RepresentationPracticeArea,
   RepresentationRole,
@@ -15,6 +16,7 @@ export type {
   ClientRole,
   DocumentCategory,
   DocumentProcessingStatus,
+  IntakePerspective,
   PersonRole,
   RepresentationPracticeArea,
   RepresentationRole,
@@ -122,6 +124,10 @@ export interface CaseIntake {
   caseId?: string;
 
   // ── Case basics (required → CaseContext) ─────────────────────────────────
+  // Who is filling out intake — drives the attorney vs. plain-language pro-se
+  // lens over the wizard, and signals the agent to scaffold/explain more for a
+  // self-represented litigant. Presentation only; the contract below is shared.
+  intakePerspective: IntakePerspective;
   caseName: string;
   intakeProvidedBy: string;
   representationPracticeArea: RepresentationPracticeArea;
@@ -136,7 +142,7 @@ export interface CaseIntake {
   whatIsTheDisputeAbout: string;
   claimsAndDefenses: string;
   claims?: CaseIntakeClaim[]; // optional structured anchors
-  caseNumber?: string; // optional (e.g. pre-filing)
+  caseNumber?: string; // optional; normalized into CaseContext.identifiers
   currentCaseStatus: CaseStatus;
 
   // ── Strategy (objective required; the rest is agent-fillable when blank) ──

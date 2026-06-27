@@ -10,6 +10,11 @@ import UserPanel from "#/components/layouts/UserPanel";
 import PageLoading from "#/components/ui/PageLoading";
 import GetUserError from "#/components/errors/GetUserError";
 import { requireAuth } from "#/lib/auth";
+import {
+  caseDisplayName,
+  caseForumLabel,
+  caseIdentifierDisplayLabel,
+} from "#/lib/caseContext";
 import { useCurrentUserQuery } from "#/api/currentUser/hooks";
 import { useWorkspaceQuery } from "#/api/workspace/hooks";
 
@@ -107,6 +112,9 @@ function RouteComponent() {
   const canManageWorkspace =
     workspace.currentUserMembership?.role === "OWNER" ||
     workspace.currentUserMembership?.role === "ADMIN";
+  const caseName = caseDisplayName(demo.caseContext);
+  const caseIdentifier = caseIdentifierDisplayLabel(demo.caseContext);
+  const caseForum = caseForumLabel(demo.caseContext);
 
   return (
     <ShowProposedLinksContext.Provider value={showProposedLinksValue}>
@@ -119,7 +127,7 @@ function RouteComponent() {
                 <ArrowLeft className="w-3 h-3" />
               </div>
             </Link>
-            <p className="truncate">{demo.meta.title}</p>
+            <p className="truncate">{caseName}</p>
           </div>
           <label className="relative block">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-black/50" />
@@ -144,7 +152,7 @@ function RouteComponent() {
               <div className="min-w-0">
                 <div className="mb-2 flex flex-wrap items-center gap-2">
                   <span className="rounded-full border border-black/15 bg-white/75 px-2.5 py-1 text-xs text-black/65">
-                    {demo.meta.caseNumber}
+                    {caseIdentifier}
                   </span>
                   {pendingProposalCount > 0 && (
                     <button
@@ -157,11 +165,10 @@ function RouteComponent() {
                   )}
                 </div>
                 <h1 className="truncate text-2xl font-semibold">
-                  {demo.meta.title}
+                  {caseName}
                 </h1>
                 <p className="mt-1 text-sm text-black/70">
-                  {demo.caseContext.jurisdictionOrCourt} ·{" "}
-                  {recordPartyLabel("ours", clientRole)} side
+                  {caseForum} · {recordPartyLabel("ours", clientRole)} side
                 </p>
               </div>
             </header>

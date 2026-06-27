@@ -3,6 +3,7 @@ import type { CaseIntake } from "#/types/caseWorkspace";
 const caseIntake: CaseIntake = {
   id: "case_oj_simpson_defense_1994",
 
+  intakePerspective: "attorney",
   caseName: "People of the State of California v. Orenthal James Simpson",
   intakeProvidedBy: "Defense trial team intake coordinator",
   representationPracticeArea: "criminal",

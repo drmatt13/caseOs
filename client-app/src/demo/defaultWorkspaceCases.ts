@@ -1,15 +1,15 @@
+import { caseDisplayName } from "#/lib/caseContext";
+
+import { caseDemos } from "./caseDemos";
+
 export type DefaultWorkspaceCase = {
   id: string;
   name: string;
 };
 
-export const defaultWorkspaceCases: DefaultWorkspaceCase[] = [
-  {
-    id: "case-faxon-commons-demo",
-    name: "Faxon Commons v. Sweeney",
-  },
-  {
-    id: "case-oj-simpson-demo",
-    name: "People v. Simpson",
-  },
-];
+export const defaultWorkspaceCases: DefaultWorkspaceCase[] = caseDemos.map(
+  (demo) => ({
+    id: demo.caseId,
+    name: caseDisplayName(demo.caseContext),
+  }),
+);
