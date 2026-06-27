@@ -155,7 +155,6 @@ const CaseBasicsForm = ({
               className="md:col-span-2"
             />
             <SelectField
-              className="row-span-2 grid-rows-subgrid"
               label="Are you bringing this case, or responding to it?"
               description="Whether you started this case or are responding to one filed against you."
               value={clientRoleToProSeStance(caseIntake.clientRole)}
@@ -165,7 +164,6 @@ const CaseBasicsForm = ({
               options={proSeStanceOptions}
             />
             <SelectField
-              className="row-span-2 grid-rows-subgrid"
               label="What kind of case is this?"
               description="The general area of law your case falls under."
               value={caseIntake.representationPracticeArea}
@@ -206,7 +204,6 @@ const CaseBasicsForm = ({
         ) : (
           <>
             <TextInputField
-              className="row-span-2 grid-rows-subgrid"
               label="Prepared by"
               description="Who is filling out this intake — yourself, a case lead, or an intake attorney."
               value={caseIntake.intakeProvidedBy}
@@ -216,7 +213,6 @@ const CaseBasicsForm = ({
               placeholder="Your name or the intake attorney"
             />
             <TextInputField
-              className="row-span-2 grid-rows-subgrid"
               label="Party you represent"
               description={"Drives the “our side” labels throughout the workspace."}
               value={caseIntake.representedPartyName}

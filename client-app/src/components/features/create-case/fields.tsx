@@ -55,7 +55,7 @@ const FieldShell = ({
   className = "",
   children,
 }: FieldBaseProps & { children: ReactNode }) => (
-  <label className={`grid self-start items-start gap-2 ${className}`.trim()}>
+  <label className={`grid self-end items-start gap-2 ${className}`.trim()}>
     <span className="flex flex-col gap-0.5 justify-end h-full">
       <span className="text-md font-medium text-black">{label}</span>
       {description ? (
