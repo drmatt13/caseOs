@@ -1,7 +1,9 @@
+import { useState } from "react";
+
 import type { CaseIntake, CaseIntakeClaim } from "#/types/caseWorkspace";
 import TextAreaField from "#/components/ui/TextAreaField";
 import {
-  claimHasAnchor,
+  claimRowIsInvalid,
   createIntakeItemId,
   getCaseStatusOptions,
   getClaimKindOptions,
@@ -32,6 +34,17 @@ const DisputeDetailsForm = ({
 }: DisputeDetailsFormProps) => {
   const perspective = caseIntake.intakePerspective;
   const claims = caseIntake.claims ?? [];
+
+  // Rows the user started then clicked away from while still missing a label.
+  const [flaggedIds, setFlaggedIds] = useState<ReadonlySet<string>>(new Set());
+
+  const flagOnBlur = (claim: CaseIntakeClaim) =>
+    setFlaggedIds((prev) => {
+      const next = new Set(prev);
+      if (claimRowIsInvalid(claim)) next.add(claim.id);
+      else next.delete(claim.id);
+      return next;
+    });
 
   const updateClaim = (id: string, patch: Partial<CaseIntakeClaim>) =>
     onFieldChange(
@@ -96,8 +109,9 @@ const DisputeDetailsForm = ({
             key={claim.id}
             onRemove={() => removeClaim(claim.id)}
             removeLabel="Remove claim"
-            incomplete={!claimHasAnchor(claim)}
-            incompleteHint="Add a claim or defense to keep this — empty rows aren't saved."
+            invalid={flaggedIds.has(claim.id) && claimRowIsInvalid(claim)}
+            invalidHint="Add a claim or defense, or remove this row."
+            onBlurLeave={() => flagOnBlur(claim)}
           >
             <div className="grid gap-3 md:grid-cols-2">
               <InlineTextField

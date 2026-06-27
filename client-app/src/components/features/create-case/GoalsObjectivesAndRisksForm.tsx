@@ -52,12 +52,22 @@ const GoalsObjectivesAndRisksForm = ({
         <TextAreaField
           className="md:col-span-2"
           label="Key disputed issues (optional)"
-          description="The questions the case will turn on. Seeds individual issue records."
+          description="The questions the case will turn on. Seeds individual issue records; the assistant drafts the supporting arguments for each."
           value={caseIntake.keyDisputedIssues ?? ""}
           onChange={(event) =>
             onFieldChange("keyDisputedIssues", event.target.value)
           }
           placeholder="Whether the agreement was breached; whether notice was adequate; whether damages are supported..."
+        />
+        <TextAreaField
+          className="md:col-span-2"
+          label="Open questions (optional)"
+          description="What you most want answered or resolved — strategic or factual. Seeds open question records the assistant tracks until they’re answered."
+          value={caseIntake.openQuestions ?? ""}
+          onChange={(event) =>
+            onFieldChange("openQuestions", event.target.value)
+          }
+          placeholder="Is the missing-records gap strong enough to seek sanctions? Do we lead with mitigation or prejudice?"
         />
         <TextAreaField
           className="row-span-2 grid-rows-subgrid"

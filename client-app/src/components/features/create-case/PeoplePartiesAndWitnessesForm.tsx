@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import type {
   CaseIntake,
   CaseIntakePerson,
@@ -6,8 +8,8 @@ import type {
 import TextAreaField from "#/components/ui/TextAreaField";
 import {
   createIntakeItemId,
-  personHasAnchor,
   personRoleOptions,
+  personRowIsInvalid,
   recordPartyOptions,
 } from "#/components/features/create-case/caseIntakeForm";
 import {
@@ -33,6 +35,17 @@ const PeoplePartiesAndWitnessesForm = ({
   onFieldChange,
 }: PeoplePartiesAndWitnessesFormProps) => {
   const people = caseIntake.people;
+
+  // Rows the user started then clicked away from while still missing a name.
+  const [flaggedIds, setFlaggedIds] = useState<ReadonlySet<string>>(new Set());
+
+  const flagOnBlur = (person: CaseIntakePerson) =>
+    setFlaggedIds((prev) => {
+      const next = new Set(prev);
+      if (personRowIsInvalid(person)) next.add(person.id);
+      else next.delete(person.id);
+      return next;
+    });
 
   const updatePerson = (id: string, patch: Partial<CaseIntakePerson>) =>
     onFieldChange(
@@ -75,8 +88,9 @@ const PeoplePartiesAndWitnessesForm = ({
             key={person.id}
             onRemove={() => removePerson(person.id)}
             removeLabel="Remove person"
-            incomplete={!personHasAnchor(person)}
-            incompleteHint="Add a name to keep this — empty rows aren't saved."
+            invalid={flaggedIds.has(person.id) && personRowIsInvalid(person)}
+            invalidHint="Add a name, or remove this row."
+            onBlurLeave={() => flagOnBlur(person)}
           >
             <div className="grid gap-3 md:grid-cols-2">
               <InlineTextField

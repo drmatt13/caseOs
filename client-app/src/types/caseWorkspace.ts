@@ -20,6 +20,7 @@ export type {
   CaseIntakeEvent,
   CaseIntakeEventKind,
   CaseIntakeClaim,
+  CaseIntakeTask,
   PersonRole,
   DatePrecision,
   RecordParty,

@@ -1,6 +1,7 @@
-import type { ChangeEventHandler, ReactNode } from "react";
+import type { ChangeEventHandler, FocusEvent, ReactNode } from "react";
 
 import type { SelectOption } from "#/components/features/create-case/caseIntakeForm";
+import { TONES } from "#/lib/tones";
 import {
   Clock,
   Target,
@@ -8,6 +9,7 @@ import {
   Scale,
   Users,
   FileTextIcon,
+  ListChecks,
   Plus,
   X,
 } from "lucide-react";
@@ -15,7 +17,14 @@ import {
 type FormSectionProps = {
   title: string;
   description: string;
-  icon: "briefcase" | "scale" | "clock" | "target" | "users" | "file-text";
+  icon:
+    | "briefcase"
+    | "scale"
+    | "clock"
+    | "target"
+    | "users"
+    | "file-text"
+    | "list-checks";
   children: ReactNode;
 };
 
@@ -75,6 +84,9 @@ export const FormSection = ({
         {icon === "users" && <Users className="w-5 h-5 text-black/90" />}
         {icon === "file-text" && (
           <FileTextIcon className="w-5 h-5 text-black/90" />
+        )}
+        {icon === "list-checks" && (
+          <ListChecks className="w-5 h-5 text-black/90" />
         )}
       </div>
       <div className="flex flex-col min-w-0">
@@ -240,39 +252,57 @@ export const PinnedAnchorsHeader = ({
   </div>
 );
 
-// A single removable entry in a repeater list (a person, event, or claim).
-// When `incomplete` is set, the row is missing its identifying anchor (name /
-// label) and will be discarded on advance — surfaced as a subtle inline note
-// (neutral, no pastel fill).
+// A single removable entry in a repeater list (a person, event, claim, or task).
+// When `invalid` is set, the row was started but is missing its identifying
+// anchor (name / label / title) — the card switches to the `critical` tone and
+// shows `invalidHint`. Parents flag a row on blur (not while typing) by wiring
+// `onBlurLeave`, which fires only when focus actually leaves the card.
 export const RepeaterCard = ({
   onRemove,
   removeLabel = "Remove",
-  incomplete = false,
-  incompleteHint,
+  invalid = false,
+  invalidHint,
+  onBlurLeave,
   children,
 }: {
   onRemove: () => void;
   removeLabel?: string;
-  incomplete?: boolean;
-  incompleteHint?: string;
+  invalid?: boolean;
+  invalidHint?: string;
+  onBlurLeave?: () => void;
   children: ReactNode;
-}) => (
-  <div className="relative rounded-xl border border-black/15 bg-white/50 p-4 pr-11">
-    <button
-      type="button"
-      onClick={onRemove}
-      title={removeLabel}
-      aria-label={removeLabel}
-      className="absolute right-2.5 top-2.5 cursor-pointer rounded-lg p-1.5 text-black/45 transition-colors hover:bg-black/10 hover:text-black"
+}) => {
+  const handleBlur = (event: FocusEvent<HTMLDivElement>) => {
+    // Only fire once focus has left the whole card, not when moving between its
+    // own inputs.
+    if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+      onBlurLeave?.();
+    }
+  };
+
+  return (
+    <div
+      onBlur={onBlurLeave ? handleBlur : undefined}
+      className={`relative rounded-xl border p-4 pr-11 ${
+        invalid ? TONES.critical.surface : "border-black/15 bg-white/50"
+      }`}
     >
-      <X className="h-4 w-4" />
-    </button>
-    {children}
-    {incomplete && incompleteHint ? (
-      <p className="mt-3 text-sm text-black/50">{incompleteHint}</p>
-    ) : null}
-  </div>
-);
+      <button
+        type="button"
+        onClick={onRemove}
+        title={removeLabel}
+        aria-label={removeLabel}
+        className="absolute right-2.5 top-2.5 cursor-pointer rounded-lg p-1.5 text-black/45 transition-colors hover:bg-black/10 hover:text-black"
+      >
+        <X className="h-4 w-4" />
+      </button>
+      {children}
+      {invalid && invalidHint ? (
+        <p className={`mt-3 text-sm ${TONES.critical.ink}`}>{invalidHint}</p>
+      ) : null}
+    </div>
+  );
+};
 
 // Dashed "add another" affordance that anchors the bottom of a repeater list.
 export const AddRowButton = ({

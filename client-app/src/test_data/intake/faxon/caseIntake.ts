@@ -220,7 +220,7 @@ const caseIntake: CaseIntake = {
       label: "Plaintiffs' supplemental discovery responses",
       date: "2026-04-03",
       datePrecision: "day",
-      kind: "discovery",
+      kind: "document_production",
     },
   ],
   urgentDeadlines:

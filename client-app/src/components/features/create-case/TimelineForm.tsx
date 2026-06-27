@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import type { CaseIntake, CaseIntakeEvent } from "#/types/caseWorkspace";
 import { coerceDateToPrecision } from "#/lib/datePrecision";
 import PrecisionDateField, {
@@ -7,12 +9,11 @@ import TextAreaField from "#/components/ui/TextAreaField";
 import {
   createIntakeItemId,
   datePrecisionOptions,
-  eventHasAnchor,
   eventKindOptions,
+  eventRowIsInvalid,
 } from "#/components/features/create-case/caseIntakeForm";
 import {
   AddRowButton,
-  CheckboxField,
   fieldClassName,
   FormSection,
   InlineSelectField,
@@ -21,7 +22,7 @@ import {
   RepeaterCard,
 } from "#/components/features/create-case/fields";
 
-type TimelineAndUrgencyFormProps = {
+type TimelineFormProps = {
   caseIntake: CaseIntake;
   onFieldChange: <K extends keyof CaseIntake>(
     field: K,
@@ -29,11 +30,21 @@ type TimelineAndUrgencyFormProps = {
   ) => void;
 };
 
-const TimelineAndUrgencyForm = ({
-  caseIntake,
-  onFieldChange,
-}: TimelineAndUrgencyFormProps) => {
+const TimelineForm = ({ caseIntake, onFieldChange }: TimelineFormProps) => {
   const keyEvents = caseIntake.keyEvents ?? [];
+
+  // Rows the user has started and then clicked away from while still missing an
+  // anchor (what-happened / date). Tracked here so a row only turns red on blur,
+  // never mid-typing.
+  const [flaggedIds, setFlaggedIds] = useState<ReadonlySet<string>>(new Set());
+
+  const flagOnBlur = (event: CaseIntakeEvent) =>
+    setFlaggedIds((prev) => {
+      const next = new Set(prev);
+      if (eventRowIsInvalid(event)) next.add(event.id);
+      else next.delete(event.id);
+      return next;
+    });
 
   const updateEvent = (id: string, patch: Partial<CaseIntakeEvent>) =>
     onFieldChange(
@@ -63,8 +74,8 @@ const TimelineAndUrgencyForm = ({
 
   return (
     <FormSection
-      title="Timeline and Urgency"
-      description="Tell the story of what happened. Pin the dates that have to be exact, and flag anything time-sensitive right now."
+      title="Timeline"
+      description="Tell the story of what happened, then pin the handful of dates that have to be exact."
       icon="clock"
     >
       <div className="grid gap-4">
@@ -92,8 +103,9 @@ const TimelineAndUrgencyForm = ({
               key={event.id}
               onRemove={() => removeEvent(event.id)}
               removeLabel="Remove event"
-              incomplete={!eventHasAnchor(event)}
-              incompleteHint="Add what happened or a date to keep this — empty rows aren't saved."
+              invalid={flaggedIds.has(event.id) && eventRowIsInvalid(event)}
+              invalidHint="Add what happened and a date, or remove this row."
+              onBlurLeave={() => flagOnBlur(event)}
             >
               <div className="grid gap-3 md:grid-cols-2">
                 <InlineTextField
@@ -144,35 +156,14 @@ const TimelineAndUrgencyForm = ({
                   onChange={(value) => updateEvent(event.id, { kind: value })}
                   options={eventKindOptions}
                 />
-                <div className="flex items-end">
-                  <CheckboxField
-                    label="Time-sensitive right now"
-                    checked={Boolean(event.isUrgent)}
-                    onChange={(checked) =>
-                      updateEvent(event.id, { isUrgent: checked })
-                    }
-                  />
-                </div>
               </div>
             </RepeaterCard>
           );
         })}
         <AddRowButton label="Add key date" onClick={addEvent} />
       </div>
-
-      <div className="grid gap-4">
-        <TextAreaField
-          label="Anything urgent right now?"
-          description="Upcoming deadlines or immediate pressure driving today’s priorities. Seeds tasks and deadline events."
-          value={caseIntake.urgentDeadlines ?? ""}
-          onChange={(event) =>
-            onFieldChange("urgentDeadlines", event.target.value)
-          }
-          placeholder="Response due April 22; discovery cutoff May 3; preservation risk for key records..."
-        />
-      </div>
     </FormSection>
   );
 };
 
-export default TimelineAndUrgencyForm;
+export default TimelineForm;

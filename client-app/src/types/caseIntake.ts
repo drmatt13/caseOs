@@ -65,13 +65,24 @@ export interface CaseIntakePerson {
   anticipatedTestimony?: string; // seeds a TESTIMONY record when present
 }
 
+// Kinds run roughly chronologically through a matter — underlying events, then
+// litigation milestones, then the discovery/evidence layer the user most often
+// needs to pin. The agent maps `kind` onto a TIMELINE_EVENT's free-text
+// `category`; it is signal, not a stored record field.
 export type CaseIntakeEventKind =
   | "incident"
-  | "filing"
-  | "deadline"
   | "communication"
+  | "notice"
+  | "filing"
+  | "hearing"
   | "ruling"
-  | "discovery"
+  | "discovery_request"
+  | "document_production"
+  | "deposition"
+  | "disclosure"
+  | "evidence"
+  | "deadline"
+  | "settlement"
   | "other";
 
 // An OPTIONAL precision anchor on the timeline. The prose `narrativeOfEvents` is
@@ -86,8 +97,21 @@ export interface CaseIntakeEvent {
   datePrecision?: DatePrecision; // defaults to "day"
   endDate?: string; // ISO 8601; present ⇒ the event spans a window
   kind?: CaseIntakeEventKind;
-  isUrgent?: boolean;
   notes?: string;
+}
+
+// An OPTIONAL structured task / deadline. Tasks are the action layer of intake —
+// "what needs doing, by when" — kept separate from the timeline (what already
+// happened). `title` is the anchor; an empty row is dropped. `isTimeSensitive`
+// is the urgency flag (it used to live on timeline events, where it conflated
+// chronology with priority). Seeds a TASK record (high priority when flagged).
+export interface CaseIntakeTask {
+  id: string;
+  title: string; // anchor
+  detail?: string; // what / why
+  dueDate?: string; // ISO 8601
+  datePrecision?: DatePrecision; // defaults to "day"
+  isTimeSensitive?: boolean;
 }
 
 // An OPTIONAL structured claim / defense. Prose `claimsAndDefenses` is primary;
@@ -151,6 +175,7 @@ export interface CaseIntake {
   opposingObjective?: string;
   theoryOfTheCase?: string; // seeds THEORY — "your story of why you win"
   keyDisputedIssues?: string; // seeds ISSUE
+  openQuestions?: string; // seeds QUESTION — what you most want answered
   biggestRisk?: string;
 
   // ── People (structured-primary; prose fallback) ──────────────────────────
@@ -160,7 +185,10 @@ export interface CaseIntake {
   // ── Timeline (prose-primary + optional anchors) ──────────────────────────
   narrativeOfEvents?: string;
   keyEvents?: CaseIntakeEvent[];
-  urgentDeadlines?: string;
+
+  // ── Tasks & deadlines (structured anchors + prose fallback) ──────────────
+  tasks?: CaseIntakeTask[];
+  urgentDeadlines?: string; // prose fallback the agent mines for more tasks/deadlines
 
   // ── Optional enrichment ──────────────────────────────────────────────────
   knownAuthorities?: string; // seeds LEGAL_PRECEDENT

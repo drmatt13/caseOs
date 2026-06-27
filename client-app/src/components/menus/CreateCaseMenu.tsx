@@ -12,13 +12,16 @@ interface CreateCaseMenuProps {
     React.SetStateAction<CaseIntakeWizardState>
   >;
   hasUnsavedCaseIntake: boolean;
-  devSkipGating?: boolean;
+  // Highest step the user may jump to: every step before it is valid. Computed in
+  // the route from isStepComplete so the menu and the Next button share one rule.
+  maxUnlockedStep: number;
 }
 
 const createCaseStepIcons: StepMenuIcon[] = [
   "briefcase",
   "scale",
   "clock",
+  "checkSquare",
   "target",
   "users",
   "fileText",
@@ -29,7 +32,8 @@ const createCaseStepLabels = [
   { title: "Case Basics", subtitle: "Name, area, role" },
   { title: "Dispute", subtitle: "Claim & status" },
   { title: "Timeline", subtitle: "Key events" },
-  { title: "Goals", subtitle: "Objectives & theory" },
+  { title: "Tasks & Deadlines", subtitle: "Actions & due dates" },
+  { title: "Goals", subtitle: "Objectives & questions" },
   { title: "Parties & witnesses", subtitle: "Involved parties" },
   { title: "Documents", subtitle: "Upload files" },
   { title: "Review", subtitle: "Generate case records" },
@@ -40,7 +44,7 @@ const CreateCaseMenu = ({
   caseIntakeState,
   setCaseIntakeState,
   hasUnsavedCaseIntake,
-  devSkipGating = false,
+  maxUnlockedStep,
 }: CreateCaseMenuProps) => {
   const handleLeaveCreateCase = (event: MouseEvent<HTMLAnchorElement>) => {
     if (hasUnsavedCaseIntake) {
@@ -69,10 +73,10 @@ const CreateCaseMenu = ({
         <p className="truncate">Create New Case</p>
       </Link>
       <StepMenu
-        steps={7}
+        steps={8}
         icons={createCaseStepIcons}
         stepState={caseIntakeState.step}
-        maxUnlockedStep={devSkipGating ? 7 : caseIntakeState.step}
+        maxUnlockedStep={maxUnlockedStep}
         setStepState={(step) => {
           setCaseIntakeState((prev) => ({ ...prev, step }));
         }}

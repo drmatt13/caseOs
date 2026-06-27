@@ -7,7 +7,8 @@ import DisputeDetailsForm from "#/components/features/create-case/DisputeDetails
 import DocumentsForm from "#/components/features/create-case/DocumentsForm";
 import GoalsObjectivesAndRisksForm from "#/components/features/create-case/GoalsObjectivesAndRisksForm";
 import PeoplePartiesAndWitnessesForm from "#/components/features/create-case/PeoplePartiesAndWitnessesForm";
-import TimelineAndUrgencyForm from "#/components/features/create-case/TimelineAndUrgencyForm";
+import TimelineForm from "#/components/features/create-case/TimelineForm";
+import TasksAndDeadlinesForm from "#/components/features/create-case/TasksAndDeadlinesForm";
 import ReviewForm from "#/components/features/create-case/ReviewForm";
 import NavigationPanel from "#/components/layouts/NavigationPanel";
 import {
@@ -15,6 +16,7 @@ import {
   claimHasAnchor,
   initialCaseIntake,
   pruneCaseIntake,
+  stepHasInvalidRows,
 } from "#/components/features/create-case/caseIntakeForm";
 import ContentShell from "#/components/layouts/ContentShell";
 import CreateCaseMenu from "#/components/menus/CreateCaseMenu";
@@ -146,6 +148,10 @@ function RouteComponent() {
     // (it proposes records to fill the gaps, which the user reviews).
     if (devSkipGating) return true;
 
+    // A partial repeater row (started but missing its anchor) blocks advance on
+    // any step until it's finished or removed.
+    if (stepHasInvalidRows(step, c)) return false;
+
     switch (step) {
       case 1:
         return filled(c.caseName, c.intakeProvidedBy, c.representedPartyName);
@@ -159,20 +165,34 @@ function RouteComponent() {
             (c.claims ?? []).some(claimHasAnchor)) &&
           (c.currentCaseStatus === "pre_filing" || filled(c.caseNumber ?? ""))
         );
-      case 3:
+      case 3: // Timeline — optional
         return true;
-      case 4:
+      case 4: // Tasks & deadlines — optional
+        return true;
+      case 5: // Goals & strategy
         return filled(c.objective);
-      case 5:
+      case 6: // People — optional
         return true;
-      case 6:
+      case 7: // Documents — optional
         return true;
-      case 7:
+      case 8: // Review
         return true;
       default:
         return false;
     }
   };
+
+  // How far the user may jump in the step menu. Best-practice wizard navigation:
+  // you can always go back, and you can skip *forward* only through a valid
+  // prefix — every step before the target must be complete. The first incomplete
+  // step is the frontier; you can reach it but not jump past it. The current step
+  // stays reachable even if an earlier edit broke the chain.
+  let furthestUnlockedStep = 1;
+  for (let s = 1; s < CASE_INTAKE_TOTAL_STEPS; s++) {
+    if (!isStepComplete(s)) break;
+    furthestUnlockedStep = s + 1;
+  }
+  furthestUnlockedStep = Math.max(furthestUnlockedStep, caseIntakeState.step);
 
   const renderStep = () => {
     switch (caseIntakeState.step) {
@@ -200,26 +220,33 @@ function RouteComponent() {
         );
       case 3:
         return (
-          <TimelineAndUrgencyForm
+          <TimelineForm
             caseIntake={caseIntakeState.caseIntake}
             onFieldChange={updateCaseIntakeField}
           />
         );
       case 4:
         return (
-          <GoalsObjectivesAndRisksForm
+          <TasksAndDeadlinesForm
             caseIntake={caseIntakeState.caseIntake}
             onFieldChange={updateCaseIntakeField}
           />
         );
       case 5:
         return (
-          <PeoplePartiesAndWitnessesForm
+          <GoalsObjectivesAndRisksForm
             caseIntake={caseIntakeState.caseIntake}
             onFieldChange={updateCaseIntakeField}
           />
         );
       case 6:
+        return (
+          <PeoplePartiesAndWitnessesForm
+            caseIntake={caseIntakeState.caseIntake}
+            onFieldChange={updateCaseIntakeField}
+          />
+        );
+      case 7:
         return (
           <DocumentsForm
             caseIntake={caseIntakeState.caseIntake}
@@ -227,8 +254,15 @@ function RouteComponent() {
             setUploadedFiles={setUploadedFiles}
           />
         );
-      case 7:
-        return <ReviewForm />;
+      case 8:
+        return (
+          <ReviewForm
+            caseIntake={caseIntakeState.caseIntake}
+            onEditStep={(step) =>
+              setCaseIntakeState((prev) => ({ ...prev, step }))
+            }
+          />
+        );
       default:
         return null;
     }
@@ -243,7 +277,7 @@ function RouteComponent() {
           caseIntakeState={caseIntakeState}
           setCaseIntakeState={setCaseIntakeState}
           hasUnsavedCaseIntake={hasUnsavedCaseIntake}
-          devSkipGating={devSkipGating}
+          maxUnlockedStep={furthestUnlockedStep}
         />
       </NavigationPanel>
       <ContentShell showWorkspaceSettings={canManageWorkspace}>

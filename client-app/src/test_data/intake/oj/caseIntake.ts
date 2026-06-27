@@ -56,6 +56,8 @@ const caseIntake: CaseIntake = {
     "This is not a case of overwhelming proof but of a rushed, contaminated investigation. The evidence connecting Simpson to the scene was mishandled, the collection and chain of custody were unreliable, and at least one key investigator carries demonstrable bias — so the prosecution cannot meet its burden on identity.",
   keyDisputedIssues:
     "Whether the blood and DNA evidence was collected and preserved reliably; whether the chain of custody is intact; whether the glove evidence is credible; whether the prosecution's timeline is physically possible; whether investigator bias tainted the case.",
+  openQuestions:
+    "Should the defense lead with contamination or with investigator bias as the primary frame? Is the glove demonstration worth the risk of an in-court reenactment? Do we move to suppress, or save the chain-of-custody gaps for cross at trial?",
   biggestRisk:
     "The biggest risk is the jury accepting the prosecution's forensic evidence as reliable and directly tying Simpson to the crime scene despite defense challenges to collection, contamination, chain of custody, and investigative bias.",
 
@@ -217,6 +219,31 @@ const caseIntake: CaseIntake = {
       date: "1994-06",
       datePrecision: "month",
       kind: "filing",
+    },
+  ],
+
+  tasks: [
+    {
+      id: "task_oj_chain_of_custody",
+      title: "Assemble the chain-of-custody record for every blood/DNA exhibit",
+      detail:
+        "Pull collection logs, transfer records, and lab intake for each exhibit to map every gap and contamination opportunity.",
+      isTimeSensitive: true,
+    },
+    {
+      id: "task_oj_timeline_reconstruction",
+      title: "Reconstruct the night-of timeline against the physical evidence",
+      detail:
+        "Build a minute-by-minute timeline from witness accounts and forensics to test whether the prosecution's window is physically possible.",
+      dueDate: "1994-09-01",
+      datePrecision: "day",
+      isTimeSensitive: true,
+    },
+    {
+      id: "task_oj_fung_cross",
+      title: "Prepare cross-examination of the criminalist on collection practices",
+      detail:
+        "Focus on swatch handling, drying, and storage deviations from protocol.",
     },
   ],
   urgentDeadlines:

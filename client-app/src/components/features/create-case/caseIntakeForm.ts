@@ -4,6 +4,7 @@ import type {
   CaseIntakeEvent,
   CaseIntakeEventKind,
   CaseIntakePerson,
+  CaseIntakeTask,
   CaseStatus,
   ClientRole,
   DatePrecision,
@@ -27,7 +28,7 @@ export type SelectOption<T extends string> = {
   label: string;
 };
 
-export const CASE_INTAKE_TOTAL_STEPS = 7;
+export const CASE_INTAKE_TOTAL_STEPS = 8;
 
 // Title-cases an enum value. Lower-cases first so it handles both lower_snake
 // (civil_litigation) and UPPER_SNAKE (EXPERT_WITNESS) enums uniformly.
@@ -163,11 +164,18 @@ export const personRoleOptions = buildOptions([
 
 export const eventKindOptions = buildOptions([
   "incident",
-  "filing",
-  "deadline",
   "communication",
+  "notice",
+  "filing",
+  "hearing",
   "ruling",
-  "discovery",
+  "discovery_request",
+  "document_production",
+  "deposition",
+  "disclosure",
+  "evidence",
+  "deadline",
+  "settlement",
   "other",
 ] as const satisfies readonly CaseIntakeEventKind[]);
 
@@ -272,12 +280,14 @@ export const INTAKE_FIELD_SEEDS: Partial<Record<keyof CaseIntake, RecordType[]>>
     opposingObjective: ["OBJECTIVE", "THEORY"],
     theoryOfTheCase: ["THEORY"],
     keyDisputedIssues: ["ISSUE"],
+    openQuestions: ["QUESTION"],
     biggestRisk: ["ISSUE", "QUESTION"],
     currentCaseStatus: ["POSTURE"],
     people: ["PERSON", "TESTIMONY"],
     peopleNarrative: ["PERSON"],
     narrativeOfEvents: ["TIMELINE_EVENT", "FACT"],
     keyEvents: ["TIMELINE_EVENT"],
+    tasks: ["TASK"],
     urgentDeadlines: ["TASK", "TIMELINE_EVENT"],
     knownAuthorities: ["LEGAL_PRECEDENT"],
     focusFirst: ["TASK"],
@@ -286,24 +296,91 @@ export const INTAKE_FIELD_SEEDS: Partial<Record<keyof CaseIntake, RecordType[]>>
   };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Anchor predicates + pruning.
+// Anchor / dirty / invalid predicates + pruning.
 //
-// The structured repeaters (claims / key dates / people) are *optional anchors*
-// layered on top of the prose narratives — a user can "Add" a row and leave it
-// blank. A row "counts" only once its identifying anchor is present; anchorless
-// rows are pruned before the intake reaches the agent so it never seeds a record
-// from an empty row. The forms negate these same predicates to show the
-// "finish-or-it-won't-be-saved" hint.
+// The structured repeaters (claims / key dates / people / tasks) are *optional
+// anchors* layered on top of the prose narratives — a user can "Add" a row and
+// leave it blank. Three states per row:
+//   • empty   — no content at all → silently dropped on advance (no nag).
+//   • valid   — its identifying anchor is present → seeds a record.
+//   • invalid — has *some* content but is missing its anchor (a partial the user
+//               clearly meant to keep) → flagged red on blur and blocks Next
+//               until finished or removed.
+// "dirty" = the row has any meaningful content (ignoring defaulted selects).
+// invalid = dirty && !hasAnchor.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const claimHasAnchor = (claim: CaseIntakeClaim) =>
-  claim.label.trim().length > 0;
+const isFilled = (value?: string) => Boolean(value && value.trim().length > 0);
 
+export const claimHasAnchor = (claim: CaseIntakeClaim) =>
+  isFilled(claim.label);
+
+// A pinned "exact date" earns its place only when it says BOTH what happened and
+// when. A label with no date defeats the purpose of this section (undated events
+// belong in the prose narrative the agent mines), and a bare date with no
+// description can't seed a meaningful TIMELINE_EVENT.
 export const eventHasAnchor = (event: CaseIntakeEvent) =>
-  event.label.trim().length > 0 || Boolean(event.date);
+  isFilled(event.label) && Boolean(event.date);
 
 export const personHasAnchor = (person: CaseIntakePerson) =>
-  person.name.trim().length > 0;
+  isFilled(person.name);
+
+export const taskHasAnchor = (task: CaseIntakeTask) => isFilled(task.title);
+
+export const claimRowIsDirty = (claim: CaseIntakeClaim) =>
+  isFilled(claim.label) || isFilled(claim.description);
+
+export const eventRowIsDirty = (event: CaseIntakeEvent) =>
+  isFilled(event.label) ||
+  Boolean(event.date) ||
+  Boolean(event.endDate) ||
+  isFilled(event.notes);
+
+export const personRowIsDirty = (person: CaseIntakePerson) =>
+  isFilled(person.name) ||
+  isFilled(person.organization) ||
+  isFilled(person.notes) ||
+  isFilled(person.anticipatedTestimony) ||
+  (person.roles[0] ?? "UNKNOWN") !== "UNKNOWN" ||
+  person.side !== "neutral" ||
+  Boolean(person.isKeyPlayer);
+
+export const taskRowIsDirty = (task: CaseIntakeTask) =>
+  isFilled(task.title) ||
+  isFilled(task.detail) ||
+  Boolean(task.dueDate) ||
+  Boolean(task.isTimeSensitive);
+
+// A row is invalid when the user has started it but left out the one field that
+// identifies it. These drive the red blur-flag and the Next-button gate.
+export const claimRowIsInvalid = (claim: CaseIntakeClaim) =>
+  claimRowIsDirty(claim) && !claimHasAnchor(claim);
+
+export const eventRowIsInvalid = (event: CaseIntakeEvent) =>
+  eventRowIsDirty(event) && !eventHasAnchor(event);
+
+export const personRowIsInvalid = (person: CaseIntakePerson) =>
+  personRowIsDirty(person) && !personHasAnchor(person);
+
+export const taskRowIsInvalid = (task: CaseIntakeTask) =>
+  taskRowIsDirty(task) && !taskHasAnchor(task);
+
+// Does the given wizard step contain any partial-but-anchorless row? Used by the
+// route to gate the Next button. Step numbers match the renderStep() switch.
+export const stepHasInvalidRows = (step: number, intake: CaseIntake): boolean => {
+  switch (step) {
+    case 2:
+      return (intake.claims ?? []).some(claimRowIsInvalid);
+    case 3:
+      return (intake.keyEvents ?? []).some(eventRowIsInvalid);
+    case 4:
+      return (intake.tasks ?? []).some(taskRowIsInvalid);
+    case 6:
+      return intake.people.some(personRowIsInvalid);
+    default:
+      return false;
+  }
+};
 
 // Returns a copy of the intake with anchorless repeater rows removed. Run on
 // step advance and again before generation so the agent only ever sees rows
@@ -313,6 +390,7 @@ export const pruneCaseIntake = (intake: CaseIntake): CaseIntake => ({
   claims: (intake.claims ?? []).filter(claimHasAnchor),
   keyEvents: (intake.keyEvents ?? []).filter(eventHasAnchor),
   people: intake.people.filter(personHasAnchor),
+  tasks: (intake.tasks ?? []).filter(taskHasAnchor),
 });
 
 export const initialCaseIntake: CaseIntake = {
@@ -335,11 +413,13 @@ export const initialCaseIntake: CaseIntake = {
   opposingObjective: "",
   theoryOfTheCase: "",
   keyDisputedIssues: "",
+  openQuestions: "",
   biggestRisk: "",
   people: [],
   peopleNarrative: "",
   narrativeOfEvents: "",
   keyEvents: [],
+  tasks: [],
   urgentDeadlines: "",
   knownAuthorities: "",
   focusFirst: "",
