@@ -307,6 +307,13 @@ export const demoRecords: TypedCaseRecord[] = [
     id: "objective-002",
     type: "OBJECTIVE",
     substatus: "ACTIVE",
+    reviewNeeded: {
+      severity: "medium",
+      reason: "A live argument drifted past this guardrail",
+      detail:
+        "A filing-delay argument was revised to assert mitigation would definitely have succeeded — past the 'prejudice without overreach' line this objective sets. Re-check whether the objective is still being honored.",
+      sourceRecordId: "fact-005",
+    },
     priority: "high",
     party: "ours",
     category: "Risk control",
@@ -651,6 +658,22 @@ export const demoRecords: TypedCaseRecord[] = [
     supportStatus: "CONFLICTED",
     supportStatusExplanation:
       "Conflicted because landlord maintenance materials mark pest work as completed, while tenant chronology and later condition evidence suggest recurrence or incomplete remediation.",
+    proposalImpact: [
+      {
+        targetRecordId: "issue-001",
+        effect: "Weakens the habitability offset",
+        reason:
+          "If the landlord's 'remediation completed' fact is accepted, the habitability issue's strength changes — re-check whether it still offsets the rent claim.",
+        severity: "high",
+      },
+      {
+        targetRecordId: "theory-001",
+        effect: "Narrows the joined-narrative theory",
+        reason:
+          "Accepting a completed-remediation fact undercuts the habitability strand of the broader theory — confirm the theory still holds together.",
+        severity: "medium",
+      },
+    ],
     party: "opposing",
     category: "Habitability",
     title: "Landlord records characterize pest remediation as completed",
@@ -668,6 +691,13 @@ export const demoRecords: TypedCaseRecord[] = [
     supportStatus: "PARTIALLY_SUPPORTED",
     supportStatusExplanation:
       "Partially supported by apparent gaps in entry logs, access records, and internal communications; completeness still depends on comparing the production against the actual requests.",
+    reviewNeeded: {
+      severity: "high",
+      reason: "Support may no longer hold",
+      detail:
+        "A newer discovery production landed that may fill the entry-log gaps this fact rests on. Re-verify whether the gap is still real before relying on it — overstating it risks the overreach note-003 flagged.",
+      sourceRecordId: "docrec-discovery-gaps",
+    },
     party: "opposing",
     category: "Discovery",
     title: "Discovery production does not show a complete entry-log chain",
@@ -982,6 +1012,13 @@ export const demoRecords: TypedCaseRecord[] = [
     id: "note-001",
     type: "NOTE",
     pinned: true,
+    reviewNeeded: {
+      severity: "low",
+      reason: "Premise fact is under review",
+      detail:
+        "These foundation questions assume the entry-log gap is real, but that fact is now under review. Re-check the questions still land once the gap is confirmed.",
+      sourceRecordId: "fact-005",
+    },
     category: "Strategy",
     title: "Cross-exam focus: records under management control",
     summary:

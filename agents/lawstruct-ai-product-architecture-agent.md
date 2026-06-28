@@ -94,7 +94,7 @@ Key types:
 Defines: `WorkspaceViewType`, `VIEW_RECORD_TYPE` (view → RecordType map), `RECORD_TYPE_VIEW` (reverse), `WORKSPACE_MENU_GROUPS` (sidebar grouping). Also re-exports `CaseStatus`, `ClientRole`, `DocumentCategory`, `RepresentationPracticeArea`, `RepresentationRole`, `CaseIntake`, and `CaseIntakeDocument` for backward compatibility with the intake wizard.
 
 ### `caseRecordPresentation.ts` — display labels and badge styles
-All UI strings and Tailwind classes keyed by domain enums: `RECORD_STATUS_LABELS`, `RECORD_STATUS_CLASSES`, `RECORD_SUBSTATUS_LABELS`, `ATTENTION_SUBSTATUSES`, `SUPPORT_STATUS_LABELS`, `RECORD_PARTY_CLASSES`, `RECORD_TYPE_LABELS`, `LINK_TYPE_LABELS`, `LINK_TYPE_INBOUND_LABELS`, `VIEW_LABELS`, `VIEW_DESCRIPTIONS`, `SINGULAR_VIEW_LABELS`, `recordPartyLabel()`.
+All UI strings and Tailwind classes keyed by domain enums: `RECORD_STATUS_LABELS`, `RECORD_STATUS_CLASSES`, `RECORD_SUBSTATUS_LABELS`, `SUPPORT_STATUS_LABELS`, `REVIEW_SEVERITY_LABELS` / `REVIEW_SEVERITY_ICON_CLASSES` (the agent-attached needs-review axis), `RECORD_PARTY_CLASSES`, `RECORD_TYPE_LABELS`, `LINK_TYPE_LABELS`, `LINK_TYPE_INBOUND_LABELS`, `VIEW_LABELS`, `VIEW_DESCRIPTIONS`, `SINGULAR_VIEW_LABELS`, `recordPartyLabel()`.
 
 ### Demo dataset
 `client-app/src/demo/caseWorkspaceDemo.ts` contains the full Faxon Commons v. Sweeney demo (Matthew's real housing case): `demoCase`, `demoCaseContext`, `demoRecords`, `demoLinks`, `demoDocuments`, `demoActivity`, `demoAgentThread`, `demoAgentInstructions`, plus constants `DEMO_CASE_ID`, `DEMO_WORKSPACE_ID`, `demoUserId`. (All hardcoded demo bundles live under `client-app/src/demo/`, resolved by `getCaseDemo` in `caseDemos.ts`.)
@@ -114,7 +114,7 @@ All UI strings and Tailwind classes keyed by domain enums: `RECORD_STATUS_LABELS
    Important claims, facts, and strategy suggestions should point back to evidence, documents, notes, testimony, or prior records when possible.
 
 4. The graph matters.
-   lawstruct-ai should preserve relationships between records. Updating or superseding one record should make affected links and derived views visible for review instead of silently hiding the consequences.
+   lawstruct-ai should preserve relationships between records. Updating or superseding one record should make affected links and derived views visible for review instead of silently hiding the consequences. This is realized by the needs-review axis: a change that affects whether a downstream record is still true, well-supported, or legally useful surfaces as a `reviewNeeded` flag on that record (see the Needs Review section), rather than quietly invalidating it.
 
 5. Master views are derived, not the source of truth.
    Master markdown views such as an arguments digest, document index, or full case summary should summarize indexed records and documents. They should be regenerated or updated from structured state, with source hashes/manifests where useful.
@@ -143,8 +143,32 @@ Link lifecycle:
 ```txt
 proposed -> accepted
 proposed -> rejected
-accepted -> affected by record update/supersession -> review needed
+accepted -> demoted to proposed when an endpoint slips back (see effectiveLinkStatus)
 ```
+
+### Needs Review (the agent-attached review axis)
+
+"Review needed" is a **first-class, explicit axis on a record** (`reviewNeeded`),
+not a derived signal. The review agent attaches it — with a `severity`
+(low/medium/high), a human `reason`, optional `detail`, the `sourceRecordId` that
+triggered it, and an optional `blocking` flag — and is the single author of the
+flag. The guardrail for *when* to flag: only when something upstream changed that
+affects whether the record is still **true, well-supported, or legally useful**,
+not for routine graph churn.
+
+How it propagates across the graph: a PROPOSED record carries a `proposalImpact`
+list describing which existing records accepting it would affect (effect + why),
+shown **before** the accept decision. On accept, the system flags each impacted
+target with `reviewNeeded` (today simulated by `applyProposalImpact`; the agent
+will own it). A `blocking` review flag is a hard gate — a dependent proposal
+cannot be accepted until the blocker is resolved (`Mark reviewed`).
+
+Both PROPOSED and ACCEPTED records can be flagged. Flagged records surface in the
+Overview "Needs Attention" queue and in the Review view's "Needs review" section
+(accepted records now appear in review too, not only proposals). In dense views
+the flag reads as a severity-tinted warning **triangle** (replacing the settings
+cog on a card), never a text pill. See `agents/record-linking-agent.md` for the
+rendering/derivation contract.
 
 User actions should generally include:
 
@@ -157,6 +181,9 @@ User actions should generally include:
 - Ask an agent to suggest edits to a proposed record before accepting or rejecting it.
 - Supersede an accepted record when new case context changes it.
 - Review incoming/outgoing links affected by a change.
+- Resolve a record's needs-review flag once it has been re-checked (`Mark reviewed`).
+- See a proposal's downstream impact before accepting, and clear a blocking review
+  flag before accepting a proposal that depends on it.
 - Compare current and superseded versions.
 
 For a newly proposed record, the default review actions should be:

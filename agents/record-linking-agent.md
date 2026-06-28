@@ -46,7 +46,19 @@ fix that motivated this brief lives exactly at their intersection (§5).
 - `replacedByIds?: string[]` — successor record(s) that supersede this one (set on
   the **predecessor**). Many-valued → supports **1→N splits**.
 - `substatus?`, `supportStatus?`, `party?`, `priority?` — orthogonal axes that
-  feed the attention/pill derivations, not lifecycle.
+  feed the pill derivations, not lifecycle.
+- `reviewNeeded?: ReviewNeeded` — the agent-attached **needs-review** flag
+  (`{ severity, reason, detail?, sourceRecordId?, blocking? }`). **Explicit and
+  stored, not derived.** The agent flags a record only when something upstream
+  changed that affects whether it is still *true, well-supported, or legally
+  useful* — not for routine churn. Surfaces as a severity-tinted warning
+  **triangle** (not a pill). A `blocking` flag prevents accepting any proposal
+  that depends on it until it is cleared (`graph.clearReview`).
+- `proposalImpact?: ProposalImpact[]` — on a PROPOSED record, what accepting it
+  would do to other records (`{ targetRecordId, effect, reason, severity }`).
+  Shown before the accept decision; on accept, each entry seeds a `reviewNeeded`
+  flag on its target (`useWorkspaceGraph.applyProposalImpact`). Agent-computed;
+  hardcoded in the demo for now.
 
 The two replacement arrays are **inverse views of the same edge**. In the demo
 seed only `replacesIds` is authored on successors; the forward direction
@@ -85,8 +97,14 @@ component — read them off the `WorkspaceGraph`.**
 | `acceptedReplacementsByTargetId: Map<id, Record[]>` | accepted/retired successors keyed by target — powers "Replaced by" in version history |
 | `effectiveStatus(record)` | lifecycle after simulated decisions (§4) |
 | `effectiveLinkStatus(link)` | link status after endpoint lifecycle (§4) |
-| `proposedRecords` | the review-queue feed |
+| `proposedRecords` | the proposal review-queue feed |
 | `decideProposal`, `requestAgentRevision`, `saveProposalDraft`, `createRecord`, `deleteRecord` | mutations |
+| `clearReview(recordId)` | resolve a `reviewNeeded` flag (session override; clears seeded flags too, and lifts a `blocking` flag) |
+
+On accept, `decideProposal` runs two propagation steps after the decision:
+`generateSupportMetadataProposals` (support-metadata proposals on neighbors) and
+`applyProposalImpact` (seeds `reviewNeeded` flags on each `proposalImpact`
+target). Both are session-state simulations standing in for the future agent.
 
 **Finding what points into / out of a record** is just `inboundLinks.get(id)` /
 `outboundLinks.get(id)`. To find records with a *proposed* link into R, filter
@@ -128,7 +146,11 @@ record. Because any link touching a `PROPOSED` record resolves to `PROPOSED`,
 Neutral white chip; **lifecycle is carried entirely by ONE right-side pill**, by
 a strict cascade so a chip never stacks badges:
 
-> cycle (`In path`) → status pill (if unsettled) → attention pill (if accepted but flagged) → nothing (accepted + calm)
+> cycle (`In path`) → status pill (if unsettled) → support (`Partially supported`) → nothing (accepted + calm)
+
+Review state is **not** a pill — a flagged record shows a small severity-tinted
+warning **triangle** before the title (icon only; the reason is in the tooltip),
+suppressed on locked cycles and `hidePill` predecessors.
 
 Key props: `isCycle` (already-open-in-path lock; always wins, even under
 `hidePill`), `pairedReplacement` (render a Proposed-Replacement record as its
@@ -142,12 +164,15 @@ is otherwise suppressed in link lists), `hidePill`, `hideProposedReplacementPill
 - `recordDisplayStatus(record, graph)` → `effectiveStatus`, except a proposed
   record with `replacesIds` reads as the cosmetic `PROPOSED_REPLACEMENT` (violet).
   Drives every badge, card tint, and inspector wash so they never diverge.
-- `recordAttention(record)` → short reason label (Conflicted, Unsupported,
-  At risk, Stale…) **derived** from `supportStatus` / `substatus` / cite-check /
-  staleness — never a hand-set flag.
 - `resolveStatePill(record, graph)` → the ONE pill for dense views, cascade:
-  review status → attention → support → phase → null.
-- `needsAttention(record, graph)` → powers the Overview "Needs Attention" panel.
+  review status → support (`PARTIALLY_SUPPORTED`) → null. Review state does NOT
+  ride the pill (it rides the triangle).
+- `recordNeedsReview(record, graph)` → live (non-replaced, non-frozen) record
+  carrying a `reviewNeeded` flag — both PROPOSED and ACCEPTED records qualify.
+- `reviewQueue(graph)` → flagged live records, severity-then-recency; powers the
+  Overview "Needs Attention" panel and the Review view's "Needs review" section.
+- `proposalBlockers(record, graph)` → live records whose `blocking` review flag
+  must be cleared before this proposal can be accepted (hard block).
 
 ### `RecordLinksPanel.tsx` — the knowledge-graph link lists
 
@@ -192,6 +217,21 @@ survive the replacement. Section and badge are mutually exclusive.
 - `VersionHistoryNotice` — both lineages: "Replaced by" (union of
   `acceptedReplacementsByTargetId` and `replacedByIds`, deduped → branch-aware)
   and "Replaces" (`replacesIds`, hidden while still a proposal).
+- `ProposalImpactNotice` — on a **proposed** record with `proposalImpact`:
+  "Accepting this will flag for review:" + each target chip with its effect/why.
+  The before-side of the impact loop (the after-side is `applyProposalImpact`).
+
+### Review surfaces
+
+- **Inspector** `ReviewNeededNotice` — the full `reviewNeeded` (severity, reason,
+  detail, source chip) + a **Mark reviewed** button (`graph.clearReview`). A
+  proposal with `proposalBlockers` shows a red "Resolve … first" notice and its
+  **Accept** is disabled until the blocker clears.
+- **Cards** (`RecordCard`) — a flagged record gives its top-right corner to the
+  severity-tinted **triangle** *instead of* the settings cog (one slot, never
+  both).
+- **Review view** (`ReviewView`) — a "Needs review" filter, and flagged ACCEPTED
+  records appear in their own "Needs review" section alongside the proposal queue.
 
 ---
 
@@ -209,6 +249,16 @@ survive the replacement. Section and badge are mutually exclusive.
   single successor/predecessor.
 - **The carry-forward rule is orientation-aware on purpose.** Don't simplify it
   to "links into R" — that silently breaks outbound link groups.
+- **Review state is stored, not derived.** `reviewNeeded` is authored by the
+  agent (today: seeded in the demo / written by `applyProposalImpact` on accept).
+  Never re-derive it from `supportStatus`/`substatus`/staleness — the old derived
+  `recordAttention`/`needsAttention` is gone. The guardrail for *when* to flag:
+  something upstream changed that affects whether the record is still true,
+  well-supported, or legally useful — not routine graph churn.
+- **Review rides the triangle, not the pill.** Don't add a review pill to the
+  one-pill chip cascade; surface it as the severity-tinted warning triangle.
+- **A `blocking` flag is a hard gate.** A proposal with non-empty
+  `proposalBlockers` must not be acceptable until the blocker is cleared.
 
 ---
 
@@ -220,11 +270,14 @@ survive the replacement. Section and badge are mutually exclusive.
 | Labels, status/tone classes (incl. `RECORD_CHIP_STATUS_CLASSES`), link label pairs | `client-app/src/lib/caseRecordPresentation.ts` |
 | Status → color recipes ("Ink & Tint") | `client-app/src/lib/tones.ts` |
 | Graph derivations + lifecycle simulation | `client-app/src/components/features/case-workspace/useWorkspaceGraph.ts` |
-| Pill selection / attention derivation | `client-app/src/components/features/case-workspace/helpers.ts` |
-| Universal record reference chip | `client-app/src/components/features/case-workspace/RecordChip.tsx` |
+| Pill selection + review selectors (`recordNeedsReview`, `reviewQueue`, `proposalBlockers`) | `client-app/src/components/features/case-workspace/helpers.ts` |
+| Universal record reference chip (review triangle) | `client-app/src/components/features/case-workspace/RecordChip.tsx` |
+| Badges + `ReviewFlagIcon` (the triangle) | `client-app/src/components/features/case-workspace/RecordBadges.tsx` |
 | Knowledge-graph link lists + carry-forward rule | `client-app/src/components/features/case-workspace/RecordLinksPanel.tsx` |
-| Replacement / version-history notices | `client-app/src/components/features/case-workspace/RecordNotices.tsx` |
-| Demo graph (records + `links` tuples) | `client-app/src/demo/caseWorkspaceDemoOj.ts` |
+| Replacement / version-history / proposal-impact notices | `client-app/src/components/features/case-workspace/RecordNotices.tsx` |
+| Proposal actions (blocker-gated Accept) | `client-app/src/components/features/case-workspace/RecordActions.tsx` |
+| Review queue + "Needs review" filter | `client-app/src/components/features/case-workspace/views/ReviewView.tsx`, `RecordFilters.tsx` |
+| Demo graph (records + `links` tuples + `reviewNeeded`/`proposalImpact` seeds) | `client-app/src/demo/caseWorkspaceDemoOj.ts` |
 
 Related briefs: `lawstruct-ai-product-architecture-agent.md` (Human-In-The-Loop
 Lifecycle), `frontend-style-parity-agent.md` (chip/pill visual language).

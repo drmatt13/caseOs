@@ -1,6 +1,7 @@
-import { GitBranch, Lock } from "lucide-react";
+import { GitBranch, Lock, TriangleAlert } from "lucide-react";
 
 import type { TypedCaseRecord } from "#/types/caseRecords";
+import { REVIEW_SEVERITY_LABELS } from "#/lib/caseRecordPresentation";
 import { TONES } from "#/lib/tones";
 
 import RecordChip from "./RecordChip";
@@ -47,6 +48,60 @@ export function ReplacementNotice({
         Accepting it retires the records above and removes their chunks from
         retrieval.
       </p>
+    </div>
+  );
+}
+
+// On a PROPOSED record, the downstream consequences of accepting it: which
+// existing records it would flag for review, with how + why. The two-way view —
+// the human sees the impact before accepting, and on accept each target is
+// actually flagged (see useWorkspaceGraph.applyProposalImpact).
+export function ProposalImpactNotice({
+  record,
+  graph,
+  onOpenRecord,
+  visitedIds,
+}: {
+  record: TypedCaseRecord;
+  graph: WorkspaceGraph;
+  onOpenRecord: (recordId: string) => void;
+  visitedIds?: Set<string>;
+}) {
+  const impacts = (record.proposalImpact ?? []).flatMap((impact) => {
+    const target = graph.recordsById.get(impact.targetRecordId);
+    return target ? [{ impact, target }] : [];
+  });
+  if (impacts.length === 0) return null;
+
+  return (
+    <div
+      className={`mb-3 rounded-lg border px-3 py-2 text-sm ${TONES.caution.surface} ${TONES.caution.ink}`}
+    >
+      <div className="flex items-center gap-1.5 font-medium">
+        <TriangleAlert className="h-3.5 w-3.5" />
+        <span>Accepting this will flag for review:</span>
+      </div>
+      <div className="mt-2 flex flex-col gap-2">
+        {impacts.map(({ impact, target }) => (
+          <div key={target.id} className="flex flex-col gap-1">
+            <RecordChip
+              record={target}
+              graph={graph}
+              onOpenRecord={onOpenRecord}
+              isCycle={visitedIds?.has(target.id)}
+            />
+            <p className="leading-5 text-amber-900/85">
+              <span className="font-medium">{impact.effect}</span>
+              {" — "}
+              {impact.reason}
+              <span className="text-amber-900/60">
+                {" "}
+                ({REVIEW_SEVERITY_LABELS[impact.severity].toLowerCase()})
+              </span>
+            </p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

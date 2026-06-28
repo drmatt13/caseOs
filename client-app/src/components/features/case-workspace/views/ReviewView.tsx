@@ -1,4 +1,5 @@
-import { GitBranch, Sparkles } from "lucide-react";
+import { useState } from "react";
+import { GitBranch, Sparkles, TriangleAlert } from "lucide-react";
 
 import {
   VIEW_DESCRIPTIONS,
@@ -6,7 +7,9 @@ import {
 } from "#/lib/caseRecordPresentation";
 
 import { EmptyState } from "../common";
+import { recordNeedsReview, reviewQueue } from "../helpers";
 import RecordCard from "../RecordCard";
+import { NeedsReviewFilter } from "../RecordFilters";
 import type { WorkspaceGraph } from "../useWorkspaceGraph";
 
 function ReviewView({
@@ -16,12 +19,33 @@ function ReviewView({
   graph: WorkspaceGraph;
   onOpenRecord: (recordId: string) => void;
 }) {
+  const [needsReviewOnly, setNeedsReviewOnly] = useState(false);
+
   const replacementProposals = graph.proposedRecords.filter(
     (record) => record.replacesIds?.length,
   );
   const newProposals = graph.proposedRecords.filter(
     (record) => !record.replacesIds?.length,
   );
+  // Flagged ACCEPTED records belong in review too — not only proposals. They sit
+  // in their own section so the proposal queue stays the "decide" list.
+  const flaggedAccepted = reviewQueue(graph).filter(
+    (record) => graph.effectiveStatus(record) === "ACCEPTED",
+  );
+
+  // The "Needs review" toggle narrows proposals to flagged ones and keeps the
+  // flagged-accepted section; off, it shows the full proposal queue.
+  const visibleReplacements = needsReviewOnly
+    ? replacementProposals.filter((record) => recordNeedsReview(record, graph))
+    : replacementProposals;
+  const visibleNew = needsReviewOnly
+    ? newProposals.filter((record) => recordNeedsReview(record, graph))
+    : newProposals;
+
+  const nothingToShow =
+    visibleReplacements.length === 0 &&
+    visibleNew.length === 0 &&
+    flaggedAccepted.length === 0;
 
   return (
     <div className="flex flex-col gap-4">
@@ -30,18 +54,31 @@ function ReviewView({
         <p className="mt-1 text-sm text-black/70">{VIEW_DESCRIPTIONS.review}</p>
       </div>
 
-      {graph.proposedRecords.length === 0 && (
-        <EmptyState message="No pending proposals need review." />
+      <div className="flex flex-wrap items-center gap-2">
+        <NeedsReviewFilter
+          checked={needsReviewOnly}
+          onChange={setNeedsReviewOnly}
+        />
+      </div>
+
+      {nothingToShow && (
+        <EmptyState
+          message={
+            needsReviewOnly
+              ? "Nothing currently needs review."
+              : "No pending proposals need review."
+          }
+        />
       )}
 
-      {replacementProposals.length > 0 && (
+      {flaggedAccepted.length > 0 && (
         <section className="flex flex-col gap-2">
           <h3 className="flex items-center gap-2 text-sm font-medium text-black/65">
-            <GitBranch className="h-4 w-4" />
-            Replacement Proposals ({replacementProposals.length})
+            <TriangleAlert className="h-4 w-4" />
+            Needs review ({flaggedAccepted.length})
           </h3>
           <div className="grid grid-cols-1 gap-3">
-            {replacementProposals.map((record) => (
+            {flaggedAccepted.map((record) => (
               <RecordCard
                 key={record.id}
                 record={record}
@@ -53,14 +90,33 @@ function ReviewView({
         </section>
       )}
 
-      {newProposals.length > 0 && (
+      {visibleReplacements.length > 0 && (
+        <section className="flex flex-col gap-2">
+          <h3 className="flex items-center gap-2 text-sm font-medium text-black/65">
+            <GitBranch className="h-4 w-4" />
+            Replacement Proposals ({visibleReplacements.length})
+          </h3>
+          <div className="grid grid-cols-1 gap-3">
+            {visibleReplacements.map((record) => (
+              <RecordCard
+                key={record.id}
+                record={record}
+                graph={graph}
+                onOpenRecord={onOpenRecord}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {visibleNew.length > 0 && (
         <section className="flex flex-col gap-2">
           <h3 className="flex items-center gap-2 text-sm font-medium text-black/65">
             <Sparkles className="h-4 w-4" />
-            New proposals ({newProposals.length})
+            New proposals ({visibleNew.length})
           </h3>
           <div className="grid grid-cols-1 gap-3">
-            {newProposals.map((record) => (
+            {visibleNew.map((record) => (
               <RecordCard
                 key={record.id}
                 record={record}

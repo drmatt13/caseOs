@@ -1,4 +1,4 @@
-import { Filter, RotateCcw, Search } from "lucide-react";
+import { Filter, RotateCcw, Search, TriangleAlert } from "lucide-react";
 
 import { RECORD_DISPLAY_STATUS_LABELS } from "#/lib/caseRecordPresentation";
 
@@ -85,5 +85,31 @@ export function StatusFilter({
         );
       })}
     </div>
+  );
+}
+
+// A single toggle for "only records that need review". Reuses the StatusFilter
+// chip styling so it reads as part of the same filter row.
+export function NeedsReviewFilter({
+  checked,
+  onChange,
+}: {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={checked}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-sm transition-colors ${
+        checked
+          ? "border-amber-600/40 bg-amber-50/70 text-amber-900"
+          : "border-black/15 bg-white/70 text-black/70 hover:bg-black/5"
+      }`}
+      onClick={() => onChange(!checked)}
+    >
+      <TriangleAlert className="h-3.5 w-3.5" />
+      Needs review
+    </button>
   );
 }

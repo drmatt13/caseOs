@@ -8,8 +8,13 @@ import {
   type RecordDisplayStatus,
 } from "#/lib/caseRecordPresentation";
 
-import { recordDisplayStatus } from "./helpers";
-import { PartyBadge, SubstatusBadge, SupportBadge } from "./RecordBadges";
+import { recordDisplayStatus, recordNeedsReview } from "./helpers";
+import {
+  PartyBadge,
+  ReviewFlagIcon,
+  SubstatusBadge,
+  SupportBadge,
+} from "./RecordBadges";
 import { RecordSettingsMenu } from "./RecordActions";
 import type { WorkspaceGraph } from "./useWorkspaceGraph";
 
@@ -36,6 +41,9 @@ function RecordCard({
   // Display status splits PROPOSED into plain "Proposed" vs "Proposed
   // Replacement" (green badge, purple card); raw `status` still drives logic.
   const displayStatus = recordDisplayStatus(record, graph);
+  // A flagged record gives the top-right corner to the review triangle instead of
+  // the settings cog — one slot, never both. The cog keeps its existing rule.
+  const needsReview = recordNeedsReview(record, graph);
 
   return (
     <article
@@ -51,10 +59,19 @@ function RecordCard({
       }}
       title={`Open ${record.title}`}
     >
-      {(status === "ACCEPTED" || displayStatus === "REJECTED") && (
+      {needsReview ? (
         <div className="absolute right-3 top-3">
-          <RecordSettingsMenu record={record} onDelete={graph.deleteRecord} />
+          <ReviewFlagIcon
+            record={record}
+            onClick={() => onOpenRecord(record.id)}
+          />
         </div>
+      ) : (
+        (status === "ACCEPTED" || displayStatus === "REJECTED") && (
+          <div className="absolute right-3 top-3">
+            <RecordSettingsMenu record={record} onDelete={graph.deleteRecord} />
+          </div>
+        )
       )}
       <div className="min-w-0">
         {record.category && (

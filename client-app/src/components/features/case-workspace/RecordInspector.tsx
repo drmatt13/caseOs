@@ -5,16 +5,21 @@ import {
   ChevronLeft,
   FileText,
   Image as ImageIcon,
+  Lock,
+  TriangleAlert,
   X,
 } from "lucide-react";
 
 import type { CaseDocument, TypedCaseRecord } from "#/types/caseRecords";
 import {
   RECORD_TYPE_LABELS,
+  REVIEW_SEVERITY_BADGE_CLASSES,
+  REVIEW_SEVERITY_LABELS,
   SUPPORT_STATUS_CLASSES,
   SUPPORT_STATUS_LABELS,
   type RecordDisplayStatus,
 } from "#/lib/caseRecordPresentation";
+import { TONES } from "#/lib/tones";
 import Button from "#/components/ui/Button";
 import useBodyScrollLock from "#/hooks/useBodyScrollLock";
 
@@ -23,6 +28,7 @@ import {
   formatDate,
   formatEventDate,
   isImageDocument,
+  proposalBlockers,
   recordDisplayStatus,
   recordRelationshipSummary,
 } from "./helpers";
@@ -31,6 +37,7 @@ import { PartyBadge, SubstatusBadge, SupportBadge } from "./RecordBadges";
 import RecordChip from "./RecordChip";
 import {
   PendingReplacementNotice,
+  ProposalImpactNotice,
   ReplacementNotice,
   VersionHistoryNotice,
 } from "./RecordNotices";
@@ -304,6 +311,66 @@ function DocumentSourceSection({
   );
 }
 
+// The agent-attached review flag, shown in full: severity, reason, the longer
+// detail, a chip to the upstream record whose change triggered it, and a Resolve
+// action that clears the flag. This is the one surface that renders the whole
+// ReviewNeeded object — cards and chips show only the severity-tinted triangle.
+function ReviewNeededNotice({
+  record,
+  graph,
+  onOpenRecord,
+  visitedIds,
+}: {
+  record: TypedCaseRecord;
+  graph: WorkspaceGraph;
+  onOpenRecord: (recordId: string) => void;
+  visitedIds: Set<string>;
+}) {
+  const review = record.reviewNeeded;
+  if (!review) return null;
+  const source = review.sourceRecordId
+    ? graph.recordsById.get(review.sourceRecordId)
+    : undefined;
+
+  return (
+    <div className="mt-3 rounded-lg border border-black/15 bg-white/70 p-3 text-sm leading-5 text-black/75">
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-black/45">
+          <TriangleAlert className="h-3.5 w-3.5" />
+          {review.blocking ? "Needs review · blocking" : "Needs review"}
+        </p>
+        <span
+          className={`rounded-full border px-2 py-0.5 text-xs ${REVIEW_SEVERITY_BADGE_CLASSES[review.severity]}`}
+        >
+          {REVIEW_SEVERITY_LABELS[review.severity]}
+        </span>
+      </div>
+      <p className="mt-1.5 font-medium text-black/80">{review.reason}</p>
+      {review.detail && <p className="mt-1">{review.detail}</p>}
+      {source && (
+        <div className="mt-2">
+          <p className="mb-1 text-xs text-black/55">Triggered by</p>
+          <RecordChip
+            record={source}
+            graph={graph}
+            onOpenRecord={onOpenRecord}
+            isCycle={visitedIds.has(source.id)}
+          />
+        </div>
+      )}
+      <div className="mt-3 flex justify-end">
+        <Button
+          style="secondary"
+          size="sm"
+          icon={CheckCircle2}
+          text="Mark reviewed"
+          onClick={() => graph.clearReview(record.id)}
+        />
+      </div>
+    </div>
+  );
+}
+
 function SupportExplanationSection({ explanation }: { explanation?: string }) {
   if (!explanation) return null;
 
@@ -390,6 +457,9 @@ function RecordInspectorBody({
   const frozen = graph.recordIsFrozen(record);
   const displayStatus = recordDisplayStatus(record, graph);
   const relationshipSummary = recordRelationshipSummary(record, graph);
+  // Live records whose blocking review flag must be cleared before this proposal
+  // can be accepted (empty for non-proposals / unblocked proposals).
+  const blockers = proposalBlockers(record, graph);
   const sourceDocument =
     record.type === "DOCUMENT"
       ? graph.demo.documents.find(
@@ -547,6 +617,13 @@ function RecordInspectorBody({
           <p className="mt-3 text-sm italic text-black/50">Not yet answered.</p>
         ))}
 
+      <ReviewNeededNotice
+        record={record}
+        graph={graph}
+        onOpenRecord={onOpenRecord}
+        visitedIds={visitedIds}
+      />
+
       <SupportExplanationSection
         explanation={record.supportStatusExplanation}
       />
@@ -568,6 +645,19 @@ function RecordInspectorBody({
       {status === "PROPOSED" && !frozen && record.replacesIds?.length && (
         <div className="mt-4">
           <ReplacementNotice
+            record={record}
+            graph={graph}
+            onOpenRecord={onOpenRecord}
+            visitedIds={visitedIds}
+          />
+        </div>
+      )}
+
+      {/* What accepting this proposal would flag downstream — shown before the
+          accept decision so the consequences are visible up front. */}
+      {status === "PROPOSED" && !frozen && record.proposalImpact?.length && (
+        <div className="mt-4">
+          <ProposalImpactNotice
             record={record}
             graph={graph}
             onOpenRecord={onOpenRecord}
@@ -626,15 +716,44 @@ function RecordInspectorBody({
       </div>
 
       {status === "PROPOSED" && !frozen && (
-        <ProposalActions
-          record={record}
-          onDelete={(id) => {
-            graph.deleteRecord(id);
-            onClose();
-          }}
-          onDecision={graph.decideProposal}
-          onEditManually={onEditManually}
-        />
+        <>
+          {blockers.length > 0 && (
+            <div
+              className={`mt-4 rounded-lg border px-3 py-2 text-sm ${TONES.critical.surface} text-red-900`}
+            >
+              <div className="flex items-center gap-1.5 font-medium">
+                <Lock className="h-3.5 w-3.5" />
+                <span>
+                  Resolve{" "}
+                  {blockers.length > 1
+                    ? "these records before accepting"
+                    : "this record before accepting"}
+                </span>
+              </div>
+              <div className="mt-2 flex flex-col gap-1.5">
+                {blockers.map((blocker) => (
+                  <RecordChip
+                    key={blocker.id}
+                    record={blocker}
+                    graph={graph}
+                    onOpenRecord={onOpenRecord}
+                    isCycle={visitedIds.has(blocker.id)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+          <ProposalActions
+            record={record}
+            onDelete={(id) => {
+              graph.deleteRecord(id);
+              onClose();
+            }}
+            onDecision={graph.decideProposal}
+            onEditManually={onEditManually}
+            blockers={blockers}
+          />
+        </>
       )}
 
       {status === "ACCEPTED" && !frozen && (

@@ -834,6 +834,13 @@ const ojRecords: TypedCaseRecord[] = [
     supportStatus: "PARTIALLY_SUPPORTED",
     supportStatusExplanation:
       "Partially supported by the Rockingham glove records and warrantless-entry dispute; legal authority still needs motion-level development.",
+    reviewNeeded: {
+      severity: "medium",
+      reason: "May no longer be legally useful as framed",
+      detail:
+        "Recent authority in the jurisdiction narrowed the warrantless-entry exception this issue leans on. Re-check whether the issue, as framed, still supports a viable suppression motion before relying on it.",
+      sourceRecordId: "fact-glove-v3",
+    },
     substatus: "OPEN",
     issueType: "legal",
     party: "ours",
@@ -852,6 +859,13 @@ const ojRecords: TypedCaseRecord[] = [
     supportStatus: "PARTIALLY_SUPPORTED",
     supportStatusExplanation:
       "Partially supported by the DNA report mixture caveats and proposed Kelly/Frye research, but cite-checking and expert foundation remain open.",
+    reviewNeeded: {
+      severity: "high",
+      reason: "Resolve before dependent proposals can be accepted",
+      detail:
+        "The admissibility standard this issue turns on is unsettled. Other proposals that assume the DNA evidence is in (or out) cannot be accepted until this is decided.",
+      blocking: true,
+    },
     status: "PROPOSED",
     substatus: "RESERVED",
     issueType: "procedural",
@@ -870,6 +884,14 @@ const ojRecords: TypedCaseRecord[] = [
     supportStatus: "PARTIALLY_SUPPORTED",
     supportStatusExplanation:
       "Partially supported by glove-fit variables and demonstration-risk records, but the practical trial risk is unresolved.",
+    reviewNeeded: {
+      severity: "medium",
+      reason: "Blocked by the DNA admissibility issue",
+      detail:
+        "Whether to stage a live demonstration depends on whether the DNA evidence comes in. Resolve the DNA admissibility issue first, then re-evaluate this strategic call.",
+      sourceRecordId: "issue-002",
+      blocking: true,
+    },
     status: "PROPOSED",
     substatus: "OPEN",
     issueType: "strategic",
@@ -931,6 +953,22 @@ const ojRecords: TypedCaseRecord[] = [
     supportStatus: "PARTIALLY_SUPPORTED",
     supportStatusExplanation:
       "Partially supported by the Rockingham glove record and Fuhrman impeachment materials; remains proposed because the defense still needs stronger personnel or internal-affairs grounding before making him central.",
+    proposalImpact: [
+      {
+        targetRecordId: "theory-fuhrman",
+        effect: "Reframes the theory's role from collateral to central",
+        reason:
+          "Making Fuhrman a material witness changes what the credibility theory must prove and how much weight it carries — re-check the theory's framing.",
+        severity: "high",
+      },
+      {
+        targetRecordId: "arg-glove-demo",
+        effect: "Couples the glove demonstration to Fuhrman's credibility",
+        reason:
+          "If Fuhrman becomes central, the glove-demonstration argument now leans on his credibility too — confirm it still stands as written.",
+        severity: "medium",
+      },
+    ],
     party: "ours",
     category: "Impeachment",
     replacesIds: ["arg-fuhrman-collateral"],
@@ -1214,6 +1252,13 @@ const ojRecords: TypedCaseRecord[] = [
     supportStatus: "SUPPORT_NOT_REQUIRED",
     supportStatusExplanation:
       "An open strategic question; the contamination theory and cross-theme note it points at carry the support.",
+    reviewNeeded: {
+      severity: "medium",
+      reason: "Premise shifted upstream",
+      detail:
+        "The contamination theory was revised, which changes how much weight it can carry alone. Re-check whether this question's framing still holds before answering it.",
+      sourceRecordId: "theory-contamination",
+    },
     status: "ACCEPTED",
     substatus: "UNANSWERED",
     party: "ours",
@@ -1277,6 +1322,13 @@ const ojRecords: TypedCaseRecord[] = [
     supportStatus: "CONFLICTED",
     supportStatusExplanation:
       "Conflicted because the glove reports document a Rockingham discovery, while Fuhrman's entry chronology and documentation leave the discovery sequence open to attack.",
+    reviewNeeded: {
+      severity: "high",
+      reason: "May no longer be true as stated",
+      detail:
+        "New documentation surfaced contradicting the discovery sequence — who first observed the glove and whether it was contemporaneously logged. Because this conflicted fact anchors both the suppression issue and the identity challenge, re-verify it before relying on it at trial.",
+      sourceRecordId: "docrec-glove-discrepancy",
+    },
     version: 3,
     party: "ours",
     category: "Glove evidence",
@@ -1504,6 +1556,13 @@ const ojRecords: TypedCaseRecord[] = [
     supportStatus: "SUPPORTED",
     supportStatusExplanation:
       "Supported by multiple accepted custody discrepancies, including BS-003 documentation, BS-007 correction issues, and the BS-010 volume gap.",
+    reviewNeeded: {
+      severity: "low",
+      reason: "Re-check one supporting discrepancy",
+      detail:
+        "One of the custody discrepancies this merged fact rests on was edited upstream. The fact still holds, but confirm the BS-010 volume gap still reads as stated so the support stays solid.",
+      sourceRecordId: "docrec-coc-bs010-volume",
+    },
     version: 2,
     party: "ours",
     category: "Chain of custody",

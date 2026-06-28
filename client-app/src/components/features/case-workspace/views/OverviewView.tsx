@@ -22,10 +22,14 @@ import {
   caseIdentifierDisplayLabel,
   caseStageLabel,
 } from "#/lib/caseContext";
-import { recordPartyLabel } from "#/lib/caseRecordPresentation";
+import {
+  REVIEW_SEVERITY_DOT_CLASSES,
+  REVIEW_SEVERITY_LABELS,
+  recordPartyLabel,
+} from "#/lib/caseRecordPresentation";
 
 import { EmptyState } from "../common";
-import { formatDate, latestCaseSummary } from "../helpers";
+import { reviewQueue, formatDate, latestCaseSummary } from "../helpers";
 import RecordChip from "../RecordChip";
 import type { WorkspaceGraph } from "../useWorkspaceGraph";
 
@@ -61,6 +65,7 @@ function OverviewView({
   onOpenRecord: (recordId: string) => void;
 }) {
   const summary = latestCaseSummary(graph);
+  const reviewRecords = reviewQueue(graph);
 
   const ctx = graph.demo.caseContext;
   const clientRole = ctx.representation.clientRole;
@@ -156,12 +161,55 @@ function OverviewView({
         </dl>
       </section>
 
-      {/* Needs Attention — placeholder for the upcoming attention queue */}
+      {/* Needs Attention — the agent-flagged review queue, most urgent first */}
       <section className="rounded-xl border border-black/15 bg-white/65 p-4">
         <h2 className="font-serif text-lg">Needs Attention</h2>
-        <div className="mt-3">
-          <EmptyState message="Needs attention" />
-        </div>
+        {reviewRecords.length > 0 ? (
+          <div className="mt-3 flex flex-col gap-2.5">
+            {reviewRecords.map((record) => {
+              // reviewQueue gates on recordNeedsReview, so the flag is always set.
+              const review = record.reviewNeeded!;
+              return (
+                <div
+                  key={record.id}
+                  className="rounded-lg border border-black/15 bg-white/75 p-3"
+                >
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`h-2 w-2 shrink-0 rounded-full border ${REVIEW_SEVERITY_DOT_CLASSES[review.severity]}`}
+                      title={`${REVIEW_SEVERITY_LABELS[review.severity]} severity`}
+                    />
+                    <p className="min-w-0 flex-1 text-sm font-medium leading-5 text-black/80">
+                      {review.reason}
+                    </p>
+                    <span className="shrink-0 text-xs uppercase tracking-wide text-black/45">
+                      {REVIEW_SEVERITY_LABELS[review.severity]}
+                    </span>
+                  </div>
+                  {review.detail && (
+                    <p className="mt-1 text-sm leading-5 text-black/65">
+                      {review.detail}
+                    </p>
+                  )}
+                  <div className="mt-2">
+                    {/* The reason is the row title above, so suppress the chip's
+                        own review triangle to avoid echoing it. */}
+                    <RecordChip
+                      record={record}
+                      graph={graph}
+                      onOpenRecord={onOpenRecord}
+                      hidePill
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="mt-3">
+            <EmptyState message="Nothing needs attention right now." />
+          </div>
+        )}
       </section>
 
       {/* Workspace Activity */}

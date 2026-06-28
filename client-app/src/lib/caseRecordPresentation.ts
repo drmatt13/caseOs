@@ -4,6 +4,7 @@
 
 import type { ClientRole } from "#/types/caseDomain";
 import type {
+  ReviewSeverity,
   RecordLinkType,
   RecordStatus,
   RecordSubstatus,
@@ -122,7 +123,8 @@ export const RECORD_DISPLAY_STATUS_CARD_CLASSES: Record<
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Per-type substatus — the record's domain lifecycle ("phase"). Lifecycle-only:
-// evidentiary state is `supportStatus`; "needs attention" is derived.
+// evidentiary state is `supportStatus`; "needs review" is its own explicit
+// `reviewNeeded` axis, set by the agent (see REVIEW_SEVERITY_* below).
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const RECORD_SUBSTATUS_LABELS: Record<RecordSubstatus, string> = {
@@ -165,9 +167,10 @@ export const RECORD_SUBSTATUS_LABELS: Record<RecordSubstatus, string> = {
 };
 
 // Phase badge tone. Most phases are neutral; a few terminal "good" states read
-// positive. Attention-worthy phases (AT_RISK, QUESTIONED, OVERRULED,
-// OPEN_QUESTION) read caution — though in dense views those are surfaced by the
-// derived attention pill (see recordAttention) rather than the phase pill.
+// positive. A few "watch" phases (AT_RISK, QUESTIONED, OVERRULED, OPEN_QUESTION)
+// read caution. These color the phase badge in the inspector's full
+// decomposition; whether a record needs human review is the separate
+// `reviewNeeded` axis the agent sets, surfaced by its own warning triangle.
 const POSITIVE_PHASES: RecordSubstatus[] = [
   "ACHIEVED",
   "DONE",
@@ -218,6 +221,52 @@ export const SUPPORT_STATUS_CLASSES: Record<SupportStatus, string> = {
   CONFLICTED: TONES.caution.badge,
   SUPPORT_NOT_REQUIRED: TONES.neutral.badge,
   UNKNOWN: TONES.caution.badge,
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Needs Review (agent-attached) — severity → presentation. Reuses the shared
+// tones so review state reads at the same urgency vocabulary as everything else:
+// low is an FYI (info/blue), medium is "should look" (caution/amber), high is
+// "act" (critical/red).
+//
+// Dense views (cards/chips) show review state as a tinted WARNING TRIANGLE, not a
+// pill, so they use the `ink` recipe (text/border color only) rather than the
+// `badge` fill. The badge fill is kept for the few roomy places (the inspector
+// notice header) that still want a small severity chip.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const REVIEW_SEVERITY_LABELS: Record<ReviewSeverity, string> = {
+  low: "Low",
+  medium: "Medium",
+  high: "High",
+};
+
+// Triangle icon tint (color in the ink, no fill) — the dense-view signal.
+export const REVIEW_SEVERITY_ICON_CLASSES: Record<ReviewSeverity, string> = {
+  low: TONES.info.ink,
+  medium: TONES.caution.ink,
+  high: TONES.critical.ink,
+};
+
+// Small severity chip for roomy surfaces (inspector notice header, queue label).
+export const REVIEW_SEVERITY_BADGE_CLASSES: Record<ReviewSeverity, string> = {
+  low: TONES.info.badge,
+  medium: TONES.caution.badge,
+  high: TONES.critical.badge,
+};
+
+// Small status dot per severity, for dense review-queue rows.
+export const REVIEW_SEVERITY_DOT_CLASSES: Record<ReviewSeverity, string> = {
+  low: TONES.info.dot,
+  medium: TONES.caution.dot,
+  high: TONES.critical.dot,
+};
+
+// Rank used to sort a review queue, highest urgency first.
+export const REVIEW_SEVERITY_RANK: Record<ReviewSeverity, number> = {
+  high: 0,
+  medium: 1,
+  low: 2,
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

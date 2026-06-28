@@ -6,6 +6,7 @@ import type {
   QuestionSubstatus,
   RecordStatus,
   RecordType,
+  ReviewNeeded,
   SupportStatus,
   TaskSubstatus,
   TypedCaseRecord,
@@ -131,6 +132,12 @@ export function useWorkspaceGraph(demo: CaseDemo) {
   const [questionAnswerOverrides, setQuestionAnswerOverrides] = useState<
     Record<string, { substatus: QuestionSubstatus; answer?: string }>
   >({});
+  // Per-record review-flag overrides set this session: a proposal's accepted
+  // impact seeds a flag on its targets (value = the flag), and "Resolve" clears a
+  // flag (value = null, which wins over any seeded `reviewNeeded` on the record).
+  const [reviewNeededOverrides, setReviewNeededOverrides] = useState<
+    Record<string, ReviewNeeded | null>
+  >({});
   // Records whose replacement completed in this session (proposal accepted).
   const [replacedIds, setReplacedIds] = useState<string[]>([]);
   // Proposed records created in this session from an accepted record (revisions
@@ -157,7 +164,19 @@ export function useWorkspaceGraph(demo: CaseDemo) {
           record.type === "QUESTION"
             ? questionAnswerOverrides[record.id]
             : undefined;
-        if (!rejectionReason && !taskSubstatus && !questionAnswer) return record;
+        // A session override of the review flag wins over the seeded one: a set
+        // value flags the record (proposal impact), an explicit null clears it
+        // ("Resolve"). `undefined` means no override — keep the seeded flag.
+        const reviewOverride = reviewNeededOverrides[record.id];
+        const hasReviewOverride = record.id in reviewNeededOverrides;
+        if (
+          !rejectionReason &&
+          !taskSubstatus &&
+          !questionAnswer &&
+          !hasReviewOverride
+        ) {
+          return record;
+        }
         return {
           ...record,
           ...(taskSubstatus ? { substatus: taskSubstatus } : {}),
@@ -165,6 +184,9 @@ export function useWorkspaceGraph(demo: CaseDemo) {
             ? { substatus: questionAnswer.substatus, answer: questionAnswer.answer }
             : {}),
           ...(rejectionReason ? { rejectionReason } : {}),
+          ...(hasReviewOverride
+            ? { reviewNeeded: reviewOverride ?? undefined }
+            : {}),
         } as TypedCaseRecord;
       });
   }, [
@@ -175,6 +197,7 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     proposalDecisions,
     taskSubstatusOverrides,
     questionAnswerOverrides,
+    reviewNeededOverrides,
   ]);
 
   const recordsById = useMemo(
@@ -422,6 +445,30 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     }));
   };
 
+  // Simulated downstream flagging: when a proposal carrying `proposalImpact` is
+  // accepted, seed a `reviewNeeded` flag on each impacted target so the human
+  // (and, later, the agent) re-checks records this change touched. Mirrors
+  // generateSupportMetadataProposals — same on-accept timing, session state only.
+  const applyProposalImpact = (source: TypedCaseRecord) => {
+    if (!source.proposalImpact?.length) return;
+    const nextFlags: Record<string, ReviewNeeded> = {};
+    for (const impact of source.proposalImpact) {
+      const target = recordsById.get(impact.targetRecordId);
+      if (!target || recordIsFrozen(target)) continue;
+      const targetStatus = effectiveStatus(target);
+      if (targetStatus !== "ACCEPTED" && targetStatus !== "PENDING_REPLACEMENT")
+        continue;
+      nextFlags[target.id] = {
+        severity: impact.severity,
+        reason: impact.reason,
+        detail: `${impact.effect}. Triggered by accepting "${source.title}".`,
+        sourceRecordId: source.id,
+      };
+    }
+    if (Object.keys(nextFlags).length === 0) return;
+    setReviewNeededOverrides((existing) => ({ ...existing, ...nextFlags }));
+  };
+
   const decideProposal = (recordId: string, decision: ProposalDecision) => {
     const record = recordsById.get(recordId);
     if (!record || effectiveStatus(record) !== "PROPOSED") return;
@@ -433,7 +480,10 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     // Accepting a replacement proposal retires its targets.
     if (decision.status === "accepted") {
       const record = recordsById.get(recordId);
-      if (record) generateSupportMetadataProposals(record);
+      if (record) {
+        generateSupportMetadataProposals(record);
+        applyProposalImpact(record);
+      }
       if (record?.replacesIds?.length) {
         setReplacedIds((ids) => [
           ...ids,
@@ -441,6 +491,13 @@ export function useWorkspaceGraph(demo: CaseDemo) {
         ]);
       }
     }
+  };
+
+  // Resolve (clear) a record's review flag. An explicit null override wins over
+  // any seeded `reviewNeeded`, so a demo-seeded flag can be cleared too. This is
+  // what lifts a blocking flag so a dependent proposal can be accepted.
+  const clearReview = (recordId: string) => {
+    setReviewNeededOverrides((existing) => ({ ...existing, [recordId]: null }));
   };
 
   // Agent-drafted revision of an accepted record. The human describes WHAT to
@@ -633,6 +690,11 @@ export function useWorkspaceGraph(demo: CaseDemo) {
       delete next[recordId];
       return next;
     });
+    setReviewNeededOverrides((overrides) => {
+      const next = { ...overrides };
+      delete next[recordId];
+      return next;
+    });
     setSupportMetadataProposals((existing) => {
       const next = { ...existing };
       for (const proposal of Object.values(existing)) {
@@ -720,6 +782,7 @@ export function useWorkspaceGraph(demo: CaseDemo) {
     decideProposal,
     rejectRecord,
     restoreRecord,
+    clearReview,
     setTaskSubstatus,
     answerQuestion,
     acceptSupportMetadataProposal,

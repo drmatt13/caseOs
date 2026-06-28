@@ -1,4 +1,4 @@
-import { ChevronRight, Repeat } from "lucide-react";
+import { ChevronRight, Repeat, TriangleAlert } from "lucide-react";
 
 import type {
   GraphLink,
@@ -10,6 +10,8 @@ import {
   RECORD_DISPLAY_STATUS_CLASSES,
   RECORD_DISPLAY_STATUS_LABELS,
   RECORD_TYPE_LABELS,
+  REVIEW_SEVERITY_ICON_CLASSES,
+  REVIEW_SEVERITY_LABELS,
 } from "#/lib/caseRecordPresentation";
 
 import { recordDisplayStatus } from "./helpers";
@@ -114,6 +116,10 @@ function RecordChip({
   // cycle, whose "In path" badge takes the slot).
   const showLinkRejectedPill = linkIsRejected && !isCycle;
   const showAnyPill = isCycle || showStatusPill || showLinkRejectedPill;
+  // Review state rides a small inline triangle before the title (icon only, no
+  // text — the reason is in the tooltip), never the right-side pill. Suppressed on
+  // locked cycles and calm version-history predecessors (`hidePill`).
+  const reviewFlag = !isCycle && !hidePill ? record.reviewNeeded : undefined;
 
   const chipButton = (
     <button
@@ -140,6 +146,14 @@ function RecordChip({
       <span className="min-w-0 shrink rounded border border-black/15 bg-black/[0.03] px-1.5 py-0.5 text-[0.65rem] uppercase tracking-wide text-black/50">
         <span className="block">{RECORD_TYPE_LABELS[record.type]}</span>
       </span>
+      {/* Review flag: a small severity-tinted triangle before the title. Icon
+          only — the reason is in the tooltip, keeping the chip to one signal. */}
+      {reviewFlag && (
+        <TriangleAlert
+          className={`h-3.5 w-3.5 shrink-0 ${REVIEW_SEVERITY_ICON_CLASSES[reviewFlag.severity]}`}
+          aria-label={`Needs review (${REVIEW_SEVERITY_LABELS[reviewFlag.severity].toLowerCase()}): ${reviewFlag.reason}`}
+        />
+      )}
       <span
         className={`min-w-0 flex-1 truncate ${
           isCycle ? "text-black/55" : "text-black/75 group-hover:text-black"

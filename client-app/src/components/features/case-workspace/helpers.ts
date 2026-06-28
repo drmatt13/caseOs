@@ -10,6 +10,7 @@ import type {
 } from "#/types/caseRecords";
 import { EVENT_DATE_FORMAT_OPTIONS } from "#/lib/datePrecision";
 import {
+  REVIEW_SEVERITY_RANK,
   linkTypeLabel,
   RECORD_DISPLAY_STATUS_CLASSES,
   RECORD_DISPLAY_STATUS_LABELS,
@@ -21,7 +22,6 @@ import {
   type RecordDisplayStatus,
   recordPartyLabel,
 } from "#/lib/caseRecordPresentation";
-import { TONES } from "#/lib/tones";
 
 import type { WorkspaceGraph } from "./useWorkspaceGraph";
 
@@ -166,73 +166,66 @@ export function recordFilterStatus(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Derived attention + the single "resolved state" pill
+// Needs Review (agent-attached) + the single "resolved state" pill
 // ─────────────────────────────────────────────────────────────────────────────
 
-// An accepted record is "stale" once it has gone untouched past this window.
-const STALE_AFTER_DAYS = 120;
-
-function isStale(record: TypedCaseRecord): boolean {
-  const ts = Date.parse(record.updatedAt);
-  if (Number.isNaN(ts)) return false;
-  return Date.now() - ts > STALE_AFTER_DAYS * 24 * 60 * 60 * 1000;
-}
-
-// Whether a record needs human action, DERIVED from the structured axes rather
-// than a hand-set flag: weak/conflicting evidence, an at-risk phase, bad law, an
-// unverified citation, or staleness. Returns a short reason label (used directly
-// as the attention pill text) or null. This is the reasoning-friendly
-// replacement for the old hand-maintained ATTENTION_SUBSTATUSES list.
-export function recordAttention(record: TypedCaseRecord): string | null {
-  const support = record.supportStatus;
-  if (support === "CONFLICTED") return "Conflicted";
-  if (support === "UNSUPPORTED") return "Unsupported";
-  if (support === "UNKNOWN") return "Unverified";
-
-  const sub = record.substatus;
-  if (sub === "AT_RISK") return "At risk";
-  if (sub === "OVERRULED") return "Overruled";
-  if (sub === "QUESTIONED") return "Questioned";
-  if (sub === "OPEN_QUESTION") return "Open question";
-  if (sub === "UNANSWERED") return "Unanswered";
-
-  if (record.type === "LEGAL_PRECEDENT" && record.citeChecked === false)
-    return "Needs cite check";
-
-  if (isStale(record)) return "Stale";
-  return null;
-}
-
-function recordStatePillAttention(record: TypedCaseRecord): string | null {
-  const support = record.supportStatus;
-  if (support === "CONFLICTED") return "Conflicted";
-  if (support === "UNSUPPORTED") return "Unsupported";
-  if (support === "UNKNOWN") return "Unverified";
-
-  if (record.type === "LEGAL_PRECEDENT" && record.citeChecked === false)
-    return "Needs cite check";
-
-  if (isStale(record)) return "Stale";
-  return null;
-}
-
-// True when a live (non-replaced, non-rejected) record needs attention. The
-// single source of truth for the Overview "Needs Attention" panel.
-export function needsAttention(
+// True when a live (non-replaced, non-rejected) record carries a review flag the
+// agent attached. Review is an explicit stored axis (`record.reviewNeeded`), not
+// inferred here. Both PROPOSED and ACCEPTED records can be flagged (an accepted
+// record because something upstream changed; a proposal because accepting it now
+// depends on resolving another). Frozen/replaced records never surface.
+export function recordNeedsReview(
   record: TypedCaseRecord,
   graph: WorkspaceGraph,
 ): boolean {
   const status = graph.effectiveStatus(record);
   if (status === "REPLACED" || graph.recordIsFrozen(record)) return false;
-  return recordAttention(record) !== null;
+  return Boolean(record.reviewNeeded);
+}
+
+// The records the review surfaces render: every live record the agent flagged,
+// most urgent first (high → medium → low), then most recently touched. Reads
+// `recordNeedsReview`, so it inherits the live-record gate. Includes both flagged
+// proposals and flagged accepted records.
+export function reviewQueue(graph: WorkspaceGraph): TypedCaseRecord[] {
+  return graph.records
+    .filter((record) => recordNeedsReview(record, graph))
+    .sort((a, b) => {
+      const rank =
+        REVIEW_SEVERITY_RANK[a.reviewNeeded!.severity] -
+        REVIEW_SEVERITY_RANK[b.reviewNeeded!.severity];
+      if (rank !== 0) return rank;
+      return Date.parse(b.updatedAt) - Date.parse(a.updatedAt);
+    });
+}
+
+// The live records whose BLOCKING review flag must be cleared before this
+// proposal can be accepted. Test-space rule (the agent will own the real logic):
+// a proposal is blocked by the record named in its own `reviewNeeded` when that
+// flag is `blocking` and the named source record still carries an unresolved
+// blocking flag of its own. Returns [] for non-proposals or unblocked proposals.
+export function proposalBlockers(
+  record: TypedCaseRecord,
+  graph: WorkspaceGraph,
+): TypedCaseRecord[] {
+  if (graph.effectiveStatus(record) !== "PROPOSED") return [];
+  const flag = record.reviewNeeded;
+  if (!flag?.blocking || !flag.sourceRecordId) return [];
+  const source = graph.recordsById.get(flag.sourceRecordId);
+  if (!source) return [];
+  // The block lifts once the source's own blocking flag is resolved/cleared.
+  return recordNeedsReview(source, graph) && source.reviewNeeded?.blocking
+    ? [source]
+    : [];
 }
 
 // The ONE pill a dense view (card / chip) shows for a record, chosen by a
 // priority cascade so a record never wears a stack of competing badges:
-//   review status (if unsettled) → non-phase attention → support
-// Returns null when an accepted, well-grounded record has nothing to flag — its
-// calm blankness is itself the "settled" signal. The full decomposition (every
-// axis at once) lives in the inspector, not here.
+//   review status (if unsettled) → support
+// Review state is NOT a pill — it rides a separate warning triangle (see
+// ReviewFlagIcon). Returns null when an accepted, well-grounded record has
+// nothing to say — its calm blankness is itself the "settled" signal. The full
+// decomposition (every axis at once) lives in the inspector, not here.
 export function resolveStatePill(
   record: TypedCaseRecord,
   graph: WorkspaceGraph,
@@ -244,9 +237,6 @@ export function resolveStatePill(
       className: RECORD_DISPLAY_STATUS_CLASSES[displayStatus],
     };
   }
-
-  const attention = recordStatePillAttention(record);
-  if (attention) return { label: attention, className: TONES.caution.badge };
 
   if (record.supportStatus === "PARTIALLY_SUPPORTED") {
     return {

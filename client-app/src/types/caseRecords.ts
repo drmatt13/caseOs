@@ -125,12 +125,64 @@ export type RecordParty = "ours" | "opposing" | "neutral";
 export type RecordPriority = "low" | "medium" | "high";
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Needs Review — an explicit, AGENT-ATTACHED axis (not derived).
+//
+// Distinct from the other axes on a record: lifecycle (`status`), evidentiary
+// grounding (`supportStatus`), and domain phase (`substatus`) are properties the
+// agent *infers* about a record. Review state is a property the review agent
+// *decides and attaches* — a deliberate "a human should re-check this, and here's
+// why." The agent flags a record ONLY when something upstream changed that
+// affects whether the record is still TRUE, still WELL-SUPPORTED, or still
+// LEGALLY USEFUL — not for routine graph churn. Absent ⇒ no review needed.
+// Stored on the record (alongside `typedMeta` server-side), never recomputed by
+// the UI: the agent is the single author of the flag, and it can selectively
+// propagate one along the graph (e.g. flag a fact because the document that
+// evidenced it was retired).
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type ReviewSeverity = "low" | "medium" | "high";
+
+export interface ReviewNeeded {
+  severity: ReviewSeverity;
+  // Short human-readable reason; the triangle tooltip and the review-queue /
+  // inspector title (e.g. "Discovery chronology disputed").
+  reason: string;
+  // Optional longer explanation, surfaced in the inspector and the queue detail.
+  detail?: string;
+  // Optional upstream cause — the record whose change triggered this flag. Lets
+  // the agent record "why" and the UI offer a jump-to link. Optional so a
+  // standalone flag needs no graph context.
+  sourceRecordId?: string;
+  // True ⇒ this flag BLOCKS acceptance of proposals that depend on it: the
+  // dependent proposal cannot be accepted until this flag is cleared. Used for
+  // "accepting proposal A would change records proposal B relies on — resolve A
+  // first." Absent/false ⇒ an advisory flag that does not block anything.
+  blocking?: boolean;
+}
+
+// What accepting a PROPOSAL would do to other records. The review agent computes
+// this so the human can see the downstream consequences BEFORE accepting; on
+// accept, each entry seeds a `reviewNeeded` flag on its target record (the agent
+// re-checks those records because this proposal changed something they relied
+// on). Only meaningful on PROPOSED records. Hardcoded in the demo for now.
+export interface ProposalImpact {
+  // The existing record this proposal would affect on acceptance.
+  targetRecordId: string;
+  // How it changes the target ("weakens support", "reopens the question").
+  effect: string;
+  // Why — the rationale surfaced to the human before they accept.
+  reason: string;
+  // Severity of the `reviewNeeded` flag this impact would create on the target.
+  severity: ReviewSeverity;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Per-type substatus — the record's domain LIFECYCLE (its "phase").
 //
 // Intentionally lifecycle-only. Two things that used to live here have moved:
 //   • evidentiary state  → `supportStatus` (SUPPORTED/CONFLICTED/UNKNOWN/…)
-//   • "needs attention"  → DERIVED, never stored (see recordAttention in the
-//     case-workspace helpers — staleness, blocked, unsupported, conflicted…)
+//   • "needs review"     → its own explicit `reviewNeeded` axis on CaseRecord,
+//     set by the review agent (reason + severity), not packed into substatus.
 // Records whose state is fully captured by support + lifecycle status carry no
 // substatus at all (FACT, TIMELINE_EVENT, POSTURE, PERSON, DOCUMENT,
 // CASE_SUMMARY).
@@ -150,8 +202,9 @@ export type TheorySubstatus = "ADOPTED" | "EXPLORING" | "BACKUP" | "ABANDONED";
 export type IssueSubstatus = "OPEN" | "RESERVED" | "RESOLVED";
 export type ArgumentSubstatus = "DRAFT" | "TRIAL_READY";
 // Work phase only. "Blocked" is intentionally NOT here — an impediment is
-// orthogonal to phase and is derived (an unmet REQUIRES prerequisite) or set as
-// a separate manual block, never authored as a phase. See recordAttention.
+// orthogonal to phase. When a task is blocked (e.g. an unmet REQUIRES
+// prerequisite), the agent surfaces it through the `reviewNeeded` axis, not by
+// inventing a phase for it.
 export type TaskSubstatus = "OPEN" | "IN_PROGRESS" | "DONE";
 // A question is either still open or resolved with a written answer. Being
 // ANSWERED is inseparable from having an `answer` on the record (see
@@ -239,6 +292,14 @@ export interface CaseRecord {
   category?: string;
   party?: RecordParty;
   priority?: RecordPriority;
+
+  // Agent-attached "needs review" flag (reason + severity). Absent ⇒ no review
+  // needed. See ReviewNeeded — explicit and stored, not derived from the other
+  // axes.
+  reviewNeeded?: ReviewNeeded;
+  // What accepting THIS proposal would do to other records (only set on PROPOSED
+  // records). See ProposalImpact.
+  proposalImpact?: ProposalImpact[];
 
   status: RecordStatus;
   // Typed per record type; narrowed in each typed interface below.

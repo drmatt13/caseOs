@@ -28,15 +28,20 @@ export function ProposalActions({
   onDelete,
   onDecision,
   onEditManually,
+  blockers = [],
 }: {
   record: TypedCaseRecord;
   onDelete: (recordId: string) => void;
   onDecision: (recordId: string, decision: ProposalDecision) => void;
   onEditManually: (recordId: string) => void;
+  // Live records whose blocking review flag must be cleared before this proposal
+  // can be accepted. Non-empty ⇒ Accept is disabled (see the notice above).
+  blockers?: TypedCaseRecord[];
 }) {
   const [suggestingEdits, setSuggestingEdits] = useState(false);
   const [editSuggestion, setEditSuggestion] = useState("");
   const [editSubmitted, setEditSubmitted] = useState(false);
+  const blocked = blockers.length > 0;
 
   return (
     <div className="mt-4 rounded-lg border border-black/15 bg-white/75 p-3">
@@ -49,6 +54,12 @@ export function ProposalActions({
           size="sm"
           icon={CheckCircle2}
           text="Accept proposal"
+          disabled={blocked}
+          title={
+            blocked
+              ? "Resolve the blocking record(s) above before accepting"
+              : undefined
+          }
           onClick={() => onDecision(record.id, { status: "accepted" })}
         />
         <Button
