@@ -1,26 +1,29 @@
+import { useContext } from "react";
 import { Link } from "@tanstack/react-router";
 import { BriefcaseBusiness } from "lucide-react";
 import UserPanel from "#/components/layouts/UserPanel";
 import Button from "#/components/ui/Button";
-import WorkspaceRoleBadge, {
-  type WorkspaceRoleBadgeRole,
-} from "#/components/ui/WorkspaceRoleBadge";
-import type { MembershipRole } from "#/api/generated/graphql";
+import WorkspaceRoleBadge from "#/components/ui/WorkspaceRoleBadge";
 import type { WorkspaceDetail } from "#/api/workspace/hooks";
+import { AppModalContext } from "#/context/AppModalContext";
+import { canManageWorkspace } from "#/lib/permissions";
 import { defaultWorkspaceCases } from "#/demo/defaultWorkspaceCases";
 
 interface WorkspaceProps {
   workspace: WorkspaceDetail;
 }
 
-const membershipRoleLabels: Record<MembershipRole, WorkspaceRoleBadgeRole> = {
-  OWNER: "Owner",
-  ADMIN: "Admin",
-  CONTRIBUTOR: "Contributor",
-  READONLY: "Read Only",
-};
-
 const WorkspaceDashboard = ({ workspace }: WorkspaceProps) => {
+  const { setModal, setModalWorkspaceId } = useContext(AppModalContext);
+  const canOnboardMembers = canManageWorkspace(
+    workspace.currentUserMembership?.role,
+  );
+
+  const openOnboardMembers = () => {
+    setModalWorkspaceId(workspace.id);
+    setModal("onboard members");
+  };
+
   return (
     <div className="flex h-full min-w-0 flex-col gap-4">
       <div className="flex flex-col px-2 gap-1.5">
@@ -66,7 +69,14 @@ const WorkspaceDashboard = ({ workspace }: WorkspaceProps) => {
           <p className="text-md font-medium">
             Members ({workspace.memberships.length})
           </p>
-          <Button style="secondary" text="Onboard Members" icon="userPlus" />
+          {canOnboardMembers && (
+            <Button
+              style="secondary"
+              text="Onboard Members"
+              icon="userPlus"
+              onClick={openOnboardMembers}
+            />
+          )}
         </div>
         <div className="flex flex-col gap-1">
           {workspace.memberships.map((member) => (
@@ -83,7 +93,7 @@ const WorkspaceDashboard = ({ workspace }: WorkspaceProps) => {
                   profilePicture: member.user.profilePicture,
                 }}
               />
-              <WorkspaceRoleBadge role={membershipRoleLabels[member.role]} />
+              <WorkspaceRoleBadge role={member.role} />
             </div>
           ))}
         </div>

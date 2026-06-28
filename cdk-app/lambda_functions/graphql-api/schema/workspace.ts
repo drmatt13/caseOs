@@ -1,4 +1,5 @@
 import { randomBytes } from "node:crypto";
+import { can } from "@repo/api-contract";
 import type PrismaTypes from "@repo/database/generated/pothos";
 import {
   InvitationStatus,
@@ -8,6 +9,7 @@ import {
 } from "@repo/database/generated/prisma/enums";
 import { z } from "zod";
 import type { GraphQLContext } from "../graphql-context";
+import { sendWorkspaceInvitationEmail } from "../email/sendWorkspaceInvitationEmail";
 import { builder } from "./builder";
 import { badUserInput, forbidden, notFound } from "./errors";
 
@@ -34,6 +36,7 @@ const WorkspaceInviteInputSchema = z
     email: z.string().trim().email().transform((email) => email.toLowerCase()),
     role: z.enum([
       MembershipRole.ADMIN,
+      MembershipRole.REVIEWER,
       MembershipRole.CONTRIBUTOR,
       MembershipRole.READONLY,
     ]),
@@ -152,6 +155,17 @@ const WorkspaceMembership = builder
     }),
   });
 
+// A minimal, non-membership-gated view of a workspace, safe to expose to a
+// pending invitee (who is not yet a member) so they can identify the invite.
+const InvitationWorkspaceSummary = builder
+  .objectRef<WorkspaceShape>("InvitationWorkspaceSummary")
+  .implement({
+    fields: (t) => ({
+      id: t.exposeID("id"),
+      name: t.exposeString("name"),
+    }),
+  });
+
 const WorkspaceInvitation = builder
   .objectRef<WorkspaceInvitationShape>("WorkspaceInvitation")
   .implement({
@@ -190,6 +204,24 @@ const WorkspaceInvitation = builder
               id: invitation.invitedByUserId,
             },
           });
+        },
+      }),
+      // Intentionally NOT membership-gated: an invitee is not yet a member of
+      // the workspace, but still needs its name to decide on the invitation.
+      workspace: t.field({
+        type: InvitationWorkspaceSummary,
+        resolve: async (invitation, _args, context) => {
+          const workspace = await context.prisma.workspace.findUnique({
+            where: {
+              id: invitation.workspaceId,
+            },
+          });
+
+          if (!workspace) {
+            throw notFound("Invitation workspace not found");
+          }
+
+          return workspace;
         },
       }),
     }),
@@ -288,6 +320,28 @@ const InviteWorkspaceMemberPayload = builder
     }),
   });
 
+const AcceptWorkspaceInvitationPayload = builder
+  .objectRef<{ success: boolean; workspace: WorkspaceShape }>(
+    "AcceptWorkspaceInvitationPayload",
+  )
+  .implement({
+    fields: (t) => ({
+      success: t.exposeBoolean("success"),
+      workspace: t.field({
+        type: Workspace,
+        resolve: (payload) => payload.workspace,
+      }),
+    }),
+  });
+
+const DeclineWorkspaceInvitationPayload = builder
+  .objectRef<{ success: boolean }>("DeclineWorkspaceInvitationPayload")
+  .implement({
+    fields: (t) => ({
+      success: t.exposeBoolean("success"),
+    }),
+  });
+
 async function getCurrentUser(context: GraphQLContext): Promise<UserShape> {
   const user = await context.prisma.user.findUnique({
     where: {
@@ -342,10 +396,7 @@ async function requireCurrentUserWorkspaceAdminMembership(
     workspaceId,
   );
 
-  if (
-    membership.role !== MembershipRole.OWNER &&
-    membership.role !== MembershipRole.ADMIN
-  ) {
+  if (!can(membership.role, "inviteMembers")) {
     throw forbidden("You do not have permission to invite workspace members");
   }
 
@@ -354,6 +405,19 @@ async function requireCurrentUserWorkspaceAdminMembership(
 
 function createInvitationToken(): string {
   return randomBytes(32).toString("base64url");
+}
+
+function resolveUserDisplayName(user: UserShape): string | null {
+  if (user.displayName) {
+    return user.displayName;
+  }
+
+  const fullName = [user.firstName, user.lastName]
+    .filter((part) => Boolean(part && part.trim()))
+    .join(" ")
+    .trim();
+
+  return fullName || null;
 }
 
 builder.queryField("workspaces", (t) =>
@@ -440,6 +504,150 @@ builder.queryField("workspaceInvitations", (t) =>
   }),
 );
 
+// Invitations addressed to the signed-in user (matched by email), still
+// actionable: PENDING and not expired. Powers the header badge + the
+// "workspaces you're invited to" modal. Unlike `workspaceInvitations`, the
+// caller is NOT a member of these workspaces yet.
+builder.queryField("myWorkspaceInvitations", (t) =>
+  t.field({
+    type: [WorkspaceInvitation],
+    resolve: async (_parent, _args, context) => {
+      const user = await getCurrentUser(context);
+
+      return context.prisma.workspaceInvitation.findMany({
+        where: {
+          email: user.email.toLowerCase(),
+          status: InvitationStatus.PENDING,
+          expiresAt: {
+            gt: new Date(),
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+    },
+  }),
+);
+
+async function requireActionableInvitationForCurrentUser(
+  context: GraphQLContext,
+  invitationId: string,
+): Promise<{ invitation: WorkspaceInvitationShape; userId: string }> {
+  const user = await getCurrentUser(context);
+
+  const invitation = await context.prisma.workspaceInvitation.findUnique({
+    where: {
+      id: invitationId,
+    },
+  });
+
+  if (!invitation || invitation.email !== user.email.toLowerCase()) {
+    throw notFound("Invitation not found");
+  }
+
+  if (invitation.status !== InvitationStatus.PENDING) {
+    throw badUserInput("This invitation is no longer pending");
+  }
+
+  if (invitation.expiresAt.getTime() <= Date.now()) {
+    throw badUserInput("This invitation has expired");
+  }
+
+  return { invitation, userId: user.id };
+}
+
+builder.mutationField("acceptWorkspaceInvitation", (t) =>
+  t.field({
+    type: AcceptWorkspaceInvitationPayload,
+    args: {
+      invitationId: t.arg.id({ required: true }),
+    },
+    resolve: async (_parent, args, context) => {
+      const { invitation, userId } =
+        await requireActionableInvitationForCurrentUser(
+          context,
+          String(args.invitationId),
+        );
+
+      const workspace = await context.prisma.$transaction(async (tx) => {
+        await tx.workspaceMembership.upsert({
+          where: {
+            workspaceId_userId: {
+              workspaceId: invitation.workspaceId,
+              userId,
+            },
+          },
+          create: {
+            workspaceId: invitation.workspaceId,
+            userId,
+            role: invitation.role,
+            membershipStatus: MembershipStatus.ACTIVE,
+          },
+          update: {
+            role: invitation.role,
+            membershipStatus: MembershipStatus.ACTIVE,
+          },
+        });
+
+        await tx.workspaceInvitation.update({
+          where: {
+            id: invitation.id,
+          },
+          data: {
+            status: InvitationStatus.ACCEPTED,
+          },
+        });
+
+        const acceptedWorkspace = await tx.workspace.findUnique({
+          where: {
+            id: invitation.workspaceId,
+          },
+        });
+
+        if (!acceptedWorkspace) {
+          throw notFound("Invitation workspace not found");
+        }
+
+        return acceptedWorkspace;
+      });
+
+      return {
+        success: true,
+        workspace,
+      };
+    },
+  }),
+);
+
+builder.mutationField("declineWorkspaceInvitation", (t) =>
+  t.field({
+    type: DeclineWorkspaceInvitationPayload,
+    args: {
+      invitationId: t.arg.id({ required: true }),
+    },
+    resolve: async (_parent, args, context) => {
+      const { invitation } = await requireActionableInvitationForCurrentUser(
+        context,
+        String(args.invitationId),
+      );
+
+      await context.prisma.workspaceInvitation.update({
+        where: {
+          id: invitation.id,
+        },
+        data: {
+          status: InvitationStatus.DECLINED,
+        },
+      });
+
+      return {
+        success: true,
+      };
+    },
+  }),
+);
+
 builder.mutationField("createWorkspace", (t) =>
   t.field({
     type: CreateWorkspacePayload,
@@ -461,37 +669,51 @@ builder.mutationField("createWorkspace", (t) =>
         throw badUserInput("You cannot invite yourself to a workspace");
       }
 
-      const workspace = await context.prisma.$transaction(async (tx) => {
-        const createdWorkspace = await tx.workspace.create({
-          data: {
-            name: parsedData.data.name,
-            description: parsedData.data.description,
-            ownerUserId: user.id,
-            memberships: {
-              create: {
-                userId: user.id,
-                role: MembershipRole.OWNER,
-                membershipStatus: MembershipStatus.ACTIVE,
+      const { workspace, invitationRows } = await context.prisma.$transaction(
+        async (tx) => {
+          const createdWorkspace = await tx.workspace.create({
+            data: {
+              name: parsedData.data.name,
+              description: parsedData.data.description,
+              ownerUserId: user.id,
+              memberships: {
+                create: {
+                  userId: user.id,
+                  role: MembershipRole.OWNER,
+                  membershipStatus: MembershipStatus.ACTIVE,
+                },
               },
             },
-          },
-        });
-
-        if (invitations.length > 0) {
-          await tx.workspaceInvitation.createMany({
-            data: invitations.map((invitation) => ({
-              workspaceId: createdWorkspace.id,
-              invitedByUserId: user.id,
-              email: invitation.email,
-              role: invitation.role,
-              invitationToken: createInvitationToken(),
-              expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
-            })),
           });
-        }
 
-        return createdWorkspace;
-      });
+          const rows = invitations.map((invitation) => ({
+            workspaceId: createdWorkspace.id,
+            invitedByUserId: user.id,
+            email: invitation.email,
+            role: invitation.role,
+            invitationToken: createInvitationToken(),
+            expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+          }));
+
+          if (rows.length > 0) {
+            await tx.workspaceInvitation.createMany({ data: rows });
+          }
+
+          return { workspace: createdWorkspace, invitationRows: rows };
+        },
+      );
+
+      await Promise.all(
+        invitationRows.map((invitation) =>
+          sendWorkspaceInvitationEmail({
+            email: invitation.email,
+            workspaceName: workspace.name,
+            inviterName: resolveUserDisplayName(user),
+            role: invitation.role,
+            invitationToken: invitation.invitationToken,
+          }),
+        ),
+      );
 
       return {
         success: true,
@@ -566,6 +788,18 @@ builder.mutationField("inviteWorkspaceMember", (t) =>
           invitationToken: createInvitationToken(),
           expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
         },
+      });
+
+      const workspace = await context.prisma.workspace.findUnique({
+        where: { id: parsedData.data.workspaceId },
+      });
+
+      await sendWorkspaceInvitationEmail({
+        email: invitation.email,
+        workspaceName: workspace?.name ?? "a workspace",
+        inviterName: resolveUserDisplayName(user),
+        role: invitation.role,
+        invitationToken: invitation.invitationToken,
       });
 
       return {

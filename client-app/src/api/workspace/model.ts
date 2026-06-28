@@ -47,12 +47,25 @@ export type WorkspaceDetailCurrentUserMembership = {
   membershipStatus: MembershipStatus;
 };
 
+export type WorkspaceDetailInvitation = {
+  id: string;
+  email: string;
+  role: MembershipRole;
+  status: NonNullable<
+    NonNullable<
+      NonNullable<GetWorkspaceQuery["workspace"]>["invitations"]
+    >[number]["status"]
+  >;
+  createdAt: string | null;
+};
+
 export type WorkspaceDetail = {
   id: string;
   name: string;
   description: string | null;
   currentUserMembership: WorkspaceDetailCurrentUserMembership | null;
   memberships: WorkspaceDetailMember[];
+  invitations: WorkspaceDetailInvitation[];
 };
 
 // Keep only well-formed workspaces, project to the UI shape, and sort most
@@ -130,6 +143,28 @@ export function normalizeWorkspaceDetail(
           lastName: membership.user.lastName ?? null,
           profilePicture: membership.user.profilePicture ?? null,
         },
+      })),
+    invitations: (workspace.invitations ?? [])
+      .filter(
+        (invitation): invitation is NonNullable<typeof invitation> & {
+          id: string;
+          email: string;
+          role: WorkspaceDetailInvitation["role"];
+          status: WorkspaceDetailInvitation["status"];
+        } =>
+          Boolean(
+            invitation?.id &&
+              invitation.email &&
+              invitation.role &&
+              invitation.status,
+          ),
+      )
+      .map((invitation) => ({
+        id: invitation.id,
+        email: invitation.email,
+        role: invitation.role,
+        status: invitation.status,
+        createdAt: invitation.createdAt ?? null,
       })),
   };
 }

@@ -23,6 +23,8 @@ import { recordPartyLabel } from "#/lib/caseRecordPresentation";
 
 import { useCaseWorkspace } from "#/components/features/case-workspace/useCaseWorkspace";
 import { ShowProposedLinksContext } from "#/components/features/case-workspace/showProposedLinksContext";
+import { WorkspaceCapabilitiesContext } from "#/components/features/case-workspace/workspaceCapabilitiesContext";
+import { canManageWorkspace, resolveCapabilities } from "#/lib/permissions";
 import RecordInspector from "#/components/features/case-workspace/RecordInspector";
 import RecordCreateModal from "#/components/features/case-workspace/RecordCreateModal";
 import GenerateRecordModal from "#/components/features/case-workspace/GenerateRecordModal";
@@ -109,15 +111,16 @@ function RouteComponent() {
     return <GetUserError />;
   }
 
-  const canManageWorkspace =
-    workspace.currentUserMembership?.role === "OWNER" ||
-    workspace.currentUserMembership?.role === "ADMIN";
+  const role = workspace.currentUserMembership?.role;
+  const canManageWorkspaceAccess = canManageWorkspace(role);
+  const capabilities = resolveCapabilities(role);
   const caseName = caseDisplayName(demo.caseContext);
   const caseIdentifier = caseIdentifierDisplayLabel(demo.caseContext);
   const caseForum = caseForumLabel(demo.caseContext);
 
   return (
     <ShowProposedLinksContext.Provider value={showProposedLinksValue}>
+      <WorkspaceCapabilitiesContext.Provider value={capabilities}>
       <AppLayout>
         <NavigationPanel activeItemKey={activeView}>
           <UserPanel user={user} settings={true} showTier={true} />
@@ -146,7 +149,7 @@ function RouteComponent() {
           />
         </NavigationPanel>
 
-        <ContentShell showWorkspaceSettings={canManageWorkspace}>
+        <ContentShell showWorkspaceSettings={canManageWorkspaceAccess}>
           <div className="flex min-w-0 flex-col gap-4">
             <header className="flex flex-wrap items-start justify-between gap-3 border-b border-black/15 pb-4">
               <div className="min-w-0">
@@ -245,6 +248,7 @@ function RouteComponent() {
 
         <GenerateRecordModal target={generateTarget} onClose={closeGenerate} />
       </AppLayout>
+      </WorkspaceCapabilitiesContext.Provider>
     </ShowProposedLinksContext.Provider>
   );
 }

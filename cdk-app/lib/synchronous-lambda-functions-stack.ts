@@ -243,6 +243,8 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
         ...prismaLambdaEnvironment,
         USER_POOL_ID: props.userPoolId,
         USER_POOL_CLIENT_ID: props.userPoolClientId,
+        // Used by the workspace-invitation email dispatch (currently simulated).
+        RESEND_API_KEY: process.env.RESEND_API_KEY ?? "",
         ...(props.primaryDatabaseSecretArn
           ? {
               PRIMARY_DATABASE_SECRET_ARN: props.primaryDatabaseSecretArn,

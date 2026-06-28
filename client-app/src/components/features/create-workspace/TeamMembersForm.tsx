@@ -1,17 +1,11 @@
-import { XIcon } from "lucide-react";
-import Button from "#/components/ui/Button";
-import WorkspaceRoleBadge from "#/components/ui/WorkspaceRoleBadge";
+import { FormSection } from "#/components/features/create-workspace/fields";
+import type { CreateWorkspaceForm } from "#/components/features/create-workspace/workspaceForm";
 import {
-  FormSection,
-  SelectField,
-  TextInputField,
-} from "#/components/features/create-workspace/fields";
-import {
-  workspaceRoleOptions,
-  type CreateWorkspaceForm,
-} from "#/components/features/create-workspace/workspaceForm";
-
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  emailPattern,
+  InviteEntryRow,
+  InvitePendingRow,
+  RoleDescriptions,
+} from "#/components/features/invite-members/InviteMembersFields";
 
 type TeamMembersFormProps = {
   workspace: CreateWorkspaceForm;
@@ -58,31 +52,15 @@ const TeamMembersForm = ({
       description="Invite users and assign starter roles."
       icon="users"
     >
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_12rem_auto] lg:items-end">
-        <TextInputField
-          label="Invite Users"
-          value={workspace.pendingInviteEmail}
-          type="email"
-          onChange={(event) =>
-            onFieldChange("pendingInviteEmail", event.target.value)
-          }
-          placeholder="teammate@example.com"
-        />
-        <SelectField
-          label="Assign Roles"
-          value={workspace.pendingInviteRole}
-          onChange={(value) => onFieldChange("pendingInviteRole", value)}
-          options={workspaceRoleOptions}
-          className="sm:self-end"
-        />
-        <Button
-          text="Add"
-          style="secondary"
-          onClick={addInvite}
-          disabled={!canAddInvite}
-          minWidth="sm"
-        />
-      </div>
+      <RoleDescriptions />
+      <InviteEntryRow
+        email={workspace.pendingInviteEmail}
+        role={workspace.pendingInviteRole}
+        onEmailChange={(value) => onFieldChange("pendingInviteEmail", value)}
+        onRoleChange={(value) => onFieldChange("pendingInviteRole", value)}
+        onAdd={addInvite}
+        canAdd={canAddInvite}
+      />
       <div className="flex flex-col gap-2">
         {workspace.invites.length === 0 ? (
           <div className="rounded-xl border border-dashed border-black/15 p-4 text-sm text-black/55">
@@ -91,24 +69,12 @@ const TeamMembersForm = ({
           </div>
         ) : (
           workspace.invites.map((invite, index) => (
-            <div
+            <InvitePendingRow
               key={`${invite.email}-${index}`}
-              className="flex items-center justify-between rounded-xl bg-white/50 border border-black/10 px-3 py-2 text-sm"
-            >
-              <span className="truncate">{invite.email}</span>
-              <div className="flex shrink-0 items-center gap-2">
-                <WorkspaceRoleBadge role={invite.role} />
-                <button
-                  type="button"
-                  aria-label={`Remove ${invite.email}`}
-                  title={`Remove ${invite.email}`}
-                  className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100"
-                  onClick={() => removeInvite(index)}
-                >
-                  <XIcon className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            </div>
+              email={invite.email}
+              role={invite.role}
+              onRemove={() => removeInvite(index)}
+            />
           ))
         )}
       </div>

@@ -30,6 +30,7 @@ const queryClient = new QueryClient({
 
 function RootComponent() {
   const [modal, setModal] = useState<Modal>(null);
+  const [modalWorkspaceId, setModalWorkspaceId] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [modalGuardState, setModalGuardState] =
     useState<ModalGuardState>("unlocked");
@@ -97,6 +98,8 @@ function RootComponent() {
         value={{
           modal,
           setModal,
+          modalWorkspaceId,
+          setModalWorkspaceId,
           modalGuardState,
           setModalGuardState,
           requestCloseModal,

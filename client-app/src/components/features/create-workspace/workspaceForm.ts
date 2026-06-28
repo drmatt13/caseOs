@@ -1,10 +1,10 @@
-export const CREATE_WORKSPACE_TOTAL_STEPS = 3;
+import type { MembershipRole } from "#/api/generated/graphql";
 
-export type WorkspaceRole = "Admin" | "Contributor" | "Read Only";
+export const CREATE_WORKSPACE_TOTAL_STEPS = 3;
 
 export interface WorkspaceInvite {
   email: string;
-  role: WorkspaceRole;
+  role: MembershipRole;
 }
 
 export interface CreateWorkspaceForm {
@@ -12,7 +12,7 @@ export interface CreateWorkspaceForm {
   includeDescription: boolean;
   description: string;
   pendingInviteEmail: string;
-  pendingInviteRole: WorkspaceRole;
+  pendingInviteRole: MembershipRole;
   invites: WorkspaceInvite[];
 }
 
@@ -21,20 +21,11 @@ export interface CreateWorkspaceWizardState {
   workspace: CreateWorkspaceForm;
 }
 
-export const workspaceRoleOptions: Array<{
-  label: string;
-  value: WorkspaceRole;
-}> = [
-  { label: "Admin", value: "Admin" },
-  { label: "Contributor", value: "Contributor" },
-  { label: "Read Only", value: "Read Only" },
-];
-
 export const initialCreateWorkspace: CreateWorkspaceForm = {
   name: "",
   includeDescription: false,
   description: "",
   pendingInviteEmail: "",
-  pendingInviteRole: "Contributor",
+  pendingInviteRole: "CONTRIBUTOR",
   invites: [],
 };

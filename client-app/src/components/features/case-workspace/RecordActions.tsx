@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
   CheckCircle2,
   CircleSlash,
@@ -17,6 +17,7 @@ import Button from "#/components/ui/Button";
 import TextAreaField from "#/components/ui/TextAreaField";
 
 import type { ProposalDecision, WorkspaceGraph } from "./useWorkspaceGraph";
+import { WorkspaceCapabilitiesContext } from "./workspaceCapabilitiesContext";
 
 export function ProposalActions({
   record,
@@ -29,9 +30,17 @@ export function ProposalActions({
   onDecision: (recordId: string, decision: ProposalDecision) => void;
   onEditManually: (recordId: string) => void;
 }) {
+  const { acceptProposal, createProposal } = useContext(
+    WorkspaceCapabilitiesContext,
+  );
   const [suggestingEdits, setSuggestingEdits] = useState(false);
   const [editSuggestion, setEditSuggestion] = useState("");
   const [editSubmitted, setEditSubmitted] = useState(false);
+
+  // Contributors may refine/withdraw proposals; only Reviewers+ may accept them.
+  if (!acceptProposal && !createProposal) {
+    return null;
+  }
 
   return (
     <div className="mt-4 rounded-lg border border-black/15 bg-white/75 p-3">
@@ -39,36 +48,44 @@ export function ProposalActions({
           review. Rejection is reserved for already accepted records, where it
           creates a traversal boundary with an auditable reason. */}
       <div className="flex flex-wrap flex-row-reverse items-center gap-2">
-        <Button
-          style="primary"
-          size="sm"
-          icon={CheckCircle2}
-          text="Accept proposal"
-          onClick={() => onDecision(record.id, { status: "accepted" })}
-        />
-        <Button
-          style="secondary"
-          size="sm"
-          icon={Sparkles}
-          text="Suggest edits"
-          title="Suggest edits with AI"
-          onClick={() => setSuggestingEdits((value) => !value)}
-        />
-        <Button
-          style="secondary"
-          size="sm"
-          icon={PencilLine}
-          text="Edit manually"
-          title="Hand-edit this proposal and its links"
-          onClick={() => onEditManually(record.id)}
-        />
-        <Button
-          style="danger"
-          size="sm"
-          icon={Trash2}
-          text="Delete proposal"
-          onClick={() => onDelete(record.id)}
-        />
+        {acceptProposal && (
+          <Button
+            style="primary"
+            size="sm"
+            icon={CheckCircle2}
+            text="Accept proposal"
+            onClick={() => onDecision(record.id, { status: "accepted" })}
+          />
+        )}
+        {createProposal && (
+          <Button
+            style="secondary"
+            size="sm"
+            icon={Sparkles}
+            text="Suggest edits"
+            title="Suggest edits with AI"
+            onClick={() => setSuggestingEdits((value) => !value)}
+          />
+        )}
+        {createProposal && (
+          <Button
+            style="secondary"
+            size="sm"
+            icon={PencilLine}
+            text="Edit manually"
+            title="Hand-edit this proposal and its links"
+            onClick={() => onEditManually(record.id)}
+          />
+        )}
+        {createProposal && (
+          <Button
+            style="danger"
+            size="sm"
+            icon={Trash2}
+            text="Delete proposal"
+            onClick={() => onDelete(record.id)}
+          />
+        )}
       </div>
 
       {suggestingEdits && (
@@ -124,6 +141,9 @@ export function AcceptedRecordActions({
   onRequestRevision: (recordId: string, instruction: string) => void;
   onReject: (recordId: string, reason: string) => void;
 }) {
+  const { acceptProposal, createProposal } = useContext(
+    WorkspaceCapabilitiesContext,
+  );
   // One action surface, one open panel at a time. `active` names which inline
   // panel is expanded; `instruction` backs the revision panel and `reason` the
   // reject form.
@@ -137,6 +157,12 @@ export function AcceptedRecordActions({
     setActive((current) => (current === next ? null : next));
   };
 
+  // Rejecting an authoritative record is an accept-level disposition; asking the
+  // agent to draft a replacement is a proposal action.
+  if (!acceptProposal && !createProposal) {
+    return null;
+  }
+
   return (
     <div
       className="mt-4 rounded-lg border border-black/15 bg-white/75 p-3"
@@ -148,22 +174,26 @@ export function AcceptedRecordActions({
           <span>Manage record</span>
         </div>
         <div className="flex flex-wrap justify-end gap-2">
-          <Button
-            style="danger"
-            size="sm"
-            icon={CircleSlash}
-            text={active === "reject" ? "Cancel" : "Reject record"}
-            title="Reject this record; agents can read the reason, but will not rely on it or follow it further"
-            onClick={() => toggle("reject")}
-          />
-          <Button
-            style="secondary"
-            size="sm"
-            icon={GitBranch}
-            text={active === "revision" ? "Cancel" : "Propose revision"}
-            title="Have the agent draft a replacement proposal"
-            onClick={() => toggle("revision")}
-          />
+          {acceptProposal && (
+            <Button
+              style="danger"
+              size="sm"
+              icon={CircleSlash}
+              text={active === "reject" ? "Cancel" : "Reject record"}
+              title="Reject this record; agents can read the reason, but will not rely on it or follow it further"
+              onClick={() => toggle("reject")}
+            />
+          )}
+          {createProposal && (
+            <Button
+              style="secondary"
+              size="sm"
+              icon={GitBranch}
+              text={active === "revision" ? "Cancel" : "Propose revision"}
+              title="Have the agent draft a replacement proposal"
+              onClick={() => toggle("revision")}
+            />
+          )}
         </div>
       </div>
 
@@ -237,8 +267,14 @@ export function RejectedRecordActions({
   record: TypedCaseRecord;
   onRequestRevision: (recordId: string, instruction: string) => void;
 }) {
+  const { createProposal } = useContext(WorkspaceCapabilitiesContext);
   const [open, setOpen] = useState(false);
   const [instruction, setInstruction] = useState("");
+
+  // The only action here asks the agent to draft a replacement proposal.
+  if (!createProposal) {
+    return null;
+  }
 
   return (
     <div
@@ -336,6 +372,9 @@ export function TaskStatusControl({
   graph: WorkspaceGraph;
   onChange: (recordId: string, substatus: TaskSubstatus) => void;
 }) {
+  const { setTaskStatus: canSetTaskStatus } = useContext(
+    WorkspaceCapabilitiesContext,
+  );
   const [staged, setStaged] = useState<TaskSubstatus | null>(null);
 
   return (
@@ -353,12 +392,15 @@ export function TaskStatusControl({
               ? "ring-2 ring-inset ring-[#282828] bg-white text-[#282828]"
               : isCurrent
                 ? "bg-[#282828] text-white"
-                : "bg-black/5 text-black/70 hover:bg-black/10";
+                : canSetTaskStatus
+                  ? "bg-black/5 text-black/70 hover:bg-black/10"
+                  : "bg-black/5 text-black/45 cursor-default";
             return (
               <button
                 key={phase}
                 type="button"
                 aria-pressed={isCurrent}
+                disabled={!canSetTaskStatus}
                 className={`flex-1 rounded-md px-2 py-1.5 text-sm transition-colors ${className}`}
                 onClick={() =>
                   setStaged(record.substatus === phase ? null : phase)
@@ -411,11 +453,13 @@ export function QuestionAnswerControl({
   record: Extract<TypedCaseRecord, { type: "QUESTION" }>;
   onChange: (recordId: string, answer: string) => void;
 }) {
+  const { answerQuestion } = useContext(WorkspaceCapabilitiesContext);
   const answered = record.substatus === "ANSWERED";
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(record.answer ?? "");
 
   // Settled answer — read-only until the user chooses to edit or reopen it.
+  // Edit/Reopen only appear for roles that may answer questions.
   if (answered && !editing) {
     return (
       <div
@@ -427,27 +471,41 @@ export function QuestionAnswerControl({
             <CheckCircle2 className="h-3.5 w-3.5" />
             Answer
           </p>
-          <div className="flex items-center gap-1.5">
-            <Button
-              style="ghost"
-              size="sm"
-              icon={PencilLine}
-              text="Edit"
-              onClick={() => {
-                setDraft(record.answer ?? "");
-                setEditing(true);
-              }}
-            />
-            <Button
-              style="ghost"
-              size="sm"
-              icon={RotateCcw}
-              text="Reopen"
-              onClick={() => onChange(record.id, "")}
-            />
-          </div>
+          {answerQuestion && (
+            <div className="flex items-center gap-1.5">
+              <Button
+                style="ghost"
+                size="sm"
+                icon={PencilLine}
+                text="Edit"
+                onClick={() => {
+                  setDraft(record.answer ?? "");
+                  setEditing(true);
+                }}
+              />
+              <Button
+                style="ghost"
+                size="sm"
+                icon={RotateCcw}
+                text="Reopen"
+                onClick={() => onChange(record.id, "")}
+              />
+            </div>
+          )}
         </div>
         <p className="mt-1.5 text-md leading-6 text-black/80">{record.answer}</p>
+      </div>
+    );
+  }
+
+  // Unanswered + no permission to answer: show a quiet placeholder, not a composer.
+  if (!answerQuestion) {
+    return (
+      <div
+        className="mt-3 rounded-lg border border-black/15 bg-black/2.5 px-3 py-2.5 text-sm text-black/55"
+        onClick={(event) => event.stopPropagation()}
+      >
+        Not answered yet.
       </div>
     );
   }
@@ -503,6 +561,10 @@ export function FrozenNote({
   reason?: string;
   onRestore: () => void;
 }) {
+  // Restoring a rejected record reinstates it as authoritative — an accept-level
+  // disposition, so only Reviewers+ see the control.
+  const { acceptProposal } = useContext(WorkspaceCapabilitiesContext);
+
   return (
     <div
       className={`mt-4 rounded-lg border px-3 py-2 text-sm ${TONES.critical.surface} text-red-800`}
@@ -512,13 +574,15 @@ export function FrozenNote({
           <CircleSlash className="h-4 w-4" />
           Rejected
         </p>
-        <Button
-          style="secondary"
-          size="sm"
-          icon={RotateCcw}
-          text="Restore"
-          onClick={onRestore}
-        />
+        {acceptProposal && (
+          <Button
+            style="secondary"
+            size="sm"
+            icon={RotateCcw}
+            text="Restore"
+            onClick={onRestore}
+          />
+        )}
       </div>
       {reason && <p className="mt-1 leading-5">Reason: {reason}</p>}
       <p className="mt-1 text-xs leading-5 text-red-700">

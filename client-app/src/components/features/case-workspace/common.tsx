@@ -1,13 +1,16 @@
+import { useContext } from "react";
 import { FileText, Image as ImageIcon } from "lucide-react";
 
 import type { CaseDocument, RecordType } from "#/types/caseRecords";
 import Button from "#/components/ui/Button";
 
 import { isImageDocument } from "./helpers";
+import { WorkspaceCapabilitiesContext } from "./workspaceCapabilitiesContext";
 
 // The Create + Generate action pair shown above every record list. Create opens
 // the manual editor; Generate opens the (stub) agent draft modal. Both are bound
 // to the view's record type, so the same pair drops into every record view.
+// Only roles that may propose records see it.
 export function RecordCreateActions({
   type,
   singular,
@@ -19,6 +22,12 @@ export function RecordCreateActions({
   onCreate: (type: RecordType) => void;
   onGenerate: (type: RecordType) => void;
 }) {
+  const { createProposal } = useContext(WorkspaceCapabilitiesContext);
+
+  if (!createProposal) {
+    return null;
+  }
+
   return (
     <div className="flex flex-wrap items-center justify-end gap-2">
       <Button

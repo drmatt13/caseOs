@@ -41,6 +41,7 @@ enum WorkspaceStatus {
 enum MembershipRole {
   OWNER       @map("owner")
   ADMIN       @map("admin")
+  REVIEWER    @map("reviewer")
   CONTRIBUTOR @map("contributor")
   READONLY    @map("readonly")
 }
@@ -52,9 +53,11 @@ enum MembershipStatus {
 }
 
 enum InvitationStatus {
-  PENDING @map("pending")
-  REVOKED @map("revoked")
-  EXPIRED @map("expired")
+  PENDING  @map("pending")
+  ACCEPTED @map("accepted")
+  DECLINED @map("declined")
+  REVOKED  @map("revoked")
+  EXPIRED  @map("expired")
 }
 
 // enum CaseStatus {

@@ -3,6 +3,7 @@ import {
   BriefcaseBusiness,
   Building2,
   FileText,
+  Mail,
   PlusIcon,
   Scale,
   Sparkles,
@@ -203,10 +204,14 @@ const WorkspaceOverview = ({
                 View subscription options
               </button>
             )}
-            {/* <button type="button" className={secondaryActionClassName}>
+            <button
+              type="button"
+              className={secondaryActionClassName}
+              onClick={() => setModal("my invitations")}
+            >
               <Mail className="h-4 w-4" />
               Check invites
-            </button> */}
+            </button>
           </div>
         </div>
       )}

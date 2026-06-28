@@ -69,6 +69,13 @@ const GetWorkspaceDocument = graphql(`
           profilePicture
         }
       }
+      invitations {
+        id
+        email
+        role
+        status
+        createdAt
+      }
     }
   }
 `);
@@ -117,11 +124,15 @@ export async function getWorkspace(
   });
   const workspace = data.workspace;
 
-  if (!workspace?.id || !workspace.name) {
+  if (!workspace || !workspace.id || !workspace.name) {
     throw new Error("Workspace was not found");
   }
 
-  return normalizeWorkspaceDetail(workspace);
+  return normalizeWorkspaceDetail({
+    ...workspace,
+    id: workspace.id,
+    name: workspace.name,
+  });
 }
 
 export async function createWorkspace(

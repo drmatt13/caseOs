@@ -10,6 +10,8 @@ import useBodyScrollLock from "#/hooks/useBodyScrollLock";
 import EditUserModal from "./EditUserModal";
 import ModifySubscriptionModal from "./ModifySubscriptionModal";
 import ManageWorkspacesModal from "./ManageWorkspacesModal";
+import MyInvitationsModal from "./MyInvitationsModal";
+import OnboardMembersModal from "./OnboardMembersModal";
 
 const SettingsModal = () => {
   const { modal, requestCloseModal } = useContext(AppModalContext);
@@ -73,6 +75,8 @@ const SettingsModal = () => {
             <ModifySubscriptionModal />
           )}
           {visibleModal === "manage workspaces" && <ManageWorkspacesModal />}
+          {visibleModal === "my invitations" && <MyInvitationsModal />}
+          {visibleModal === "onboard members" && <OnboardMembersModal />}
         </div>
         {/* MODAL */}
       </div>

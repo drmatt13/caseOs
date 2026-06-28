@@ -3,6 +3,11 @@ schema {
   mutation: Mutation
 }
 
+type AcceptWorkspaceInvitationPayload {
+  success: Boolean
+  workspace: Workspace
+}
+
 enum AccountStatus {
   ACTIVE
   DISABLED
@@ -52,10 +57,21 @@ type CurrentUserPayload {
   user: CurrentUser
 }
 
+type DeclineWorkspaceInvitationPayload {
+  success: Boolean
+}
+
 enum InvitationStatus {
+  ACCEPTED
+  DECLINED
   EXPIRED
   PENDING
   REVOKED
+}
+
+type InvitationWorkspaceSummary {
+  id: ID
+  name: String
 }
 
 input InviteWorkspaceMemberInput {
@@ -74,6 +90,7 @@ enum MembershipRole {
   CONTRIBUTOR
   OWNER
   READONLY
+  REVIEWER
 }
 
 enum MembershipStatus {
@@ -83,13 +100,16 @@ enum MembershipStatus {
 }
 
 type Mutation {
+  acceptWorkspaceInvitation(invitationId: ID!): AcceptWorkspaceInvitationPayload
   createWorkspace(data: CreateWorkspaceInput!): CreateWorkspacePayload
+  declineWorkspaceInvitation(invitationId: ID!): DeclineWorkspaceInvitationPayload
   inviteWorkspaceMember(data: InviteWorkspaceMemberInput!): InviteWorkspaceMemberPayload
   updateCurrentUser(data: UpdateCurrentUserInput!): UpdateCurrentUserPayload
 }
 
 type Query {
   currentUser: CurrentUserPayload
+  myWorkspaceInvitations: [WorkspaceInvitation!]
   userById(id: ID!): UserProfile
   workspace(id: ID!): Workspace
   workspaceInvitations(status: InvitationStatus, workspaceId: ID): [WorkspaceInvitation!]
@@ -153,6 +173,7 @@ type WorkspaceInvitation {
   role: MembershipRole
   status: InvitationStatus
   updatedAt: String
+  workspace: InvitationWorkspaceSummary
   workspaceId: ID
 }
 

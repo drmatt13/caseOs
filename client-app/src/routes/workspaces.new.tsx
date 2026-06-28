@@ -16,26 +16,18 @@ import {
   CREATE_WORKSPACE_TOTAL_STEPS,
   initialCreateWorkspace,
   type CreateWorkspaceForm,
-  type WorkspaceRole,
   type CreateWorkspaceWizardState,
 } from "#/components/features/create-workspace/workspaceForm";
 
 import { useCurrentUserQuery } from "#/api/currentUser/hooks";
 import { useCreateWorkspaceMutation } from "#/api/workspace/hooks";
 import type { CreateWorkspacePayloadInput } from "#/api/workspace/operations";
-import type { MembershipRole } from "#/api/generated/graphql";
 import { requireAuth } from "#/lib/auth";
 
 const createBlankWorkspace = (): CreateWorkspaceForm => ({
   ...initialCreateWorkspace,
   invites: [],
 });
-
-const workspaceRoleToMembershipRole: Record<WorkspaceRole, MembershipRole> = {
-  Admin: "ADMIN",
-  Contributor: "CONTRIBUTOR",
-  "Read Only": "READONLY",
-};
 
 const toCreateWorkspaceInput = (
   workspace: CreateWorkspaceForm,
@@ -46,7 +38,7 @@ const toCreateWorkspaceInput = (
     : null,
   invitations: workspace.invites.map((invite) => ({
     email: invite.email.trim().toLowerCase(),
-    role: workspaceRoleToMembershipRole[invite.role],
+    role: invite.role,
   })),
 });
 
