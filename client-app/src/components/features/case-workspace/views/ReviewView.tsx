@@ -1,10 +1,7 @@
 import { useState } from "react";
 import { GitBranch, Sparkles, TriangleAlert } from "lucide-react";
 
-import {
-  VIEW_DESCRIPTIONS,
-  VIEW_LABELS,
-} from "#/lib/caseRecordPresentation";
+import { VIEW_DESCRIPTIONS, VIEW_LABELS } from "#/lib/caseRecordPresentation";
 
 import { EmptyState } from "../common";
 import { recordNeedsReview, reviewQueue } from "../helpers";
@@ -73,10 +70,10 @@ function ReviewView({
 
       {flaggedAccepted.length > 0 && (
         <section className="flex flex-col gap-2">
-          <h3 className="flex items-center gap-2 text-sm font-medium text-black/65">
+          {/* <h3 className="flex items-center gap-2 text-sm font-medium text-black/65">
             <TriangleAlert className="h-4 w-4" />
-            Needs review ({flaggedAccepted.length})
-          </h3>
+            Accepted Records ({flaggedAccepted.length})
+          </h3> */}
           <div className="grid grid-cols-1 gap-3">
             {flaggedAccepted.map((record) => (
               <RecordCard

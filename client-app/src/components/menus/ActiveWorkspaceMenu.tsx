@@ -22,6 +22,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 
 import { VIEW_LABELS } from "#/lib/caseRecordPresentation";
+import { TONES } from "#/lib/tones";
 import {
   WORKSPACE_MENU_GROUPS,
   type WorkspaceViewType,
@@ -59,18 +60,25 @@ interface ActiveWorkspaceMenuProps {
   activeView: WorkspaceViewType;
   onSelectView: (view: WorkspaceViewType) => void;
   counts?: Partial<Record<WorkspaceViewType, ViewCount>>;
-  // Pending proposal count; rendered as the (blue) review badge.
+  // Pending proposal count; rendered as the amber review badge.
   reviewCount?: number;
 }
 
-// Gray = accepted/authoritative, blue = proposed/awaiting review.
-function CountBadge({ count, tone }: { count: number; tone: "gray" | "blue" }) {
+// Gray = accepted/authoritative, amber = proposed/awaiting review.
+function CountBadge({
+  count,
+  tone,
+}: {
+  count: number;
+  tone: "gray" | "amber";
+}) {
   if (count <= 0) return null;
+
   return (
     <span
       className={`rounded-full px-1.5 py-0.5 text-xs font-mono border ${
-        tone === "blue"
-          ? "bg-blue-200/75 text-blue-800 border-blue-300"
+        tone === "amber"
+          ? `${TONES.caution.badge} border-amber-600/45 bg-amber-100/70 text-amber-950`
           : "bg-black/10 text-black/70 border-black/15"
       }`}
     >
@@ -97,14 +105,15 @@ const ActiveWorkspaceMenu = ({
           {group.views.map((view) => {
             const Icon = viewIcons[view];
             const count = counts[view];
+            const isActive = activeView === view;
 
             return (
               <div
                 key={view}
                 data-nav-item={view}
-                aria-current={activeView === view ? "page" : undefined}
+                aria-current={isActive ? "page" : undefined}
                 className={`p-2 h-8 rounded-lg flex items-center justify-between gap-2 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100 ${
-                  activeView === view
+                  isActive
                     ? "bg-black/14 font-medium"
                     : "hover:bg-black/10"
                 }`}
@@ -116,12 +125,18 @@ const ActiveWorkspaceMenu = ({
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
                   {view === "review" ? (
-                    // Review queue only surfaces what's awaiting review (blue).
-                    <CountBadge count={reviewCount} tone="blue" />
+                    // Review queue only surfaces what's awaiting review (amber).
+                    <CountBadge
+                      count={reviewCount}
+                      tone="amber"
+                    />
                   ) : (
                     <>
-                      {/* <CountBadge count={count?.proposed ?? 0} tone="blue" /> */}
-                      <CountBadge count={count?.accepted ?? 0} tone="gray" />
+                      {/* <CountBadge count={count?.proposed ?? 0} tone="amber" /> */}
+                      <CountBadge
+                        count={count?.accepted ?? 0}
+                        tone="gray"
+                      />
                     </>
                   )}
                 </div>
