@@ -774,6 +774,13 @@ const ojRecords: TypedCaseRecord[] = [
     supportStatus: "PARTIALLY_SUPPORTED",
     supportStatusExplanation:
       "Partially supported by the Rockingham glove chronology and impeachment research, but still depends on fuller personnel and credibility materials.",
+    reviewNeeded: {
+      severity: "high",
+      reason: "Pending impeachment records may change theory strength",
+      detail:
+        "The accepted theory assumes Fuhrman remains a supporting credibility theme. The proposed central-witness argument and outstanding subpoena could materially change how much weight this theory should carry.",
+      sourceRecordId: "arg-fuhrman-central",
+    },
     substatus: "ADOPTED",
     priority: "high",
     party: "ours",
@@ -1028,6 +1035,13 @@ const ojRecords: TypedCaseRecord[] = [
     supportStatus: "PARTIALLY_SUPPORTED",
     supportStatusExplanation:
       "Partially supported by the fit-history and glove reports; the demonstrative force is clear, but trial risk and common-origin proof remain unresolved.",
+    reviewNeeded: {
+      severity: "medium",
+      reason: "Live-demonstration premise still unresolved",
+      detail:
+        "This merged argument depends on the unresolved glove-demonstration issue. Re-check whether the trial team still wants the demonstrative path before treating the argument as ready for use.",
+      sourceRecordId: "issue-003",
+    },
     party: "ours",
     category: "Glove evidence",
     version: 2,
@@ -1136,6 +1150,14 @@ const ojRecords: TypedCaseRecord[] = [
     supportStatus: "SUPPORT_NOT_REQUIRED",
     supportStatusExplanation:
       "This is a work item for a risk memo; the underlying glove-fit issue carries the evidentiary support.",
+    reviewNeeded: {
+      severity: "medium",
+      reason: "Blocked by unresolved demonstration decision",
+      detail:
+        "The memo is in progress, but its scope depends on the open issue about whether to request or provoke the courtroom glove demonstration. Resolve the strategic issue before marking this task ready.",
+      sourceRecordId: "issue-003",
+      blocking: true,
+    },
     status: "ACCEPTED",
     substatus: "IN_PROGRESS",
     priority: "medium",
@@ -1585,6 +1607,13 @@ const ojRecords: TypedCaseRecord[] = [
     supportStatus: "CONFLICTED",
     supportStatusExplanation:
       "Conflicted because the DNA report supports consistency with Simpson's blood, while the defense challenges how probative that is given vehicle ownership and collection timing.",
+    reviewNeeded: {
+      severity: "medium",
+      reason: "Proposed replacement changes legal significance",
+      detail:
+        "A pending proposal reframes the same Bronco DNA result as expected in the defendant's own vehicle. Decide whether this accepted fact should remain opposing-favorable or be softened before using it in summaries.",
+      sourceRecordId: "fact-bronco-innocent",
+    },
     party: "opposing",
     category: "Blood evidence",
     title: "DNA in the Bronco is consistent with the defendant's blood",
@@ -2754,13 +2783,10 @@ const linkSpecs: LinkSpec[] = [
   // Issues
   ["issue-001", "DEPENDS_ON", "fact-glove-v3", "ACCEPTED", "Suppression issue turns on how the Rockingham glove was discovered."],
   ["docrec-motion-suppress", "EVIDENCES", "issue-001", "ACCEPTED", "The filed suppression motion frames the Fourth Amendment issue."],
-  ["issue-001", "CITES", "precedent-fourth-amendment", "PROPOSED", "Issue cites Fourth Amendment warrantless-search authority."],
   ["issue-002", "DEPENDS_ON", "fact-dna-bundy", "PROPOSED", "DNA-admissibility issue turns on the Bundy mixture results."],
   ["docrec-dna-mixture-limits", "EVIDENCES", "issue-002", "PROPOSED", "Mixture-limits report documents the reliability problems behind the issue."],
-  ["issue-002", "CITES", "precedent-kelly-frye", "PROPOSED", "Issue cites Kelly-Frye on novel-method admissibility."],
   ["issue-003", "DEPENDS_ON", "fact-second-glove-fit", "PROPOSED", "Glove-demonstration issue turns on the courtroom fact that the glove did not fit."],
   ["issue-prior-domestic", "DEPENDS_ON", "timeline-prior-1989", "ACCEPTED", "Prior-domestic issue turns on the 1989 incident on the timeline."],
-  ["issue-prior-domestic", "CITES", "precedent-1101b", "PROPOSED", "Issue cites §1101(b) on the admissibility of prior bad acts."],
 
   // Arguments
   ["arg-fuhrman-collateral", "DEPENDS_ON", "fact-glove-v3", "ACCEPTED", "Collateral Fuhrman argument rests on the disputed glove discovery."],
@@ -2935,6 +2961,8 @@ const linkSpecs: LinkSpec[] = [
   ],
 ];
 
+const linkedRecordPairKeys = new Set<string>();
+
 const ojLinks: GraphLink[] = linkSpecs.map(
   ([fromId, type, toId, status, explanation, rejectionReason], index) => {
     const fromRecordType = recordTypeById.get(fromId);
@@ -2943,6 +2971,14 @@ const ojLinks: GraphLink[] = linkSpecs.map(
     if (!fromRecordType || !toRecordType) {
       throw new Error(`OJ demo link references unknown record: ${fromId} → ${toId}`);
     }
+
+    const linkedRecordPairKey = [fromId, toId].sort().join("::");
+    if (linkedRecordPairKeys.has(linkedRecordPairKey)) {
+      throw new Error(
+        `OJ demo link duplicates record pair: ${fromId} ↔ ${toId}`,
+      );
+    }
+    linkedRecordPairKeys.add(linkedRecordPairKey);
 
     const endpointsAuthoritative =
       isAuthoritativeStatus(recordStatusById.get(fromId)) &&

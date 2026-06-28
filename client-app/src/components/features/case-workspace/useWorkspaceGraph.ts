@@ -494,8 +494,7 @@ export function useWorkspaceGraph(demo: CaseDemo) {
   };
 
   // Resolve (clear) a record's review flag. An explicit null override wins over
-  // any seeded `reviewNeeded`, so a demo-seeded flag can be cleared too. This is
-  // what lifts a blocking flag so a dependent proposal can be accepted.
+  // any seeded `reviewNeeded`, so a demo-seeded flag can be cleared too.
   const clearReview = (recordId: string) => {
     setReviewNeededOverrides((existing) => ({ ...existing, [recordId]: null }));
   };

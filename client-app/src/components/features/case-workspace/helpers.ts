@@ -171,9 +171,10 @@ export function recordFilterStatus(
 
 // True when a live (non-replaced, non-rejected) record carries a review flag the
 // agent attached. Review is an explicit stored axis (`record.reviewNeeded`), not
-// inferred here. Both PROPOSED and ACCEPTED records can be flagged (an accepted
-// record because something upstream changed; a proposal because accepting it now
-// depends on resolving another). Frozen/replaced records never surface.
+// inferred here. Both PROPOSED and ACCEPTED records can be flagged: proposed
+// records because they need human attention before becoming canonical, accepted
+// records because something upstream changed. Frozen/replaced records never
+// surface.
 export function recordNeedsReview(
   record: TypedCaseRecord,
   graph: WorkspaceGraph,
@@ -199,30 +200,10 @@ export function reviewQueue(graph: WorkspaceGraph): TypedCaseRecord[] {
     });
 }
 
-// The live records whose BLOCKING review flag must be cleared before this
-// proposal can be accepted. Test-space rule (the agent will own the real logic):
-// a proposal is blocked by the record named in its own `reviewNeeded` when that
-// flag is `blocking` and the named source record still carries an unresolved
-// blocking flag of its own. Returns [] for non-proposals or unblocked proposals.
-export function proposalBlockers(
-  record: TypedCaseRecord,
-  graph: WorkspaceGraph,
-): TypedCaseRecord[] {
-  if (graph.effectiveStatus(record) !== "PROPOSED") return [];
-  const flag = record.reviewNeeded;
-  if (!flag?.blocking || !flag.sourceRecordId) return [];
-  const source = graph.recordsById.get(flag.sourceRecordId);
-  if (!source) return [];
-  // The block lifts once the source's own blocking flag is resolved/cleared.
-  return recordNeedsReview(source, graph) && source.reviewNeeded?.blocking
-    ? [source]
-    : [];
-}
-
 // The ONE pill a dense view (card / chip) shows for a record, chosen by a
 // priority cascade so a record never wears a stack of competing badges:
 //   review status (if unsettled) → support
-// Review state is NOT a pill — it rides a separate warning triangle (see
+// Review state is NOT a pill — it rides a separate status icon (see
 // ReviewFlagIcon). Returns null when an accepted, well-grounded record has
 // nothing to say — its calm blankness is itself the "settled" signal. The full
 // decomposition (every axis at once) lives in the inspector, not here.

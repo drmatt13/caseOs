@@ -23,8 +23,8 @@ import {
   caseStageLabel,
 } from "#/lib/caseContext";
 import {
+  REVIEW_URGENCY_LABELS,
   REVIEW_SEVERITY_DOT_CLASSES,
-  REVIEW_SEVERITY_LABELS,
   recordPartyLabel,
 } from "#/lib/caseRecordPresentation";
 
@@ -177,13 +177,13 @@ function OverviewView({
                   <div className="flex items-center gap-2">
                     <span
                       className={`h-2 w-2 shrink-0 rounded-full border ${REVIEW_SEVERITY_DOT_CLASSES[review.severity]}`}
-                      title={`${REVIEW_SEVERITY_LABELS[review.severity]} severity`}
+                      title={REVIEW_URGENCY_LABELS[review.severity]}
                     />
                     <p className="min-w-0 flex-1 text-sm font-medium leading-5 text-black/80">
                       {review.reason}
                     </p>
-                    <span className="shrink-0 text-xs uppercase tracking-wide text-black/45">
-                      {REVIEW_SEVERITY_LABELS[review.severity]}
+                    <span className="max-w-28 shrink-0 text-right text-xs font-medium leading-4 text-black/55">
+                      {REVIEW_URGENCY_LABELS[review.severity]}
                     </span>
                   </div>
                   {review.detail && (

@@ -15,7 +15,6 @@ import {
   SubstatusBadge,
   SupportBadge,
 } from "./RecordBadges";
-import { RecordSettingsMenu } from "./RecordActions";
 import type { WorkspaceGraph } from "./useWorkspaceGraph";
 
 const RECORD_DISPLAY_STATUS_TEXT_CLASSES: Record<RecordDisplayStatus, string> =
@@ -37,12 +36,10 @@ function RecordCard({
   graph: WorkspaceGraph;
   onOpenRecord: (recordId: string) => void;
 }) {
-  const status = graph.effectiveStatus(record);
   // Display status splits PROPOSED into plain "Proposed" vs "Proposed
   // Replacement" (green badge, purple card); raw `status` still drives logic.
   const displayStatus = recordDisplayStatus(record, graph);
-  // A flagged record gives the top-right corner to the review triangle instead of
-  // the settings cog — one slot, never both. The cog keeps its existing rule.
+  // A flagged record shows the review triangle in the top-right corner.
   const needsReview = recordNeedsReview(record, graph);
 
   return (
@@ -59,19 +56,10 @@ function RecordCard({
       }}
       title={`Open ${record.title}`}
     >
-      {needsReview ? (
+      {needsReview && (
         <div className="absolute right-3 top-3">
-          <ReviewFlagIcon
-            record={record}
-            onClick={() => onOpenRecord(record.id)}
-          />
+          <ReviewFlagIcon record={record} />
         </div>
-      ) : (
-        (status === "ACCEPTED" || displayStatus === "REJECTED") && (
-          <div className="absolute right-3 top-3">
-            <RecordSettingsMenu record={record} onDelete={graph.deleteRecord} />
-          </div>
-        )
       )}
       <div className="min-w-0">
         {record.category && (

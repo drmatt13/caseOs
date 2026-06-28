@@ -225,14 +225,13 @@ export const SUPPORT_STATUS_CLASSES: Record<SupportStatus, string> = {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Needs Review (agent-attached) — severity → presentation. Reuses the shared
-// tones so review state reads at the same urgency vocabulary as everything else:
-// low is an FYI (info/blue), medium is "should look" (caution/amber), high is
-// "act" (critical/red).
+// tones: low is advisory, medium asks for validation before downstream reliance,
+// and high must be resolved before dependent work moves forward.
 //
-// Dense views (cards/chips) show review state as a tinted WARNING TRIANGLE, not a
-// pill, so they use the `ink` recipe (text/border color only) rather than the
-// `badge` fill. The badge fill is kept for the few roomy places (the inspector
-// notice header) that still want a small severity chip.
+// Dense views (cards/chips) show review state as a tinted icon, not a pill, so
+// they use the `ink` recipe (text/border color only) rather than the `badge`
+// fill. Natural-language labels below translate the stored enum into
+// user-facing action.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const REVIEW_SEVERITY_LABELS: Record<ReviewSeverity, string> = {
@@ -241,24 +240,50 @@ export const REVIEW_SEVERITY_LABELS: Record<ReviewSeverity, string> = {
   high: "High",
 };
 
+export const REVIEW_URGENCY_LABELS: Record<ReviewSeverity, string> = {
+  low: "Monitor",
+  medium: "Validate before reliance",
+  high: "Resolve before reliance",
+};
+
+export const REVIEW_URGENCY_DESCRIPTIONS: Record<ReviewSeverity, string> = {
+  low: "Advisory only; confirm this record before it becomes a dependency.",
+  medium:
+    "Check the record before citing it, approving related work, or building analysis on it.",
+  high:
+    "Clear the issue before relying on this record or approving dependent work.",
+};
+
+export const REVIEW_URGENCY_TEXT_CLASSES: Record<ReviewSeverity, string> = {
+  low: TONES.info.ink,
+  medium: "text-amber-900",
+  high: "text-red-800",
+};
+
+export const REVIEW_SEVERITY_SURFACE_CLASSES: Record<ReviewSeverity, string> = {
+  low: TONES.info.surface,
+  medium: TONES.caution.surface,
+  high: TONES.critical.surface,
+};
+
 // Triangle icon tint (color in the ink, no fill) — the dense-view signal.
 export const REVIEW_SEVERITY_ICON_CLASSES: Record<ReviewSeverity, string> = {
   low: TONES.info.ink,
-  medium: TONES.caution.ink,
+  medium: "text-amber-700",
   high: TONES.critical.ink,
 };
 
 // Small severity chip for roomy surfaces (inspector notice header, queue label).
 export const REVIEW_SEVERITY_BADGE_CLASSES: Record<ReviewSeverity, string> = {
   low: TONES.info.badge,
-  medium: TONES.caution.badge,
+  medium: "border-amber-600/40 bg-amber-50/75 text-amber-900",
   high: TONES.critical.badge,
 };
 
 // Small status dot per severity, for dense review-queue rows.
 export const REVIEW_SEVERITY_DOT_CLASSES: Record<ReviewSeverity, string> = {
   low: TONES.info.dot,
-  medium: TONES.caution.dot,
+  medium: "border-amber-700/35 bg-amber-500/90",
   high: TONES.critical.dot,
 };
 

@@ -153,10 +153,10 @@ export interface ReviewNeeded {
   // the agent record "why" and the UI offer a jump-to link. Optional so a
   // standalone flag needs no graph context.
   sourceRecordId?: string;
-  // True ⇒ this flag BLOCKS acceptance of proposals that depend on it: the
-  // dependent proposal cannot be accepted until this flag is cleared. Used for
-  // "accepting proposal A would change records proposal B relies on — resolve A
-  // first." Absent/false ⇒ an advisory flag that does not block anything.
+  // Optional agent metadata for flags that affect dependent records. Kept so
+  // seeded/API data can preserve that nuance, but the client does not block
+  // proposal acceptance from this flag; accepted changes propagate follow-up
+  // review flags instead.
   blocking?: boolean;
 }
 

@@ -1,22 +1,17 @@
-import { useEffect, useRef, useState, type MouseEvent } from "react";
+import { useState } from "react";
 import {
   CheckCircle2,
   CircleSlash,
   GitBranch,
   PencilLine,
   RotateCcw,
-  Settings,
   Sparkles,
   Trash2,
   Wrench,
 } from "lucide-react";
 
 import type { TaskSubstatus, TypedCaseRecord } from "#/types/caseRecords";
-import {
-  RECORD_SUBSTATUS_LABELS,
-  SINGULAR_VIEW_LABELS,
-} from "#/lib/caseRecordPresentation";
-import { RECORD_TYPE_VIEW } from "#/types/caseWorkspace";
+import { RECORD_SUBSTATUS_LABELS } from "#/lib/caseRecordPresentation";
 import { TONES } from "#/lib/tones";
 import Button from "#/components/ui/Button";
 import TextAreaField from "#/components/ui/TextAreaField";
@@ -28,20 +23,15 @@ export function ProposalActions({
   onDelete,
   onDecision,
   onEditManually,
-  blockers = [],
 }: {
   record: TypedCaseRecord;
   onDelete: (recordId: string) => void;
   onDecision: (recordId: string, decision: ProposalDecision) => void;
   onEditManually: (recordId: string) => void;
-  // Live records whose blocking review flag must be cleared before this proposal
-  // can be accepted. Non-empty ⇒ Accept is disabled (see the notice above).
-  blockers?: TypedCaseRecord[];
 }) {
   const [suggestingEdits, setSuggestingEdits] = useState(false);
   const [editSuggestion, setEditSuggestion] = useState("");
   const [editSubmitted, setEditSubmitted] = useState(false);
-  const blocked = blockers.length > 0;
 
   return (
     <div className="mt-4 rounded-lg border border-black/15 bg-white/75 p-3">
@@ -54,12 +44,6 @@ export function ProposalActions({
           size="sm"
           icon={CheckCircle2}
           text="Accept proposal"
-          disabled={blocked}
-          title={
-            blocked
-              ? "Resolve the blocking record(s) above before accepting"
-              : undefined
-          }
           onClick={() => onDecision(record.id, { status: "accepted" })}
         />
         <Button
@@ -552,116 +536,6 @@ export function ProposalDecisionNote() {
       className={`mt-4 rounded-lg border px-3 py-2 text-sm ${TONES.positive.surface} text-emerald-800`}
     >
       <p className="font-medium">Proposal accepted</p>
-    </div>
-  );
-}
-
-export function RecordSettingsMenu({
-  record,
-  onDelete,
-}: {
-  record: TypedCaseRecord;
-  onDelete: (recordId: string) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const [menuNote, setMenuNote] = useState("");
-  const menuRef = useRef<HTMLDivElement>(null);
-  const itemLabel =
-    SINGULAR_VIEW_LABELS[RECORD_TYPE_VIEW[record.type]] ?? "record";
-  const isReplaced = record.status === "REPLACED";
-
-  useEffect(() => {
-    if (!open) return;
-
-    const handlePointerDown = (event: PointerEvent) => {
-      if (!menuRef.current?.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    };
-
-    document.addEventListener("pointerdown", handlePointerDown);
-    return () => document.removeEventListener("pointerdown", handlePointerDown);
-  }, [open]);
-
-  const handleMenuAction = (
-    event: MouseEvent<HTMLButtonElement>,
-    note: string,
-  ) => {
-    event.stopPropagation();
-    setMenuNote(note);
-  };
-
-  return (
-    <div ref={menuRef} className="relative">
-      <button
-        type="button"
-        className="rounded-lg p-1.5 text-black/65 transition-colors hover:bg-black/15"
-        title={`Open ${itemLabel} settings`}
-        onClick={(event) => {
-          event.stopPropagation();
-          setOpen((value) => !value);
-        }}
-      >
-        <Settings className="h-4 w-4" />
-      </button>
-      {open && (
-        <div
-          className="absolute right-0 top-8 z-20 min-w-52 rounded-xl border border-black/22 bg-white/90 p-1.5 text-sm shadow-md backdrop-blur-sm"
-          onClick={(event) => event.stopPropagation()}
-        >
-          {isReplaced ? (
-            <p className="px-2.5 py-2 text-black/50">
-              Replaced records are read-only.
-            </p>
-          ) : (
-            <>
-              <button
-                type="button"
-                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-black/70 transition-colors hover:bg-black/10"
-                onClick={(event) =>
-                  handleMenuAction(
-                    event,
-                    `Edit mode queued for this ${itemLabel}.`,
-                  )
-                }
-              >
-                <PencilLine className="h-3.5 w-3.5" />
-                Edit {itemLabel}
-              </button>
-              <button
-                type="button"
-                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-black/70 transition-colors hover:bg-black/10"
-                onClick={(event) =>
-                  handleMenuAction(
-                    event,
-                    `Suggested edits queued for this ${itemLabel}.`,
-                  )
-                }
-              >
-                <Sparkles className="h-3.5 w-3.5" />
-                Suggest edits
-              </button>
-              <button
-                type="button"
-                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-red-700 transition-colors hover:bg-black/10"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  onDelete(record.id);
-                  setOpen(false);
-                }}
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-                Delete {itemLabel}
-              </button>
-            </>
-          )}
-          {menuNote && !isReplaced && (
-            <p className="mt-1 border-t border-black/15 px-2.5 py-2 text-xs leading-4 text-black/50">
-              {menuNote}
-            </p>
-          )}
-        </div>
-      )}
     </div>
   );
 }

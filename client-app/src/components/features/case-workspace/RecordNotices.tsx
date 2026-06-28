@@ -1,7 +1,7 @@
 import { GitBranch, Lock, TriangleAlert } from "lucide-react";
 
 import type { TypedCaseRecord } from "#/types/caseRecords";
-import { REVIEW_SEVERITY_LABELS } from "#/lib/caseRecordPresentation";
+import { REVIEW_URGENCY_LABELS } from "#/lib/caseRecordPresentation";
 import { TONES } from "#/lib/tones";
 
 import RecordChip from "./RecordChip";
@@ -96,7 +96,7 @@ export function ProposalImpactNotice({
               {impact.reason}
               <span className="text-amber-900/60">
                 {" "}
-                ({REVIEW_SEVERITY_LABELS[impact.severity].toLowerCase()})
+                ({REVIEW_URGENCY_LABELS[impact.severity].toLowerCase()})
               </span>
             </p>
           </div>

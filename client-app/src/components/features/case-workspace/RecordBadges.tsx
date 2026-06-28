@@ -1,4 +1,4 @@
-import { TriangleAlert } from "lucide-react";
+import { Info, TriangleAlert } from "lucide-react";
 
 import type { ClientRole } from "#/types/caseDomain";
 import type { TypedCaseRecord } from "#/types/caseRecords";
@@ -8,8 +8,8 @@ import {
   RECORD_PARTY_CLASSES,
   RECORD_SUBSTATUS_CLASSES,
   RECORD_SUBSTATUS_LABELS,
+  REVIEW_URGENCY_LABELS,
   REVIEW_SEVERITY_ICON_CLASSES,
-  REVIEW_SEVERITY_LABELS,
   SUPPORT_STATUS_CLASSES,
   SUPPORT_STATUS_LABELS,
   type RecordDisplayStatus,
@@ -85,40 +85,31 @@ export function SupportBadge({ record }: { record: TypedCaseRecord }) {
 }
 
 // The agent-attached "needs review" flag, shown in dense views as a small
-// severity-tinted warning triangle (no text — the reason lives in the tooltip and
-// the inspector). Renders nothing for a record with no review flag. The optional
-// onClick lets a card use it as the open affordance in place of the cog.
+// severity-tinted status icon. It is passive status, not its own button: the
+// card or chip around it owns navigation.
 export function ReviewFlagIcon({
   record,
   className = "",
-  onClick,
 }: {
   record: TypedCaseRecord;
   className?: string;
-  onClick?: () => void;
 }) {
   const flag = record.reviewNeeded;
   if (!flag) return null;
-  const title = `Needs review (${REVIEW_SEVERITY_LABELS[flag.severity].toLowerCase()}): ${flag.reason}`;
-  const icon = (
-    <TriangleAlert
-      className={`h-4 w-4 ${REVIEW_SEVERITY_ICON_CLASSES[flag.severity]} ${className}`}
-    />
-  );
-  if (!onClick) return <span title={title}>{icon}</span>;
+  const title = `Needs review (${REVIEW_URGENCY_LABELS[flag.severity].toLowerCase()}): ${flag.reason}`;
+  const Icon = flag.severity === "low" ? Info : TriangleAlert;
   return (
-    <button
-      type="button"
+    <span
+      role="img"
       title={title}
       aria-label={title}
-      className="rounded-lg p-1.5 transition-colors hover:bg-black/10"
-      onClick={(event) => {
-        event.stopPropagation();
-        onClick();
-      }}
+      className="inline-flex"
     >
-      {icon}
-    </button>
+      <Icon
+        aria-hidden="true"
+        className={`h-4 w-4 shrink-0 ${REVIEW_SEVERITY_ICON_CLASSES[flag.severity]} ${className}`}
+      />
+    </span>
   );
 }
 
