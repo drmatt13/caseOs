@@ -39,21 +39,23 @@ export type WorkspaceCapability =
   | "manageWorkspace"
   | "inviteMembers"
   | "removeMembers"
+  | "createCase"
   // Case-record actions
   | "createProposal"
   | "acceptProposal"
   | "answerQuestion"
   | "setTaskStatus";
 
-// The authoritative capability matrix. OWNER and ADMIN can do everything; a
-// REVIEWER can act on records (accept proposals, answer question records, set
-// task statuses) but not administer the workspace; a CONTRIBUTOR may only
-// propose; READONLY may only view.
+// The authoritative capability matrix. OWNER and ADMIN can do everything
+// (including creating cases); a REVIEWER can act on records (accept proposals,
+// answer question records, set task statuses) but not administer the workspace
+// or create cases; a CONTRIBUTOR may only propose; READONLY may only view.
 export const ROLE_CAPABILITIES: Record<WorkspaceRole, readonly WorkspaceCapability[]> = {
   OWNER: [
     "manageWorkspace",
     "inviteMembers",
     "removeMembers",
+    "createCase",
     "createProposal",
     "acceptProposal",
     "answerQuestion",
@@ -63,6 +65,7 @@ export const ROLE_CAPABILITIES: Record<WorkspaceRole, readonly WorkspaceCapabili
     "manageWorkspace",
     "inviteMembers",
     "removeMembers",
+    "createCase",
     "createProposal",
     "acceptProposal",
     "answerQuestion",

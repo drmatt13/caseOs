@@ -1,3 +1,5 @@
+import { useId, type ReactNode } from "react";
+
 import { cn } from "./cn";
 import { FieldShell } from "./FieldShell";
 import {
@@ -18,6 +20,9 @@ export type SelectFieldProps<T extends string> = {
   value: T;
   onChange: (value: T) => void;
   options: SelectOption<T>[];
+  // Rendered beside the label text (e.g. an info popover trigger). Forwarded to
+  // FieldShell, which keeps it outside the <label> association.
+  labelAdornment?: ReactNode;
 };
 
 export const SelectField = <T extends string>({
@@ -30,26 +35,34 @@ export const SelectField = <T extends string>({
   value,
   onChange,
   options,
-}: SelectFieldProps<T>) => (
-  <FieldShell
-    label={label}
-    description={description}
-    className={className}
-    size={size}
-    disabled={disabled}
-    align={align}
-  >
-    <select
-      className={cn(fieldClass(size), disabled && fieldDisabledClass)}
-      value={value}
+  labelAdornment,
+}: SelectFieldProps<T>) => {
+  const id = useId();
+
+  return (
+    <FieldShell
+      label={label}
+      description={description}
+      className={className}
+      size={size}
       disabled={disabled}
-      onChange={(event) => onChange(event.target.value as T)}
+      align={align}
+      htmlFor={id}
+      labelAdornment={labelAdornment}
     >
-      {options.map((option) => (
-        <option key={option.value} value={option.value}>
-          {option.label}
-        </option>
-      ))}
-    </select>
-  </FieldShell>
-);
+      <select
+        id={id}
+        className={cn(fieldClass(size), disabled && fieldDisabledClass)}
+        value={value}
+        disabled={disabled}
+        onChange={(event) => onChange(event.target.value as T)}
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </FieldShell>
+  );
+};

@@ -9,6 +9,7 @@ export const DEFAULT_WORKSPACE_CAPABILITIES: WorkspaceCapabilities = {
   manageWorkspace: false,
   inviteMembers: false,
   removeMembers: false,
+  createCase: false,
   createProposal: false,
   acceptProposal: false,
   answerQuestion: false,

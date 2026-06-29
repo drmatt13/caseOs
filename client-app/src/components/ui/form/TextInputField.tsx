@@ -1,4 +1,4 @@
-import type { ChangeEventHandler } from "react";
+import { useId, type ChangeEventHandler } from "react";
 import type { LucideIcon } from "lucide-react";
 
 import { cn } from "./cn";
@@ -43,37 +43,46 @@ export const TextInputField = ({
   type = "text",
   icon: Icon,
   error,
-}: TextInputFieldProps) => (
-  <FieldShell
-    label={label}
-    description={description}
-    className={className}
-    size={size}
-    disabled={disabled}
-    align={align}
-  >
-    {Icon ? (
-      <span className={cn(ICON_SHELL_CLASS[size], disabled && ICON_SHELL_DISABLED)}>
-        <Icon className={ICON_CLASS[size]} />
+}: TextInputFieldProps) => {
+  const id = useId();
+
+  return (
+    <FieldShell
+      label={label}
+      description={description}
+      className={className}
+      size={size}
+      disabled={disabled}
+      align={align}
+      htmlFor={id}
+    >
+      {Icon ? (
+        <span
+          className={cn(ICON_SHELL_CLASS[size], disabled && ICON_SHELL_DISABLED)}
+        >
+          <Icon className={ICON_CLASS[size]} />
+          <input
+            id={id}
+            className={cn(ICON_INPUT_CLASS[size], disabled && ICON_INPUT_DISABLED)}
+            type={type}
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            disabled={disabled}
+          />
+        </span>
+      ) : (
         <input
-          className={cn(ICON_INPUT_CLASS[size], disabled && ICON_INPUT_DISABLED)}
+          id={id}
+          className={cn(fieldClass(size), disabled && fieldDisabledClass)}
           type={type}
           value={value}
           onChange={onChange}
           placeholder={placeholder}
           disabled={disabled}
         />
-      </span>
-    ) : (
-      <input
-        className={cn(fieldClass(size), disabled && fieldDisabledClass)}
-        type={type}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        disabled={disabled}
-      />
-    )}
-    {error ? <span className="text-xs text-red-600">{error}</span> : null}
-  </FieldShell>
-);
+      )}
+      {error ? <span className="text-xs text-red-600">{error}</span> : null}
+    </FieldShell>
+  );
+};

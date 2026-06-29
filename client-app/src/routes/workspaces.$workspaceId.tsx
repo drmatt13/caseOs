@@ -10,6 +10,7 @@ import SelectCaseMenu from "#/components/menus/SelectCaseMenu";
 
 // route guards
 import { requireAuth } from "#/lib/auth";
+import { can } from "#/lib/permissions";
 
 // useQuery
 import { useCurrentUserQuery } from "#/api/currentUser/hooks";
@@ -43,9 +44,9 @@ function App() {
     return <GetUserError />;
   }
 
-  const canManageWorkspace =
-    workspace.currentUserMembership?.role === "OWNER" ||
-    workspace.currentUserMembership?.role === "ADMIN";
+  const role = workspace.currentUserMembership?.role;
+  const canManageWorkspace = can(role, "manageWorkspace");
+  const canCreateCase = can(role, "createCase");
 
   // return <PageLoading />;
 
@@ -56,6 +57,7 @@ function App() {
         <SelectCaseMenu
           workspaceId={workspace.id}
           workspaceName={workspace.name}
+          canCreateCase={canCreateCase}
         />
       </NavigationPanel>
       <ContentShell showWorkspaceSettings={canManageWorkspace}>

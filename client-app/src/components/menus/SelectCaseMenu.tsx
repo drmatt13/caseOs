@@ -5,9 +5,17 @@ import { defaultWorkspaceCases } from "#/demo/defaultWorkspaceCases";
 interface SelectCaseMenuProps {
   workspaceId: string;
   workspaceName: string;
+  // Only owners/admins may create cases (createCase capability). When false the
+  // "New Case" entry is hidden; the route itself also guards against direct
+  // navigation.
+  canCreateCase: boolean;
 }
 
-const SelectCaseMenu = ({ workspaceId, workspaceName }: SelectCaseMenuProps) => {
+const SelectCaseMenu = ({
+  workspaceId,
+  workspaceName,
+  canCreateCase,
+}: SelectCaseMenuProps) => {
   return (
     <>
       <div className="text-sm flex gap-1.5 items-center">
@@ -21,15 +29,17 @@ const SelectCaseMenu = ({ workspaceId, workspaceName }: SelectCaseMenuProps) => 
         </Link>
         <p className="truncate">{workspaceName}</p>
       </div>
-      <Link
-        to="/workspaces/$workspaceId/cases/new"
-        params={{ workspaceId }}
-      >
-        <div className="text-sm h-8 p-2 rounded-lg hover:bg-black/10 cursor-pointer flex items-center gap-1.5 text-black transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
-          <PlusIcon className="w-4 h-4" />
-          <div>New Case</div>
-        </div>
-      </Link>
+      {canCreateCase && (
+        <Link
+          to="/workspaces/$workspaceId/cases/new"
+          params={{ workspaceId }}
+        >
+          <div className="text-sm h-8 p-2 rounded-lg hover:bg-black/10 cursor-pointer flex items-center gap-1.5 text-black transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
+            <PlusIcon className="w-4 h-4" />
+            <div>New Case</div>
+          </div>
+        </Link>
+      )}
       {defaultWorkspaceCases.map((caseItem) => (
         <Link
           key={caseItem.id}

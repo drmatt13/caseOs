@@ -4,7 +4,6 @@ import {
   emailPattern,
   InviteEntryRow,
   InvitePendingRow,
-  RoleDescriptions,
 } from "#/components/features/invite-members/InviteMembersFields";
 
 type TeamMembersFormProps = {
@@ -52,7 +51,6 @@ const TeamMembersForm = ({
       description="Invite users and assign starter roles."
       icon="users"
     >
-      <RoleDescriptions />
       <InviteEntryRow
         email={workspace.pendingInviteEmail}
         role={workspace.pendingInviteRole}

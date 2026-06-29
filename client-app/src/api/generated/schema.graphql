@@ -102,8 +102,10 @@ type Mutation {
   createWorkspace(data: CreateWorkspaceInput!): CreateWorkspacePayload
   declineWorkspaceInvitation(invitationId: ID!): DeclineWorkspaceInvitationPayload
   inviteWorkspaceMember(data: InviteWorkspaceMemberInput!): InviteWorkspaceMemberPayload
+  removeWorkspaceMember(data: RemoveWorkspaceMemberInput!): RemoveWorkspaceMemberPayload
   revokeWorkspaceInvitation(invitationId: ID!): RevokeWorkspaceInvitationPayload
   updateCurrentUser(data: UpdateCurrentUserInput!): UpdateCurrentUserPayload
+  updateWorkspaceMemberRole(data: UpdateWorkspaceMemberRoleInput!): UpdateWorkspaceMemberRolePayload
 }
 
 type Query {
@@ -113,6 +115,14 @@ type Query {
   workspace(id: ID!): Workspace
   workspaceInvitations(status: InvitationStatus, workspaceId: ID): [WorkspaceInvitation!]
   workspaces: [Workspace!]
+}
+
+input RemoveWorkspaceMemberInput {
+  membershipId: ID!
+}
+
+type RemoveWorkspaceMemberPayload {
+  success: Boolean
 }
 
 type RevokeWorkspaceInvitationPayload {
@@ -140,6 +150,16 @@ input UpdateCurrentUserInput {
 type UpdateCurrentUserPayload {
   success: Boolean
   user: CurrentUser
+}
+
+input UpdateWorkspaceMemberRoleInput {
+  membershipId: ID!
+  role: MembershipRole!
+}
+
+type UpdateWorkspaceMemberRolePayload {
+  membership: WorkspaceMembership
+  success: Boolean
 }
 
 type UserProfile {

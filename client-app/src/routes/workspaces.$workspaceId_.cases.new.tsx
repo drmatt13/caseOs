@@ -30,6 +30,7 @@ import GetUserError from "#/components/errors/GetUserError";
 
 // route guards
 import { requireAuth } from "#/lib/auth";
+import { can } from "#/lib/permissions";
 
 // useQuery
 import { useCurrentUserQuery } from "#/api/currentUser/hooks";
@@ -109,9 +110,35 @@ function RouteComponent() {
     return <GetUserError />;
   }
 
-  const canManageWorkspace =
-    workspace.currentUserMembership?.role === "OWNER" ||
-    workspace.currentUserMembership?.role === "ADMIN";
+  const role = workspace.currentUserMembership?.role;
+  const canManageWorkspace = can(role, "manageWorkspace");
+  const canCreateCase = can(role, "createCase");
+
+  // Hide the intake wizard from members who can't create cases (Reviewer and
+  // below). The dashboard/case-menu also hide the entry, but guarding the route
+  // blocks direct navigation to /cases/new.
+  if (!canCreateCase) {
+    return (
+      <AppLayout>
+        <NavigationPanel>
+          <UserPanel user={user} settings={true} showTier={true} />
+        </NavigationPanel>
+        <ContentShell showWorkspaceSettings={canManageWorkspace}>
+          <div className="flex h-full items-center justify-center">
+            <div className="max-w-md rounded-2xl border border-black/15 bg-white/40 p-6 text-center shadow-md backdrop-blur-sm">
+              <p className="font-serif text-lg">
+                Cases are created by owners and admins
+              </p>
+              <p className="mt-2 text-md text-black/60">
+                You don&apos;t have permission to create cases in this
+                workspace. Ask an owner or admin if you need a new case opened.
+              </p>
+            </div>
+          </div>
+        </ContentShell>
+      </AppLayout>
+    );
+  }
 
   const updateCaseIntakeField = <K extends keyof CaseIntake>(
     field: K,

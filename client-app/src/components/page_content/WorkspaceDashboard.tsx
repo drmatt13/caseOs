@@ -6,7 +6,7 @@ import Button from "#/components/ui/Button";
 import WorkspaceRoleBadge from "#/components/ui/WorkspaceRoleBadge";
 import type { WorkspaceDetail } from "#/api/workspace/hooks";
 import { AppModalContext } from "#/context/AppModalContext";
-import { canManageWorkspace } from "#/lib/permissions";
+import { can, canManageWorkspace } from "#/lib/permissions";
 import { defaultWorkspaceCases } from "#/demo/defaultWorkspaceCases";
 
 interface WorkspaceProps {
@@ -15,13 +15,13 @@ interface WorkspaceProps {
 
 const WorkspaceDashboard = ({ workspace }: WorkspaceProps) => {
   const { setModal, setModalWorkspaceId } = useContext(AppModalContext);
-  const canOnboardMembers = canManageWorkspace(
-    workspace.currentUserMembership?.role,
-  );
+  const role = workspace.currentUserMembership?.role;
+  const canManageMembers = canManageWorkspace(role);
+  const canCreateCase = can(role, "createCase");
 
-  const openOnboardMembers = () => {
+  const openManageMembers = () => {
     setModalWorkspaceId(workspace.id);
-    setModal("onboard members");
+    setModal("manage members");
   };
 
   return (
@@ -38,12 +38,14 @@ const WorkspaceDashboard = ({ workspace }: WorkspaceProps) => {
           <p className="text-md font-medium">
             Cases ({defaultWorkspaceCases.length})
           </p>
-          <Link
-            to="/workspaces/$workspaceId/cases/new"
-            params={{ workspaceId: workspace.id }}
-          >
-            <Button style="secondary" text="New Case" icon="plus" />
-          </Link>
+          {canCreateCase && (
+            <Link
+              to="/workspaces/$workspaceId/cases/new"
+              params={{ workspaceId: workspace.id }}
+            >
+              <Button style="secondary" text="New Case" icon="plus" />
+            </Link>
+          )}
         </div>
         <div className="flex flex-col gap-1">
           {defaultWorkspaceCases.map((caseItem) => (
@@ -69,12 +71,12 @@ const WorkspaceDashboard = ({ workspace }: WorkspaceProps) => {
           <p className="text-md font-medium">
             Members ({workspace.memberships.length})
           </p>
-          {canOnboardMembers && (
+          {canManageMembers && (
             <Button
               style="secondary"
-              text="Onboard Members"
+              text="Manage Members"
               icon="userPlus"
-              onClick={openOnboardMembers}
+              onClick={openManageMembers}
             />
           )}
         </div>

@@ -30,9 +30,10 @@ export const WORKSPACE_ROLE_META: Record<MembershipRole, WorkspaceRoleMeta> = {
     value: "ADMIN",
     label: "Admin",
     tone: "positive",
-    shortDescription: "Manage members and act on every case record.",
+    shortDescription: "Manage members, create cases, and act on every record.",
     capabilityBullets: [
-      "Invite and remove members",
+      "Invite, remove, and change the roles of members",
+      "Create new cases",
       "Propose, accept, and reject records",
       "Answer questions and set task statuses",
     ],
@@ -41,11 +42,13 @@ export const WORKSPACE_ROLE_META: Record<MembershipRole, WorkspaceRoleMeta> = {
     value: "REVIEWER",
     label: "Reviewer",
     tone: "info",
-    shortDescription: "Propose and accept records; resolve questions and tasks.",
+    shortDescription:
+      "Propose and accept records and resolve tasks; cannot create cases.",
     capabilityBullets: [
       "Propose new case records",
       "Accept or reject proposals",
       "Answer question records and set task statuses",
+      "Cannot create cases or manage members",
     ],
   },
   CONTRIBUTOR: {
@@ -56,6 +59,7 @@ export const WORKSPACE_ROLE_META: Record<MembershipRole, WorkspaceRoleMeta> = {
     capabilityBullets: [
       "Propose new case records",
       "Cannot accept proposals or change records",
+      "Cannot create cases or manage members",
     ],
   },
   READONLY: {

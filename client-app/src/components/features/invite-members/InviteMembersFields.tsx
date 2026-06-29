@@ -1,6 +1,8 @@
-import { XIcon } from "lucide-react";
+import { Info, XIcon } from "lucide-react";
 import type { MembershipRole } from "#/api/generated/graphql";
+import AdminRoleWarning from "#/components/features/invite-members/AdminRoleWarning";
 import Button from "#/components/ui/Button";
+import Popover from "#/components/ui/Popover";
 import WorkspaceRoleBadge from "#/components/ui/WorkspaceRoleBadge";
 import {
   SelectField,
@@ -15,16 +17,16 @@ import {
 
 export const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// A reference legend describing what each assignable role can do. Shared by the
-// create-workspace wizard (md) and the Onboard Members modal (sm) so the
-// descriptions stay in one place (WORKSPACE_ROLE_META). Each role is a stacked
-// row — the role name in its semantic tone ink (same coloring as record-card
-// statuses), with the muted description beneath it.
-export const RoleDescriptions = ({ size = "md" }: { size?: FieldSize }) => {
+// The role legend body — one stacked row per assignable role: the role name in
+// its semantic tone ink (same coloring as record-card statuses) with the muted
+// capability summary beneath it. Descriptions live in one place
+// (WORKSPACE_ROLE_META). Rendered inside RoleInfoPopover's surface, so it carries
+// no card chrome of its own.
+const RoleDescriptions = ({ size }: { size: FieldSize }) => {
   const textSize = size === "sm" ? "text-xs" : "text-sm";
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-black/10 bg-white/40 p-3">
+    <div className="flex flex-col gap-3">
       {ASSIGNABLE_ROLE_META.map((meta) => (
         <div key={meta.value} className="flex flex-col gap-0.5">
           <p className={`${textSize} font-medium ${TONES[meta.tone].ink}`}>
@@ -36,6 +38,26 @@ export const RoleDescriptions = ({ size = "md" }: { size?: FieldSize }) => {
     </div>
   );
 };
+
+// "What can each role do?" — the role legend, moved off the invite forms and
+// behind a small Info button beside the "Assign Role" label. Built on the shared
+// Popover (FloatingPortal + local state, rendered at z-10001) so it floats
+// cleanly even when the trigger lives inside a modal (Onboard Members) — no
+// modal-over-modal stacking required.
+export const RoleInfoPopover = ({ size = "md" }: { size?: FieldSize }) => (
+  <Popover
+    placement="bottom-start"
+    triggerLabel="What can each role do?"
+    triggerClassName="flex shrink-0 cursor-pointer items-center rounded-md text-black/35 transition-colors hover:text-black/70"
+    trigger={<Info className={size === "sm" ? "h-3.5 w-3.5" : "h-4 w-4"} />}
+    className="z-10001 w-72 max-w-[90vw] rounded-xl border border-black/15 bg-white/90 p-3 shadow-md backdrop-blur-xl"
+  >
+    <p className="mb-2 text-[0.65rem] font-semibold uppercase tracking-wide text-black/45">
+      What each role can do
+    </p>
+    <RoleDescriptions size={size} />
+  </Popover>
+);
 
 type InviteEntryRowProps = {
   email: string;
@@ -63,31 +85,35 @@ export const InviteEntryRow = ({
   isSubmitting = false,
   size = "md",
 }: InviteEntryRowProps) => (
-  <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_12rem_auto] lg:items-end">
-    <TextInputField
-      label="Invite Users"
-      value={email}
-      type="email"
-      size={size}
-      onChange={(event) => onEmailChange(event.target.value)}
-      placeholder="teammate@example.com"
-    />
-    <SelectField
-      label="Assign Role"
-      value={role}
-      onChange={onRoleChange}
-      options={workspaceRoleOptions}
-      size={size}
-      className="sm:self-end"
-    />
-    <Button
-      text={isSubmitting ? "Sending" : addLabel}
-      style="secondary"
-      onClick={onAdd}
-      disabled={!canAdd || isSubmitting}
-      minWidth="sm"
-      size={size}
-    />
+  <div className="flex flex-col gap-3">
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_12rem_auto] lg:items-end">
+      <TextInputField
+        label="Invite Users"
+        value={email}
+        type="email"
+        size={size}
+        onChange={(event) => onEmailChange(event.target.value)}
+        placeholder="teammate@example.com"
+      />
+      <SelectField
+        label="Assign Role"
+        value={role}
+        onChange={onRoleChange}
+        options={workspaceRoleOptions}
+        size={size}
+        className="sm:self-end"
+        labelAdornment={<RoleInfoPopover size={size} />}
+      />
+      <Button
+        text={isSubmitting ? "Sending" : addLabel}
+        style="secondary"
+        onClick={onAdd}
+        disabled={!canAdd || isSubmitting}
+        minWidth="sm"
+        size={size}
+      />
+    </div>
+    {role === "ADMIN" && <AdminRoleWarning size={size} />}
   </div>
 );
 

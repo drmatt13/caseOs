@@ -31,15 +31,20 @@ const InvitationStatusEnum = builder.enumType(InvitationStatus, {
   name: "InvitationStatus",
 });
 
+// Roles a member may be assigned — OWNER is conferred only by creating the
+// workspace, never assigned, so it is excluded here (shared by invite + role
+// change).
+const AssignableRoleSchema = z.enum([
+  MembershipRole.ADMIN,
+  MembershipRole.REVIEWER,
+  MembershipRole.CONTRIBUTOR,
+  MembershipRole.READONLY,
+]);
+
 const WorkspaceInviteInputSchema = z
   .object({
     email: z.string().trim().email().transform((email) => email.toLowerCase()),
-    role: z.enum([
-      MembershipRole.ADMIN,
-      MembershipRole.REVIEWER,
-      MembershipRole.CONTRIBUTOR,
-      MembershipRole.READONLY,
-    ]),
+    role: AssignableRoleSchema,
   })
   .strict();
 
@@ -100,6 +105,25 @@ const InviteWorkspaceMemberInput = builder.inputType(
       workspaceId: t.id({ required: true }),
       email: t.string({ required: true }),
       role: t.field({ type: MembershipRoleEnum, required: true }),
+    }),
+  },
+);
+
+const UpdateWorkspaceMemberRoleInput = builder.inputType(
+  "UpdateWorkspaceMemberRoleInput",
+  {
+    fields: (t) => ({
+      membershipId: t.id({ required: true }),
+      role: t.field({ type: MembershipRoleEnum, required: true }),
+    }),
+  },
+);
+
+const RemoveWorkspaceMemberInput = builder.inputType(
+  "RemoveWorkspaceMemberInput",
+  {
+    fields: (t) => ({
+      membershipId: t.id({ required: true }),
     }),
   },
 );
@@ -343,6 +367,28 @@ const DeclineWorkspaceInvitationPayload = builder
 
 const RevokeWorkspaceInvitationPayload = builder
   .objectRef<{ success: boolean }>("RevokeWorkspaceInvitationPayload")
+  .implement({
+    fields: (t) => ({
+      success: t.exposeBoolean("success"),
+    }),
+  });
+
+const UpdateWorkspaceMemberRolePayload = builder
+  .objectRef<{ success: boolean; membership: WorkspaceMembershipShape }>(
+    "UpdateWorkspaceMemberRolePayload",
+  )
+  .implement({
+    fields: (t) => ({
+      success: t.exposeBoolean("success"),
+      membership: t.field({
+        type: WorkspaceMembership,
+        resolve: (payload) => payload.membership,
+      }),
+    }),
+  });
+
+const RemoveWorkspaceMemberPayload = builder
+  .objectRef<{ success: boolean }>("RemoveWorkspaceMemberPayload")
   .implement({
     fields: (t) => ({
       success: t.exposeBoolean("success"),
@@ -852,6 +898,106 @@ builder.mutationField("inviteWorkspaceMember", (t) =>
       return {
         success: true,
         invitation,
+      };
+    },
+  }),
+);
+
+// Loads an ACTIVE membership the caller is allowed to administer, enforcing the
+// shared rules: the caller must be an admin/owner of the membership's workspace,
+// the target may not be the workspace OWNER, and an admin may not act on their
+// own membership (no self-demotion / self-removal — prevents lockout). Owners
+// are managed only by other owners implicitly, since OWNER is never a target.
+async function requireManageableMembership(
+  context: GraphQLContext,
+  membershipId: string,
+): Promise<{ membership: WorkspaceMembershipShape; callerUserId: string }> {
+  const membership = await context.prisma.workspaceMembership.findUnique({
+    where: {
+      id: membershipId,
+    },
+  });
+
+  if (!membership || membership.membershipStatus !== MembershipStatus.ACTIVE) {
+    throw notFound("Workspace member not found");
+  }
+
+  const caller = await requireCurrentUserWorkspaceAdminMembership(
+    context,
+    membership.workspaceId,
+  );
+
+  if (membership.role === MembershipRole.OWNER) {
+    throw forbidden("The workspace owner's membership cannot be changed");
+  }
+
+  if (membership.userId === caller.userId) {
+    throw forbidden("You cannot change your own membership");
+  }
+
+  return { membership, callerUserId: caller.userId };
+}
+
+builder.mutationField("updateWorkspaceMemberRole", (t) =>
+  t.field({
+    type: UpdateWorkspaceMemberRolePayload,
+    args: {
+      data: t.arg({ type: UpdateWorkspaceMemberRoleInput, required: true }),
+    },
+    resolve: async (_parent, args, context) => {
+      const parsedRole = AssignableRoleSchema.safeParse(args.data.role);
+
+      if (!parsedRole.success) {
+        throw badUserInput("Invalid member role");
+      }
+
+      const { membership } = await requireManageableMembership(
+        context,
+        String(args.data.membershipId),
+      );
+
+      const updated = await context.prisma.workspaceMembership.update({
+        where: {
+          id: membership.id,
+        },
+        data: {
+          role: parsedRole.data,
+        },
+      });
+
+      return {
+        success: true,
+        membership: updated,
+      };
+    },
+  }),
+);
+
+builder.mutationField("removeWorkspaceMember", (t) =>
+  t.field({
+    type: RemoveWorkspaceMemberPayload,
+    args: {
+      data: t.arg({ type: RemoveWorkspaceMemberInput, required: true }),
+    },
+    resolve: async (_parent, args, context) => {
+      const { membership } = await requireManageableMembership(
+        context,
+        String(args.data.membershipId),
+      );
+
+      // Soft-delete: ACTIVE-only queries hide the row, and acceptWorkspaceInvitation
+      // upserts on (workspaceId,userId) so a removed member can be cleanly re-invited.
+      await context.prisma.workspaceMembership.update({
+        where: {
+          id: membership.id,
+        },
+        data: {
+          membershipStatus: MembershipStatus.REMOVED,
+        },
+      });
+
+      return {
+        success: true,
       };
     },
   }),

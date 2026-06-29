@@ -31,6 +31,7 @@ export type WorkspaceCapabilities = {
   manageWorkspace: boolean;
   inviteMembers: boolean;
   removeMembers: boolean;
+  createCase: boolean;
   createProposal: boolean;
   acceptProposal: boolean;
   answerQuestion: boolean;
@@ -44,6 +45,7 @@ export function resolveCapabilities(
     manageWorkspace: can(role, "manageWorkspace"),
     inviteMembers: can(role, "inviteMembers"),
     removeMembers: can(role, "removeMembers"),
+    createCase: can(role, "createCase"),
     createProposal: can(role, "createProposal"),
     acceptProposal: can(role, "acceptProposal"),
     answerQuestion: can(role, "answerQuestion"),

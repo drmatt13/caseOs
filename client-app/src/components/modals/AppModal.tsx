@@ -11,7 +11,7 @@ import EditUserModal from "./EditUserModal";
 import ModifySubscriptionModal from "./ModifySubscriptionModal";
 import ManageWorkspacesModal from "./ManageWorkspacesModal";
 import MyInvitationsModal from "./MyInvitationsModal";
-import OnboardMembersModal from "./OnboardMembersModal";
+import ManageMembersModal from "./ManageMembersModal";
 
 const SettingsModal = () => {
   const { modal, requestCloseModal } = useContext(AppModalContext);
@@ -76,7 +76,7 @@ const SettingsModal = () => {
           )}
           {visibleModal === "manage workspaces" && <ManageWorkspacesModal />}
           {visibleModal === "my invitations" && <MyInvitationsModal />}
-          {visibleModal === "onboard members" && <OnboardMembersModal />}
+          {visibleModal === "manage members" && <ManageMembersModal />}
         </div>
         {/* MODAL */}
       </div>
