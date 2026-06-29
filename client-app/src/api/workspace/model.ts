@@ -34,7 +34,6 @@ export type WorkspaceDetailMember = {
   user: {
     id: string;
     email: string | null;
-    displayName: string | null;
     firstName: string | null;
     lastName: string | null;
     profilePicture: string | null;
@@ -138,7 +137,6 @@ export function normalizeWorkspaceDetail(
         user: {
           id: membership.user.id,
           email: membership.user.email ?? null,
-          displayName: membership.user.displayName ?? null,
           firstName: membership.user.firstName ?? null,
           lastName: membership.user.lastName ?? null,
           profilePicture: membership.user.profilePicture ?? null,

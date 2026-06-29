@@ -29,13 +29,11 @@ const GetCurrentUserDocument = graphql(`
         id
         email
         billingEmail
-        displayName
         firstName
         lastName
         hasHadActiveSubscription
         profilePicture
         updatedAt
-        userName
         accountTier
         accountStatus
         subscriptionStatus
@@ -52,13 +50,11 @@ const UpdateCurrentUserDocument = graphql(`
         id
         email
         billingEmail
-        displayName
         firstName
         lastName
         hasHadActiveSubscription
         profilePicture
         updatedAt
-        userName
         accountTier
         accountStatus
         subscriptionStatus

@@ -180,7 +180,6 @@ model User {
   cognitoSub                   String             @unique @map("cognito_sub")
   email                        String             @unique
   billingEmail                 String?            @map("billing_email")
-  displayName                  String?            @map("display_name")
   firstName                    String             @map("first_name")
   lastName                     String             @map("last_name")
   profilePicture               String?            @map("profile_picture")
@@ -200,7 +199,6 @@ model User {
   ownedWorkspaces              Workspace[]        @relation("WorkspaceOwner")
 
   // questionable
-  userName           String?          @unique @map("user_name")
   isPlatformAdmin    Boolean          @default(false) @map("is_platform_admin")
   accountStatus      AccountStatus    @default(ACTIVE) @map("account_status")
   billingInterval    BillingInterval? @map("billing_interval")

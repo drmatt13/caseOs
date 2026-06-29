@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { Mail, UserRound, XIcon } from "lucide-react";
+import { Mail, XIcon } from "lucide-react";
 
 import Button from "#/components/ui/Button";
 import { TextInputField } from "#/components/ui/form";
@@ -55,7 +55,6 @@ const EditUserModal = () => {
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [displayName, setDisplayName] = useState("");
   const [billingEmail, setBillingEmail] = useState("");
   const [profilePictureUrl, setProfilePictureUrl] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
@@ -107,13 +106,6 @@ const EditUserModal = () => {
     [],
   );
 
-  const handleDisplayNameChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setDisplayName(event.target.value);
-    },
-    [],
-  );
-
   const handleBillingEmailChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setBillingEmail(event.target.value);
@@ -126,7 +118,6 @@ const EditUserModal = () => {
 
     setFirstName(user.firstName ?? "");
     setLastName(user.lastName ?? "");
-    setDisplayName(user.displayName ?? "");
     setBillingEmail(user.billingEmail ?? user.email ?? "");
     setProfilePictureUrl(user.profilePicture ?? "");
     setLocalProfilePicture(null);
@@ -151,18 +142,16 @@ const EditUserModal = () => {
   );
 
   const profilePicture = localProfilePicture || profilePictureUrl.trim();
-  const displayNameIsValid = displayName.trim().length >= 3;
   const billingEmailIsValid = isValidEmail(billingEmail);
 
   const hasChanges =
     !!user &&
     (firstName !== (user.firstName ?? "") ||
       lastName !== (user.lastName ?? "") ||
-      displayName !== (user.displayName ?? "") ||
       billingEmail !== (user.billingEmail ?? user.email ?? "") ||
       profilePictureUrl !== (user.profilePicture ?? "") ||
       !!profilePictureFile);
-  const canSave = hasChanges && displayNameIsValid && billingEmailIsValid;
+  const canSave = hasChanges && billingEmailIsValid;
 
   useEffect(() => {
     if (isUpdating) {
@@ -243,7 +232,7 @@ const EditUserModal = () => {
 
   const saveUser = useCallback(async () => {
     if (!user || isUpdating) return;
-    if (!displayNameIsValid || !billingEmailIsValid) return;
+    if (!billingEmailIsValid) return;
 
     setIsUpdating(true);
     setModalGuardState("locked");
@@ -254,7 +243,6 @@ const EditUserModal = () => {
       const payload = {
         ...(firstName !== (user.firstName ?? "") && { firstName }),
         ...(lastName !== (user.lastName ?? "") && { lastName }),
-        ...(displayName !== (user.displayName ?? "") && { displayName }),
         ...(billingEmail !== (user.billingEmail ?? user.email ?? "") && {
           billingEmail,
         }),
@@ -279,10 +267,8 @@ const EditUserModal = () => {
       setModalGuardState("unlocked");
     }
   }, [
-    displayName,
     billingEmail,
     billingEmailIsValid,
-    displayNameIsValid,
     firstName,
     isUpdating,
     lastName,
@@ -388,20 +374,6 @@ const EditUserModal = () => {
             value={lastName}
             disabled={isUpdating}
             onChange={handleLastNameChange}
-          />
-          <TextInputField
-            size="sm"
-            className="col-span-2"
-            icon={UserRound}
-            label="Display name"
-            value={displayName}
-            disabled={isUpdating}
-            onChange={handleDisplayNameChange}
-            error={
-              displayNameIsValid
-                ? undefined
-                : "Display name must be at least 3 characters."
-            }
           />
           <TextInputField
             size="sm"

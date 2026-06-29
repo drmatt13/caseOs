@@ -221,12 +221,10 @@ function RouteComponent() {
             caseIntake={caseIntakeState.caseIntake}
             onFieldChange={updateCaseIntakeField}
             defaultUserName={
-              user.displayName?.trim() ||
               [user.firstName, user.lastName]
                 .filter(Boolean)
                 .join(" ")
-                .trim() ||
-              undefined
+                .trim() || undefined
             }
           />
         );

@@ -13,7 +13,6 @@ const accountTierLabels = {
 } satisfies Record<AccountTier, string>;
 
 export type UserPanelUser = {
-  displayName?: string | null;
   firstName?: string | null;
   lastName?: string | null;
   profilePicture?: string | null;
@@ -51,7 +50,7 @@ const UserPanel = ({
           {user.profilePicture && !imageFailed ? (
             <img
               src={user.profilePicture}
-              alt={`${user.displayName}`}
+              alt={`${user.firstName ?? ""} ${user.lastName ?? ""}`.trim()}
               referrerPolicy="no-referrer"
               onError={() => setImageFailed(true)}
               className="h-10 w-10 shrink-0 rounded-full object-cover ring ring-black/30"
@@ -64,9 +63,7 @@ const UserPanel = ({
           )}
           <div className="flex min-w-0 flex-1 flex-col">
             <p className="text-md truncate">
-              {user.displayName
-                ? user.displayName
-                : `${user.firstName} ${user.lastName}`.trim()}
+              {`${user.firstName ?? ""} ${user.lastName ?? ""}`.trim()}
             </p>
             {showTier && (
               <p className="text-sm text-gray-500 truncate">

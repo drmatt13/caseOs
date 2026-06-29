@@ -108,7 +108,6 @@ const UserSummary = builder.objectRef<UserShape>("WorkspaceUser").implement({
   fields: (t) => ({
     id: t.exposeID("id"),
     email: t.exposeString("email"),
-    displayName: t.exposeString("displayName", { nullable: true }),
     firstName: t.exposeString("firstName"),
     lastName: t.exposeString("lastName"),
     profilePicture: t.exposeString("profilePicture", { nullable: true }),
@@ -415,11 +414,7 @@ function createInvitationToken(): string {
   return randomBytes(32).toString("base64url");
 }
 
-function resolveUserDisplayName(user: UserShape): string | null {
-  if (user.displayName) {
-    return user.displayName;
-  }
-
+function resolveUserFullName(user: UserShape): string | null {
   const fullName = [user.firstName, user.lastName]
     .filter((part) => Boolean(part && part.trim()))
     .join(" ")
@@ -760,7 +755,7 @@ builder.mutationField("createWorkspace", (t) =>
           sendWorkspaceInvitationEmail({
             email: invitation.email,
             workspaceName: workspace.name,
-            inviterName: resolveUserDisplayName(user),
+            inviterName: resolveUserFullName(user),
             role: invitation.role,
             invitationToken: invitation.invitationToken,
           }),
@@ -849,7 +844,7 @@ builder.mutationField("inviteWorkspaceMember", (t) =>
       await sendWorkspaceInvitationEmail({
         email: invitation.email,
         workspaceName: workspace?.name ?? "a workspace",
-        inviterName: resolveUserDisplayName(user),
+        inviterName: resolveUserFullName(user),
         role: invitation.role,
         invitationToken: invitation.invitationToken,
       });

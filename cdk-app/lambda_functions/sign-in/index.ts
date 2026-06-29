@@ -84,7 +84,6 @@ export const lambdaHandler = async (
     const user = {
       id: payload.sub,
       email: payload.email,
-      userName: payload["cognito:username"],
       firstName: payload.given_name ?? "",
       lastName: payload.family_name ?? "",
     };

@@ -87,7 +87,6 @@ const WorkspaceDashboard = ({ workspace }: WorkspaceProps) => {
               <UserPanel
                 insetBottom={false}
                 user={{
-                  displayName: member.user.displayName,
                   firstName: member.user.firstName,
                   lastName: member.user.lastName,
                   profilePicture: member.user.profilePicture,

@@ -7,6 +7,7 @@ import {
   TextInputField,
   type FieldSize,
 } from "#/components/ui/form";
+import { TONES } from "#/lib/tones";
 import {
   ASSIGNABLE_ROLE_META,
   workspaceRoleOptions,
@@ -16,19 +17,25 @@ export const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // A reference legend describing what each assignable role can do. Shared by the
 // create-workspace wizard (md) and the Onboard Members modal (sm) so the
-// descriptions stay in one place (WORKSPACE_ROLE_META).
-export const RoleDescriptions = ({ size = "md" }: { size?: FieldSize }) => (
-  <div className="grid gap-2 rounded-xl border border-black/10 bg-white/40 p-3 sm:grid-cols-2">
-    {ASSIGNABLE_ROLE_META.map((meta) => (
-      <div key={meta.value} className="flex flex-col gap-1">
-        <WorkspaceRoleBadge role={meta.value} />
-        <p className={`${size === "sm" ? "text-xs" : "text-sm"} text-black/60`}>
-          {meta.shortDescription}
-        </p>
-      </div>
-    ))}
-  </div>
-);
+// descriptions stay in one place (WORKSPACE_ROLE_META). Each role is a stacked
+// row — the role name in its semantic tone ink (same coloring as record-card
+// statuses), with the muted description beneath it.
+export const RoleDescriptions = ({ size = "md" }: { size?: FieldSize }) => {
+  const textSize = size === "sm" ? "text-xs" : "text-sm";
+
+  return (
+    <div className="flex flex-col gap-3 rounded-xl border border-black/10 bg-white/40 p-3">
+      {ASSIGNABLE_ROLE_META.map((meta) => (
+        <div key={meta.value} className="flex flex-col gap-0.5">
+          <p className={`${textSize} font-medium ${TONES[meta.tone].ink}`}>
+            {meta.label}
+          </p>
+          <p className={`${textSize} text-black/60`}>{meta.shortDescription}</p>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 type InviteEntryRowProps = {
   email: string;

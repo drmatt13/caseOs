@@ -25,14 +25,6 @@ const UpdateCurrentUserSchema = z
     billingEmail: z.string().trim().email().optional().nullable(),
     firstName: z.string().optional(),
     lastName: z.string().optional(),
-    displayName: z
-      .string()
-      .optional()
-      .nullable()
-      .refine(
-        (value) => value == null || value.trim().length >= 3,
-        "Display name must be at least 3 characters",
-      ),
     profilePicture: z.string().optional().nullable(),
   })
   .strict();
@@ -41,11 +33,9 @@ const UserProfile = builder.objectRef<UserShape>("UserProfile").implement({
   fields: (t) => ({
     id: t.exposeID("id"),
     email: t.exposeString("email"),
-    displayName: t.exposeString("displayName", { nullable: true }),
     firstName: t.exposeString("firstName"),
     lastName: t.exposeString("lastName"),
     profilePicture: t.exposeString("profilePicture", { nullable: true }),
-    userName: t.exposeString("userName", { nullable: true }),
   }),
 });
 
@@ -54,7 +44,6 @@ const CurrentUser = builder.objectRef<UserShape>("CurrentUser").implement({
     id: t.exposeID("id"),
     email: t.exposeString("email"),
     billingEmail: t.exposeString("billingEmail", { nullable: true }),
-    displayName: t.exposeString("displayName", { nullable: true }),
     firstName: t.exposeString("firstName"),
     lastName: t.exposeString("lastName"),
     hasHadActiveSubscription: t.exposeBoolean("hasHadActiveSubscription"),
@@ -62,7 +51,6 @@ const CurrentUser = builder.objectRef<UserShape>("CurrentUser").implement({
     updatedAt: t.string({
       resolve: (user) => user.updatedAt.toISOString(),
     }),
-    userName: t.exposeString("userName", { nullable: true }),
     accountTier: t.field({
       type: AccountTierEnum,
       resolve: (user) => user.accountTier,
@@ -107,7 +95,6 @@ const UpdateCurrentUserInput = builder.inputType("UpdateCurrentUserInput", {
     billingEmail: t.string({ required: false }),
     firstName: t.string({ required: false }),
     lastName: t.string({ required: false }),
-    displayName: t.string({ required: false }),
     profilePicture: t.string({ required: false }),
   }),
 });

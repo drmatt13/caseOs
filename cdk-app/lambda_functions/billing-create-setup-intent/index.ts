@@ -57,8 +57,7 @@ export const lambdaHandler = async (
         {
           email: user.billingEmail ?? user.email,
           name:
-            user.displayName ??
-            [user.firstName, user.lastName].filter(Boolean).join(" ") ??
+            [user.firstName, user.lastName].filter(Boolean).join(" ") ||
             undefined,
           metadata: {
             cognitoSub,

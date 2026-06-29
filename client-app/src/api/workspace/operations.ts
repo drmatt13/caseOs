@@ -62,7 +62,6 @@ const GetWorkspaceDocument = graphql(`
         updatedAt
         user {
           firstName
-          displayName
           email
           id
           lastName

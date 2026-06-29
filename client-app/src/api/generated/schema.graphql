@@ -40,7 +40,6 @@ type CurrentUser {
   accountStatus: AccountStatus
   accountTier: AccountTier
   billingEmail: String
-  displayName: String
   email: String
   firstName: String
   hasHadActiveSubscription: Boolean
@@ -49,7 +48,6 @@ type CurrentUser {
   profilePicture: String
   subscriptionStatus: SubscriptionStatus
   updatedAt: String
-  userName: String
 }
 
 type CurrentUserPayload {
@@ -134,7 +132,6 @@ enum SubscriptionStatus {
 
 input UpdateCurrentUserInput {
   billingEmail: String
-  displayName: String
   firstName: String
   lastName: String
   profilePicture: String
@@ -146,13 +143,11 @@ type UpdateCurrentUserPayload {
 }
 
 type UserProfile {
-  displayName: String
   email: String
   firstName: String
   id: ID
   lastName: String
   profilePicture: String
-  userName: String
 }
 
 type Workspace {
@@ -199,7 +194,6 @@ enum WorkspaceStatus {
 }
 
 type WorkspaceUser {
-  displayName: String
   email: String
   firstName: String
   id: ID

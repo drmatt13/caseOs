@@ -28,10 +28,6 @@ function resolveInviterName(
     return null;
   }
 
-  if (invitedBy.displayName) {
-    return invitedBy.displayName;
-  }
-
   const fullName = [invitedBy.firstName, invitedBy.lastName]
     .filter((part) => Boolean(part && part.trim()))
     .join(" ")

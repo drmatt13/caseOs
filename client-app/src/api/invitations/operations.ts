@@ -24,7 +24,6 @@ const MyWorkspaceInvitationsDocument = graphql(`
       expiresAt
       createdAt
       invitedBy {
-        displayName
         firstName
         lastName
         email
