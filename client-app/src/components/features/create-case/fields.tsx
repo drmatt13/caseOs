@@ -1,145 +1,30 @@
-import type { ChangeEventHandler, FocusEvent, ReactNode } from "react";
+import type { FocusEvent, ReactNode } from "react";
+import { Plus, X } from "lucide-react";
 
 import type { SelectOption } from "#/components/features/create-case/caseIntakeForm";
 import { TONES } from "#/lib/tones";
 import {
-  Clock,
-  Target,
-  Briefcase,
-  Scale,
-  Users,
-  FileTextIcon,
-  ListChecks,
-  Plus,
-  X,
-} from "lucide-react";
+  fieldClassName,
+  SelectField as SharedSelectField,
+  TextInputField as SharedTextInputField,
+  type SelectFieldProps,
+  type TextInputFieldProps,
+} from "#/components/ui/form";
 
-type FormSectionProps = {
-  title: string;
-  description: string;
-  icon:
-    | "briefcase"
-    | "scale"
-    | "clock"
-    | "target"
-    | "users"
-    | "file-text"
-    | "list-checks";
-  children: ReactNode;
-};
+// Field primitives now live in #/components/ui/form. Re-exported here so the
+// case-intake forms keep importing from one place; `fieldClassName` stays a
+// value export because the date pickers pass it to PrecisionDateField.
+export { CheckboxField, FormSection } from "#/components/ui/form";
+export { fieldClassName };
 
-type FieldBaseProps = {
-  label: string;
-  description?: string;
-  className?: string;
-};
-
-type TextInputFieldProps = FieldBaseProps & {
-  value: string;
-  onChange: ChangeEventHandler<HTMLInputElement>;
-  placeholder?: string;
-};
-
-type SelectFieldProps<T extends string> = FieldBaseProps & {
-  value: T;
-  onChange: (value: T) => void;
-  options: SelectOption<T>[];
-};
-
-export const fieldClassName =
-  "w-full rounded-xl border border-black/10 bg-white px-3 py-2.5 text-md text-black shadow-sm outline-none transition focus:border-black/30 focus:ring-2 focus:ring-black/5";
-
-const FieldShell = ({
-  label,
-  description,
-  className = "",
-  children,
-}: FieldBaseProps & { children: ReactNode }) => (
-  <label className={`grid self-end items-start gap-2 ${className}`.trim()}>
-    <span className="flex flex-col gap-0.5 justify-end h-full">
-      <span className="text-md font-medium text-black">{label}</span>
-      {description ? (
-        <span className="text-sm text-black/60">{description}</span>
-      ) : null}
-    </span>
-    {children}
-  </label>
+// Case intake bottom-aligns its labelled controls across multi-column rows, so
+// these wrappers default the shared fields to `align="end"`.
+export const TextInputField = (props: TextInputFieldProps) => (
+  <SharedTextInputField align="end" {...props} />
 );
 
-export const FormSection = ({
-  title,
-  description,
-  icon,
-  children,
-}: FormSectionProps) => (
-  <section className="flex flex-col gap-6">
-    <div className="flex items-center gap-2.5">
-      <div className="rounded-lg bg-black/15 p-2.5">
-        {icon === "briefcase" && (
-          <Briefcase className="w-5 h-5 text-black/90" />
-        )}
-        {icon === "scale" && <Scale className="w-5 h-5 text-black/90" />}
-        {icon === "clock" && <Clock className="w-5 h-5 text-black/90" />}
-        {icon === "target" && <Target className="w-5 h-5 text-black/90" />}
-        {icon === "users" && <Users className="w-5 h-5 text-black/90" />}
-        {icon === "file-text" && (
-          <FileTextIcon className="w-5 h-5 text-black/90" />
-        )}
-        {icon === "list-checks" && (
-          <ListChecks className="w-5 h-5 text-black/90" />
-        )}
-      </div>
-      <div className="flex flex-col min-w-0">
-        <h2 className="text-xl font-semibold text-black">{title}</h2>
-        <p className="-translate-y-px text-sm text-black/65 truncate">
-          {description}
-        </p>
-      </div>
-    </div>
-    {children}
-  </section>
-);
-
-export const TextInputField = ({
-  label,
-  description,
-  value,
-  onChange,
-  placeholder,
-  className,
-}: TextInputFieldProps) => (
-  <FieldShell label={label} description={description} className={className}>
-    <input
-      className={fieldClassName}
-      type="text"
-      value={value}
-      onChange={onChange}
-      placeholder={placeholder}
-    />
-  </FieldShell>
-);
-
-export const SelectField = <T extends string>({
-  label,
-  description,
-  value,
-  onChange,
-  options,
-  className,
-}: SelectFieldProps<T>) => (
-  <FieldShell label={label} description={description} className={className}>
-    <select
-      className={fieldClassName}
-      value={value}
-      onChange={(event) => onChange(event.target.value as T)}
-    >
-      {options.map((option) => (
-        <option key={option.value} value={option.value}>
-          {option.label}
-        </option>
-      ))}
-    </select>
-  </FieldShell>
+export const SelectField = <T extends string>(props: SelectFieldProps<T>) => (
+  <SharedSelectField align="end" {...props} />
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -206,32 +91,6 @@ export const InlineSelectField = <T extends string>({
         </option>
       ))}
     </select>
-  </label>
-);
-
-type CheckboxFieldProps = {
-  label: string;
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-  className?: string;
-};
-
-export const CheckboxField = ({
-  label,
-  checked,
-  onChange,
-  className = "",
-}: CheckboxFieldProps) => (
-  <label
-    className={`flex items-center gap-2 text-sm text-black/80 ${className}`.trim()}
-  >
-    <input
-      type="checkbox"
-      className="h-4 w-4 rounded border-black/25 accent-[#282828]"
-      checked={checked}
-      onChange={(event) => onChange(event.target.checked)}
-    />
-    {label}
   </label>
 );
 

@@ -9,6 +9,7 @@ import {
   declineInvitation,
   getMyInvitations,
   inviteWorkspaceMember,
+  revokeInvitation,
   type MyInvitation,
 } from "./operations";
 import type { AcceptInvitationResult } from "./model";
@@ -30,6 +31,21 @@ export function useInviteWorkspaceMemberMutation(workspaceId: string) {
 
   return useMutation<void, Error, InviteWorkspaceMemberInput>({
     mutationFn: inviteWorkspaceMember,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: workspaceQueryKey(workspaceId),
+      });
+    },
+  });
+}
+
+// Revokes a pending invitation; refreshes that workspace's pending-invitation
+// list shown in the Onboard Members modal.
+export function useRevokeInvitationMutation(workspaceId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, string>({
+    mutationFn: revokeInvitation,
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: workspaceQueryKey(workspaceId),

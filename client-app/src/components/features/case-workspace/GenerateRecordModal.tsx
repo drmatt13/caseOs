@@ -45,6 +45,7 @@ function GenerateRecordForm({
 
         <div className="flex flex-col gap-3">
           <TextAreaField
+            size="sm"
             className="w-full"
             label={`What should this ${label} cover?`}
             placeholder={`Ask the agent to draft a ${label} — summarize a discovery gap, compare arguments, or propose one from a document…`}
@@ -54,6 +55,7 @@ function GenerateRecordForm({
             minRows={4}
           />
           <TextAreaField
+            size="sm"
             className="w-full"
             label="Additional instructions (optional)"
             placeholder="Constraints, tone, or sources to prioritize."

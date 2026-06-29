@@ -342,6 +342,14 @@ const DeclineWorkspaceInvitationPayload = builder
     }),
   });
 
+const RevokeWorkspaceInvitationPayload = builder
+  .objectRef<{ success: boolean }>("RevokeWorkspaceInvitationPayload")
+  .implement({
+    fields: (t) => ({
+      success: t.exposeBoolean("success"),
+    }),
+  });
+
 async function getCurrentUser(context: GraphQLContext): Promise<UserShape> {
   const user = await context.prisma.user.findUnique({
     where: {
@@ -638,6 +646,50 @@ builder.mutationField("declineWorkspaceInvitation", (t) =>
         },
         data: {
           status: InvitationStatus.DECLINED,
+        },
+      });
+
+      return {
+        success: true,
+      };
+    },
+  }),
+);
+
+builder.mutationField("revokeWorkspaceInvitation", (t) =>
+  t.field({
+    type: RevokeWorkspaceInvitationPayload,
+    args: {
+      invitationId: t.arg.id({ required: true }),
+    },
+    resolve: async (_parent, args, context) => {
+      const invitation = await context.prisma.workspaceInvitation.findUnique({
+        where: {
+          id: String(args.invitationId),
+        },
+      });
+
+      if (!invitation) {
+        throw notFound("Invitation not found");
+      }
+
+      // Revoking is an inviter-side action: only a workspace owner/admin may
+      // cancel a pending invitation (mirrors who is allowed to send one).
+      await requireCurrentUserWorkspaceAdminMembership(
+        context,
+        invitation.workspaceId,
+      );
+
+      if (invitation.status !== InvitationStatus.PENDING) {
+        throw badUserInput("Only pending invitations can be revoked");
+      }
+
+      await context.prisma.workspaceInvitation.update({
+        where: {
+          id: invitation.id,
+        },
+        data: {
+          status: InvitationStatus.REVOKED,
         },
       });
 

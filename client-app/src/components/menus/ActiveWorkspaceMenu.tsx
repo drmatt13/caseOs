@@ -102,47 +102,41 @@ const ActiveWorkspaceMenu = ({
               {group.label}
             </p>
           )}
-          {group.views.map((view) => {
-            const Icon = viewIcons[view];
-            const count = counts[view];
-            const isActive = activeView === view;
+          <div className="flex flex-col gap-0.75">
+            {group.views.map((view) => {
+              const Icon = viewIcons[view];
+              const count = counts[view];
+              const isActive = activeView === view;
 
-            return (
-              <div
-                key={view}
-                data-nav-item={view}
-                aria-current={isActive ? "page" : undefined}
-                className={`p-2 h-8 rounded-lg flex items-center justify-between gap-2 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100 ${
-                  isActive
-                    ? "bg-black/14 font-medium"
-                    : "hover:bg-black/10"
-                }`}
-                onClick={() => onSelectView(view)}
-              >
-                <div className="flex min-w-0 items-center gap-2">
-                  <Icon className="w-4 h-4 shrink-0" />
-                  <div className="truncate">{VIEW_LABELS[view]}</div>
+              return (
+                <div
+                  key={view}
+                  data-nav-item={view}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`p-2 h-8 rounded-lg flex items-center justify-between gap-2 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100 ${
+                    isActive ? "bg-black/14 font-medium" : "hover:bg-black/10"
+                  }`}
+                  onClick={() => onSelectView(view)}
+                >
+                  <div className="flex min-w-0 items-center gap-2">
+                    <Icon className="w-4 h-4 shrink-0" />
+                    <div className="truncate">{VIEW_LABELS[view]}</div>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-1">
+                    {view === "review" ? (
+                      // Review queue only surfaces what's awaiting review (amber).
+                      <CountBadge count={reviewCount} tone="amber" />
+                    ) : (
+                      <>
+                        {/* <CountBadge count={count?.proposed ?? 0} tone="amber" /> */}
+                        <CountBadge count={count?.accepted ?? 0} tone="gray" />
+                      </>
+                    )}
+                  </div>
                 </div>
-                <div className="flex shrink-0 items-center gap-1">
-                  {view === "review" ? (
-                    // Review queue only surfaces what's awaiting review (amber).
-                    <CountBadge
-                      count={reviewCount}
-                      tone="amber"
-                    />
-                  ) : (
-                    <>
-                      {/* <CountBadge count={count?.proposed ?? 0} tone="amber" /> */}
-                      <CountBadge
-                        count={count?.accepted ?? 0}
-                        tone="gray"
-                      />
-                    </>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       ))}
     </div>

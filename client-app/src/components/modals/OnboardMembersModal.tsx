@@ -2,15 +2,18 @@ import { useContext, useState } from "react";
 import { XIcon } from "lucide-react";
 
 import type { MembershipRole } from "#/api/generated/graphql";
-import WorkspaceRoleBadge from "#/components/ui/WorkspaceRoleBadge";
 import { AppModalContext } from "#/context/AppModalContext";
 import {
   emailPattern,
   InviteEntryRow,
+  InvitePendingRow,
   RoleDescriptions,
 } from "#/components/features/invite-members/InviteMembersFields";
 import { useWorkspaceQuery } from "#/api/workspace/hooks";
-import { useInviteWorkspaceMemberMutation } from "#/api/invitations/hooks";
+import {
+  useInviteWorkspaceMemberMutation,
+  useRevokeInvitationMutation,
+} from "#/api/invitations/hooks";
 
 const OnboardMembersModal = () => {
   const { modalWorkspaceId, requestCloseModal } = useContext(AppModalContext);
@@ -20,6 +23,7 @@ const OnboardMembersModal = () => {
     enabled: Boolean(workspaceId),
   });
   const inviteMutation = useInviteWorkspaceMemberMutation(workspaceId);
+  const revokeMutation = useRevokeInvitationMutation(workspaceId);
 
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<MembershipRole>("CONTRIBUTOR");
@@ -58,7 +62,7 @@ const OnboardMembersModal = () => {
       <div className="mb-4 flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="font-serif text-lg">Onboard Members</p>
-          <p className="mt-0.5 truncate text-gray-600">
+          <p className="mt-0.5 truncate text-black/60">
             Invite people to {workspace?.name ?? "this workspace"}.
           </p>
         </div>
@@ -73,9 +77,10 @@ const OnboardMembersModal = () => {
       </div>
 
       <div className="flex flex-col gap-4">
-        <RoleDescriptions />
+        <RoleDescriptions size="sm" />
 
         <InviteEntryRow
+          size="sm"
           email={email}
           role={role}
           onEmailChange={setEmail}
@@ -98,6 +103,11 @@ const OnboardMembersModal = () => {
             {inviteMutation.error.message}
           </p>
         )}
+        {revokeMutation.error && (
+          <p className="text-sm text-red-700">
+            {revokeMutation.error.message}
+          </p>
+        )}
 
         <div className="flex flex-col gap-2">
           <p className="text-md font-medium">
@@ -109,13 +119,17 @@ const OnboardMembersModal = () => {
             </div>
           ) : (
             pendingInvitations.map((invitation) => (
-              <div
+              <InvitePendingRow
                 key={invitation.id}
-                className="flex items-center justify-between rounded-xl bg-white/50 border border-black/10 px-3 py-2 text-sm"
-              >
-                <span className="truncate">{invitation.email}</span>
-                <WorkspaceRoleBadge role={invitation.role} />
-              </div>
+                size="sm"
+                email={invitation.email}
+                role={invitation.role}
+                onRemove={() => revokeMutation.mutate(invitation.id)}
+                isRemoving={
+                  revokeMutation.isPending &&
+                  revokeMutation.variables === invitation.id
+                }
+              />
             ))
           )}
         </div>

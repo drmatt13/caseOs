@@ -23,7 +23,8 @@
     "strictPropertyInitialization": false,
     "skipLibCheck": true,
     "types": [
-      "node"
+      "node",
+      "jest"
     ]
   },
   "include": [

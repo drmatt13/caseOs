@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import type { RecordType, TypedCaseRecord } from "#/types/caseRecords";
 import { RECORD_TYPE_LABELS } from "#/lib/caseRecordPresentation";
 import Button from "#/components/ui/Button";
+import { CheckboxField } from "#/components/ui/form";
 
 import {
   draftBlockingIssue,
@@ -84,15 +85,12 @@ function RecordCreateEditor({
       </div>
 
       <div className="flex shrink-0 flex-col gap-3 border-t border-black/15 bg-white/70 px-4 py-3">
-        <label className="flex w-fit cursor-pointer select-none items-center gap-2 text-sm text-black/70">
-          <input
-            type="checkbox"
-            className="h-3.5 w-3.5 accent-[#282828]"
-            checked={addDirectly}
-            onChange={(event) => setAddDirectly(event.target.checked)}
-          />
-          Add directly to the case (skip review)
-        </label>
+        <CheckboxField
+          size="sm"
+          label="Add directly to the case (skip review)"
+          checked={addDirectly}
+          onChange={setAddDirectly}
+        />
         <div className="flex items-center justify-between gap-3">
           <span className="text-xs text-black/55">
             {blockingIssue ??

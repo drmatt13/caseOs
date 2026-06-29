@@ -41,7 +41,12 @@ import PrecisionDateField, {
   OptionalEndDateField,
 } from "#/components/ui/PrecisionDateField";
 import TextAreaField from "#/components/ui/TextAreaField";
-import { TextInputField } from "#/components/features/create-case/fields";
+import {
+  CheckboxField,
+  cn,
+  FIELD_CLASS_SM,
+  TextInputField,
+} from "#/components/ui/form";
 
 import { recordDisplayStatus, recordMatchesSearch } from "./helpers";
 import { StatusBadge } from "./RecordBadges";
@@ -184,9 +189,6 @@ const SUBSTATUS_FIELD_LABELS_BY_TYPE: Partial<Record<RecordType, string>> = {
   NOTE: "Note state",
 };
 
-const compactSelectClass =
-  "rounded-lg border border-black/15 bg-white/80 px-2 py-1 text-sm text-black/75 outline-none transition focus:border-black/30";
-const compactInputClass = `${compactSelectClass} w-full`;
 
 function formatRoleLabel(role: PersonRole): string {
   return role.replaceAll("_", " ").toLowerCase();
@@ -385,27 +387,6 @@ function FieldBox({
   );
 }
 
-function CheckboxField({
-  label,
-  checked,
-  onChange,
-}: {
-  label: string;
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-}) {
-  return (
-    <label className="flex w-fit cursor-pointer select-none items-center gap-2 text-sm text-black/70 sm:col-span-2">
-      <input
-        type="checkbox"
-        className="h-3.5 w-3.5 accent-[#282828]"
-        checked={checked}
-        onChange={(event) => onChange(event.target.checked)}
-      />
-      {label}
-    </label>
-  );
-}
 
 // Per-type essential fields — the inputs that only make sense for one record
 // type (an event's date, a person's name and roles, a question's answer, …).
@@ -429,19 +410,19 @@ function RecordTypeFields({
             value={draft.eventDate}
             precision={precision}
             onChange={(next) => onChange({ eventDate: next })}
-            inputClassName={compactInputClass}
+            inputClassName={FIELD_CLASS_SM}
           />
           <OptionalEndDateField
             value={draft.eventEndDate}
             precision={precision}
             onChange={(next) => onChange({ eventEndDate: next })}
-            inputClassName={compactInputClass}
+            inputClassName={FIELD_CLASS_SM}
             min={draft.eventDate}
           />
           <label className="flex flex-col gap-1.5">
             <FieldLabel>Date precision</FieldLabel>
             <select
-              className={compactSelectClass}
+              className={FIELD_CLASS_SM}
               value={precision}
               onChange={(event) => {
                 // Re-fit the stored dates to the new grain so display and the
@@ -479,7 +460,7 @@ function RecordTypeFields({
           <label className="flex flex-col gap-1.5 sm:col-span-2">
             <FieldLabel>Name (required)</FieldLabel>
             <input
-              className={compactInputClass}
+              className={FIELD_CLASS_SM}
               value={draft.name ?? ""}
               onChange={(event) => onChange({ name: event.target.value })}
               placeholder="Full name"
@@ -516,7 +497,7 @@ function RecordTypeFields({
           <label className="flex flex-col gap-1.5 sm:col-span-2">
             <FieldLabel>Organization (optional)</FieldLabel>
             <input
-              className={compactInputClass}
+              className={FIELD_CLASS_SM}
               value={draft.organization ?? ""}
               onChange={(event) =>
                 onChange({ organization: event.target.value })
@@ -531,6 +512,7 @@ function RecordTypeFields({
       return (
         <FieldBox title="Answer">
           <TextAreaField
+            size="sm"
             className="w-full sm:col-span-2"
             label="Answer"
             description="Writing an answer marks the question answered; leaving it blank keeps it open."
@@ -550,7 +532,7 @@ function RecordTypeFields({
             <FieldLabel>Due date (optional)</FieldLabel>
             <input
               type="date"
-              className={compactInputClass}
+              className={FIELD_CLASS_SM}
               value={draft.dueDate?.slice(0, 10) ?? ""}
               onChange={(event) => onChange({ dueDate: event.target.value })}
             />
@@ -564,7 +546,7 @@ function RecordTypeFields({
           <label className="flex flex-col gap-1.5 sm:col-span-2">
             <FieldLabel>Citation (optional)</FieldLabel>
             <input
-              className={compactInputClass}
+              className={FIELD_CLASS_SM}
               value={draft.citation ?? ""}
               onChange={(event) => onChange({ citation: event.target.value })}
               placeholder='e.g. "410 U.S. 113 (1973)"'
@@ -573,7 +555,7 @@ function RecordTypeFields({
           <label className="flex flex-col gap-1.5">
             <FieldLabel>Jurisdiction (optional)</FieldLabel>
             <input
-              className={compactInputClass}
+              className={FIELD_CLASS_SM}
               value={draft.jurisdiction ?? ""}
               onChange={(event) =>
                 onChange({ jurisdiction: event.target.value })
@@ -583,12 +565,14 @@ function RecordTypeFields({
           <label className="flex flex-col gap-1.5">
             <FieldLabel>Court (optional)</FieldLabel>
             <input
-              className={compactInputClass}
+              className={FIELD_CLASS_SM}
               value={draft.court ?? ""}
               onChange={(event) => onChange({ court: event.target.value })}
             />
           </label>
           <CheckboxField
+            size="sm"
+            className="sm:col-span-2"
             label="Citation has been verified"
             checked={draft.citeChecked ?? false}
             onChange={(checked) => onChange({ citeChecked: checked })}
@@ -600,6 +584,8 @@ function RecordTypeFields({
       return (
         <FieldBox title="Fact details">
           <CheckboxField
+            size="sm"
+            className="sm:col-span-2"
             label="Background context (frames the case, not load-bearing proof)"
             checked={draft.isContextual ?? false}
             onChange={(checked) => onChange({ isContextual: checked })}
@@ -611,6 +597,8 @@ function RecordTypeFields({
       return (
         <FieldBox title="Note details">
           <CheckboxField
+            size="sm"
+            className="sm:col-span-2"
             label="Pin this note"
             checked={draft.pinned ?? false}
             onChange={(checked) => onChange({ pinned: checked })}
@@ -624,7 +612,7 @@ function RecordTypeFields({
           <label className="flex flex-col gap-1.5">
             <FieldLabel>Claim type</FieldLabel>
             <select
-              className={compactSelectClass}
+              className={FIELD_CLASS_SM}
               value={draft.claimType ?? ""}
               onChange={(event) =>
                 onChange({
@@ -651,7 +639,7 @@ function RecordTypeFields({
           <label className="flex flex-col gap-1.5">
             <FieldLabel>Issue type</FieldLabel>
             <select
-              className={compactSelectClass}
+              className={FIELD_CLASS_SM}
               value={draft.issueType ?? ""}
               onChange={(event) =>
                 onChange({
@@ -713,7 +701,7 @@ function RecordAttributeEditor({
         <label className="flex flex-col gap-1.5">
           <FieldLabel>Side</FieldLabel>
           <select
-            className={compactSelectClass}
+            className={FIELD_CLASS_SM}
             value={draft.party ?? ""}
             onChange={(event) =>
               onChange({
@@ -740,7 +728,7 @@ function RecordAttributeEditor({
           <label className="flex flex-col gap-1.5">
             <FieldLabel>{substatusFieldLabel}</FieldLabel>
             <select
-              className={compactSelectClass}
+              className={FIELD_CLASS_SM}
               value={
                 draft.substatus ??
                 (substatusIsOptional ? "" : substatusOptions[0])
@@ -771,7 +759,7 @@ function RecordAttributeEditor({
         <div className="flex flex-col gap-1.5">
           <FieldLabel>Evidence support</FieldLabel>
           <select
-            className={compactSelectClass}
+            className={FIELD_CLASS_SM}
             value={draft.supportStatus ?? ""}
             onChange={(event) => {
               const value = event.target.value as SupportStatus | "";
@@ -796,6 +784,7 @@ function RecordAttributeEditor({
         </div>
 
         <TextAreaField
+          size="sm"
           className="w-full sm:col-span-2"
           label="Support rationale"
           description={
@@ -917,7 +906,7 @@ function LinkEditorRow({
 
       <div className="mt-2 flex flex-wrap items-center gap-2">
         <select
-          className={compactSelectClass}
+          className={cn(FIELD_CLASS_SM, "!w-auto")}
           value={link.type}
           onChange={(event) =>
             onChange({ ...link, type: event.target.value as RecordLinkType })
@@ -971,6 +960,7 @@ function LinkEditorRow({
 
       <div className="mt-2">
         <TextAreaField
+          size="sm"
           className="w-full"
           label="Why are they related?"
           placeholder="State the rationale for this edge — every link must say why it exists."
@@ -1182,6 +1172,7 @@ export function RecordDraftFields({
       <div className="flex flex-col gap-3">
         {showTitle && (
           <TextInputField
+            size="sm"
             className="w-full"
             label="Title"
             value={draft.title}
@@ -1190,6 +1181,7 @@ export function RecordDraftFields({
           />
         )}
         <TextInputField
+          size="sm"
           className="w-full"
           label="Category"
           value={draft.category}
@@ -1197,6 +1189,7 @@ export function RecordDraftFields({
           placeholder="Free-form segmentation tag (optional)"
         />
         <TextAreaField
+          size="sm"
           className="w-full"
           label="Mini summary"
           value={draft.summary}
@@ -1206,6 +1199,7 @@ export function RecordDraftFields({
           minRows={2}
         />
         <TextAreaField
+          size="sm"
           className="w-full"
           label="Content"
           value={draft.content}

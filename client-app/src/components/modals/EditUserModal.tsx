@@ -10,6 +10,7 @@ import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { Mail, UserRound, XIcon } from "lucide-react";
 
 import Button from "#/components/ui/Button";
+import { TextInputField } from "#/components/ui/form";
 import { AppModalContext } from "#/context/AppModalContext";
 import {
   useCurrentUserQuery,
@@ -20,9 +21,6 @@ import {
   createProfilePictureJpeg,
   PROFILE_PICTURE_CONTENT_TYPE,
 } from "#/lib/profilePicture";
-
-const inputClass =
-  "rounded-lg border border-black/15 bg-white/70 px-2 py-2 outline-none transition-colors focus:border-black/40 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400";
 
 function getAwsRegion() {
   const region = String(import.meta.env.VITE_AWS_REGION ?? "");
@@ -315,7 +313,7 @@ const EditUserModal = () => {
     return (
       <div className="w-lg max-w-[calc(100vw-3rem)] p-2 text-sm">
         <p className="font-serif text-lg">Edit User</p>
-        <p className="mt-2 text-gray-600">Could not load your user profile.</p>
+        <p className="mt-2 text-black/60">Could not load your user profile.</p>
       </div>
     );
   }
@@ -325,7 +323,7 @@ const EditUserModal = () => {
       <div className="mb-4 flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="font-serif text-lg">Edit User</p>
-          <p className="mt-0.5 truncate text-gray-600">{user.email}</p>
+          <p className="mt-0.5 truncate text-black/60">{user.email}</p>
         </div>
 
         <button
@@ -377,62 +375,47 @@ const EditUserModal = () => {
         </div>
 
         <div className="grid min-w-0 flex-1 grid-cols-2 gap-2">
-          <label className="flex flex-col gap-1">
-            <span className="text-gray-600">First name</span>
-            <input
-              value={firstName}
-              disabled={isUpdating}
-              onChange={handleFirstNameChange}
-              className={inputClass}
-            />
-          </label>
-
-          <label className="flex flex-col gap-1">
-            <span className="text-gray-600">Last name</span>
-            <input
-              value={lastName}
-              disabled={isUpdating}
-              onChange={handleLastNameChange}
-              className={inputClass}
-            />
-          </label>
-
-          <label className="col-span-2 flex flex-col gap-1">
-            <span className="text-gray-600">Display name</span>
-            <div className="flex items-center gap-2 rounded-lg border border-black/15 bg-white/70 px-2 transition-colors focus-within:border-black/40">
-              <UserRound className="h-3.5 w-3.5 shrink-0 text-gray-500" />
-              <input
-                value={displayName}
-                disabled={isUpdating}
-                onChange={handleDisplayNameChange}
-                className="min-w-0 flex-1 bg-transparent py-2 outline-none disabled:cursor-not-allowed disabled:text-gray-400"
-              />
-            </div>
-            {!displayNameIsValid && (
-              <span className="text-xs text-red-600">
-                Display name must be at least 3 characters.
-              </span>
-            )}
-          </label>
-
-          <label className="col-span-2 flex flex-col gap-1">
-            <span className="text-gray-600">Billing email</span>
-            <div className="flex items-center gap-2 rounded-lg border border-black/15 bg-white/70 px-2 transition-colors focus-within:border-black/40">
-              <Mail className="h-3.5 w-3.5 shrink-0 text-gray-500" />
-              <input
-                value={billingEmail}
-                type="email"
-                disabled={isUpdating}
-                onChange={handleBillingEmailChange}
-                className="min-w-0 flex-1 bg-transparent py-2 outline-none disabled:cursor-not-allowed disabled:text-gray-400"
-              />
-            </div>
-            {!billingEmailIsValid && (
-              <span className="text-xs text-red-600">
-                Enter a valid billing email.
-              </span>
-            )}
-          </label>
+          <TextInputField
+            size="sm"
+            label="First name"
+            value={firstName}
+            disabled={isUpdating}
+            onChange={handleFirstNameChange}
+          />
+          <TextInputField
+            size="sm"
+            label="Last name"
+            value={lastName}
+            disabled={isUpdating}
+            onChange={handleLastNameChange}
+          />
+          <TextInputField
+            size="sm"
+            className="col-span-2"
+            icon={UserRound}
+            label="Display name"
+            value={displayName}
+            disabled={isUpdating}
+            onChange={handleDisplayNameChange}
+            error={
+              displayNameIsValid
+                ? undefined
+                : "Display name must be at least 3 characters."
+            }
+          />
+          <TextInputField
+            size="sm"
+            className="col-span-2"
+            icon={Mail}
+            type="email"
+            label="Billing email"
+            value={billingEmail}
+            disabled={isUpdating}
+            onChange={handleBillingEmailChange}
+            error={
+              billingEmailIsValid ? undefined : "Enter a valid billing email."
+            }
+          />
         </div>
       </div>
 

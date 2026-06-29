@@ -5,6 +5,7 @@ import type {
   InviteWorkspaceMemberInput,
   InviteWorkspaceMemberMutation,
   MyWorkspaceInvitationsQuery,
+  RevokeWorkspaceInvitationMutation,
 } from "#/api/generated/graphql";
 import { executeGraphQL } from "#/api/graphql/client";
 import {
@@ -70,6 +71,14 @@ const DeclineWorkspaceInvitationDocument = graphql(`
   }
 `);
 
+const RevokeWorkspaceInvitationDocument = graphql(`
+  mutation RevokeWorkspaceInvitation($invitationId: ID!) {
+    revokeWorkspaceInvitation(invitationId: $invitationId) {
+      success
+    }
+  }
+`);
+
 export async function getMyInvitations(): Promise<MyInvitation[]> {
   const data: MyWorkspaceInvitationsQuery = await executeGraphQL(
     MyWorkspaceInvitationsDocument,
@@ -116,5 +125,16 @@ export async function declineInvitation(invitationId: string): Promise<void> {
 
   if (!result.declineWorkspaceInvitation?.success) {
     throw new Error("Invitation could not be declined");
+  }
+}
+
+export async function revokeInvitation(invitationId: string): Promise<void> {
+  const result: RevokeWorkspaceInvitationMutation = await executeGraphQL(
+    RevokeWorkspaceInvitationDocument,
+    { invitationId },
+  );
+
+  if (!result.revokeWorkspaceInvitation?.success) {
+    throw new Error("Invitation could not be revoked");
   }
 }

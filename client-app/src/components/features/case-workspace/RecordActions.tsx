@@ -91,6 +91,7 @@ export function ProposalActions({
       {suggestingEdits && (
         <div className="mt-3 rounded-lg border border-black/15 bg-black/[0.025] p-3">
           <TextAreaField
+            size="sm"
             label="Suggested edit for the agent"
             placeholder="Tell the agent what to preserve, soften, cite, split, or rewrite before you accept it."
             value={editSuggestion}
@@ -200,6 +201,7 @@ export function AcceptedRecordActions({
       {active === "revision" && (
         <div className="mt-3 rounded-lg border border-black/15 bg-black/2.5 p-3">
           <TextAreaField
+            size="sm"
             label="What should the agent change?"
             placeholder="Describe the revision — what to add, soften, cite, split, or rewrite. The agent drafts a proposed revision for your review."
             value={instruction}
@@ -230,6 +232,7 @@ export function AcceptedRecordActions({
       {active === "reject" && (
         <div className={`mt-3 rounded-lg border p-3 ${TONES.critical.surface}`}>
           <TextAreaField
+            size="sm"
             label="Reason for rejecting this record"
             placeholder="Example: superseded by the settlement; this theory is no longer being pursued."
             value={reason}
@@ -302,6 +305,7 @@ export function RejectedRecordActions({
       {open && (
         <div className="mt-3">
           <TextAreaField
+            size="sm"
             label="What should the agent revise?"
             placeholder="Describe the revision — what to preserve, change, cite, split, or rewrite. The agent drafts a replacement proposal for your review."
             value={instruction}
@@ -519,6 +523,7 @@ export function QuestionAnswerControl({
       onClick={(event) => event.stopPropagation()}
     >
       <TextAreaField
+        size="sm"
         label="Answer"
         placeholder="Write the answer that resolves this question. Saving marks it answered."
         value={draft}

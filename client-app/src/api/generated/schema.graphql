@@ -104,6 +104,7 @@ type Mutation {
   createWorkspace(data: CreateWorkspaceInput!): CreateWorkspacePayload
   declineWorkspaceInvitation(invitationId: ID!): DeclineWorkspaceInvitationPayload
   inviteWorkspaceMember(data: InviteWorkspaceMemberInput!): InviteWorkspaceMemberPayload
+  revokeWorkspaceInvitation(invitationId: ID!): RevokeWorkspaceInvitationPayload
   updateCurrentUser(data: UpdateCurrentUserInput!): UpdateCurrentUserPayload
 }
 
@@ -114,6 +115,10 @@ type Query {
   workspace(id: ID!): Workspace
   workspaceInvitations(status: InvitationStatus, workspaceId: ID): [WorkspaceInvitation!]
   workspaces: [Workspace!]
+}
+
+type RevokeWorkspaceInvitationPayload {
+  success: Boolean
 }
 
 enum SubscriptionStatus {
