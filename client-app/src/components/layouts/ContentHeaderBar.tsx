@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { Mail, MessageSquare, Settings } from "lucide-react";
 import { AppModalContext } from "#/context/AppModalContext";
 import { useMyInvitationsQuery } from "#/api/invitations/hooks";
+import "./ContentHeaderBar.css";
 
 interface ContentHeaderBarProps {
   showWorkspaceSettings?: boolean;
@@ -28,8 +29,10 @@ const ContentHeaderBar = ({
           <Mail className="w-3.5 h-3.5" />
           <span>Invites</span>
           {inviteCount > 0 && (
-            <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#282828] px-1 text-xs font-semibold text-white">
-              {inviteCount}
+            <span className="absolute -top-2.25 -right-2 scale-75 flex h-5 w-5">
+              <span className="invite-badge-attention flex h-full w-full items-center justify-center rounded-full bg-[#FA6060] text-md font-semibold text-white">
+                {inviteCount}
+              </span>
             </span>
           )}
         </button>

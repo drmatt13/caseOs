@@ -204,7 +204,12 @@ const NavigationPanel = ({ children, activeItemKey }: NavigationPanelProps) => {
       }
       stopAnchorLoop();
     };
-  }, [handleScroll, stopAnchorLoop, updatePanelHeightOffset, windowWidthCategory]);
+  }, [
+    handleScroll,
+    stopAnchorLoop,
+    updatePanelHeightOffset,
+    windowWidthCategory,
+  ]);
 
   // When the selected nav item changes, the route scrolls the body back to top,
   // which collapses this panel from the bottom and shrinks its inner scroll

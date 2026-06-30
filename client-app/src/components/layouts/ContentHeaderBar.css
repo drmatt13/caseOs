@@ -1,0 +1,27 @@
+.invite-badge-attention {
+  animation: invite-badge-attention-bounce 20s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes invite-badge-attention-bounce {
+  0%,
+  95.75% {
+    transform: translateY(0);
+  }
+
+  96.8125% {
+    transform: translateY(-4px);
+  }
+
+  97.875% {
+    transform: translateY(0);
+  }
+
+  98.9375% {
+    transform: translateY(-4px);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}

@@ -94,7 +94,7 @@ const ActiveWorkspaceMenu = ({
   reviewCount = 0,
 }: ActiveWorkspaceMenuProps) => {
   return (
-    <div className="flex flex-col gap-0.5">
+    <div className="/mt-0.5 flex flex-col gap-0.75">
       {WORKSPACE_MENU_GROUPS.map((group, groupIndex) => (
         <div key={group.label ?? `group-${groupIndex}`}>
           {group.label && (

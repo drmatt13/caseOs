@@ -29,28 +29,30 @@ const SelectCaseMenu = ({
         </Link>
         <p className="truncate">{workspaceName}</p>
       </div>
-      {canCreateCase && (
-        <Link
-          to="/workspaces/$workspaceId/cases/new"
-          params={{ workspaceId }}
-        >
-          <div className="text-sm h-8 p-2 rounded-lg hover:bg-black/10 cursor-pointer flex items-center gap-1.5 text-black transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
-            <PlusIcon className="w-4 h-4" />
-            <div>New Case</div>
-          </div>
-        </Link>
-      )}
-      {defaultWorkspaceCases.map((caseItem) => (
-        <Link
-          key={caseItem.id}
-          to="/workspaces/$workspaceId/cases/$caseId"
-          params={{ workspaceId, caseId: caseItem.id }}
-        >
-          <div className="text-sm h-8 p-2 rounded-lg hover:bg-black/10 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
-            <p className="truncate">{caseItem.name}</p>
-          </div>
-        </Link>
-      ))}
+      <div className="flex flex-col gap-0.75">
+        {canCreateCase && (
+          <Link
+            to="/workspaces/$workspaceId/cases/new"
+            params={{ workspaceId }}
+          >
+            <div className="text-sm h-8 p-2 rounded-lg hover:bg-black/10 cursor-pointer flex items-center gap-1.5 text-black transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
+              <PlusIcon className="w-4 h-4" />
+              <div>New Case</div>
+            </div>
+          </Link>
+        )}
+        {defaultWorkspaceCases.map((caseItem) => (
+          <Link
+            key={caseItem.id}
+            to="/workspaces/$workspaceId/cases/$caseId"
+            params={{ workspaceId, caseId: caseItem.id }}
+          >
+            <div className="text-sm h-8 p-2 rounded-lg hover:bg-black/10 cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
+              <p className="truncate">{caseItem.name}</p>
+            </div>
+          </Link>
+        ))}
+      </div>
     </>
   );
 };

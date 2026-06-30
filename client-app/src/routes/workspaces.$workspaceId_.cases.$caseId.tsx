@@ -121,133 +121,136 @@ function RouteComponent() {
   return (
     <ShowProposedLinksContext.Provider value={showProposedLinksValue}>
       <WorkspaceCapabilitiesContext.Provider value={capabilities}>
-      <AppLayout>
-        <NavigationPanel activeItemKey={activeView}>
-          <UserPanel user={user} settings={true} showTier={true} />
-          <div className="text-sm flex gap-1.5 items-center">
-            <Link to="/workspaces/$workspaceId" params={{ workspaceId }}>
-              <div className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
-                <ArrowLeft className="w-3 h-3" />
-              </div>
-            </Link>
-            <p className="truncate">{caseName}</p>
-          </div>
-          <label className="relative block">
-            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-black/50" />
-            <input
-              className="w-full rounded-lg border border-black/22 lg:border-black/15 bg-white/25 lg:bg-black/3 py-2.5 pl-8 pr-2 text-sm placeholder:text-black/65 text-black/75 outline-none transition focus:border-black/30 focus:bg-white/50 lg:focus:bg-white/75"
-              placeholder="Search workspace"
-              value={globalSearch}
-              onChange={(event) => setGlobalSearch(event.target.value)}
-            />
-          </label>
-          <ActiveWorkspaceMenu
-            activeView={activeView}
-            onSelectView={handleSelectView}
-            counts={viewCounts}
-            reviewCount={pendingProposalCount}
-          />
-        </NavigationPanel>
-
-        <ContentShell showWorkspaceSettings={canManageWorkspaceAccess}>
-          <div className="flex min-w-0 flex-col gap-4">
-            <header className="flex flex-wrap items-start justify-between gap-3 border-b border-black/15 pb-4">
-              <div className="min-w-0">
-                <div className="mb-2 flex flex-wrap items-center gap-2">
-                  <span className="rounded-full border border-black/15 bg-white/75 px-2.5 py-1 text-xs text-black/65">
-                    {caseIdentifier}
-                  </span>
-                  {pendingProposalCount > 0 && (
-                    <button
-                      type="button"
-                      className="rounded-full border border-amber-600/35 bg-amber-50/60 px-2.5 py-1 text-xs text-amber-900 transition-colors hover:border-amber-700/45 hover:bg-amber-100/70"
-                      onClick={() => handleSelectView("review")}
-                    >
-                      {pendingProposalCount} proposals need review
-                    </button>
-                  )}
+        <AppLayout>
+          <NavigationPanel activeItemKey={activeView}>
+            <UserPanel user={user} settings={true} showTier={true} />
+            <div className="text-sm flex gap-1.5 items-center">
+              <Link to="/workspaces/$workspaceId" params={{ workspaceId }}>
+                <div className="p-1.5 hover:bg-black/15 rounded-lg cursor-pointer transition-colors ease-in duration-150 hover:ease-out hover:duration-100">
+                  <ArrowLeft className="w-3 h-3" />
                 </div>
-                <h1 className="truncate text-2xl font-semibold">
-                  {caseName}
-                </h1>
-                <p className="mt-1 text-sm text-black/70">
-                  {caseForum} · {recordPartyLabel("ours", clientRole)} side
-                </p>
-              </div>
-            </header>
+              </Link>
+              <p className="truncate">{caseName}</p>
+            </div>
+            <label className="relative block">
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-black/50" />
+              <input
+                className="w-full rounded-lg border border-black/22 lg:border-black/15 bg-white/25 lg:bg-black/3 py-1.75 pl-8 pr-2 text-sm placeholder:text-black/65 text-black/75 outline-none transition focus:border-black/30 focus:bg-white/50 lg:focus:bg-white/75"
+                placeholder="Search workspace"
+                value={globalSearch}
+                onChange={(event) => setGlobalSearch(event.target.value)}
+              />
+            </label>
+            <ActiveWorkspaceMenu
+              activeView={activeView}
+              onSelectView={handleSelectView}
+              counts={viewCounts}
+              reviewCount={pendingProposalCount}
+            />
+          </NavigationPanel>
 
-            {globalSearch.trim().length > 0 ? (
-              <GlobalSearchView
-                query={globalSearch}
-                records={globalSearchResults}
-                graph={graph}
-                onClearSearch={() => setGlobalSearch("")}
-                onOpenRecord={openRecord}
-              />
-            ) : activeView === "overview" ? (
-              <OverviewView graph={graph} onOpenRecord={openRecord} />
-            ) : activeView === "agent" ? (
-              <AgentView graph={graph} onOpenRecord={openRecord} />
-            ) : activeView === "review" ? (
-              <ReviewView graph={graph} onOpenRecord={openRecord} />
-            ) : activeView === "documents" ? (
-              <DocumentsView graph={graph} onOpenRecord={openRecord} />
-            ) : activeView === "people" ? (
-              <PeopleView
-                graph={graph}
-                onOpenRecord={openRecord}
-                onCreateRecord={openCreate}
-                onGenerateRecord={openGenerate}
-              />
-            ) : activeView === "timeline" ? (
-              <TimelineView
-                graph={graph}
-                panelSearch={panelSearch}
-                setPanelSearch={setPanelSearch}
-                selectedStatuses={selectedStatuses}
-                setSelectedStatuses={setSelectedStatuses}
-                onOpenRecord={openRecord}
-                onCreateRecord={openCreate}
-                onGenerateRecord={openGenerate}
-              />
-            ) : (
-              <RecordsView
-                activeView={activeView as RecordViewType}
-                graph={graph}
-                panelSearch={panelSearch}
-                setPanelSearch={setPanelSearch}
-                selectedStatuses={selectedStatuses}
-                setSelectedStatuses={setSelectedStatuses}
-                onOpenRecord={openRecord}
-                onCreateRecord={openCreate}
-                onGenerateRecord={openGenerate}
-              />
-            )}
-          </div>
-        </ContentShell>
+          <ContentShell showWorkspaceSettings={canManageWorkspaceAccess}>
+            <div className="flex min-w-0 flex-col gap-4">
+              <header className="flex flex-wrap items-start justify-between gap-3 border-b border-black/15 pb-4">
+                <div className="min-w-0">
+                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                    <span className="rounded-full border border-black/15 bg-white/75 px-2.5 py-1 text-xs text-black/65">
+                      {caseIdentifier}
+                    </span>
+                    {pendingProposalCount > 0 && (
+                      <button
+                        type="button"
+                        className="rounded-full border border-amber-600/35 bg-amber-50/60 px-2.5 py-1 text-xs text-amber-900 transition-colors hover:border-amber-700/45 hover:bg-amber-100/70"
+                        onClick={() => handleSelectView("review")}
+                      >
+                        {pendingProposalCount} proposals need review
+                      </button>
+                    )}
+                  </div>
+                  <h1 className="truncate text-2xl font-semibold">
+                    {caseName}
+                  </h1>
+                  <p className="mt-1 text-sm text-black/70">
+                    {caseForum} · {recordPartyLabel("ours", clientRole)} side
+                  </p>
+                </div>
+              </header>
 
-        {/* Hosted outside ContentShell: a backdrop-blur ancestor would otherwise
+              {globalSearch.trim().length > 0 ? (
+                <GlobalSearchView
+                  query={globalSearch}
+                  records={globalSearchResults}
+                  graph={graph}
+                  onClearSearch={() => setGlobalSearch("")}
+                  onOpenRecord={openRecord}
+                />
+              ) : activeView === "overview" ? (
+                <OverviewView graph={graph} onOpenRecord={openRecord} />
+              ) : activeView === "agent" ? (
+                <AgentView graph={graph} onOpenRecord={openRecord} />
+              ) : activeView === "review" ? (
+                <ReviewView graph={graph} onOpenRecord={openRecord} />
+              ) : activeView === "documents" ? (
+                <DocumentsView graph={graph} onOpenRecord={openRecord} />
+              ) : activeView === "people" ? (
+                <PeopleView
+                  graph={graph}
+                  onOpenRecord={openRecord}
+                  onCreateRecord={openCreate}
+                  onGenerateRecord={openGenerate}
+                />
+              ) : activeView === "timeline" ? (
+                <TimelineView
+                  graph={graph}
+                  panelSearch={panelSearch}
+                  setPanelSearch={setPanelSearch}
+                  selectedStatuses={selectedStatuses}
+                  setSelectedStatuses={setSelectedStatuses}
+                  onOpenRecord={openRecord}
+                  onCreateRecord={openCreate}
+                  onGenerateRecord={openGenerate}
+                />
+              ) : (
+                <RecordsView
+                  activeView={activeView as RecordViewType}
+                  graph={graph}
+                  panelSearch={panelSearch}
+                  setPanelSearch={setPanelSearch}
+                  selectedStatuses={selectedStatuses}
+                  setSelectedStatuses={setSelectedStatuses}
+                  onOpenRecord={openRecord}
+                  onCreateRecord={openCreate}
+                  onGenerateRecord={openGenerate}
+                />
+              )}
+            </div>
+          </ContentShell>
+
+          {/* Hosted outside ContentShell: a backdrop-blur ancestor would otherwise
           trap this fixed overlay's containing block. Mirrors AppModal. */}
-        <RecordInspector
-          stack={inspectorStack}
-          graph={graph}
-          onOpenRecord={openRecord}
-          onBack={inspectorBack}
-          onClose={closeInspector}
-        />
+          <RecordInspector
+            stack={inspectorStack}
+            graph={graph}
+            onOpenRecord={openRecord}
+            onBack={inspectorBack}
+            onClose={closeInspector}
+          />
 
-        <RecordCreateModal
-          target={createTarget}
-          graph={graph}
-          onClose={closeCreate}
-          onCreated={(record) => {
-            closeCreate();
-            openRecord(record.id);
-          }}
-        />
+          <RecordCreateModal
+            target={createTarget}
+            graph={graph}
+            onClose={closeCreate}
+            onCreated={(record) => {
+              closeCreate();
+              openRecord(record.id);
+            }}
+          />
 
-        <GenerateRecordModal target={generateTarget} onClose={closeGenerate} />
-      </AppLayout>
+          <GenerateRecordModal
+            target={generateTarget}
+            onClose={closeGenerate}
+          />
+        </AppLayout>
       </WorkspaceCapabilitiesContext.Provider>
     </ShowProposedLinksContext.Provider>
   );
