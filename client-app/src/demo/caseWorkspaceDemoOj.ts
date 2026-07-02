@@ -774,13 +774,6 @@ const ojRecords: TypedCaseRecord[] = [
     supportStatus: "PARTIALLY_SUPPORTED",
     supportStatusExplanation:
       "Partially supported by the Rockingham glove chronology and impeachment research, but still depends on fuller personnel and credibility materials.",
-    reviewNeeded: {
-      severity: "high",
-      reason: "Pending impeachment records may change theory strength",
-      detail:
-        "The accepted theory assumes Fuhrman remains a supporting credibility theme. The proposed central-witness argument and outstanding subpoena could materially change how much weight this theory should carry.",
-      sourceRecordId: "arg-fuhrman-central",
-    },
     substatus: "ADOPTED",
     priority: "high",
     party: "ours",
@@ -866,13 +859,25 @@ const ojRecords: TypedCaseRecord[] = [
     supportStatus: "PARTIALLY_SUPPORTED",
     supportStatusExplanation:
       "Partially supported by the DNA report mixture caveats and proposed Kelly/Frye research, but cite-checking and expert foundation remain open.",
-    reviewNeeded: {
-      severity: "high",
-      reason: "Resolve before dependent proposals can be accepted",
-      detail:
-        "The admissibility standard this issue turns on is unsettled. Other proposals that assume the DNA evidence is in (or out) cannot be accepted until this is decided.",
-      blocking: true,
-    },
+    // Forward-looking preview: taking up this admissibility issue would change
+    // how much the accepted blood-evidence theories must carry. On accept,
+    // applyProposalImpact seeds the review flags onto these targets.
+    proposalImpact: [
+      {
+        targetRecordId: "theory-contamination",
+        effect: "Reframes how much the contamination theory must carry",
+        reason:
+          "If the mixture interpretation's admissibility becomes a live challenge, exclusion could moot part of the contamination attack — re-check whether this theory is still framed for an admitted-evidence world.",
+        severity: "high",
+      },
+      {
+        targetRecordId: "theory-coc",
+        effect: "Shifts how much weight the chain-of-custody theory must bear",
+        reason:
+          "Whether the DNA mixture interpretation comes in changes how much the provenance-gap theory needs to prove on its own — re-check its framing once the admissibility question is taken up.",
+        severity: "medium",
+      },
+    ],
     status: "PROPOSED",
     substatus: "RESERVED",
     issueType: "procedural",
@@ -891,14 +896,26 @@ const ojRecords: TypedCaseRecord[] = [
     supportStatus: "PARTIALLY_SUPPORTED",
     supportStatusExplanation:
       "Partially supported by glove-fit variables and demonstration-risk records, but the practical trial risk is unresolved.",
-    reviewNeeded: {
-      severity: "medium",
-      reason: "Blocked by the DNA admissibility issue",
-      detail:
-        "Whether to stage a live demonstration depends on whether the DNA evidence comes in. Resolve the DNA admissibility issue first, then re-evaluate this strategic call.",
-      sourceRecordId: "issue-002",
-      blocking: true,
-    },
+    // Forward-looking preview: while this strategic issue is still PROPOSED its
+    // effect on dependent accepted records lives here, NOT as materialized
+    // reviewNeeded flags on those records. On accept, applyProposalImpact seeds
+    // the flags onto these targets.
+    proposalImpact: [
+      {
+        targetRecordId: "arg-glove-demo",
+        effect: "Makes the live-demonstration argument contingent on this call",
+        reason:
+          "If the demonstration question is taken up as a live issue, the merged glove-demonstration argument now hinges on how it resolves — re-check whether it still stands as written.",
+        severity: "medium",
+      },
+      {
+        targetRecordId: "task-002",
+        effect: "Sets the scope the risk memo must address",
+        reason:
+          "Accepting this issue fixes the demonstration decision the risk memo is scoped to — confirm the memo still covers the right question before treating it as ready.",
+        severity: "medium",
+      },
+    ],
     status: "PROPOSED",
     substatus: "OPEN",
     issueType: "strategic",
@@ -1035,13 +1052,6 @@ const ojRecords: TypedCaseRecord[] = [
     supportStatus: "PARTIALLY_SUPPORTED",
     supportStatusExplanation:
       "Partially supported by the fit-history and glove reports; the demonstrative force is clear, but trial risk and common-origin proof remain unresolved.",
-    reviewNeeded: {
-      severity: "medium",
-      reason: "Live-demonstration premise still unresolved",
-      detail:
-        "This merged argument depends on the unresolved glove-demonstration issue. Re-check whether the trial team still wants the demonstrative path before treating the argument as ready for use.",
-      sourceRecordId: "issue-003",
-    },
     party: "ours",
     category: "Glove evidence",
     version: 2,
@@ -1150,14 +1160,6 @@ const ojRecords: TypedCaseRecord[] = [
     supportStatus: "SUPPORT_NOT_REQUIRED",
     supportStatusExplanation:
       "This is a work item for a risk memo; the underlying glove-fit issue carries the evidentiary support.",
-    reviewNeeded: {
-      severity: "medium",
-      reason: "Blocked by unresolved demonstration decision",
-      detail:
-        "The memo is in progress, but its scope depends on the open issue about whether to request or provoke the courtroom glove demonstration. Resolve the strategic issue before marking this task ready.",
-      sourceRecordId: "issue-003",
-      blocking: true,
-    },
     status: "ACCEPTED",
     substatus: "IN_PROGRESS",
     priority: "medium",
@@ -1607,13 +1609,6 @@ const ojRecords: TypedCaseRecord[] = [
     supportStatus: "CONFLICTED",
     supportStatusExplanation:
       "Conflicted because the DNA report supports consistency with Simpson's blood, while the defense challenges how probative that is given vehicle ownership and collection timing.",
-    reviewNeeded: {
-      severity: "medium",
-      reason: "Proposed replacement changes legal significance",
-      detail:
-        "A pending proposal reframes the same Bronco DNA result as expected in the defendant's own vehicle. Decide whether this accepted fact should remain opposing-favorable or be softened before using it in summaries.",
-      sourceRecordId: "fact-bronco-innocent",
-    },
     party: "opposing",
     category: "Blood evidence",
     title: "DNA in the Bronco is consistent with the defendant's blood",

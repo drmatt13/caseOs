@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   CalendarDays,
   CheckCircle2,
@@ -53,6 +53,7 @@ import {
   TaskStatusControl,
 } from "./RecordActions";
 import ProposalManualEditor from "./ProposalManualEditor";
+import { WorkspaceCapabilitiesContext } from "./workspaceCapabilitiesContext";
 import type {
   SupportMetadataProposal,
   WorkspaceGraph,
@@ -327,6 +328,7 @@ function ReviewNeededNotice({
   onOpenRecord: (recordId: string) => void;
   visitedIds: Set<string>;
 }) {
+  const { markReviewed } = useContext(WorkspaceCapabilitiesContext);
   const review = record.reviewNeeded;
   if (!review) return null;
   const source = review.sourceRecordId
@@ -367,15 +369,17 @@ function ReviewNeededNotice({
           />
         </div>
       )}
-      <div className="mt-3 flex justify-end">
-        <Button
-          style="secondary"
-          size="sm"
-          icon={CheckCircle2}
-          text="Mark reviewed"
-          onClick={() => graph.clearReview(record.id)}
-        />
-      </div>
+      {markReviewed && (
+        <div className="mt-3 flex justify-end">
+          <Button
+            style="secondary"
+            size="sm"
+            icon={CheckCircle2}
+            text="Mark reviewed"
+            onClick={() => graph.clearReview(record.id)}
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -404,6 +408,9 @@ function SupportMetadataProposalNotice({
   onAccept: (proposalId: string) => void;
   onDismiss: (proposalId: string) => void;
 }) {
+  // Accepting/dismissing an inferred support-status change is a proposal
+  // decision — gate it on the same capability as accepting a record proposal.
+  const { acceptProposal } = useContext(WorkspaceCapabilitiesContext);
   const source = graph.recordsById.get(proposal.sourceRecordId);
 
   return (
@@ -425,21 +432,23 @@ function SupportMetadataProposalNotice({
         </p>
       )}
       <p className="mt-2 leading-5">{proposal.supportStatusExplanation}</p>
-      <div className="mt-3 flex flex-wrap justify-end gap-2">
-        <Button
-          style="ghost"
-          size="sm"
-          text="Dismiss"
-          onClick={() => onDismiss(proposal.id)}
-        />
-        <Button
-          style="primary"
-          size="sm"
-          icon={CheckCircle2}
-          text="Accept metadata"
-          onClick={() => onAccept(proposal.id)}
-        />
-      </div>
+      {acceptProposal && (
+        <div className="mt-3 flex flex-wrap justify-end gap-2">
+          <Button
+            style="ghost"
+            size="sm"
+            text="Dismiss"
+            onClick={() => onDismiss(proposal.id)}
+          />
+          <Button
+            style="primary"
+            size="sm"
+            icon={CheckCircle2}
+            text="Accept metadata"
+            onClick={() => onAccept(proposal.id)}
+          />
+        </div>
+      )}
     </div>
   );
 }

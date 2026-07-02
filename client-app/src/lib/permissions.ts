@@ -36,6 +36,7 @@ export type WorkspaceCapabilities = {
   acceptProposal: boolean;
   answerQuestion: boolean;
   setTaskStatus: boolean;
+  markReviewed: boolean;
 };
 
 export function resolveCapabilities(
@@ -50,5 +51,6 @@ export function resolveCapabilities(
     acceptProposal: can(role, "acceptProposal"),
     answerQuestion: can(role, "answerQuestion"),
     setTaskStatus: can(role, "setTaskStatus"),
+    markReviewed: can(role, "markReviewed"),
   };
 }

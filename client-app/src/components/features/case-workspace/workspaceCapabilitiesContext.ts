@@ -14,6 +14,7 @@ export const DEFAULT_WORKSPACE_CAPABILITIES: WorkspaceCapabilities = {
   acceptProposal: false,
   answerQuestion: false,
   setTaskStatus: false,
+  markReviewed: false,
 };
 
 export const WorkspaceCapabilitiesContext = createContext<WorkspaceCapabilities>(

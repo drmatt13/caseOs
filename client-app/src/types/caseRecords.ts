@@ -134,6 +134,15 @@ export type RecordPriority = "low" | "medium" | "high";
 // why." The agent flags a record ONLY when something upstream changed that
 // affects whether the record is still TRUE, still WELL-SUPPORTED, or still
 // LEGALLY USEFUL — not for routine graph churn. Absent ⇒ no review needed.
+//
+// A review flag ALWAYS names the upstream record that triggered it
+// (`sourceRecordId`, required) — there are no standalone, source-less flags. For
+// an ACCEPTED record, that trigger is itself a real (accepted) change: a flag is
+// materialized only once a proposal is ACCEPTED and its `proposalImpact`
+// transfers onto the target (see `applyProposalImpact`). A still-PROPOSED record
+// therefore never sources a review flag on another record — until it is
+// accepted, its downstream effect is visible only as its own `proposalImpact`.
+//
 // Stored on the record (alongside `typedMeta` server-side), never recomputed by
 // the UI: the agent is the single author of the flag, and it can selectively
 // propagate one along the graph (e.g. flag a fact because the document that
@@ -149,15 +158,12 @@ export interface ReviewNeeded {
   reason: string;
   // Optional longer explanation, surfaced in the inspector and the queue detail.
   detail?: string;
-  // Optional upstream cause — the record whose change triggered this flag. Lets
-  // the agent record "why" and the UI offer a jump-to link. Optional so a
-  // standalone flag needs no graph context.
-  sourceRecordId?: string;
-  // Optional agent metadata for flags that affect dependent records. Kept so
-  // seeded/API data can preserve that nuance, but the client does not block
-  // proposal acceptance from this flag; accepted changes propagate follow-up
-  // review flags instead.
-  blocking?: boolean;
+  // REQUIRED upstream cause — the record whose change or acceptance triggered
+  // this flag, and the single reason the review exists. Every review flag names
+  // the record that triggered it (the UI renders it as the "Triggered by" chip
+  // and offers a jump-to link). There are no standalone, source-less review
+  // flags: if nothing triggered a re-check, there is no `reviewNeeded`.
+  sourceRecordId: string;
 }
 
 // What accepting a PROPOSAL would do to other records. The review agent computes
