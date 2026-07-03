@@ -20,6 +20,7 @@ import {
   scrollUpSlowTransitionDurationMs,
   scrollUpTransitionTimingFunction,
 } from "#/components/layouts/navigationPanelMetrics";
+import { useRouterState } from "@tanstack/react-router";
 
 // context
 import { MenuContext } from "#/context/MenuContext";
@@ -49,6 +50,22 @@ const NavigationPanel = ({ children, activeItemKey }: NavigationPanelProps) => {
     scrollY: 0,
     time: 0,
   });
+
+  const routeHref = useRouterState({
+    select: (state) => state.location.href,
+  });
+
+  useEffect(() => {
+    // runs on initial mount and every route change
+    // get session storage value for navigationPanelOffsetTop and console log it
+    const offsetTop = sessionStorage.getItem("navigationPanelOffsetTop");
+    if (offsetTop) {
+      console.log("[navigation-panel-offset-top]", {
+        top: Number(offsetTop),
+        routeHref,
+      });
+    }
+  }, [routeHref]);
 
   const updatePanelHeightOffset = useCallback((animate: boolean) => {
     const panel = panelRef.current;
@@ -210,6 +227,42 @@ const NavigationPanel = ({ children, activeItemKey }: NavigationPanelProps) => {
     updatePanelHeightOffset,
     windowWidthCategory,
   ]);
+
+  useEffect(() => {
+    let logFrame: number | null = null;
+
+    const logPanelOffsetFromTop = () => {
+      logFrame = null;
+
+      const panel = panelRef.current;
+      if (!panel) return;
+
+      // set sessionStorage to help debug the panel's offset from the top of the viewport
+      sessionStorage.setItem(
+        "navigationPanelOffsetTop",
+        panel.getBoundingClientRect().top.toString(),
+      );
+    };
+
+    const schedulePanelOffsetLog = () => {
+      if (logFrame !== null) return;
+
+      logFrame = window.requestAnimationFrame(logPanelOffsetFromTop);
+    };
+
+    schedulePanelOffsetLog();
+    window.addEventListener("scroll", schedulePanelOffsetLog, {
+      passive: true,
+    });
+
+    return () => {
+      window.removeEventListener("scroll", schedulePanelOffsetLog);
+
+      if (logFrame !== null) {
+        window.cancelAnimationFrame(logFrame);
+      }
+    };
+  }, []);
 
   // When the selected nav item changes, the route scrolls the body back to top,
   // which collapses this panel from the bottom and shrinks its inner scroll
