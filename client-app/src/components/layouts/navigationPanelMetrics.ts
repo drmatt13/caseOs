@@ -13,6 +13,15 @@ export const getNavigationPanelLoadingHeightStorageKey = (
   windowWidthCategory: string,
 ) => `${navigationPanelLoadingHeightStorageKeyPrefix}.${windowWidthCategory}`;
 
+// One-shot slide of the panel from the previous page's on-screen position back
+// to its resting position after a route change. Unlike the max-height chase
+// below (re-fired every frame, so its durations sit near the frame interval),
+// this runs once, so it gets a real duration and a strong ease-out: cover the
+// gap early, settle soft.
+export const routeChangeSlideDurationMs = 200;
+export const routeChangeSlideTimingFunction = "cubic-bezier(0.3, 0.8, 0.35, 1)";
+// export const routeChangeSlideTimingFunction = "ease-out"; // fast start, flat finish
+
 const pixelsToRem = (px: number) => px / 21;
 const maxBodyScrollDeltaRem = 5.25;
 const stickyTopRem = 1.75;
@@ -53,7 +62,8 @@ const fastScrollVelocityPxPerMs = 0.85;
 // Super-linear (>1): keep ordinary, moderate scrolling near the longer/smoother
 // duration and reserve the tightest coupling for genuine fast flings.
 const scrollVelocityDurationCurve = 1.25;
-export const scrollUpTransitionTimingFunction = "cubic-bezier(0.3, 0.65, 0.35, 1)";
+export const scrollUpTransitionTimingFunction =
+  "cubic-bezier(0.3, 0.65, 0.35, 1)";
 export const scrollDownTransitionTimingFunction =
   "cubic-bezier(0.25, 0.7, 0.3, 1)";
 // const shouldLogScrollVelocity = true;

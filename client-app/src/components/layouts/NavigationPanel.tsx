@@ -16,15 +16,26 @@ import {
   getPanelOffsetRem,
   getTransitionDurationMs,
   initialPanelOffsetRem,
+  routeChangeSlideDurationMs,
+  routeChangeSlideTimingFunction,
   scrollDownTransitionTimingFunction,
   scrollUpSlowTransitionDurationMs,
   scrollUpTransitionTimingFunction,
 } from "#/components/layouts/navigationPanelMetrics";
-import { useRouterState } from "@tanstack/react-router";
-
 // context
 import { MenuContext } from "#/context/MenuContext";
 import { XIcon } from "lucide-react";
+
+// The sticky panel's viewport top (getBoundingClientRect().top) as last sampled
+// while the previous route was scrolled. It bridges across the panel's unmount/
+// remount on navigation (each route renders its own NavigationPanel): the next
+// mount reads it as the panel's previous on-screen position and slides down
+// from there into place. Module scope (not sessionStorage) on purpose — it must
+// NOT survive a full reload (a reload has no previous page to be continuous
+// with), and it's sampled only while scrolled so a scroll-to-top, including the
+// router's own reset on navigation, can never overwrite it with the resting
+// position. `null` means "no previous scrolled position to slide from".
+let lastScrolledPanelViewportTop: number | null = null;
 
 interface NavigationPanelProps {
   children: ReactNode;
@@ -46,26 +57,108 @@ const NavigationPanel = ({ children, activeItemKey }: NavigationPanelProps) => {
   const previousActiveItemKeyRef = useRef(activeItemKey);
   const lastWrittenScrollTopRef = useRef<number | null>(null);
   const lastStoredLoadingHeightRef = useRef<number | null>(null);
+  // Per-mount consume of the previous route's scrolled position (see the slide
+  // effect). A ref pair, not locals, so StrictMode's dev-only double invocation
+  // of the mount effect reads the same value both times instead of the second
+  // run seeing the already-consumed (null) module slot and skipping the slide.
+  const slideFromConsumedRef = useRef(false);
+  const slideFromTopRef = useRef<number | null>(null);
   const previousScrollSampleRef = useRef({
     scrollY: 0,
     time: 0,
   });
 
-  const routeHref = useRouterState({
-    select: (state) => state.location.href,
-  });
-
-  useEffect(() => {
-    // runs on initial mount and every route change
-    // get session storage value for navigationPanelOffsetTop and console log it
-    const offsetTop = sessionStorage.getItem("navigationPanelOffsetTop");
-    if (offsetTop) {
-      console.log("[navigation-panel-offset-top]", {
-        top: Number(offsetTop),
-        routeHref,
-      });
+  // A fresh route mounts a fresh NavigationPanel (each route renders its own),
+  // and the router resets the body scroll to the top — which would snap this
+  // sticky panel from where it sat on the previous page down to its resting
+  // position. Instead, start it translated up at the previous page's on-screen
+  // position and animate it home. Mount-only (`[]`): it fires on genuine route
+  // changes (which remount the panel), not on same-route search-param changes
+  // like the case view tabs, whose collapse is handled by the anchor-and-lift
+  // effect below. Web Animations API rather than inline transform/transition so
+  // it can't clobber the React-managed `--left-panel-*` vars on this element.
+  useLayoutEffect(() => {
+    // Consume the previous page's pinned position exactly once for this mount,
+    // BEFORE any early return below. The module slot must never survive a mount:
+    // otherwise a value sampled navigations ago (e.g. carried across a resize
+    // past the breakpoint, where the guards below would have skipped clearing
+    // it) can resurface and drive a stale slide when navigating back and forth.
+    // The consumed value lives in a ref so StrictMode's double-invoked mount
+    // effect reuses it rather than re-reading the now-cleared module slot.
+    if (!slideFromConsumedRef.current) {
+      slideFromConsumedRef.current = true;
+      slideFromTopRef.current = lastScrolledPanelViewportTop;
+      lastScrolledPanelViewportTop = null;
+      // Purge an offset persisted by an earlier version of this slide. It now
+      // lives only in memory (above) and is consumed every navigation, so any
+      // lingering session-storage entry is just a stale reference — drop it.
+      try {
+        window.sessionStorage.removeItem("navigationPanelOffsetTop");
+      } catch {
+        // Session storage is an optional enhancement; ignore if unavailable.
+      }
     }
-  }, [routeHref]);
+    const fromTop = slideFromTopRef.current;
+
+    const panel = panelRef.current;
+    if (!panel) return;
+    if (!window.matchMedia("(width >= 72.5rem)").matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (fromTop === null) return;
+
+    let slideAnimation: Animation | null = null;
+    let teardownScrollWatch: (() => void) | null = null;
+
+    const runSlide = () => {
+      const restingTop = panel.getBoundingClientRect().top;
+      const offsetPx = restingTop - fromTop;
+      // <=1px is not a real move (already at rest, or subpixel noise).
+      if (offsetPx <= 1) return;
+
+      slideAnimation = panel.animate(
+        [
+          { transform: `translateY(${-offsetPx}px)` },
+          { transform: "translateY(0)" },
+        ],
+        {
+          duration: routeChangeSlideDurationMs,
+          easing: routeChangeSlideTimingFunction,
+        },
+      );
+    };
+
+    if (window.scrollY <= 0) {
+      // Scroll already reset: this layout effect runs before paint, so the
+      // slide's first frame (translated up) is what the new route paints.
+      runSlide();
+    } else {
+      // Still scrolled: the panel is sticky-glued at the same inset it held on
+      // the previous page, so it currently looks continuous. The router resets
+      // scroll to the top in a layout effect that runs after this (child) one;
+      // catch that reset on its scroll event — dispatched before the next paint
+      // — and start the slide there so the panel never paints at rest first. If
+      // no reset arrives (scroll-preserving navigation), give up after 600ms.
+      const onScrollReset = () => {
+        if (window.scrollY > 0) return;
+        teardownScrollWatch?.();
+        runSlide();
+      };
+      const timeout = window.setTimeout(() => teardownScrollWatch?.(), 600);
+      teardownScrollWatch = () => {
+        window.clearTimeout(timeout);
+        window.removeEventListener("scroll", onScrollReset);
+        teardownScrollWatch = null;
+      };
+      window.addEventListener("scroll", onScrollReset, { passive: true });
+    }
+
+    return () => {
+      teardownScrollWatch?.();
+      slideAnimation?.cancel();
+    };
+    // Mount-only by design; see the comment above.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const updatePanelHeightOffset = useCallback((animate: boolean) => {
     const panel = panelRef.current;
@@ -228,41 +321,61 @@ const NavigationPanel = ({ children, activeItemKey }: NavigationPanelProps) => {
     windowWidthCategory,
   ]);
 
+  // Record where the sticky panel sits ONLY WHILE it is pinned at its sticky
+  // inset — i.e. the user has scrolled far enough to lift it to the top of the
+  // viewport — so the next route's mount can slide it down from there (see the
+  // slide effect above). Anywhere else — the transition zone on the way up, or
+  // resting at scroll top — clears the sample to null so there is nothing to
+  // slide from. This is what makes "scroll down, then back up to the top, then
+  // navigate" produce no slide: by the time the panel unpins on the way up, the
+  // sample is gone. It also means the router's own scroll-to-top on navigation
+  // can't leave a near-resting sample behind. No initial on-mount sample, so a
+  // navigation transient never feeds it. Large only, where the panel is sticky.
   useEffect(() => {
-    let logFrame: number | null = null;
+    if (windowWidthCategory !== "large") return;
 
-    const logPanelOffsetFromTop = () => {
-      logFrame = null;
+    let sampleFrame: number | null = null;
+
+    const sampleScrolledTop = () => {
+      sampleFrame = null;
 
       const panel = panelRef.current;
       if (!panel) return;
 
-      // set sessionStorage to help debug the panel's offset from the top of the viewport
-      sessionStorage.setItem(
-        "navigationPanelOffsetTop",
-        panel.getBoundingClientRect().top.toString(),
-      );
+      // The sticky inset (`lg:top-7`) is where the panel pins; read it from the
+      // element rather than hardcoding so it tracks the class. Pinned when the
+      // panel's viewport top has reached that inset (+1px subpixel tolerance).
+      //
+      // Require `scrollY > 0` too: the panel is only genuinely pinned when the
+      // user is actually scrolled. This is what stops the route-change slide
+      // from feeding itself — that animation runs at scroll top and transforms
+      // the panel up TO the inset, so `getBoundingClientRect().top` reads as
+      // "pinned" mid-slide even though scrollY is 0. Without this guard the
+      // sampler stores that transformed position and the very next navigation
+      // replays a slide the user never earned (jumps up, animates down).
+      const stickyInsetPx =
+        Number.parseFloat(window.getComputedStyle(panel).top) || 0;
+      const panelTop = panel.getBoundingClientRect().top;
+      lastScrolledPanelViewportTop =
+        window.scrollY > 0 && panelTop <= stickyInsetPx + 1 ? panelTop : null;
     };
 
-    const schedulePanelOffsetLog = () => {
-      if (logFrame !== null) return;
+    const scheduleSample = () => {
+      if (sampleFrame !== null) return;
 
-      logFrame = window.requestAnimationFrame(logPanelOffsetFromTop);
+      sampleFrame = window.requestAnimationFrame(sampleScrolledTop);
     };
 
-    schedulePanelOffsetLog();
-    window.addEventListener("scroll", schedulePanelOffsetLog, {
-      passive: true,
-    });
+    window.addEventListener("scroll", scheduleSample, { passive: true });
 
     return () => {
-      window.removeEventListener("scroll", schedulePanelOffsetLog);
+      window.removeEventListener("scroll", scheduleSample);
 
-      if (logFrame !== null) {
-        window.cancelAnimationFrame(logFrame);
+      if (sampleFrame !== null) {
+        window.cancelAnimationFrame(sampleFrame);
       }
     };
-  }, []);
+  }, [windowWidthCategory]);
 
   // When the selected nav item changes, the route scrolls the body back to top,
   // which collapses this panel from the bottom and shrinks its inner scroll
