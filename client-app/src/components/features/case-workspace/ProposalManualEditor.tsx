@@ -49,7 +49,7 @@ function ProposalManualEditor({
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto overscroll-contain contain-paint p-4">
         <div className="mb-3">
           <p className="text-xs uppercase tracking-wide text-black/45">
             Editing proposal · {RECORD_TYPE_LABELS[record.type]}

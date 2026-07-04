@@ -68,7 +68,7 @@ function CaseWorkspaceModal({
       />
 
       <div
-        className={`relative top-12 z-20 flex h-max max-h-[calc(100vh-6rem)] w-2xl max-w-[calc(100vw-3rem)] flex-col overflow-hidden rounded-xl border border-black/22 bg-white/90 text-md shadow-md backdrop-blur-sm transition-all ${
+        className={`relative top-12 z-20 flex h-max max-h-[calc(100vh-6rem)] w-2xl max-w-[calc(100vw-3rem)] flex-col overflow-hidden rounded-xl border border-black/22 bg-white/95 text-md shadow-md transition-all ${
           open
             ? "duration-100 ease-out scale-100 opacity-100 translate-0"
             : "duration-150 ease-in scale-95 opacity-0 translate-y-8"

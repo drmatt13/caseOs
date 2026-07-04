@@ -69,8 +69,7 @@ import type {
 const RECORD_STATE_BANNER_CLASSES: Record<RecordDisplayStatus, string> = {
   ACCEPTED: "border-emerald-700/15 bg-emerald-50/45 text-emerald-950",
   PROPOSED: "border-sky-700/20 bg-sky-50/55 text-sky-950",
-  PROPOSED_REPLACEMENT:
-    "border-violet-700/20 bg-violet-50/55 text-violet-950",
+  PROPOSED_REPLACEMENT: "border-violet-700/20 bg-violet-50/55 text-violet-950",
   PENDING_REPLACEMENT: "border-amber-700/25 bg-amber-50/60 text-amber-950",
   REPLACED: "border-black/12 bg-black/[0.035] text-black/75",
   REJECTED: "border-red-700/20 bg-red-50/60 text-red-950",
@@ -88,7 +87,8 @@ const RECORD_STATE_BANNER_TITLES: Record<RecordDisplayStatus, string> = {
 const RECORD_STATE_BANNER_DESCRIPTIONS: Record<RecordDisplayStatus, string> = {
   ACCEPTED: "Canonical record in this workspace.",
   PROPOSED: "Review before accepting it into the workspace.",
-  PROPOSED_REPLACEMENT: "Review as a proposed replacement for existing record content.",
+  PROPOSED_REPLACEMENT:
+    "Review as a proposed replacement for existing record content.",
   PENDING_REPLACEMENT: "Locked while a replacement proposal is pending.",
   REPLACED: "Retired record kept for version history.",
   REJECTED: "Set aside, but preserved for reference.",
@@ -187,7 +187,7 @@ function RecordInspector({
       />
 
       <div
-        className={`relative top-12 z-20 flex h-max max-h-[calc(100vh-6rem)] w-2xl max-w-[calc(100vw-3rem)] flex-col overflow-hidden rounded-xl border border-black/22 bg-white/90 text-md shadow-md backdrop-blur-sm transition-all ${
+        className={`relative top-12 z-20 flex h-max max-h-[calc(100vh-6rem)] w-2xl max-w-[calc(100vw-3rem)] flex-col overflow-hidden rounded-xl border border-black/22 bg-white/95 text-md shadow-md transition-all ${
           open
             ? "duration-100 ease-out scale-100 opacity-100 translate-0"
             : "duration-150 ease-in scale-95 opacity-0 translate-y-8"
@@ -497,7 +497,7 @@ function RecordInspectorBody({
   );
 
   return (
-    <div className="flex-1 overflow-y-auto p-4">
+    <div className="flex-1 overflow-y-auto overscroll-contain contain-paint p-4">
       {/* Accepted records are the canonical baseline — no banner needed; every
           other state surfaces its banner so the deviation is explicit. */}
       {displayStatus !== "ACCEPTED" && (
