@@ -12,6 +12,7 @@ const SelectWorkspaceMenu = ({
   accountTier,
   workspaces,
 }: SelectWorkspaceMenuProps) => {
+  // Determine if the user can create a new workspace based on their account tier
   const canCreateWorkspace = accountTier !== "FREE";
 
   return (

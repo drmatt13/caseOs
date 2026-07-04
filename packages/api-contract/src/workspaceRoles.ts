@@ -34,18 +34,21 @@ export const ASSIGNABLE_WORKSPACE_ROLES = [
 
 export type AssignableWorkspaceRole = (typeof ASSIGNABLE_WORKSPACE_ROLES)[number];
 
-export type WorkspaceCapability =
+export const WORKSPACE_CAPABILITIES = [
   // Workspace administration
-  | "manageWorkspace"
-  | "inviteMembers"
-  | "removeMembers"
-  | "createCase"
+  "manageWorkspace",
+  "inviteMembers",
+  "removeMembers",
+  "createCase",
   // Case-record actions
-  | "createProposal"
-  | "acceptProposal"
-  | "answerQuestion"
-  | "setTaskStatus"
-  | "markReviewed";
+  "createProposal",
+  "acceptProposal",
+  "answerQuestion",
+  "setTaskStatus",
+  "markReviewed",
+] as const;
+
+export type WorkspaceCapability = (typeof WORKSPACE_CAPABILITIES)[number];
 
 // The authoritative capability matrix. OWNER and ADMIN can do everything
 // (including creating cases); a REVIEWER can act on records (accept proposals,
@@ -87,7 +90,7 @@ export const ROLE_CAPABILITIES: Record<WorkspaceRole, readonly WorkspaceCapabili
 };
 
 /** Returns true if `role` is granted `capability`. The one authorization check. */
-export function can(
+export function hasWorkspaceCapability(
   role: WorkspaceRole | null | undefined,
   capability: WorkspaceCapability,
 ): boolean {
@@ -96,11 +99,4 @@ export function can(
   }
 
   return ROLE_CAPABILITIES[role]?.includes(capability) ?? false;
-}
-
-/** Convenience predicate for the common "can administer this workspace" gate. */
-export function canManageWorkspace(
-  role: WorkspaceRole | null | undefined,
-): boolean {
-  return can(role, "manageWorkspace");
 }

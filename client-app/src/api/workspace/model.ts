@@ -41,7 +41,7 @@ export type WorkspaceDetailMember = {
 };
 
 export type WorkspaceDetailCurrentUserMembership = {
-  id: string | null;
+  id: string;
   role: MembershipRole;
   membershipStatus: MembershipStatus;
 };
@@ -62,7 +62,7 @@ export type WorkspaceDetail = {
   id: string;
   name: string;
   description: string | null;
-  currentUserMembership: WorkspaceDetailCurrentUserMembership | null;
+  currentUserMembership: WorkspaceDetailCurrentUserMembership;
   memberships: WorkspaceDetailMember[];
   invitations: WorkspaceDetailInvitation[];
 };
@@ -100,19 +100,25 @@ export function normalizeWorkspaceDetail(
     name: string;
   },
 ): WorkspaceDetail {
+  const currentUserMembership = workspace.currentUserMembership;
+
+  if (
+    !currentUserMembership?.id ||
+    !currentUserMembership.role ||
+    !currentUserMembership.membershipStatus
+  ) {
+    throw new Error("Current user workspace membership was not found");
+  }
+
   return {
     id: workspace.id,
     name: workspace.name,
     description: workspace.description ?? null,
-    currentUserMembership:
-      workspace.currentUserMembership?.role &&
-      workspace.currentUserMembership.membershipStatus
-        ? {
-            id: workspace.currentUserMembership.id ?? null,
-            role: workspace.currentUserMembership.role,
-            membershipStatus: workspace.currentUserMembership.membershipStatus,
-          }
-        : null,
+    currentUserMembership: {
+      id: currentUserMembership.id,
+      role: currentUserMembership.role,
+      membershipStatus: currentUserMembership.membershipStatus,
+    },
     memberships: (workspace.memberships ?? [])
       .filter(
         (membership): membership is NonNullable<typeof membership> & {

@@ -8,8 +8,10 @@ import ContentShell from "#/components/layouts/ContentShell";
 import ActiveWorkspaceMenu from "#/components/menus/ActiveWorkspaceMenu";
 import UserPanel from "#/components/layouts/UserPanel";
 import PageLoading from "#/components/ui/PageLoading";
-import GetUserError from "#/components/errors/GetUserError";
+import SessionError from "#/components/errors/SessionError";
+import PageError from "#/components/errors/PageError";
 import { requireAuth } from "#/lib/auth";
+import { isNotFoundError } from "#/lib/errors";
 import {
   caseDisplayName,
   caseForumLabel,
@@ -24,7 +26,7 @@ import { recordPartyLabel } from "#/lib/caseRecordPresentation";
 import { useCaseWorkspace } from "#/components/features/case-workspace/useCaseWorkspace";
 import { ShowProposedLinksContext } from "#/components/features/case-workspace/showProposedLinksContext";
 import { WorkspaceCapabilitiesContext } from "#/components/features/case-workspace/workspaceCapabilitiesContext";
-import { canManageWorkspace, resolveCapabilities } from "#/lib/permissions";
+import { resolveCapabilities } from "#/lib/permissions";
 import RecordInspector from "#/components/features/case-workspace/RecordInspector";
 import RecordCreateModal from "#/components/features/case-workspace/RecordCreateModal";
 import GenerateRecordModal from "#/components/features/case-workspace/GenerateRecordModal";
@@ -47,18 +49,23 @@ export const Route = createFileRoute("/workspaces/$workspaceId_/cases/$caseId")(
 function RouteComponent() {
   const { workspaceId, caseId } = Route.useParams();
 
+  // Get the current user
   const {
     data: getUserResult,
     isPending: getUserPending,
     error: getUserError,
   } = useCurrentUserQuery();
   const user = getUserResult?.currentUser.user;
+
+  // Get the workspace from the workspaceId param
   const {
     data: workspace,
     isPending: getWorkspacePending,
     error: getWorkspaceError,
+    refetch: refetchWorkspace,
   } = useWorkspaceQuery(workspaceId, { enabled: Boolean(user) });
 
+  // get the case for the current workspace
   const {
     demo,
     clientRole,
@@ -86,6 +93,8 @@ function RouteComponent() {
     globalSearchResults,
     pendingProposalCount,
   } = useCaseWorkspace(caseId);
+
+  // // Scroll to top when the active view changes
   const previousActiveViewRef = useRef(activeView);
 
   useEffect(() => {
@@ -107,20 +116,57 @@ function RouteComponent() {
     return <PageLoading />;
   }
 
-  if (getUserError || !user || getWorkspaceError || !workspace) {
-    return <GetUserError />;
+  // Session failure → may log out.
+  if (getUserError || !user) {
+    return <SessionError />;
   }
 
-  const role = workspace.currentUserMembership?.role;
-  const canManageWorkspaceAccess = canManageWorkspace(role);
-  const capabilities = resolveCapabilities(role);
+  // Workspace doesn't exist / no access → not-found page, never log out.
+  if (isNotFoundError(getWorkspaceError)) {
+    return (
+      <PageError
+        title="Workspace not found"
+        message="This workspace doesn't exist or you no longer have access."
+        actionLabel="Go home"
+        actionTo="/"
+      />
+    );
+  }
+
+  // Workspace failed to load → recoverable, never log out.
+  if (getWorkspaceError) {
+    return (
+      <PageError
+        title="Couldn't load this workspace"
+        message="Something went wrong loading this workspace. Please try again."
+        onRetry={() => void refetchWorkspace()}
+        actionLabel="Go home"
+        actionTo="/"
+      />
+    );
+  }
+
+  // No error but no data (defensive — the query throws NotFoundError instead).
+  if (!workspace) {
+    return (
+      <PageError
+        title="Workspace not found"
+        message="This workspace doesn't exist or you no longer have access."
+        actionLabel="Go home"
+        actionTo="/"
+      />
+    );
+  }
+
+  const role = workspace.currentUserMembership.role;
+  const userCapabilities = resolveCapabilities(role);
   const caseName = caseDisplayName(demo.caseContext);
   const caseIdentifier = caseIdentifierDisplayLabel(demo.caseContext);
   const caseForum = caseForumLabel(demo.caseContext);
 
   return (
     <ShowProposedLinksContext.Provider value={showProposedLinksValue}>
-      <WorkspaceCapabilitiesContext.Provider value={capabilities}>
+      <WorkspaceCapabilitiesContext.Provider value={userCapabilities}>
         <AppLayout>
           <NavigationPanel activeItemKey={activeView}>
             <UserPanel user={user} settings={true} showTier={true} />
@@ -149,7 +195,7 @@ function RouteComponent() {
             />
           </NavigationPanel>
 
-          <ContentShell showWorkspaceSettings={canManageWorkspaceAccess}>
+          <ContentShell showWorkspaceSettings={userCapabilities.manageWorkspace}>
             <div className="flex min-w-0 flex-col gap-4">
               <header className="flex flex-wrap items-start justify-between gap-3 border-b border-black/15 pb-4">
                 <div className="min-w-0">

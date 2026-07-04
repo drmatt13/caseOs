@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import { can } from "@repo/api-contract";
+import { hasWorkspaceCapability } from "@repo/api-contract";
 import type PrismaTypes from "@repo/database/generated/pothos";
 import {
   InvitationStatus,
@@ -268,6 +268,7 @@ const Workspace = builder.objectRef<WorkspaceShape>("Workspace").implement({
     }),
     currentUserMembership: t.field({
       type: WorkspaceMembership,
+      nullable: false,
       resolve: async (workspace, _args, context) => {
         const membership = await getCurrentUserWorkspaceMembership(
           context,
@@ -449,7 +450,7 @@ async function requireCurrentUserWorkspaceAdminMembership(
     workspaceId,
   );
 
-  if (!can(membership.role, "inviteMembers")) {
+  if (!hasWorkspaceCapability(membership.role, "inviteMembers")) {
     throw forbidden("You do not have permission to invite workspace members");
   }
 

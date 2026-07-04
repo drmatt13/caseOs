@@ -771,24 +771,87 @@ export async function signInUser(
   return { success: true };
 }
 
-export function signInWithGoogle(rememberMe = false): void {
+export type SsoProviderId = "google" | "apple" | "microsoft";
+
+type SsoProviderAuthConfig = {
+  /** identity_provider value on the Cognito hosted-UI authorize URL. */
+  cognitoName: string;
+  /** true only once the IdP exists in cognito-stack.ts supportedIdentityProviders. */
+  enabled: boolean;
+};
+
+const SSO_PROVIDERS: Record<SsoProviderId, SsoProviderAuthConfig> = {
+  google: { cognitoName: "Google", enabled: true },
+  // Cognito's fixed provider name for Sign in with Apple.
+  apple: { cognitoName: "SignInWithApple", enabled: false },
+  // Placeholder; must match the OIDC provider name once added to cognito-stack.ts.
+  microsoft: { cognitoName: "MicrosoftEntraID", enabled: false },
+};
+
+export function isSsoProviderEnabled(provider: SsoProviderId): boolean {
+  return SSO_PROVIDERS[provider].enabled;
+}
+
+function redirectToHostedUi(
+  idp: { identityProvider: string } | { idpIdentifier: string },
+  rememberMe: boolean,
+): void {
   if (!isBrowserRuntime()) {
     return;
   }
 
   const state = generateOAuthState();
-  storeOAuthState({ rememberMe, state });
 
+  // Build the URL first: getCognitoDomainUrl() throws when the env var is
+  // missing, and that must not leave a dangling oauth-state in sessionStorage.
   const authorizeUrl = new URL(`${getCognitoDomainUrl()}/oauth2/authorize`);
   authorizeUrl.searchParams.set("client_id", USER_POOL_CLIENT_ID);
-  authorizeUrl.searchParams.set("identity_provider", "Google");
+  if ("identityProvider" in idp) {
+    authorizeUrl.searchParams.set("identity_provider", idp.identityProvider);
+  } else {
+    authorizeUrl.searchParams.set("idp_identifier", idp.idpIdentifier);
+  }
   authorizeUrl.searchParams.set("redirect_uri", getOAuthRedirectUri());
   authorizeUrl.searchParams.set("response_type", "code");
   authorizeUrl.searchParams.set("scope", "openid email profile");
   authorizeUrl.searchParams.set("state", state);
   authorizeUrl.searchParams.set("prompt", "select_account");
 
+  storeOAuthState({ rememberMe, state });
+
   window.location.assign(authorizeUrl.toString());
+}
+
+export function signInWithProvider(
+  provider: SsoProviderId,
+  rememberMe = false,
+): void {
+  const config = SSO_PROVIDERS[provider];
+
+  if (!config.enabled) {
+    throw new Error(`SSO provider "${provider}" is not enabled`);
+  }
+
+  redirectToHostedUi({ identityProvider: config.cognitoName }, rememberMe);
+}
+
+export function signInWithOrgSso(
+  idpIdentifier: string,
+  rememberMe = false,
+): void {
+  redirectToHostedUi({ idpIdentifier }, rememberMe);
+}
+
+export type OrgSsoDiscovery = { idpIdentifier: string };
+
+/**
+ * Stub until the Enterprise IdP-discovery endpoint ships.
+ * Future: GET <api>/sso/discover?domain=<emailDomain> -> { idpIdentifier } | null.
+ */
+export async function discoverOrgSso(
+  _email: string,
+): Promise<OrgSsoDiscovery | null> {
+  return null;
 }
 
 export async function completeOAuthSignIn(
@@ -831,7 +894,7 @@ export async function completeOAuthSignIn(
     if (!response.ok) {
       return {
         success: false,
-        error: data.error ?? "Google sign in failed",
+        error: data.error ?? "Sign in failed",
       };
     }
 

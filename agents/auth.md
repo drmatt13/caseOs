@@ -93,7 +93,7 @@ client-app/src/lib/auth.ts
 
 Important behavior:
 
-- `signInWithGoogle()` builds the Cognito hosted UI URL.
+- `signInWithProvider(provider, rememberMe)` builds the Cognito hosted UI URL from the `SSO_PROVIDERS` registry (`google` is the only `enabled` provider until more IdPs land in `cognito-stack.ts`; `apple`/`microsoft` entries exist but are disabled). `signInWithOrgSso(idpIdentifier, rememberMe)` is the enterprise variant using `idp_identifier` instead of `identity_provider`; `discoverOrgSso(email)` is a stub for the future IdP-discovery endpoint.
 - `getOAuthRedirectUri()` uses `window.location.origin + "/auth/callback"`.
 - `completeOAuthSignIn()` posts `code`, `state`, and `redirectUri` to the backend `/oauth/callback`.
 - `fetchWithAuthRefresh()` should be used for all authenticated API calls.
@@ -113,7 +113,7 @@ Frontend route guards:
 
 ## OAuth Flow
 
-Google sign-in flow:
+Google sign-in flow (the login page reaches this through Continue with single sign-on → Choose a provider):
 
 1. Frontend redirects to Cognito hosted UI with:
    - `identity_provider=Google`

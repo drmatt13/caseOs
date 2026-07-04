@@ -18,7 +18,7 @@ export const getNavigationPanelLoadingHeightStorageKey = (
 // below (re-fired every frame, so its durations sit near the frame interval),
 // this runs once, so it gets a real duration and a strong ease-out: cover the
 // gap early, settle soft.
-export const routeChangeSlideDurationMs = 200;
+export const routeChangeSlideDurationMs = 175;
 export const routeChangeSlideTimingFunction = "cubic-bezier(0.3, 0.8, 0.35, 1)";
 // export const routeChangeSlideTimingFunction = "ease-out"; // fast start, flat finish
 

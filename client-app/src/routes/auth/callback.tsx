@@ -25,7 +25,7 @@ function RouteComponent() {
     error_description: errorDescription,
     state,
   } = Route.useSearch();
-  const [message, setMessage] = useState("Completing Google sign in...");
+  const [message, setMessage] = useState("Completing sign in...");
 
   useEffect(() => {
     let active = true;
@@ -37,7 +37,7 @@ function RouteComponent() {
       }
 
       if (!code || !state) {
-        setMessage("Missing Google sign-in response. Please try again.");
+        setMessage("Missing sign-in response. Please try again.");
         return;
       }
 
@@ -49,7 +49,7 @@ function RouteComponent() {
         }
 
         if (!result.success) {
-          setMessage(result.error ?? "Google sign in failed.");
+          setMessage(result.error ?? "Sign in failed.");
           return;
         }
 
@@ -62,7 +62,7 @@ function RouteComponent() {
         setMessage(
           caughtError instanceof Error
             ? caughtError.message
-            : "Google sign in failed.",
+            : "Sign in failed.",
         );
       }
     }
@@ -78,7 +78,7 @@ function RouteComponent() {
     <LoginLayout>
       <div className="flex flex-col w-full max-w-84">
         <div className="flex flex-col px-5 pt-8 pb-5 rounded-2xl bg-white/40 backdrop-blur-sm border border-black/15 shadow-md">
-          <p className="text-[1.7rem] font-bold">Google sign in</p>
+          <p className="text-[1.7rem] font-bold">Signing you in</p>
           <p className="mt-3 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-md text-blue-800">
             {message}
           </p>

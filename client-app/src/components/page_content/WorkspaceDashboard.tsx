@@ -6,18 +6,19 @@ import Button from "#/components/ui/Button";
 import WorkspaceRoleBadge from "#/components/ui/WorkspaceRoleBadge";
 import type { WorkspaceDetail } from "#/api/workspace/hooks";
 import { AppModalContext } from "#/context/AppModalContext";
-import { can, canManageWorkspace } from "#/lib/permissions";
+import type { WorkspaceCapabilities } from "#/lib/permissions";
 import { defaultWorkspaceCases } from "#/demo/defaultWorkspaceCases";
 
 interface WorkspaceProps {
   workspace: WorkspaceDetail;
+  userCapabilities: WorkspaceCapabilities;
 }
 
-const WorkspaceDashboard = ({ workspace }: WorkspaceProps) => {
+const WorkspaceDashboard = ({
+  workspace,
+  userCapabilities,
+}: WorkspaceProps) => {
   const { setModal, setModalWorkspaceId } = useContext(AppModalContext);
-  const role = workspace.currentUserMembership?.role;
-  const canManageMembers = canManageWorkspace(role);
-  const canCreateCase = can(role, "createCase");
 
   const openManageMembers = () => {
     setModalWorkspaceId(workspace.id);
@@ -38,7 +39,7 @@ const WorkspaceDashboard = ({ workspace }: WorkspaceProps) => {
           <p className="text-md font-medium">
             Cases ({defaultWorkspaceCases.length})
           </p>
-          {canCreateCase && (
+          {userCapabilities.createCase && (
             <Link
               to="/workspaces/$workspaceId/cases/new"
               params={{ workspaceId: workspace.id }}
@@ -71,7 +72,7 @@ const WorkspaceDashboard = ({ workspace }: WorkspaceProps) => {
           <p className="text-md font-medium">
             Members ({workspace.memberships.length})
           </p>
-          {canManageMembers && (
+          {userCapabilities.manageWorkspace && (
             <Button
               style="secondary"
               text="Manage Members"

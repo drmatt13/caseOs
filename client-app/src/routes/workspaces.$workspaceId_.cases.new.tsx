@@ -26,11 +26,13 @@ import Button from "#/components/ui/Button";
 import type { CaseIntake } from "#/types/caseWorkspace";
 import type { CaseIntakeWizardState } from "#/components/features/create-case/caseIntakeForm";
 import PageLoading from "#/components/ui/PageLoading";
-import GetUserError from "#/components/errors/GetUserError";
+import SessionError from "#/components/errors/SessionError";
+import PageError from "#/components/errors/PageError";
 
 // route guards
 import { requireAuth } from "#/lib/auth";
-import { can } from "#/lib/permissions";
+import { resolveCapabilities } from "#/lib/permissions";
+import { isNotFoundError } from "#/lib/errors";
 
 // useQuery
 import { useCurrentUserQuery } from "#/api/currentUser/hooks";
@@ -65,6 +67,7 @@ function RouteComponent() {
     data: workspace,
     isPending: getWorkspacePending,
     error: getWorkspaceError,
+    refetch: refetchWorkspace,
   } = useWorkspaceQuery(workspaceId, { enabled: Boolean(user) });
 
   const [blankCaseIntake] = useState(createBlankCaseIntake);
@@ -106,24 +109,61 @@ function RouteComponent() {
     return <PageLoading />;
   }
 
-  if (getUserError || !user || getWorkspaceError || !workspace) {
-    return <GetUserError />;
+  // Session failure → may log out.
+  if (getUserError || !user) {
+    return <SessionError />;
   }
 
-  const role = workspace.currentUserMembership?.role;
-  const canManageWorkspace = can(role, "manageWorkspace");
-  const canCreateCase = can(role, "createCase");
+  // Workspace doesn't exist / no access → not-found page, never log out.
+  if (isNotFoundError(getWorkspaceError)) {
+    return (
+      <PageError
+        title="Workspace not found"
+        message="This workspace doesn't exist or you no longer have access."
+        actionLabel="Go home"
+        actionTo="/"
+      />
+    );
+  }
+
+  // Workspace failed to load → recoverable, never log out.
+  if (getWorkspaceError) {
+    return (
+      <PageError
+        title="Couldn't load this workspace"
+        message="Something went wrong loading this workspace. Please try again."
+        onRetry={() => void refetchWorkspace()}
+        actionLabel="Go home"
+        actionTo="/"
+      />
+    );
+  }
+
+  // No error but no data (defensive — the query throws NotFoundError instead).
+  if (!workspace) {
+    return (
+      <PageError
+        title="Workspace not found"
+        message="This workspace doesn't exist or you no longer have access."
+        actionLabel="Go home"
+        actionTo="/"
+      />
+    );
+  }
+
+  const role = workspace.currentUserMembership.role;
+  const userCapabilities = resolveCapabilities(role);
 
   // Hide the intake wizard from members who can't create cases (Reviewer and
   // below). The dashboard/case-menu also hide the entry, but guarding the route
   // blocks direct navigation to /cases/new.
-  if (!canCreateCase) {
+  if (!userCapabilities.createCase) {
     return (
       <AppLayout>
         <NavigationPanel>
           <UserPanel user={user} settings={true} showTier={true} />
         </NavigationPanel>
-        <ContentShell showWorkspaceSettings={canManageWorkspace}>
+        <ContentShell showWorkspaceSettings={userCapabilities.manageWorkspace}>
           <div className="flex h-full items-center justify-center">
             <div className="max-w-md rounded-2xl border border-black/15 bg-white/40 p-6 text-center shadow-md backdrop-blur-sm">
               <p className="font-serif text-lg">
@@ -325,7 +365,7 @@ function RouteComponent() {
           completedThroughStep={completedThroughStep}
         />
       </NavigationPanel>
-      <ContentShell showWorkspaceSettings={canManageWorkspace}>
+      <ContentShell showWorkspaceSettings={userCapabilities.manageWorkspace}>
         <div className="flex flex-col gap-6 h-full justify-between">
           {renderStep()}
           <div className="grid grid-cols-3 items-end gap-3 rounded-2xl">

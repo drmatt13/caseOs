@@ -8,6 +8,7 @@ import type {
   ListWorkspacesQuery,
 } from "#/api/generated/graphql";
 import { executeGraphQL } from "#/api/graphql/client";
+import { NotFoundError } from "#/lib/errors";
 import {
   normalizeWorkspaceDetail,
   normalizeWorkspaceList,
@@ -124,7 +125,7 @@ export async function getWorkspace(
   const workspace = data.workspace;
 
   if (!workspace || !workspace.id || !workspace.name) {
-    throw new Error("Workspace was not found");
+    throw new NotFoundError("Workspace");
   }
 
   return normalizeWorkspaceDetail({

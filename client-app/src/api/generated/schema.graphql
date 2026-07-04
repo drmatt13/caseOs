@@ -172,7 +172,7 @@ type UserProfile {
 
 type Workspace {
   createdAt: String
-  currentUserMembership: WorkspaceMembership
+  currentUserMembership: WorkspaceMembership!
   description: String
   id: ID
   invitations: [WorkspaceInvitation!]

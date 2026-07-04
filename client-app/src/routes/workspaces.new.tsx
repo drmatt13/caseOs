@@ -7,7 +7,7 @@ import NavigationPanel from "#/components/layouts/NavigationPanel";
 import CreateWorkspaceMenu from "#/components/menus/CreateWorkspaceMenu";
 import Button from "#/components/ui/Button";
 import PageLoading from "#/components/ui/PageLoading";
-import GetUserError from "#/components/errors/GetUserError";
+import SessionError from "#/components/errors/SessionError";
 import UserPanel from "#/components/layouts/UserPanel";
 import CreateWorkspaceReviewForm from "#/components/features/create-workspace/CreateWorkspaceReviewForm";
 import TeamMembersForm from "#/components/features/create-workspace/TeamMembersForm";
@@ -188,8 +188,9 @@ function RouteComponent() {
     return <PageLoading />;
   }
 
+  // Session failure → may log out. (Mutation errors stay inline below.)
   if (error || !user) {
-    return <GetUserError />;
+    return <SessionError />;
   }
 
   if (user.accountTier === "FREE") {

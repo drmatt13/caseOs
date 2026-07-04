@@ -36,7 +36,7 @@ const ManageMembersModal = () => {
 
   const trimmedEmail = email.trim();
   const members = workspace?.memberships ?? [];
-  const currentMembershipId = workspace?.currentUserMembership?.id ?? null;
+  const currentMembershipId = workspace?.currentUserMembership.id ?? null;
   const pendingInvitations = (workspace?.invitations ?? []).filter(
     (invitation) => invitation.status === "PENDING",
   );
