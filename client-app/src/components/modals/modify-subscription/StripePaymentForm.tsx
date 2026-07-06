@@ -8,14 +8,21 @@ import {
 } from "@stripe/react-stripe-js";
 
 import Button from "#/components/ui/Button";
+import { TONES } from "#/lib/tones";
 import { currentUserQueryKey } from "#/api/currentUser/hooks";
-import { useCreateSubscriptionMutation } from "#/api/billing/hooks";
-import { formatPrice } from "#/components/modals/modify-subscription/types";
-import { type PaymentStepProps } from "#/components/modals/modify-subscription/types";
+import {
+  planChangePreviewQueryKeyPrefix,
+  useCreateSubscriptionMutation,
+} from "#/api/billing/hooks";
+import {
+  formatBillingDate,
+  formatCurrency,
+  type PaymentStepProps,
+} from "#/components/modals/modify-subscription/types";
 
 function StripePaymentForm({
-  selectedOption,
-  startTrial,
+  selection,
+  switchPreview,
   onPaymentStatusChange,
   onBack,
 }: PaymentStepProps) {
@@ -26,8 +33,11 @@ function StripePaymentForm({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const { price, startTrial } = selection;
+  const intervalSuffix = price.interval === "year" ? "/yr" : "/mo";
+
   const handleSubscribe = useCallback(async () => {
-    if (!stripe || !elements || !selectedOption.price?.stripePriceId) return;
+    if (!stripe || !elements) return;
 
     setErrorMessage(null);
     setIsProcessing(true);
@@ -59,13 +69,16 @@ function StripePaymentForm({
 
     try {
       await createSubscriptionMutation.mutateAsync({
-        tier: selectedOption.tier,
-        priceId: selectedOption.price.stripePriceId,
+        tier: selection.tier,
+        priceId: price.live.stripePriceId,
         paymentMethodId,
         startTrial,
       });
 
       await queryClient.invalidateQueries({ queryKey: currentUserQueryKey });
+      await queryClient.invalidateQueries({
+        queryKey: planChangePreviewQueryKeyPrefix,
+      });
       onPaymentStatusChange("success");
       setIsProcessing(false);
     } catch (error) {
@@ -79,73 +92,125 @@ function StripePaymentForm({
     elements,
     queryClient,
     createSubscriptionMutation,
-    selectedOption.price?.stripePriceId,
-    selectedOption.tier,
+    price.live.stripePriceId,
+    selection.tier,
     onPaymentStatusChange,
     startTrial,
     stripe,
   ]);
 
+  const dueToday = (() => {
+    if (startTrial) return formatCurrency(0, price.currency);
+    if (switchPreview) {
+      return switchPreview.amountDueToday < 0
+        ? `${formatCurrency(
+            Math.abs(switchPreview.amountDueToday),
+            switchPreview.currency,
+          )} credit`
+        : formatCurrency(switchPreview.amountDueToday, switchPreview.currency);
+    }
+    return formatCurrency(price.amount, price.currency);
+  })();
+
+  const renewalDate = formatBillingDate(switchPreview?.nextRenewalDate);
+
   return (
     <>
       <div className="mt-4 grid gap-3 md:grid-cols-3">
-        <div className="rounded-lg border border-black/10 bg-white/60 p-3 md:col-span-2">
+        <div className="rounded-lg border border-black/15 bg-white/60 p-3 md:col-span-2">
           <div className="flex items-center gap-2">
-            <CreditCard className="h-4 w-4 text-gray-600" />
+            <CreditCard className="h-4 w-4 text-black/60" />
             <p className="font-serif text-md">Payment Details</p>
           </div>
 
-          <div className="mt-3 rounded-lg border border-black/10 bg-white/80 p-3">
+          <div className="mt-3 rounded-lg border border-black/15 bg-white/80 p-3">
             <PaymentElement />
           </div>
 
           {errorMessage && (
-            <div className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-red-700">
-              {errorMessage}
+            <div
+              className={`mt-3 rounded-lg border p-3 ${TONES.critical.surface}`}
+            >
+              <p className={TONES.critical.ink}>{errorMessage}</p>
             </div>
           )}
 
-          <div className="mt-3 rounded-lg border border-black/10 bg-black/[0.03] p-3 text-gray-700">
+          <div className="mt-3 rounded-lg border border-black/10 bg-black/[0.03] p-3 text-black/65">
             Stripe securely collects the card details here and returns only a
-            payment method ID to CaseOS.
+            payment method ID to Lawstruct.
           </div>
         </div>
 
         <div className="rounded-lg border border-black/10 bg-black/[0.03] p-3">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="h-4 w-4 text-gray-600" />
+            <ShieldCheck className="h-4 w-4 text-black/60" />
             <p className="font-serif text-md">Billing Summary</p>
           </div>
 
-          <div className="mt-3 space-y-2 text-gray-600">
+          <div className="mt-3 space-y-2 text-black/65">
             <div className="flex justify-between gap-3">
-              <span>Selected tier</span>
+              <span>Plan</span>
               <span className="font-medium text-black">
-                {selectedOption.name}
+                {selection.tierLabel}
+              </span>
+            </div>
+            <div className="flex justify-between gap-3">
+              <span>Billing</span>
+              <span className="font-medium text-black">
+                {price.interval === "year" ? "Yearly" : "Monthly"}
               </span>
             </div>
             <div className="flex justify-between gap-3">
               <span>Due today</span>
-              <span className="font-medium text-black">
-                {startTrial ? "$0" : formatPrice(selectedOption.price)}
+              <span
+                className={`font-medium ${
+                  switchPreview && switchPreview.amountDueToday < 0
+                    ? TONES.positive.ink
+                    : "text-black"
+                }`}
+              >
+                {dueToday}
               </span>
             </div>
             {startTrial && (
               <div className="flex justify-between gap-3">
-                <span>After trial</span>
+                <span>After {selection.trialDays ?? 7}-day trial</span>
                 <span className="font-medium text-black">
-                  {formatPrice(selectedOption.price)} /mo
+                  {formatCurrency(price.amount, price.currency)}
+                  {intervalSuffix}
+                </span>
+              </div>
+            )}
+            {!startTrial && switchPreview && (
+              <div className="flex justify-between gap-3">
+                <span>Then</span>
+                <span className="font-medium text-black">
+                  {formatCurrency(
+                    switchPreview.nextRenewalAmount,
+                    switchPreview.currency,
+                  )}
+                  {intervalSuffix}
+                  {renewalDate ? ` starting ${renewalDate}` : ""}
+                </span>
+              </div>
+            )}
+            {!startTrial && !switchPreview && (
+              <div className="flex justify-between gap-3">
+                <span>Renews</span>
+                <span className="font-medium text-black">
+                  {formatCurrency(price.amount, price.currency)}
+                  {intervalSuffix}
                 </span>
               </div>
             )}
           </div>
 
           <div className="mt-4 flex items-start gap-2 rounded-lg border border-black/10 bg-white/70 p-2">
-            <LockKeyhole className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gray-500" />
-            <p className="leading-5 text-gray-600">
-              Payments are secured through Stripe. CaseOS does not keep or store
-              any payment information, and subscriptions can be canceled at any
-              time.
+            <LockKeyhole className="mt-0.5 h-3.5 w-3.5 shrink-0 text-black/50" />
+            <p className="leading-5 text-black/65">
+              Payments are secured through Stripe. Lawstruct does not keep or
+              store any payment information, and subscriptions can be canceled
+              at any time.
             </p>
           </div>
         </div>

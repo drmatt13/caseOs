@@ -37,6 +37,11 @@ const GetCurrentUserDocument = graphql(`
         accountTier
         accountStatus
         subscriptionStatus
+        billingInterval
+        cancelAtPeriodEnd
+        stripePriceId
+        currentPeriodEnd
+        trialEndsAt
       }
     }
   }
@@ -58,6 +63,11 @@ const UpdateCurrentUserDocument = graphql(`
         accountTier
         accountStatus
         subscriptionStatus
+        billingInterval
+        cancelAtPeriodEnd
+        stripePriceId
+        currentPeriodEnd
+        trialEndsAt
       }
     }
   }

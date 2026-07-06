@@ -31,13 +31,17 @@ function normalizeSubscriptionStatus(status: string) {
   }
 }
 
-type AccountTier = "PRO" | "ENTERPRISE";
+// The webhook must sync every tier Stripe can bill, including sales-managed
+// ENTERPRISE subscriptions created from the dashboard.
+type AccountTier = "SOLO" | "PRO" | "ENTERPRISE";
 
 function normalizeTier(value: unknown): AccountTier | null {
   if (typeof value !== "string") return null;
 
   const normalized = value.trim().toUpperCase();
-  return normalized === "PRO" || normalized === "ENTERPRISE"
+  return normalized === "SOLO" ||
+    normalized === "PRO" ||
+    normalized === "ENTERPRISE"
     ? normalized
     : null;
 }
@@ -53,13 +57,42 @@ function getBody(event: APIGatewayProxyEvent | APIGatewayProxyEventV2): string {
     : event.body;
 }
 
-async function syncSubscription(stripe: InstanceType<typeof Stripe>, subscription: any) {
+async function getPrisma() {
   const databaseUrl = await getDatabaseUrl({
     primaryDatabaseSecretArn: process.env.PRIMARY_DATABASE_SECRET_ARN,
     primaryDatabaseUrl: process.env.PRIMARY_DATABASE_URL,
     primaryDatabaseSslmode: process.env.PRIMARY_DATABASE_SSLMODE,
   });
-  const prisma = getPrismaClient(databaseUrl);
+
+  return getPrismaClient(databaseUrl);
+}
+
+// A deleted subscription drops the user back to FREE. Match on subscription
+// id ONLY: matching by customer could clobber a user who already started a
+// replacement subscription under a new id.
+async function handleSubscriptionDeleted(subscription: any) {
+  const prisma = await getPrisma();
+
+  await prisma.user.updateMany({
+    where: { stripeSubscriptionId: subscription.id },
+    data: {
+      accountTier: "FREE",
+      subscriptionStatus: "CANCELLED",
+      stripeSubscriptionId: null,
+      stripePriceId: null,
+      stripeProductId: null,
+      cancelAtPeriodEnd: false,
+      billingInterval: null,
+      currentPeriodStart: null,
+      currentPeriodEnd: null,
+      trialStartsAt: null,
+      trialEndsAt: null,
+    },
+  });
+}
+
+async function syncSubscription(stripe: InstanceType<typeof Stripe>, subscription: any) {
+  const prisma = await getPrisma();
 
   const price = subscription.items.data[0]?.price;
   const productId =
@@ -89,6 +122,9 @@ async function syncSubscription(stripe: InstanceType<typeof Stripe>, subscriptio
     trial_start?: number | null;
     trial_end?: number | null;
   };
+  // Newer Stripe API versions expose the period bounds on the subscription
+  // item instead of the subscription itself.
+  const firstItem = subscription.items?.data?.[0];
 
   const updateData = {
     ...(tier ? { accountTier: tier } : {}),
@@ -102,8 +138,12 @@ async function syncSubscription(stripe: InstanceType<typeof Stripe>, subscriptio
     subscriptionStatus: normalizeSubscriptionStatus(subscription.status),
     billingInterval: price?.recurring?.interval === "year" ? "YEAR" : "MONTH",
     cancelAtPeriodEnd: subscription.cancel_at_period_end,
-    currentPeriodStart: toDate(subscriptionRecord.current_period_start),
-    currentPeriodEnd: toDate(subscriptionRecord.current_period_end),
+    currentPeriodStart: toDate(
+      firstItem?.current_period_start ?? subscriptionRecord.current_period_start,
+    ),
+    currentPeriodEnd: toDate(
+      firstItem?.current_period_end ?? subscriptionRecord.current_period_end,
+    ),
     trialStartsAt: toDate(subscriptionRecord.trial_start),
     trialEndsAt: toDate(subscriptionRecord.trial_end),
     ...(subscription.status === "active"
@@ -154,8 +194,10 @@ export const lambdaHandler = async (
     switch (stripeEvent.type) {
       case "customer.subscription.created":
       case "customer.subscription.updated":
-      case "customer.subscription.deleted":
         await syncSubscription(stripe, stripeEvent.data.object);
+        break;
+      case "customer.subscription.deleted":
+        await handleSubscriptionDeleted(stripeEvent.data.object);
         break;
       default:
         break;

@@ -17,7 +17,13 @@ enum AccountTier {
   ENTERPRISE
   FREE
   PRO
+  SOLO
   TRIAL
+}
+
+enum BillingInterval {
+  MONTH
+  YEAR
 }
 
 input CreateWorkspaceInput {
@@ -40,13 +46,18 @@ type CurrentUser {
   accountStatus: AccountStatus
   accountTier: AccountTier
   billingEmail: String
+  billingInterval: BillingInterval
+  cancelAtPeriodEnd: Boolean
+  currentPeriodEnd: String
   email: String
   firstName: String
   hasHadActiveSubscription: Boolean
   id: ID
   lastName: String
   profilePicture: String
+  stripePriceId: String
   subscriptionStatus: SubscriptionStatus
+  trialEndsAt: String
   updatedAt: String
 }
 

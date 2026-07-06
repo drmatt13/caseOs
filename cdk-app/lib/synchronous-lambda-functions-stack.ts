@@ -43,6 +43,7 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
   public readonly billingListProductsFn: nodejs.NodejsFunction;
   public readonly billingCreateSetupIntentFn: nodejs.NodejsFunction;
   public readonly billingCreateSubscriptionFn: nodejs.NodejsFunction;
+  public readonly billingPlanChangePreviewFn: nodejs.NodejsFunction;
   public readonly stripeWebhookFn: nodejs.NodejsFunction;
 
   constructor(
@@ -439,6 +440,42 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
       },
     );
 
+    this.billingPlanChangePreviewFn = new nodejs.NodejsFunction(
+      this,
+      "BillingPlanChangePreview",
+      {
+        runtime: lambda.Runtime.NODEJS_20_X,
+        architecture: props.lambdaArchitecture,
+        entry: path.join(
+          __dirname,
+          "..",
+          "lambda_functions",
+          "billing-plan-change-preview",
+          "index.ts",
+        ),
+        handler: "lambdaHandler",
+        bundling: {
+          minify: true,
+          sourceMap: true,
+          target: "es2020",
+          commandHooks: prismaClientCommandHooks,
+        },
+        memorySize: 512,
+        timeout: cdk.Duration.seconds(30),
+        environment: {
+          ...prismaLambdaEnvironment,
+          USER_POOL_ID: props.userPoolId,
+          USER_POOL_CLIENT_ID: props.userPoolClientId,
+          STRIPE_SECRET_KEY: props.stripeSecretKey ?? "",
+          ...(props.primaryDatabaseSecretArn
+            ? {
+                PRIMARY_DATABASE_SECRET_ARN: props.primaryDatabaseSecretArn,
+              }
+            : {}),
+        },
+      },
+    );
+
     this.stripeWebhookFn = new nodejs.NodejsFunction(this, "StripeWebhook", {
       runtime: lambda.Runtime.NODEJS_20_X,
       architecture: props.lambdaArchitecture,
@@ -485,6 +522,9 @@ export class SynchronousLambdaFunctionsStack extends cdk.Stack {
       );
       billingDatabaseCredentialsSecret.grantRead(
         this.billingCreateSubscriptionFn,
+      );
+      billingDatabaseCredentialsSecret.grantRead(
+        this.billingPlanChangePreviewFn,
       );
       billingDatabaseCredentialsSecret.grantRead(this.stripeWebhookFn);
     }

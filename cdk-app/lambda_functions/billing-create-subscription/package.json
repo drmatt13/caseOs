@@ -15,6 +15,7 @@
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider": "^3.0.0",
     "@aws-sdk/client-secrets-manager": "^3.930.0",
+    "@repo/billing-catalog": "*",
     "@repo/database": "*",
     "@repo/shared-lambda-utils": "*",
     "esbuild": "^0.27.4",

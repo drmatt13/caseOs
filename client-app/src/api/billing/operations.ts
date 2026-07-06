@@ -2,20 +2,27 @@ import { z } from "zod";
 import { API_ROUTE } from "@repo/api-contract";
 import { fetchWithAuthRefresh } from "#/lib/auth";
 
-export const billingTierSchema = z.enum(["PRO", "ENTERPRISE"]);
+// Self-serve tiers only; ENTERPRISE is sales-managed and never purchasable
+// through the API.
+export const billingTierSchema = z.enum(["SOLO", "PRO"]);
 
 export type BillingTier = z.infer<typeof billingTierSchema>;
 
-// Typed GraphQL documents for this feature's operations.
+export const billingIntervalSchema = z.enum(["month", "year"]);
+
+export type BillingProductInterval = z.infer<typeof billingIntervalSchema>;
+
+// Zod schemas for the billing REST endpoints' responses.
 const billingProductSchema = z.object({
   tier: billingTierSchema,
   name: z.string(),
   description: z.string().nullable(),
   stripeProductId: z.string(),
   stripePriceId: z.string(),
+  lookupKey: z.string().nullable(),
   amount: z.number(),
   currency: z.string(),
-  interval: z.enum(["day", "week", "month", "year"]),
+  interval: billingIntervalSchema,
 });
 
 const listBillingProductsResponseSchema = z.object({
@@ -35,9 +42,37 @@ const createSubscriptionResponseSchema = z.object({
   status: z.string(),
   tier: billingTierSchema,
   startTrial: z.boolean(),
+  action: z.enum(["created", "updated"]),
+});
+
+const planChangePreviewResponseSchema = z.object({
+  success: z.literal(true),
+  amountDueToday: z.number(),
+  currency: z.string(),
+  nextRenewalAmount: z.number(),
+  nextRenewalDate: z.string().nullable(),
+  paymentMethod: z
+    .object({
+      brand: z.string(),
+      last4: z.string(),
+      expMonth: z.number(),
+      expYear: z.number(),
+    })
+    .nullable(),
+  currentPriceId: z.string(),
+  proposedPriceId: z.string(),
+  proposedInterval: billingIntervalSchema,
 });
 
 export type BillingProduct = z.infer<typeof billingProductSchema>;
+export type PlanChangePreview = z.infer<typeof planChangePreviewResponseSchema>;
+
+async function parseErrorResponse(res: Response): Promise<never> {
+  const body = (await res.json().catch(() => null)) as {
+    error?: string;
+  } | null;
+  throw new Error(body?.error ?? `Request failed: ${res.status}`);
+}
 
 // API operations consumed by hooks and other feature callers.
 export async function listBillingProducts() {
@@ -67,7 +102,8 @@ export async function createSetupIntent() {
 export type CreateSubscriptionInput = {
   tier: BillingTier;
   priceId: string;
-  paymentMethodId: string;
+  /** Omitted on plan switches: the backend charges the card on file. */
+  paymentMethodId?: string;
   startTrial: boolean;
 };
 
@@ -81,9 +117,24 @@ export async function createSubscription(input: CreateSubscriptionInput) {
   });
 
   if (!res.ok) {
-    const body = (await res.json().catch(() => null)) as { error?: string } | null;
-    throw new Error(body?.error ?? `Request failed: ${res.status}`);
+    await parseErrorResponse(res);
   }
 
   return createSubscriptionResponseSchema.parse(await res.json());
+}
+
+export async function getPlanChangePreview(input: { priceId: string }) {
+  const res = await fetchWithAuthRefresh(API_ROUTE.billingPlanChangePreview, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(input),
+  });
+
+  if (!res.ok) {
+    await parseErrorResponse(res);
+  }
+
+  return planChangePreviewResponseSchema.parse(await res.json());
 }

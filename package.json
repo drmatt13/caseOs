@@ -13,6 +13,7 @@
     "cdk-app",
     "cdk-app/lambda_functions/*",
     "cdk-app/ecs_containers/*",
+    "stripe-catalog-sync",
     "packages/*",
     "frontend-ws-connection-and-payload-tester",
     "local-ws-dev-server"

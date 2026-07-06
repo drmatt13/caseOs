@@ -570,6 +570,8 @@ const httpApiGatewayStack = !useLocalDevStack
         synchronousLambdaFunctionsStack.billingCreateSetupIntentFn,
       billingCreateSubscriptionFn:
         synchronousLambdaFunctionsStack.billingCreateSubscriptionFn,
+      billingPlanChangePreviewFn:
+        synchronousLambdaFunctionsStack.billingPlanChangePreviewFn,
       stripeWebhookFn: synchronousLambdaFunctionsStack.stripeWebhookFn,
       // <LambdaFunctionName>: synchronousLambdaFunctionsStack.<LambdaFunctionExport>,
 

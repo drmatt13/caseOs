@@ -1,5 +1,6 @@
 import { API_ROUTE } from "@repo/api-contract";
 import { invalidateAuthCache } from "#/lib/auth";
+import { clearReactQueryState } from "#/lib/queryClient";
 
 const AUTH_COOKIE_NAMES = ["idToken", "accessToken", "refreshToken"];
 const API_URL = import.meta.env.VITE_API_GATEWAY_URL;
@@ -24,6 +25,7 @@ export default async function logout(): Promise<void> {
   }
 
   invalidateAuthCache({ broadcast: true });
+  await clearReactQueryState();
 
   try {
     await fetch(`${getApiUrl()}${API_ROUTE.signOut}`, {
@@ -35,5 +37,6 @@ export default async function logout(): Promise<void> {
   } finally {
     invalidateAuthCache({ broadcast: false });
     clearLocalCookies();
+    await clearReactQueryState();
   }
 }

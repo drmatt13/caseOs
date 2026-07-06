@@ -19,6 +19,7 @@ import { lambdaHandler as profilePhotoUploadCredentialBroker } from "../../cdk-a
 import { lambdaHandler as billingListProducts } from "../../cdk-app/lambda_functions/billing-list-products/index";
 import { lambdaHandler as billingCreateSetupIntent } from "../../cdk-app/lambda_functions/billing-create-setup-intent/index";
 import { lambdaHandler as billingCreateSubscription } from "../../cdk-app/lambda_functions/billing-create-subscription/index";
+import { lambdaHandler as billingPlanChangePreview } from "../../cdk-app/lambda_functions/billing-plan-change-preview/index";
 import { lambdaHandler as stripeWebhook } from "../../cdk-app/lambda_functions/stripe-webhook/index";
 
 dotenv.config({
@@ -128,6 +129,12 @@ proxyToLambda(
   app,
   API_ROUTE.billingCreateSubscription,
   billingCreateSubscription,
+  "authenticated",
+);
+proxyToLambda(
+  app,
+  API_ROUTE.billingPlanChangePreview,
+  billingPlanChangePreview,
   "authenticated",
 );
 

@@ -1,7 +1,7 @@
 {
-  "name": "billing-list-products",
+  "name": "billing-plan-change-preview",
   "version": "1.0.0",
-  "description": "A Lambda function to list billing products.",
+  "description": "A Lambda function to preview prorated Stripe plan changes.",
   "main": "index.ts",
   "repository": "",
   "author": "Matthew Sweeney",

@@ -15,6 +15,7 @@ export const API_ROUTE = {
   billingListProducts: "/billing/list-products",
   billingCreateSetupIntent: "/billing/create-setup-intent",
   billingCreateSubscription: "/billing/create-subscription",
+  billingPlanChangePreview: "/billing/plan-change-preview",
   // Containerized Services
   langGraphService: "/langgraph-service",
 } as const;
@@ -35,6 +36,7 @@ export const AUTHENTICATED_API_ROUTES = [
   API_ROUTE.billingListProducts,
   API_ROUTE.billingCreateSetupIntent,
   API_ROUTE.billingCreateSubscription,
+  API_ROUTE.billingPlanChangePreview,
 ] as const;
 
 export const API_ROUTES = [

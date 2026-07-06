@@ -25,6 +25,7 @@ export interface HttpApiGatewayStackProps extends cdk.StackProps {
   billingListProductsFn: IFunction;
   billingCreateSetupIntentFn: IFunction;
   billingCreateSubscriptionFn: IFunction;
+  billingPlanChangePreviewFn: IFunction;
   stripeWebhookFn: IFunction;
 
   // ECS service URL for langgraph, if applicable. If not provided, the /langgraph/* route will not be added to the API Gateway, and the local dev stack will be used instead (if useLocalDevStack is true)
@@ -219,6 +220,13 @@ export class HttpApiGatewayStack extends cdk.Stack {
       API_ROUTE.billingCreateSubscription,
       authenticatedReadWriteMethods,
       props.billingCreateSubscriptionFn,
+    );
+
+    addAuthenticatedRoute(
+      "BillingPlanChangePreviewIntegration",
+      API_ROUTE.billingPlanChangePreview,
+      authenticatedReadWriteMethods,
+      props.billingPlanChangePreviewFn,
     );
 
     /*********************************

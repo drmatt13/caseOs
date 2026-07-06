@@ -2,6 +2,7 @@ import type PrismaTypes from "@repo/database/generated/pothos";
 import {
   AccountStatus,
   AccountTier,
+  BillingInterval,
   SubscriptionStatus,
 } from "@repo/database/generated/prisma/enums";
 import { z } from "zod";
@@ -18,6 +19,9 @@ const AccountStatusEnum = builder.enumType(AccountStatus, {
 });
 const SubscriptionStatusEnum = builder.enumType(SubscriptionStatus, {
   name: "SubscriptionStatus",
+});
+const BillingIntervalEnum = builder.enumType(BillingInterval, {
+  name: "BillingInterval",
 });
 
 const UpdateCurrentUserSchema = z
@@ -62,6 +66,21 @@ const CurrentUser = builder.objectRef<UserShape>("CurrentUser").implement({
     subscriptionStatus: t.field({
       type: SubscriptionStatusEnum,
       resolve: (user) => user.subscriptionStatus,
+    }),
+    billingInterval: t.field({
+      type: BillingIntervalEnum,
+      nullable: true,
+      resolve: (user) => user.billingInterval,
+    }),
+    cancelAtPeriodEnd: t.exposeBoolean("cancelAtPeriodEnd"),
+    stripePriceId: t.exposeString("stripePriceId", { nullable: true }),
+    currentPeriodEnd: t.string({
+      nullable: true,
+      resolve: (user) => user.currentPeriodEnd?.toISOString() ?? null,
+    }),
+    trialEndsAt: t.string({
+      nullable: true,
+      resolve: (user) => user.trialEndsAt?.toISOString() ?? null,
     }),
   }),
 });

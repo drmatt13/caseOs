@@ -8,16 +8,17 @@ import {
   jsonResponse,
   requireAuthenticatedSub,
 } from "@repo/shared-lambda-utils";
+import {
+  getCatalogProduct,
+  isSelfServeTier,
+  type SelfServeTierId,
+} from "@repo/billing-catalog";
 
-type AccountTier = "PRO" | "ENTERPRISE";
-
-function normalizeTier(value: unknown): AccountTier | null {
+function normalizeTier(value: unknown): SelfServeTierId | null {
   if (typeof value !== "string") return null;
 
   const normalized = value.trim().toUpperCase();
-  return normalized === "PRO" || normalized === "ENTERPRISE"
-    ? normalized
-    : null;
+  return isSelfServeTier(normalized) ? normalized : null;
 }
 
 function inferTier(price: {
@@ -25,7 +26,7 @@ function inferTier(price: {
 }, product: {
   metadata: Record<string, string>;
   name: string;
-}): AccountTier | null {
+}): SelfServeTierId | null {
   return (
     normalizeTier(price.metadata.accountTier) ??
     normalizeTier(price.metadata.tier) ??
@@ -52,13 +53,10 @@ export const lambdaHandler = async (
     }
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-    // Load active monthly prices with their Stripe products.
+    // Load all active prices (monthly and yearly) with their Stripe products.
     const prices = await stripe.prices.list({
       active: true,
       expand: ["data.product"],
-      recurring: {
-        interval: "month",
-      },
       limit: 100,
     });
 
@@ -68,10 +66,25 @@ export const lambdaHandler = async (
           return null;
         }
 
+        // Sales-managed and internal prices never surface to the client.
+        if (
+          price.metadata.priceVisibility === "hidden" ||
+          price.metadata.selfService === "false" ||
+          price.product.metadata.selfService === "false"
+        ) {
+          return null;
+        }
+
         const product = price.product;
         const tier = inferTier(price, product);
+        const interval = price.recurring?.interval;
 
-        if (!tier || !price.unit_amount || !price.currency || !price.recurring) {
+        if (
+          !tier ||
+          !price.unit_amount ||
+          !price.currency ||
+          (interval !== "month" && interval !== "year")
+        ) {
           return null;
         }
 
@@ -81,15 +94,23 @@ export const lambdaHandler = async (
           description: product.description,
           stripeProductId: product.id,
           stripePriceId: price.id,
+          lookupKey: price.lookup_key ?? null,
           amount: price.unit_amount / 100,
           currency: price.currency.toUpperCase(),
-          interval: price.recurring.interval,
+          interval,
         };
       })
       .filter((product): product is NonNullable<typeof product> =>
         Boolean(product),
       )
-      .sort((a, b) => a.amount - b.amount);
+      .sort((a, b) => {
+        const orderA = getCatalogProduct(a.tier)?.displayOrder ?? 999;
+        const orderB = getCatalogProduct(b.tier)?.displayOrder ?? 999;
+
+        if (orderA !== orderB) return orderA - orderB;
+
+        return a.interval === b.interval ? 0 : a.interval === "month" ? -1 : 1;
+      });
 
     // Return the available billing products.
     return jsonResponse(200, { success: true, products });

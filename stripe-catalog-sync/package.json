@@ -1,0 +1,21 @@
+{
+  "name": "stripe-catalog-sync",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Sync the LawStruct pricing catalog to Stripe test mode.",
+  "scripts": {
+    "dry-run": "tsx src/index.ts --dry-run",
+    "apply": "tsx src/index.ts --apply",
+    "compile": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@repo/billing-catalog": "*",
+    "stripe": "^22.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

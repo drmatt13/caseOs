@@ -2,9 +2,10 @@ import { Outlet, createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { useCallback, useEffect, useState } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import SettingsPopup from "#/components/popups/SettingsPopup";
 import AppModal from "#/components/modals/AppModal";
+import { appQueryClient } from "#/lib/queryClient";
 
 // context
 import { PopupContext, type PopupId } from "#/context/PopupContext";
@@ -17,15 +18,6 @@ import { MenuContext } from "#/context/MenuContext";
 
 export const Route = createRootRoute({
   component: RootComponent,
-});
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000,
-      refetchOnWindowFocus: false,
-    },
-  },
 });
 
 function RootComponent() {
@@ -93,7 +85,7 @@ function RootComponent() {
   }, [modalGuardState]);
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={appQueryClient}>
       <AppModalContext.Provider
         value={{
           modal,

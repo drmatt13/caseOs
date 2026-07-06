@@ -23,6 +23,7 @@ interface WorkspaceOverviewProps {
 const accountTierLabels = {
   FREE: "Free",
   TRIAL: "Trial",
+  SOLO: "Solo",
   PRO: "Pro",
   ENTERPRISE: "Enterprise",
 } satisfies Record<AccountTier, string>;

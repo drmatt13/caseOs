@@ -23,6 +23,7 @@ generator pothos {
 enum AccountTier {
   FREE       @map("free")
   TRIAL      @map("trial")
+  SOLO       @map("solo")
   PRO        @map("pro")
   ENTERPRISE @map("enterprise")
 }

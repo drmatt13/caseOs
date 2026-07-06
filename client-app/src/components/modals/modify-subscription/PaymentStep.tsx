@@ -2,6 +2,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 
 import { useBillingSetupIntentQuery } from "#/api/billing/hooks";
+import { TONES } from "#/lib/tones";
 import StripePaymentForm from "./StripePaymentForm";
 import { type PaymentStepProps } from "#/components/modals/modify-subscription/types";
 
@@ -14,20 +15,22 @@ const PaymentStep = (props: PaymentStepProps) => {
     data: setupIntent,
     isPending: setupIntentPending,
     error: setupIntentError,
-  } = useBillingSetupIntentQuery(props.selectedOption.tier);
+  } = useBillingSetupIntentQuery(props.selection.tier);
 
   return (
     <>
       {setupIntentPending && (
-        <div className="mt-4 rounded-lg border border-black/10 bg-white/60 p-4 text-gray-600">
+        <div className="mt-4 rounded-lg border border-black/15 bg-white/60 p-4 text-black/65">
           Initializing Stripe payment details...
         </div>
       )}
 
       {(setupIntentError || !import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY) && (
-        <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-red-700">
-          Stripe payment details could not be initialized. Verify
-          VITE_STRIPE_PUBLISHABLE_KEY and the create SetupIntent Lambda.
+        <div className={`mt-4 rounded-lg border p-3 ${TONES.critical.surface}`}>
+          <p className={TONES.critical.ink}>
+            Stripe payment details could not be initialized. Verify
+            VITE_STRIPE_PUBLISHABLE_KEY and the create SetupIntent Lambda.
+          </p>
         </div>
       )}
 

@@ -8,6 +8,7 @@ import { PopupContext } from "#/context/PopupContext";
 const accountTierLabels = {
   FREE: "Free",
   TRIAL: "Trial",
+  SOLO: "Solo",
   PRO: "Pro",
   ENTERPRISE: "Enterprise",
 } satisfies Record<AccountTier, string>;
