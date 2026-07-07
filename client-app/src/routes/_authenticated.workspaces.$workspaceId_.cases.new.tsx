@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 
-import AppLayout from "#/components/layouts/AppLayout";
 import CaseBasicsForm from "#/components/features/create-case/CaseBasicsForm";
 import DisputeDetailsForm from "#/components/features/create-case/DisputeDetailsForm";
 import DocumentsForm from "#/components/features/create-case/DocumentsForm";
@@ -10,7 +9,6 @@ import PeoplePartiesAndWitnessesForm from "#/components/features/create-case/Peo
 import TimelineForm from "#/components/features/create-case/TimelineForm";
 import TasksAndDeadlinesForm from "#/components/features/create-case/TasksAndDeadlinesForm";
 import ReviewForm from "#/components/features/create-case/ReviewForm";
-import NavigationPanel from "#/components/layouts/NavigationPanel";
 import {
   CASE_INTAKE_TOTAL_STEPS,
   claimHasAnchor,
@@ -18,24 +16,22 @@ import {
   pruneCaseIntake,
   stepHasInvalidRows,
 } from "#/components/features/create-case/caseIntakeForm";
-import ContentShell from "#/components/layouts/ContentShell";
 import CreateCaseMenu from "#/components/menus/CreateCaseMenu";
-import UserPanel from "#/components/layouts/UserPanel";
 import Button from "#/components/ui/Button";
 
 import type { CaseIntake } from "#/types/caseWorkspace";
 import type { CaseIntakeWizardState } from "#/components/features/create-case/caseIntakeForm";
-import PageLoading from "#/components/ui/PageLoading";
-import SessionError from "#/components/errors/SessionError";
 import PageError from "#/components/errors/PageError";
+import PageContentLoading from "#/components/ui/PageContentLoading";
+import {
+  useAuthenticatedLayout,
+  useAuthenticatedLayoutEffect,
+} from "#/components/layouts/AuthenticatedLayoutContext";
 
-// route guards
-import { requireAuth } from "#/lib/auth";
 import { resolveCapabilities } from "#/lib/permissions";
 import { isNotFoundError } from "#/lib/errors";
 
 // useQuery
-import { useCurrentUserQuery } from "#/api/currentUser/hooks";
 import { useWorkspaceQuery } from "#/api/workspace/hooks";
 
 // test data
@@ -49,26 +45,20 @@ const createBlankCaseIntake = (): CaseIntake => ({
   documents: {},
 });
 
-export const Route = createFileRoute("/workspaces/$workspaceId_/cases/new")({
-  beforeLoad: requireAuth,
+export const Route = createFileRoute("/_authenticated/workspaces/$workspaceId_/cases/new")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
   const { workspaceId } = Route.useParams();
+  const { user } = useAuthenticatedLayout();
 
-  const {
-    data: getUserResult,
-    isPending: getUserPending,
-    error: getUserError,
-  } = useCurrentUserQuery();
-  const user = getUserResult?.currentUser.user;
   const {
     data: workspace,
     isPending: getWorkspacePending,
     error: getWorkspaceError,
     refetch: refetchWorkspace,
-  } = useWorkspaceQuery(workspaceId, { enabled: Boolean(user) });
+  } = useWorkspaceQuery(workspaceId);
 
   const [blankCaseIntake] = useState(createBlankCaseIntake);
 
@@ -105,80 +95,13 @@ function RouteComponent() {
     setMaxStepReached((prev) => Math.max(prev, caseIntakeState.step));
   }, [caseIntakeState.step]);
 
-  if (getUserPending || getWorkspacePending) {
-    return <PageLoading />;
-  }
-
-  // Session failure → may log out.
-  if (getUserError || !user) {
-    return <SessionError />;
-  }
-
-  // Workspace doesn't exist / no access → not-found page, never log out.
-  if (isNotFoundError(getWorkspaceError)) {
-    return (
-      <PageError
-        title="Workspace not found"
-        message="This workspace doesn't exist or you no longer have access."
-        actionLabel="Go home"
-        actionTo="/"
-      />
-    );
-  }
-
-  // Workspace failed to load → recoverable, never log out.
-  if (getWorkspaceError) {
-    return (
-      <PageError
-        title="Couldn't load this workspace"
-        message="Something went wrong loading this workspace. Please try again."
-        onRetry={() => void refetchWorkspace()}
-        actionLabel="Go home"
-        actionTo="/"
-      />
-    );
-  }
-
-  // No error but no data (defensive — the query throws NotFoundError instead).
-  if (!workspace) {
-    return (
-      <PageError
-        title="Workspace not found"
-        message="This workspace doesn't exist or you no longer have access."
-        actionLabel="Go home"
-        actionTo="/"
-      />
-    );
-  }
-
-  const role = workspace.currentUserMembership.role;
-  const userCapabilities = resolveCapabilities(role);
-
-  // Hide the intake wizard from members who can't create cases (Reviewer and
-  // below). The dashboard/case-menu also hide the entry, but guarding the route
-  // blocks direct navigation to /cases/new.
-  if (!userCapabilities.createCase) {
-    return (
-      <AppLayout>
-        <NavigationPanel>
-          <UserPanel user={user} settings={true} showTier={true} />
-        </NavigationPanel>
-        <ContentShell showWorkspaceSettings={userCapabilities.manageWorkspace}>
-          <div className="flex h-full items-center justify-center">
-            <div className="max-w-md rounded-2xl border border-black/15 bg-white/40 p-6 text-center shadow-md backdrop-blur-sm">
-              <p className="font-serif text-lg">
-                Cases are created by owners and admins
-              </p>
-              <p className="mt-2 text-md text-black/60">
-                You don&apos;t have permission to create cases in this
-                workspace. Ask an owner or admin if you need a new case opened.
-              </p>
-            </div>
-          </div>
-        </ContentShell>
-      </AppLayout>
-    );
-  }
+  const userCapabilities = useMemo(
+    () =>
+      workspace
+        ? resolveCapabilities(workspace.currentUserMembership.role)
+        : null,
+    [workspace],
+  );
 
   const updateCaseIntakeField = <K extends keyof CaseIntake>(
     field: K,
@@ -280,6 +203,93 @@ function RouteComponent() {
   // you proceed, and navigating back keeps every earned check.
   const completedThroughStep = Math.min(clearedThroughStep, reachedStep - 1);
 
+  useAuthenticatedLayoutEffect(
+    () => ({
+      navigationContent:
+        workspace && userCapabilities?.createCase ? (
+          <CreateCaseMenu
+            workspaceId={workspaceId}
+            caseIntakeState={caseIntakeState}
+            setCaseIntakeState={setCaseIntakeState}
+            hasUnsavedCaseIntake={hasUnsavedCaseIntake}
+            maxUnlockedStep={maxUnlockedStep}
+            completedThroughStep={completedThroughStep}
+          />
+        ) : null,
+      showWorkspaceSettings: userCapabilities?.manageWorkspace ?? false,
+    }),
+    [
+      workspace,
+      workspaceId,
+      caseIntakeState,
+      completedThroughStep,
+      hasUnsavedCaseIntake,
+      maxUnlockedStep,
+      userCapabilities?.createCase,
+      userCapabilities?.manageWorkspace,
+    ],
+  );
+
+  if (getWorkspacePending) {
+    return <PageContentLoading />;
+  }
+
+  // Workspace doesn't exist / no access → not-found page, never log out.
+  if (isNotFoundError(getWorkspaceError)) {
+    return (
+      <PageError
+        title="Workspace not found"
+        message="This workspace doesn't exist or you no longer have access."
+        actionLabel="Go home"
+        actionTo="/"
+      />
+    );
+  }
+
+  // Workspace failed to load → recoverable, never log out.
+  if (getWorkspaceError) {
+    return (
+      <PageError
+        title="Couldn't load this workspace"
+        message="Something went wrong loading this workspace. Please try again."
+        onRetry={() => void refetchWorkspace()}
+        actionLabel="Go home"
+        actionTo="/"
+      />
+    );
+  }
+
+  // No error but no data (defensive — the query throws NotFoundError instead).
+  if (!workspace || !userCapabilities) {
+    return (
+      <PageError
+        title="Workspace not found"
+        message="This workspace doesn't exist or you no longer have access."
+        actionLabel="Go home"
+        actionTo="/"
+      />
+    );
+  }
+
+  // Hide the intake wizard from members who can't create cases (Reviewer and
+  // below). The dashboard/case-menu also hide the entry, but guarding the route
+  // blocks direct navigation to /cases/new.
+  if (!userCapabilities.createCase) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="max-w-md rounded-2xl border border-black/15 bg-white/40 p-6 text-center shadow-md backdrop-blur-sm">
+          <p className="font-serif text-lg">
+            Cases are created by owners and admins
+          </p>
+          <p className="mt-2 text-md text-black/60">
+            You don&apos;t have permission to create cases in this workspace.
+            Ask an owner or admin if you need a new case opened.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const renderStep = () => {
     switch (caseIntakeState.step) {
       case 1:
@@ -353,70 +363,55 @@ function RouteComponent() {
   };
 
   return (
-    <AppLayout>
-      <NavigationPanel>
-        <UserPanel user={user} settings={true} showTier={true} />
-        <CreateCaseMenu
-          workspaceId={workspaceId}
-          caseIntakeState={caseIntakeState}
-          setCaseIntakeState={setCaseIntakeState}
-          hasUnsavedCaseIntake={hasUnsavedCaseIntake}
-          maxUnlockedStep={maxUnlockedStep}
-          completedThroughStep={completedThroughStep}
-        />
-      </NavigationPanel>
-      <ContentShell showWorkspaceSettings={userCapabilities.manageWorkspace}>
-        <div className="flex flex-col gap-6 h-full justify-between">
-          {renderStep()}
-          <div className="grid grid-cols-3 items-end gap-3 rounded-2xl">
-            <div className="justify-self-start">
-              {caseIntakeState.step !== 1 && (
-                <Button
-                  style="secondary"
-                  text="Back"
-                  disabled={caseIntakeState.step === 1}
-                  onClick={goToPreviousStep}
-                  minWidth="md"
-                />
-              )}
-            </div>
-            <button
-              type="button"
-              onClick={() => setDevSkipGating((v) => !v)}
-              className={`justify-self-center text-sm px-2 py-1 rounded font-mono transition-colors ${
-                devSkipGating
-                  ? "bg-amber-400/30 text-amber-800"
-                  : "text-black/25 hover:text-black/50"
-              }`}
-            >
-              {devSkipGating
-                ? `⚡ skip on — step ${caseIntakeState.step}/${CASE_INTAKE_TOTAL_STEPS}`
-                : `step ${caseIntakeState.step}/${CASE_INTAKE_TOTAL_STEPS}`}
-            </button>
-            <div className="justify-self-end">
-              <Button
-                style="primary"
-                text={
-                  caseIntakeState.step === CASE_INTAKE_TOTAL_STEPS
-                    ? "Generate Workspace"
-                    : "Next"
-                }
-                onClick={goToNextStep}
-                disabled={!isStepComplete(caseIntakeState.step)}
-                rainbow={caseIntakeState.step === CASE_INTAKE_TOTAL_STEPS}
-                minWidth={
-                  caseIntakeState.step === CASE_INTAKE_TOTAL_STEPS ? "xl" : "md"
-                }
-                icon={
-                  caseIntakeState.step === CASE_INTAKE_TOTAL_STEPS
-                    ? "sparkles"
-                    : undefined
-                }
-              />
-            </div>
-          </div>
+    <div className="flex flex-col gap-6 h-full justify-between">
+      {renderStep()}
+      <div className="grid grid-cols-3 items-end gap-3 rounded-2xl">
+        <div className="justify-self-start">
+          {caseIntakeState.step !== 1 && (
+            <Button
+              style="secondary"
+              text="Back"
+              disabled={caseIntakeState.step === 1}
+              onClick={goToPreviousStep}
+              minWidth="md"
+            />
+          )}
         </div>
-      </ContentShell>
-    </AppLayout>
+        <button
+          type="button"
+          onClick={() => setDevSkipGating((v) => !v)}
+          className={`justify-self-center text-sm px-2 py-1 rounded font-mono transition-colors ${
+            devSkipGating
+              ? "bg-amber-400/30 text-amber-800"
+              : "text-black/25 hover:text-black/50"
+          }`}
+        >
+          {devSkipGating
+            ? `⚡ skip on — step ${caseIntakeState.step}/${CASE_INTAKE_TOTAL_STEPS}`
+            : `step ${caseIntakeState.step}/${CASE_INTAKE_TOTAL_STEPS}`}
+        </button>
+        <div className="justify-self-end">
+          <Button
+            style="primary"
+            text={
+              caseIntakeState.step === CASE_INTAKE_TOTAL_STEPS
+                ? "Generate Workspace"
+                : "Next"
+            }
+            onClick={goToNextStep}
+            disabled={!isStepComplete(caseIntakeState.step)}
+            rainbow={caseIntakeState.step === CASE_INTAKE_TOTAL_STEPS}
+            minWidth={
+              caseIntakeState.step === CASE_INTAKE_TOTAL_STEPS ? "xl" : "md"
+            }
+            icon={
+              caseIntakeState.step === CASE_INTAKE_TOTAL_STEPS
+                ? "sparkles"
+                : undefined
+            }
+          />
+        </div>
+      </div>
+    </div>
   );
 }

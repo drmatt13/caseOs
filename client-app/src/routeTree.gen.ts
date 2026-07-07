@@ -13,12 +13,13 @@ import { Route as VerifyAccountRouteImport } from './routes/verify-account'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as WorkspacesNewRouteImport } from './routes/workspaces.new'
-import { Route as WorkspacesWorkspaceIdRouteImport } from './routes/workspaces.$workspaceId'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated.index'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
-import { Route as WorkspacesWorkspaceIdCasesNewRouteImport } from './routes/workspaces.$workspaceId_.cases.new'
-import { Route as WorkspacesWorkspaceIdCasesCaseIdRouteImport } from './routes/workspaces.$workspaceId_.cases.$caseId'
+import { Route as AuthenticatedWorkspacesNewRouteImport } from './routes/_authenticated.workspaces.new'
+import { Route as AuthenticatedWorkspacesWorkspaceIdRouteImport } from './routes/_authenticated.workspaces.$workspaceId'
+import { Route as AuthenticatedWorkspacesWorkspaceIdCasesNewRouteImport } from './routes/_authenticated.workspaces.$workspaceId_.cases.new'
+import { Route as AuthenticatedWorkspacesWorkspaceIdCasesCaseIdRouteImport } from './routes/_authenticated.workspaces.$workspaceId_.cases.$caseId'
 
 const VerifyAccountRoute = VerifyAccountRouteImport.update({
   id: '/verify-account',
@@ -40,75 +41,82 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const WorkspacesNewRoute = WorkspacesNewRouteImport.update({
-  id: '/workspaces/new',
-  path: '/workspaces/new',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const WorkspacesWorkspaceIdRoute = WorkspacesWorkspaceIdRouteImport.update({
-  id: '/workspaces/$workspaceId',
-  path: '/workspaces/$workspaceId',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/auth/callback',
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WorkspacesWorkspaceIdCasesNewRoute =
-  WorkspacesWorkspaceIdCasesNewRouteImport.update({
+const AuthenticatedWorkspacesNewRoute =
+  AuthenticatedWorkspacesNewRouteImport.update({
+    id: '/workspaces/new',
+    path: '/workspaces/new',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedWorkspacesWorkspaceIdRoute =
+  AuthenticatedWorkspacesWorkspaceIdRouteImport.update({
+    id: '/workspaces/$workspaceId',
+    path: '/workspaces/$workspaceId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedWorkspacesWorkspaceIdCasesNewRoute =
+  AuthenticatedWorkspacesWorkspaceIdCasesNewRouteImport.update({
     id: '/workspaces/$workspaceId_/cases/new',
     path: '/workspaces/$workspaceId/cases/new',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
-const WorkspacesWorkspaceIdCasesCaseIdRoute =
-  WorkspacesWorkspaceIdCasesCaseIdRouteImport.update({
+const AuthenticatedWorkspacesWorkspaceIdCasesCaseIdRoute =
+  AuthenticatedWorkspacesWorkspaceIdCasesCaseIdRouteImport.update({
     id: '/workspaces/$workspaceId_/cases/$caseId',
     path: '/workspaces/$workspaceId/cases/$caseId',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof AuthenticatedIndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/verify-account': typeof VerifyAccountRoute
   '/auth/callback': typeof AuthCallbackRoute
-  '/workspaces/$workspaceId': typeof WorkspacesWorkspaceIdRoute
-  '/workspaces/new': typeof WorkspacesNewRoute
-  '/workspaces/$workspaceId/cases/$caseId': typeof WorkspacesWorkspaceIdCasesCaseIdRoute
-  '/workspaces/$workspaceId/cases/new': typeof WorkspacesWorkspaceIdCasesNewRoute
+  '/workspaces/$workspaceId': typeof AuthenticatedWorkspacesWorkspaceIdRoute
+  '/workspaces/new': typeof AuthenticatedWorkspacesNewRoute
+  '/workspaces/$workspaceId/cases/$caseId': typeof AuthenticatedWorkspacesWorkspaceIdCasesCaseIdRoute
+  '/workspaces/$workspaceId/cases/new': typeof AuthenticatedWorkspacesWorkspaceIdCasesNewRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/verify-account': typeof VerifyAccountRoute
   '/auth/callback': typeof AuthCallbackRoute
-  '/workspaces/$workspaceId': typeof WorkspacesWorkspaceIdRoute
-  '/workspaces/new': typeof WorkspacesNewRoute
-  '/workspaces/$workspaceId/cases/$caseId': typeof WorkspacesWorkspaceIdCasesCaseIdRoute
-  '/workspaces/$workspaceId/cases/new': typeof WorkspacesWorkspaceIdCasesNewRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/workspaces/$workspaceId': typeof AuthenticatedWorkspacesWorkspaceIdRoute
+  '/workspaces/new': typeof AuthenticatedWorkspacesNewRoute
+  '/workspaces/$workspaceId/cases/$caseId': typeof AuthenticatedWorkspacesWorkspaceIdCasesCaseIdRoute
+  '/workspaces/$workspaceId/cases/new': typeof AuthenticatedWorkspacesWorkspaceIdCasesNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/verify-account': typeof VerifyAccountRoute
   '/auth/callback': typeof AuthCallbackRoute
-  '/workspaces/$workspaceId': typeof WorkspacesWorkspaceIdRoute
-  '/workspaces/new': typeof WorkspacesNewRoute
-  '/workspaces/$workspaceId_/cases/$caseId': typeof WorkspacesWorkspaceIdCasesCaseIdRoute
-  '/workspaces/$workspaceId_/cases/new': typeof WorkspacesWorkspaceIdCasesNewRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/workspaces/$workspaceId': typeof AuthenticatedWorkspacesWorkspaceIdRoute
+  '/_authenticated/workspaces/new': typeof AuthenticatedWorkspacesNewRoute
+  '/_authenticated/workspaces/$workspaceId_/cases/$caseId': typeof AuthenticatedWorkspacesWorkspaceIdCasesCaseIdRoute
+  '/_authenticated/workspaces/$workspaceId_/cases/new': typeof AuthenticatedWorkspacesWorkspaceIdCasesNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -125,41 +133,38 @@ export interface FileRouteTypes {
     | '/workspaces/$workspaceId/cases/new'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
     | '/forgot-password'
     | '/login'
     | '/register'
     | '/verify-account'
     | '/auth/callback'
+    | '/'
     | '/workspaces/$workspaceId'
     | '/workspaces/new'
     | '/workspaces/$workspaceId/cases/$caseId'
     | '/workspaces/$workspaceId/cases/new'
   id:
     | '__root__'
-    | '/'
+    | '/_authenticated'
     | '/forgot-password'
     | '/login'
     | '/register'
     | '/verify-account'
     | '/auth/callback'
-    | '/workspaces/$workspaceId'
-    | '/workspaces/new'
-    | '/workspaces/$workspaceId_/cases/$caseId'
-    | '/workspaces/$workspaceId_/cases/new'
+    | '/_authenticated/'
+    | '/_authenticated/workspaces/$workspaceId'
+    | '/_authenticated/workspaces/new'
+    | '/_authenticated/workspaces/$workspaceId_/cases/$caseId'
+    | '/_authenticated/workspaces/$workspaceId_/cases/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
   VerifyAccountRoute: typeof VerifyAccountRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
-  WorkspacesWorkspaceIdRoute: typeof WorkspacesWorkspaceIdRoute
-  WorkspacesNewRoute: typeof WorkspacesNewRoute
-  WorkspacesWorkspaceIdCasesCaseIdRoute: typeof WorkspacesWorkspaceIdCasesCaseIdRoute
-  WorkspacesWorkspaceIdCasesNewRoute: typeof WorkspacesWorkspaceIdCasesNewRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -192,26 +197,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/': {
+      id: '/_authenticated/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/workspaces/new': {
-      id: '/workspaces/new'
-      path: '/workspaces/new'
-      fullPath: '/workspaces/new'
-      preLoaderRoute: typeof WorkspacesNewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/workspaces/$workspaceId': {
-      id: '/workspaces/$workspaceId'
-      path: '/workspaces/$workspaceId'
-      fullPath: '/workspaces/$workspaceId'
-      preLoaderRoute: typeof WorkspacesWorkspaceIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/auth/callback': {
       id: '/auth/callback'
@@ -220,34 +218,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/workspaces/$workspaceId_/cases/new': {
-      id: '/workspaces/$workspaceId_/cases/new'
+    '/_authenticated/workspaces/new': {
+      id: '/_authenticated/workspaces/new'
+      path: '/workspaces/new'
+      fullPath: '/workspaces/new'
+      preLoaderRoute: typeof AuthenticatedWorkspacesNewRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/workspaces/$workspaceId': {
+      id: '/_authenticated/workspaces/$workspaceId'
+      path: '/workspaces/$workspaceId'
+      fullPath: '/workspaces/$workspaceId'
+      preLoaderRoute: typeof AuthenticatedWorkspacesWorkspaceIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/workspaces/$workspaceId_/cases/new': {
+      id: '/_authenticated/workspaces/$workspaceId_/cases/new'
       path: '/workspaces/$workspaceId/cases/new'
       fullPath: '/workspaces/$workspaceId/cases/new'
-      preLoaderRoute: typeof WorkspacesWorkspaceIdCasesNewRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedWorkspacesWorkspaceIdCasesNewRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/workspaces/$workspaceId_/cases/$caseId': {
-      id: '/workspaces/$workspaceId_/cases/$caseId'
+    '/_authenticated/workspaces/$workspaceId_/cases/$caseId': {
+      id: '/_authenticated/workspaces/$workspaceId_/cases/$caseId'
       path: '/workspaces/$workspaceId/cases/$caseId'
       fullPath: '/workspaces/$workspaceId/cases/$caseId'
-      preLoaderRoute: typeof WorkspacesWorkspaceIdCasesCaseIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedWorkspacesWorkspaceIdCasesCaseIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
   }
 }
 
+interface AuthenticatedRouteChildren {
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedWorkspacesWorkspaceIdRoute: typeof AuthenticatedWorkspacesWorkspaceIdRoute
+  AuthenticatedWorkspacesNewRoute: typeof AuthenticatedWorkspacesNewRoute
+  AuthenticatedWorkspacesWorkspaceIdCasesCaseIdRoute: typeof AuthenticatedWorkspacesWorkspaceIdCasesCaseIdRoute
+  AuthenticatedWorkspacesWorkspaceIdCasesNewRoute: typeof AuthenticatedWorkspacesWorkspaceIdCasesNewRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedWorkspacesWorkspaceIdRoute:
+    AuthenticatedWorkspacesWorkspaceIdRoute,
+  AuthenticatedWorkspacesNewRoute: AuthenticatedWorkspacesNewRoute,
+  AuthenticatedWorkspacesWorkspaceIdCasesCaseIdRoute:
+    AuthenticatedWorkspacesWorkspaceIdCasesCaseIdRoute,
+  AuthenticatedWorkspacesWorkspaceIdCasesNewRoute:
+    AuthenticatedWorkspacesWorkspaceIdCasesNewRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
   VerifyAccountRoute: VerifyAccountRoute,
   AuthCallbackRoute: AuthCallbackRoute,
-  WorkspacesWorkspaceIdRoute: WorkspacesWorkspaceIdRoute,
-  WorkspacesNewRoute: WorkspacesNewRoute,
-  WorkspacesWorkspaceIdCasesCaseIdRoute: WorkspacesWorkspaceIdCasesCaseIdRoute,
-  WorkspacesWorkspaceIdCasesNewRoute: WorkspacesWorkspaceIdCasesNewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

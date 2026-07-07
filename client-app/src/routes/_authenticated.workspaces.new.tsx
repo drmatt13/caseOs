@@ -1,14 +1,8 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
-import AppLayout from "#/components/layouts/AppLayout";
-import ContentShell from "#/components/layouts/ContentShell";
-import NavigationPanel from "#/components/layouts/NavigationPanel";
 import CreateWorkspaceMenu from "#/components/menus/CreateWorkspaceMenu";
 import Button from "#/components/ui/Button";
-import PageLoading from "#/components/ui/PageLoading";
-import SessionError from "#/components/errors/SessionError";
-import UserPanel from "#/components/layouts/UserPanel";
 import CreateWorkspaceReviewForm from "#/components/features/create-workspace/CreateWorkspaceReviewForm";
 import TeamMembersForm from "#/components/features/create-workspace/TeamMembersForm";
 import WorkspaceInformationForm from "#/components/features/create-workspace/WorkspaceInformationForm";
@@ -19,10 +13,12 @@ import {
   type CreateWorkspaceWizardState,
 } from "#/components/features/create-workspace/workspaceForm";
 
-import { useCurrentUserQuery } from "#/api/currentUser/hooks";
 import { useCreateWorkspaceMutation } from "#/api/workspace/hooks";
 import type { CreateWorkspacePayloadInput } from "#/api/workspace/operations";
-import { requireAuth } from "#/lib/auth";
+import {
+  useAuthenticatedLayout,
+  useAuthenticatedLayoutEffect,
+} from "#/components/layouts/AuthenticatedLayoutContext";
 
 const createBlankWorkspace = (): CreateWorkspaceForm => ({
   ...initialCreateWorkspace,
@@ -63,16 +59,14 @@ const WorkspaceCreationNotPermitted = () => {
   );
 };
 
-export const Route = createFileRoute("/workspaces/new")({
-  beforeLoad: requireAuth,
+export const Route = createFileRoute("/_authenticated/workspaces/new")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
   const navigate = useNavigate();
-  const { data: userResult, isPending, error } = useCurrentUserQuery();
+  const { user } = useAuthenticatedLayout();
   const createWorkspaceMutation = useCreateWorkspaceMutation();
-  const user = userResult?.currentUser.user;
   const [blankWorkspace] = useState(createBlankWorkspace);
   const [workspaceState, setWorkspaceState] =
     useState<CreateWorkspaceWizardState>({
@@ -95,6 +89,20 @@ function RouteComponent() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, [workspaceState.step]);
+
+  useAuthenticatedLayoutEffect(
+    () => ({
+      navigationContent:
+        user.accountTier === "FREE" ? null : (
+          <CreateWorkspaceMenu
+            workspaceState={workspaceState}
+            setWorkspaceState={setWorkspaceState}
+            hasUnsavedWorkspace={hasUnsavedWorkspace}
+          />
+        ),
+    }),
+    [hasUnsavedWorkspace, user.accountTier, workspaceState],
+  );
 
   const updateWorkspaceField = <K extends keyof CreateWorkspaceForm>(
     field: K,
@@ -184,87 +192,63 @@ function RouteComponent() {
     }
   };
 
-  if (isPending) {
-    return <PageLoading />;
-  }
-
-  // Session failure → may log out. (Mutation errors stay inline below.)
-  if (error || !user) {
-    return <SessionError />;
-  }
-
   if (user.accountTier === "FREE") {
     return <WorkspaceCreationNotPermitted />;
   }
 
   return (
-    <AppLayout>
-      <NavigationPanel>
-        <UserPanel user={user} settings={true} showTier={true} />
-        <CreateWorkspaceMenu
-          workspaceState={workspaceState}
-          setWorkspaceState={setWorkspaceState}
-          hasUnsavedWorkspace={hasUnsavedWorkspace}
-        />
-      </NavigationPanel>
-      <ContentShell>
-        <div className="flex flex-col gap-6 h-full justify-between">
-          {renderStep()}
-          {createWorkspaceMutation.error && (
-            <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
-              {createWorkspaceMutation.error.message}
-            </div>
-          )}
-          <div className="grid grid-cols-3 items-end gap-3 rounded-2xl">
-            <div className="justify-self-start">
-              {workspaceState.step !== 1 && (
-                <Button
-                  style="secondary"
-                  text="Back"
-                  disabled={
-                    workspaceState.step === 1 ||
-                    createWorkspaceMutation.isPending
-                  }
-                  onClick={goToPreviousStep}
-                  minWidth="md"
-                />
-              )}
-            </div>
-            <p className="justify-self-center text-md text-black/65">
-              {`Step ${workspaceState.step} of ${CREATE_WORKSPACE_TOTAL_STEPS}`}
-            </p>
-            <div className="justify-self-end">
-              <Button
-                style="primary"
-                text={
-                  workspaceState.step === CREATE_WORKSPACE_TOTAL_STEPS
-                    ? createWorkspaceMutation.isPending
-                      ? "Creating Workspace"
-                      : "Create Workspace"
-                    : "Next"
-                }
-                onClick={() => {
-                  void handlePrimaryAction();
-                }}
-                disabled={
-                  !isStepComplete(workspaceState.step) ||
-                  createWorkspaceMutation.isPending
-                }
-                minWidth={
-                  workspaceState.step === CREATE_WORKSPACE_TOTAL_STEPS
-                    ? "xl"
-                    : "md"
-                }
-                icon={
-                  workspaceState.step === CREATE_WORKSPACE_TOTAL_STEPS
-                    ? "check"
-                    : undefined
-                }
-              />
-            </div>
-          </div>
+    <div className="flex flex-col gap-6 h-full justify-between">
+      {renderStep()}
+      {createWorkspaceMutation.error && (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+          {createWorkspaceMutation.error.message}
         </div>
-      </ContentShell>
-    </AppLayout>
+      )}
+      <div className="grid grid-cols-3 items-end gap-3 rounded-2xl">
+        <div className="justify-self-start">
+          {workspaceState.step !== 1 && (
+            <Button
+              style="secondary"
+              text="Back"
+              disabled={
+                workspaceState.step === 1 || createWorkspaceMutation.isPending
+              }
+              onClick={goToPreviousStep}
+              minWidth="md"
+            />
+          )}
+        </div>
+        <p className="justify-self-center text-md text-black/65">
+          {`Step ${workspaceState.step} of ${CREATE_WORKSPACE_TOTAL_STEPS}`}
+        </p>
+        <div className="justify-self-end">
+          <Button
+            style="primary"
+            text={
+              workspaceState.step === CREATE_WORKSPACE_TOTAL_STEPS
+                ? createWorkspaceMutation.isPending
+                  ? "Creating Workspace"
+                  : "Create Workspace"
+                : "Next"
+            }
+            onClick={() => {
+              void handlePrimaryAction();
+            }}
+            disabled={
+              !isStepComplete(workspaceState.step) ||
+              createWorkspaceMutation.isPending
+            }
+            minWidth={
+              workspaceState.step === CREATE_WORKSPACE_TOTAL_STEPS ? "xl" : "md"
+            }
+            icon={
+              workspaceState.step === CREATE_WORKSPACE_TOTAL_STEPS
+                ? "check"
+                : undefined
+            }
+          />
+        </div>
+      </div>
+    </div>
   );
 }
