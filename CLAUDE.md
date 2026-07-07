@@ -108,8 +108,8 @@ packages/database/prisma/schema.prisma
 
 Defined in `agents/frontend-style-parity-agent.md` and `client-app/src/styles.css`:
 
-- **Base font size:** `html, body { font-size: 21px }` — `text-md` (0.875rem) is normal readable UI
-- **Custom breakpoints:** xs=45rem, sm=50rem, md=60rem, lg=72.5rem, xl=84rem
+- **Base font size:** `html, body { font-size: 21px }`, stepping to 19px at ≥100rem viewport (2xl) and 17px at ≥150rem (3xl) — `text-md` (0.875rem) is normal readable UI. Never hardcode 21 in JS px↔rem math; read the live root font size.
+- **Custom breakpoints:** xs=45rem, sm=50rem, md=60rem, lg=72.5rem, xl=84rem, 2xl=100rem, 3xl=150rem (2xl/3xl are density tiers: smaller root + wider `AppLayout` shell)
 - **Visual language:** Translucent glass panels — `bg-white/40 backdrop-blur-sm border border-black/15 shadow-md rounded-2xl`
 - **Neutrals:** Black-alpha system (`border-black/10`, `bg-black/10`, `text-black/60`) — not hard Tailwind grays
 - **Buttons:** Use `Button.tsx`; primary is `bg-[#282828] text-white`, secondary is `bg-black/10`

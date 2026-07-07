@@ -38,7 +38,10 @@ const NavigationPanel = () => {
     height:
       storedLoadingHeight === null
         ? "calc(50dvh)"
-        : `${storedLoadingHeight - 47.5}px`,
+        : // Subtract the wrapper's own vertical padding (pt-5 + pb-4 =
+          // 2.25rem), which the live panel's measured height includes but this
+          // inner block must not. Rem, not px: the root steps at 2xl/3xl.
+          `calc(${storedLoadingHeight}px - 2.25rem)`,
   } as CSSProperties;
 
   const shouldAnimateSmallMenu =
@@ -82,7 +85,7 @@ const NavigationPanel = () => {
         </>
       )}
       {windowWidthCategory === "large" && <AppLogo NavigationPanel={true} />}
-      <div className="sticky top-0 z-10 max-h-dvh lg:top-7 h-dvh lg:h-max lg:rounded-2xl pl-2 lg:pl-0 lg:border lg:border-black/15 lg:shadow-md lg:overflow-hidden">
+      <div className="sticky top-0 z-10 max-h-dvh lg:top-7 h-dvh lg:h-max lg:rounded-2xl pl-2 lg:pl-0 lg:border lg:border-black/22 lg:shadow-md lg:overflow-hidden">
         {menuOpen && (
           <div className="pointer-events-none absolute right-0 translate-x-full w-[200vw] h-full" />
         )}

@@ -22,7 +22,13 @@ export const routeChangeSlideDurationMs = 175;
 export const routeChangeSlideTimingFunction = "cubic-bezier(0.3, 0.8, 0.35, 1)";
 // export const routeChangeSlideTimingFunction = "ease-out"; // fast start, flat finish
 
-const pixelsToRem = (px: number) => px / 21;
+// Live root font-size in px. styles.css steps the root at the density tiers
+// (21px base, 19px ≥ 2xl/100rem, 17px ≥ 3xl/150rem), so px↔rem conversions
+// must read it at call time instead of hardcoding — same pattern as
+// TextAreaField's remToPixels. Fallback matches the base root for non-browser
+// environments.
+const getRootFontSizePx = () =>
+  Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 21;
 const maxBodyScrollDeltaRem = 5.25;
 const stickyTopRem = 1.75;
 const bottomPaddingRem = 1.8;
@@ -35,8 +41,9 @@ const framePaddingBottomRem = 1.75;
 // Subpixel rounding leaves the panel a few px taller than its slot, which is
 // enough to give a content-less body a sliver of scroll. Trim it back only when
 // the body shouldn't scroll; when content genuinely overflows we keep the exact
-// height so the expanded panel still aligns with the content column.
-const overflowGuardRem = pixelsToRem(4);
+// height so the expanded panel still aligns with the content column. Px-native
+// (it guards px rounding), converted to rem per call in getPanelOffsetRem.
+const overflowGuardPx = 4;
 export const initialPanelOffsetRem =
   maxBodyScrollDeltaRem + stickyTopRem + bottomPaddingRem;
 // This max-height transition is re-fired every animation frame toward a moving
@@ -115,6 +122,13 @@ export const getTransitionDurationMs = (
 // genuine content lets you scroll, and stops the moment the real content ends —
 // even if that leaves it short of fully open.
 export const getPanelOffsetRem = (bodyContentOverflowPx: number) => {
+  // One live root read per call: this runs at most once per animation frame
+  // (the scroll handler is rAF-throttled) and its caller already does a
+  // getComputedStyle read per frame, so this adds no new cost class.
+  const rootFontSizePx = getRootFontSizePx();
+  const pixelsToRem = (px: number) => px / rootFontSizePx;
+  const overflowGuardRem = pixelsToRem(overflowGuardPx);
+
   // Resting offset, carried by both branches so the panel is the exact same
   // height whether or not the body scrolls — otherwise switching between a
   // scrollable and a non-scrollable route nudges the resting panel by the guard.

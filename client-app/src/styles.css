@@ -7,6 +7,8 @@
   --breakpoint-md: 60rem;
   --breakpoint-lg: 72.5rem;
   --breakpoint-xl: 84rem;
+  --breakpoint-2xl: 100rem;
+  --breakpoint-3xl: 150rem;
   --text-xs: 0.675rem;
   --text-xs--line-height: calc(0.875 / 0.675);
   --text-sm: 0.75rem;
@@ -195,4 +197,26 @@ body {
   -moz-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
   text-size-adjust: 100%;
+}
+
+/* Density tiers — the 21px root is calibrated for laptop widths (MacBook Pro
+   14", 1512px logical). On larger monitors, step the root down to the density
+   users previously dialed in by zooming out (90% ≈ 19px, 80% ≈ 17px). These
+   media queries resolve rem against the browser default (16px) — the same
+   basis as the @theme breakpoints — so they flip exactly with the 2xl/3xl
+   variants (100rem = 1600px, 150rem = 2400px) and never move when the root
+   itself changes. Source order matters: both blocks match on wide screens at
+   equal specificity, so 150rem must come after 100rem to win there. */
+@media (width >= 100rem) {
+  html,
+  body {
+    font-size: 19px;
+  }
+}
+
+@media (width >= 150rem) {
+  html,
+  body {
+    font-size: 17px;
+  }
 }

@@ -37,6 +37,8 @@ Custom breakpoints:
 - `md`: `60rem`
 - `lg`: `72.5rem`
 - `xl`: `84rem`
+- `2xl`: `100rem` (density tier — root steps to 19px and the app shell widens)
+- `3xl`: `150rem` (density tier — root steps to 17px and the app shell widens)
 
 Custom text scale:
 
@@ -49,7 +51,7 @@ Custom text scale:
 - `text-3xl`: `1.5rem`
 - `text-4xl`: `1.875rem`
 
-The browser root is intentionally enlarged with `html, body { font-size: 21px; }`. In this app, `text-md` is the normal readable UI size, `text-sm` is compact secondary copy, and `text-xs` is for chips, metadata, and dense menus.
+The browser root is intentionally enlarged and stepped by viewport width: `html, body { font-size: 21px; }` at laptop widths (calibrated for a MacBook Pro 14", 1512px logical), stepping down to `19px` at `2xl` (≥ 100rem / 1600px) and `17px` at `3xl` (≥ 150rem / 2400px) so large monitors get the density users previously dialed in by zooming out. Element-level `rem` tracks the stepped root; media queries and the `@theme` breakpoints resolve `rem` against the browser default 16px and never move with it. In this app, `text-md` is the normal readable UI size, `text-sm` is compact secondary copy, and `text-xs` is for chips, metadata, and dense menus.
 
 Fonts:
 
@@ -79,11 +81,11 @@ lawstruct-ai uses a quiet, legal-work dashboard style:
 For authenticated app routes:
 
 - Wrap pages in `AppLayout`.
-- `AppLayout` provides `relative flex flex-row lg:gap-6 lg:pt-14 lg:pb-7 lg:px-8 lg:w-5xl` through `PageBackgroundLayout`.
+- `AppLayout` provides `relative flex flex-row lg:gap-6 lg:pt-14 lg:pb-7 lg:px-8 lg:w-5xl 2xl:w-6xl 3xl:w-7xl lg:max-w-full` through `PageBackgroundLayout`. The `2xl:`/`3xl:` width bumps pair with the stepped root so wide screens get a wider, denser shell.
 - Use `NavigationPanel` for the fixed-width left rail: `w-64 min-w-64`, sticky scrollable panel, and left-menu content in `font-serif text-sm`.
-- `NavigationPanel` has special responsive behavior. Small screens use a fixed slide-out rail with `bg-neutral-400/40 backdrop-blur-lg`; large screens return to the inline rail with `lg:rounded-2xl`, `lg:border-black/15`, `lg:shadow-md`, and an inner `lg:bg-white/40 lg:backdrop-blur-sm` content layer.
+- `NavigationPanel` has special responsive behavior. Small screens use a fixed slide-out rail with `bg-neutral-400/40 backdrop-blur-lg`; large screens return to the inline rail with `lg:rounded-2xl`, `lg:border-black/22`, `lg:shadow-md`, and an inner `lg:bg-white/40 lg:backdrop-blur-sm` content layer.
 - Large-screen left rail height is scroll-aware through CSS variables set in `NavigationPanel`; avoid replacing that shell with a static sidebar.
-- Use `ContentShell` for the main panel: `relative min-w-0 flex-1 flex justify-center lg:block h-max lg:rounded-2xl bg-white/40 backdrop-blur-sm lg:border border-black/15 lg:shadow-md`.
+- Use `ContentShell` for the main panel: `relative min-w-0 flex-1 flex justify-center lg:block h-max lg:rounded-2xl bg-white/40 backdrop-blur-sm lg:border border-black/22 lg:shadow-md`.
 - Keep work-panel inner spacing aligned with `ContentShell`: `w-full`, `pt-16 sm:pt-14 md:pt-5 lg:pt-4`, `px-6 sm:px-12 md:px-4`, `pb-6 md:pb-5 lg:pb-4`, `min-h-dvh lg:min-h-auto`.
 - Mobile work panels include a top-left menu opener with `p-1.5 hover:bg-black/15 rounded-lg`.
 - Loading states use full viewport centering: `w-full h-dvh flex justify-center items-center`.
@@ -358,6 +360,8 @@ When adding a new frontend feature:
 
 - Do not introduce a new color palette for ordinary product UI.
 - Do not assume Tailwind default breakpoints or type sizes.
+- Do not hardcode the 21px root in JS px↔rem conversions — the root steps to 19px/17px at `2xl`/`3xl`, so read `getComputedStyle(document.documentElement).fontSize` at call time (see `TextAreaField.tsx` and `navigationPanelMetrics.ts`).
+- Do not add per-component `2xl:`/`3xl:` overrides for ordinary UI — wide-screen adaptation comes only from the stepped root font-size plus the `AppLayout` shell width bumps.
 - Do not use `text-sm` as body text just because it would be body-sized in default Tailwind; in this app `text-sm` is compact secondary text.
 - Do not use heavy shadows, saturated backgrounds, or large marketing-style sections inside app workflows.
 - Do not create one-off buttons when the shared `Button` supports the action.
