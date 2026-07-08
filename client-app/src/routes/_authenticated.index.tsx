@@ -35,6 +35,7 @@ function App() {
             workspaces={workspaces}
           />
         ),
+      navigationLoading: getWorkspacesPending,
     }),
     [
       getWorkspacesPending,

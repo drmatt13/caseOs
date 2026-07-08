@@ -33,6 +33,7 @@ function AuthenticatedLayout() {
         ...defaultAuthenticatedLayoutState,
         ...options,
         navigationContent: options.navigationContent ?? null,
+        navigationLoading: options.navigationLoading ?? false,
       });
     },
     [],
@@ -63,7 +64,10 @@ function AuthenticatedLayout() {
   return (
     <AuthenticatedLayoutProvider value={contextValue}>
       <AppLayout>
-        <NavigationPanel activeItemKey={layoutState.navigationActiveItemKey}>
+        <NavigationPanel
+          activeItemKey={layoutState.navigationActiveItemKey}
+          contentLoading={layoutState.navigationLoading}
+        >
           <UserPanel user={user} settings={true} showTier={true} />
           {layoutState.navigationContent}
         </NavigationPanel>

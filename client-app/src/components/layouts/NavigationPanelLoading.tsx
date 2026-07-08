@@ -1,33 +1,15 @@
 import { type CSSProperties, useContext, useEffect, useRef } from "react";
 import AppLogo from "#/components/layouts/AppLogo";
+import NavigationPanelSkeletonRows from "#/components/layouts/NavigationPanelSkeleton";
 import { XIcon } from "lucide-react";
 
 // context
 import { MenuContext } from "#/context/MenuContext";
 
 import useWindowWidthCategory from "#/hooks/useWindowWidthCategory";
-import { getNavigationPanelLoadingHeightStorageKey } from "#/components/layouts/navigationPanelMetrics";
+import { readNavigationPanelLoadingHeight } from "#/components/layouts/navigationPanelMetrics";
 
-const readNavigationPanelLoadingHeight = (windowWidthCategory: string) => {
-  try {
-    const storedHeight = window.sessionStorage.getItem(
-      getNavigationPanelLoadingHeightStorageKey(windowWidthCategory),
-    );
-    const parsedHeight = Number(storedHeight);
-
-    return Number.isFinite(parsedHeight) && parsedHeight > 0
-      ? parsedHeight
-      : null;
-  } catch {
-    return null;
-  }
-};
-
-const SkeletonBlock = ({ className }: { className: string }) => (
-  <div className={`animate-pulse rounded-lg bg-black/2 ${className}`} />
-);
-
-const NavigationPanel = () => {
+const NavigationPanelLoading = () => {
   const windowWidthCategory = useWindowWidthCategory();
   const { menuOpen, setMenuOpen } = useContext(MenuContext);
   const previousWindowWidthCategoryRef = useRef(windowWidthCategory);
@@ -119,24 +101,7 @@ const NavigationPanel = () => {
                 ...loadingHeightStyle,
               }}
             >
-              <div className="flex flex-col gap-3">
-                <SkeletonBlock className="h-12 w-full" />
-                <SkeletonBlock className="h-9 w-4/5" />
-                <SkeletonBlock className="h-9 w-full" />
-                <SkeletonBlock className="h-9 w-11/12" />
-                <div className="mt-3 flex flex-col gap-2">
-                  <SkeletonBlock className="h-8 w-full" />
-                  <SkeletonBlock className="h-8 w-5/6" />
-                  <SkeletonBlock className="h-8 w-11/12" />
-                </div>
-                <div className="mt-3 flex flex-col gap-2">
-                  <SkeletonBlock className="h-8 w-full" />
-                  <SkeletonBlock className="h-8 w-5/6" />
-                  <SkeletonBlock className="h-8 w-11/12" />
-                  <SkeletonBlock className="h-8 w-5/6" />
-                  <SkeletonBlock className="h-8 w-11/12" />
-                </div>
-              </div>
+              <NavigationPanelSkeletonRows showUserPanelRow={true} />
             </div>
           </div>
         </div>
@@ -145,4 +110,4 @@ const NavigationPanel = () => {
   );
 };
 
-export default NavigationPanel;
+export default NavigationPanelLoading;

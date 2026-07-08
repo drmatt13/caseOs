@@ -13,6 +13,25 @@ export const getNavigationPanelLoadingHeightStorageKey = (
   windowWidthCategory: string,
 ) => `${navigationPanelLoadingHeightStorageKeyPrefix}.${windowWidthCategory}`;
 
+// Reader for the persisted height, shared by the full-page loading skeleton and
+// the live panel's in-place loading hold. null = nothing usable stored.
+export const readNavigationPanelLoadingHeight = (
+  windowWidthCategory: string,
+) => {
+  try {
+    const storedHeight = window.sessionStorage.getItem(
+      getNavigationPanelLoadingHeightStorageKey(windowWidthCategory),
+    );
+    const parsedHeight = Number(storedHeight);
+
+    return Number.isFinite(parsedHeight) && parsedHeight > 0
+      ? parsedHeight
+      : null;
+  } catch {
+    return null;
+  }
+};
+
 // One-shot slide of the panel from the previous page's on-screen position back
 // to its resting position after a route change. Unlike the max-height chase
 // below (re-fired every frame, so its durations sit near the frame interval),

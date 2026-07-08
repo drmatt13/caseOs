@@ -216,13 +216,18 @@ function RouteComponent() {
             completedThroughStep={completedThroughStep}
           />
         ) : null,
+      navigationLoading: getWorkspacePending,
       showWorkspaceSettings: userCapabilities?.manageWorkspace ?? false,
     }),
+    // getWorkspacePending must be a dep: on a query error, pending flips false
+    // with workspace still undefined — without it the effect wouldn't re-fire
+    // and the nav skeleton would be stuck on.
     [
       workspace,
       workspaceId,
       caseIntakeState,
       completedThroughStep,
+      getWorkspacePending,
       hasUnsavedCaseIntake,
       maxUnlockedStep,
       userCapabilities?.createCase,

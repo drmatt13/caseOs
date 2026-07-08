@@ -8,7 +8,9 @@ import {
   // useState,
   useContext,
 } from "react";
+import { useLocation } from "@tanstack/react-router";
 import AppLogo from "#/components/layouts/AppLogo";
+import NavigationPanelSkeletonRows from "#/components/layouts/NavigationPanelSkeleton";
 import useWindowWidthCategory from "#/hooks/useWindowWidthCategory";
 import {
   getAnchoredScrollTop,
@@ -16,6 +18,7 @@ import {
   getPanelOffsetRem,
   getTransitionDurationMs,
   initialPanelOffsetRem,
+  readNavigationPanelLoadingHeight,
   routeChangeSlideDurationMs,
   routeChangeSlideTimingFunction,
   scrollDownTransitionTimingFunction,
@@ -26,26 +29,25 @@ import {
 import { MenuContext } from "#/context/MenuContext";
 import { XIcon } from "lucide-react";
 
-// The sticky panel's viewport top (getBoundingClientRect().top) as last sampled
-// while the previous route was scrolled. It bridges across the panel's unmount/
-// remount on navigation (each route renders its own NavigationPanel): the next
-// mount reads it as the panel's previous on-screen position and slides down
-// from there into place. Module scope (not sessionStorage) on purpose — it must
-// NOT survive a full reload (a reload has no previous page to be continuous
-// with), and it's sampled only while scrolled so a scroll-to-top, including the
-// router's own reset on navigation, can never overwrite it with the resting
-// position. `null` means "no previous scrolled position to slide from".
-let lastScrolledPanelViewportTop: number | null = null;
-
 interface NavigationPanelProps {
   children: ReactNode;
   // Key of the currently-selected nav item (e.g. the active workspace view). When
   // it changes, the panel keeps the matching `[data-nav-item]` row visible as it
   // collapses on scroll-to-top. Optional — omit it and the behavior is a no-op.
   activeItemKey?: string;
+  // True while the current route's nav content is still loading. The panel
+  // holds its previously-stored height (sessionStorage, per width category) and
+  // shows skeleton rows instead of collapsing to just the always-mounted
+  // children (UserPanel). Explicit rather than inferred from empty children:
+  // some routes deliberately render no menu.
+  contentLoading?: boolean;
 }
 
-const NavigationPanel = ({ children, activeItemKey }: NavigationPanelProps) => {
+const NavigationPanel = ({
+  children,
+  activeItemKey,
+  contentLoading = false,
+}: NavigationPanelProps) => {
   const { menuOpen, setMenuOpen } = useContext(MenuContext);
   const panelRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -57,48 +59,54 @@ const NavigationPanel = ({ children, activeItemKey }: NavigationPanelProps) => {
   const previousActiveItemKeyRef = useRef(activeItemKey);
   const lastWrittenScrollTopRef = useRef<number | null>(null);
   const lastStoredLoadingHeightRef = useRef<number | null>(null);
-  // Per-mount consume of the previous route's scrolled position (see the slide
-  // effect). A ref pair, not locals, so StrictMode's dev-only double invocation
-  // of the mount effect reads the same value both times instead of the second
-  // run seeing the already-consumed (null) module slot and skipping the slide.
-  const slideFromConsumedRef = useRef(false);
-  const slideFromTopRef = useRef<number | null>(null);
+  // The panel stays mounted across client-side navigations (it lives in the
+  // _authenticated layout), so route changes arrive as a pathname change, not a
+  // remount. Pathname only — same-route search/state changes (e.g. the case
+  // view tabs) must not look like navigations; their collapse is handled by the
+  // anchor-and-lift effect below.
+  const pathname = useLocation({ select: (location) => location.pathname });
+  const previousPathnameRef = useRef(pathname);
+  // The sticky panel's viewport top (getBoundingClientRect().top) as last
+  // sampled while the page was scrolled. The slide effect below consumes it on
+  // navigation as the panel's previous on-screen position and slides down from
+  // there into place. A ref (not sessionStorage) on purpose — it must NOT
+  // survive a full reload (a reload has no previous page to be continuous
+  // with), and it's sampled only while scrolled so a scroll-to-top, including
+  // the router's own reset on navigation, can never overwrite it with the
+  // resting position. `null` means "no previous scrolled position to slide
+  // from".
+  const lastScrolledPanelViewportTopRef = useRef<number | null>(null);
+  // Render-synchronous mirror of `contentLoading` so the height-measurement
+  // callback (which can fire from a stale effect instance's ResizeObserver in
+  // the frame the hold engages) never persists the held/skeleton height.
+  const contentLoadingRef = useRef(contentLoading);
+  contentLoadingRef.current = contentLoading;
   const previousScrollSampleRef = useRef({
     scrollY: 0,
     time: 0,
   });
 
-  // A fresh route mounts a fresh NavigationPanel (each route renders its own),
-  // and the router resets the body scroll to the top — which would snap this
-  // sticky panel from where it sat on the previous page down to its resting
-  // position. Instead, start it translated up at the previous page's on-screen
-  // position and animate it home. Mount-only (`[]`): it fires on genuine route
-  // changes (which remount the panel), not on same-route search-param changes
-  // like the case view tabs, whose collapse is handled by the anchor-and-lift
-  // effect below. Web Animations API rather than inline transform/transition so
-  // it can't clobber the React-managed `--left-panel-*` vars on this element.
+  // On navigation the router resets the body scroll to the top — which would
+  // snap this sticky panel from where it sat on the previous page down to its
+  // resting position. Instead, start it translated up at the previous page's
+  // on-screen position and animate it home. Keyed on pathname because the
+  // panel persists across navigations: the location store commits at or before
+  // the outlet swap, and the router's scrollRestoration reset is emitted from
+  // an OnRendered layout effect rendered AFTER the whole route subtree — so
+  // this effect always runs (and consumes the sample) before the reset. Web
+  // Animations API rather than inline transform/transition so it can't clobber
+  // the React-managed `--left-panel-*` vars on this element.
   useLayoutEffect(() => {
-    // Consume the previous page's pinned position exactly once for this mount,
-    // BEFORE any early return below. The module slot must never survive a mount:
-    // otherwise a value sampled navigations ago (e.g. carried across a resize
-    // past the breakpoint, where the guards below would have skipped clearing
-    // it) can resurface and drive a stale slide when navigating back and forth.
-    // The consumed value lives in a ref so StrictMode's double-invoked mount
-    // effect reuses it rather than re-reading the now-cleared module slot.
-    if (!slideFromConsumedRef.current) {
-      slideFromConsumedRef.current = true;
-      slideFromTopRef.current = lastScrolledPanelViewportTop;
-      lastScrolledPanelViewportTop = null;
-      // Purge an offset persisted by an earlier version of this slide. It now
-      // lives only in memory (above) and is consumed every navigation, so any
-      // lingering session-storage entry is just a stale reference — drop it.
-      try {
-        window.sessionStorage.removeItem("navigationPanelOffsetTop");
-      } catch {
-        // Session storage is an optional enhancement; ignore if unavailable.
-      }
-    }
-    const fromTop = slideFromTopRef.current;
+    // First run after mount isn't a navigation (and StrictMode's dev re-run
+    // sees the already-matching pathname): nothing to slide from.
+    if (previousPathnameRef.current === pathname) return;
+    previousPathnameRef.current = pathname;
+
+    // Consume the previous page's pinned position exactly once per navigation,
+    // BEFORE any early return below, so a value sampled navigations ago can
+    // never resurface and drive a stale slide later.
+    const fromTop = lastScrolledPanelViewportTopRef.current;
+    lastScrolledPanelViewportTopRef.current = null;
 
     const panel = panelRef.current;
     if (!panel) return;
@@ -129,15 +137,18 @@ const NavigationPanel = ({ children, activeItemKey }: NavigationPanelProps) => {
 
     if (window.scrollY <= 0) {
       // Scroll already reset: this layout effect runs before paint, so the
-      // slide's first frame (translated up) is what the new route paints.
+      // slide's first frame (translated up) is what the new route paints. With
+      // the current router the reset provably arrives after this effect, so
+      // this branch is defense against upstream timing changes.
       runSlide();
     } else {
       // Still scrolled: the panel is sticky-glued at the same inset it held on
-      // the previous page, so it currently looks continuous. The router resets
-      // scroll to the top in a layout effect that runs after this (child) one;
-      // catch that reset on its scroll event — dispatched before the next paint
-      // — and start the slide there so the panel never paints at rest first. If
-      // no reset arrives (scroll-preserving navigation), give up after 600ms.
+      // the previous page, so it currently looks continuous. The router's
+      // scroll reset lands after this effect (see above); catch it on its
+      // scroll event — dispatched before the next paint — and start the slide
+      // there so the panel never paints at rest first. If no reset arrives
+      // (scroll-preserving navigation, e.g. back/forward restoring a scrolled
+      // position), give up after 600ms.
       const onScrollReset = () => {
         if (window.scrollY > 0) return;
         teardownScrollWatch?.();
@@ -156,9 +167,7 @@ const NavigationPanel = ({ children, activeItemKey }: NavigationPanelProps) => {
       teardownScrollWatch?.();
       slideAnimation?.cancel();
     };
-    // Mount-only by design; see the comment above.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [pathname]);
 
   const updatePanelHeightOffset = useCallback((animate: boolean) => {
     const panel = panelRef.current;
@@ -323,14 +332,16 @@ const NavigationPanel = ({ children, activeItemKey }: NavigationPanelProps) => {
 
   // Record where the sticky panel sits ONLY WHILE it is pinned at its sticky
   // inset — i.e. the user has scrolled far enough to lift it to the top of the
-  // viewport — so the next route's mount can slide it down from there (see the
-  // slide effect above). Anywhere else — the transition zone on the way up, or
-  // resting at scroll top — clears the sample to null so there is nothing to
-  // slide from. This is what makes "scroll down, then back up to the top, then
-  // navigate" produce no slide: by the time the panel unpins on the way up, the
-  // sample is gone. It also means the router's own scroll-to-top on navigation
-  // can't leave a near-resting sample behind. No initial on-mount sample, so a
-  // navigation transient never feeds it. Large only, where the panel is sticky.
+  // viewport — so the next navigation's slide effect can slide it down from
+  // there (see the slide effect above). Anywhere else — the transition zone on
+  // the way up, or resting at scroll top — clears the sample to null so there
+  // is nothing to slide from. This is what makes "scroll down, then back up to
+  // the top, then navigate" produce no slide: by the time the panel unpins on
+  // the way up, the sample is gone. The router's own scroll-to-top can't
+  // corrupt the sample either: its reset-triggered run lands in a rAF, after
+  // the slide effect has already consumed the value. No initial on-mount
+  // sample, so a navigation transient never feeds it. Large only, where the
+  // panel is sticky.
   useEffect(() => {
     if (windowWidthCategory !== "large") return;
 
@@ -356,7 +367,7 @@ const NavigationPanel = ({ children, activeItemKey }: NavigationPanelProps) => {
       const stickyInsetPx =
         Number.parseFloat(window.getComputedStyle(panel).top) || 0;
       const panelTop = panel.getBoundingClientRect().top;
-      lastScrolledPanelViewportTop =
+      lastScrolledPanelViewportTopRef.current =
         window.scrollY > 0 && panelTop <= stickyInsetPx + 1 ? panelTop : null;
     };
 
@@ -374,6 +385,12 @@ const NavigationPanel = ({ children, activeItemKey }: NavigationPanelProps) => {
       if (sampleFrame !== null) {
         window.cancelAnimationFrame(sampleFrame);
       }
+
+      // Leaving "large" (or unmounting) invalidates the sample: without this,
+      // a pinned position sampled before a resize below the breakpoint could
+      // survive a scroll-to-top at the smaller width and replay a stale slide
+      // after resizing back up and navigating.
+      lastScrolledPanelViewportTopRef.current = null;
     };
   }, [windowWidthCategory]);
 
@@ -477,6 +494,14 @@ const NavigationPanel = ({ children, activeItemKey }: NavigationPanelProps) => {
   }, [activeItemKey, stopAnchorLoop, windowWidthCategory]);
 
   useEffect(() => {
+    // While the loading hold is engaged, the container's height IS the stored
+    // value (min-height) plus skeleton — persisting it would be circular at
+    // best and pollute the store at worst. Measure only settled content; when
+    // loading flips false this effect re-creates and re-measures the real menu.
+    if (contentLoading) {
+      return;
+    }
+
     const container = containerForLoadingHeightRef.current;
 
     if (!container) {
@@ -488,6 +513,13 @@ const NavigationPanel = ({ children, activeItemKey }: NavigationPanelProps) => {
 
     const writeLoadingHeight = () => {
       measurementAnimationFrame = null;
+
+      // A stale effect instance's ResizeObserver can still fire in the frame
+      // the loading hold engages (this passive effect's cleanup runs after
+      // paint) — the render-synchronous ref closes that window.
+      if (contentLoadingRef.current) {
+        return;
+      }
 
       const height = Math.ceil(container.getBoundingClientRect().height);
 
@@ -540,7 +572,7 @@ const NavigationPanel = ({ children, activeItemKey }: NavigationPanelProps) => {
         window.cancelAnimationFrame(measurementAnimationFrame);
       }
     };
-  }, [windowWidthCategory]);
+  }, [contentLoading, windowWidthCategory]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -563,6 +595,30 @@ const NavigationPanel = ({ children, activeItemKey }: NavigationPanelProps) => {
       });
     };
   }, [menuOpen, setMenuOpen]);
+
+  // While the route's nav content loads, hold the content container at exactly
+  // the height it last had (the same box, border-box, that the measurement
+  // effect stores — so the stored px applies directly, no padding math). It
+  // must be a definite `height`, not min-height: the skeleton rows sit in a
+  // flex-1/min-h-0/overflow-hidden wrapper that fills the leftover space and
+  // clips, and a flex child only resolves that way against a definite size —
+  // under min-height the container's auto height still grows to the skeleton's
+  // intrinsic size, ballooning the panel past the previous route's size and
+  // snapping down when the real menu lands. Real content is never constrained:
+  // the style and wrapper exist only while loading, and the stored height
+  // always ≥ the UserPanel block (it was measured around it). Fallback matches
+  // NavigationPanelLoading's inner-block fallback for first visits in a tab.
+  const storedLoadingHeight = contentLoading
+    ? readNavigationPanelLoadingHeight(windowWidthCategory)
+    : null;
+  const contentHoldStyle: CSSProperties | undefined = contentLoading
+    ? {
+        height:
+          storedLoadingHeight !== null
+            ? `${storedLoadingHeight}px`
+            : "calc(50dvh)",
+      }
+    : undefined;
 
   const panelStyle = {
     "--left-panel-height-offset": `${initialPanelOffsetRem}rem`,
@@ -643,6 +699,7 @@ const NavigationPanel = ({ children, activeItemKey }: NavigationPanelProps) => {
           )}
           <div
             ref={containerForLoadingHeightRef}
+            style={contentHoldStyle}
             className="font-serif text-sm lg:bg-white/40 lg:backdrop-blur-sm pt-5 pb-4 pl-2 pr-4 lg:px-4 flex flex-col gap-2"
           >
             {windowWidthCategory !== "large" && (
@@ -651,6 +708,11 @@ const NavigationPanel = ({ children, activeItemKey }: NavigationPanelProps) => {
               </div>
             )}
             {children}
+            {contentLoading && (
+              <div className="flex-1 min-h-0 overflow-hidden">
+                <NavigationPanelSkeletonRows />
+              </div>
+            )}
           </div>
         </div>
       </div>

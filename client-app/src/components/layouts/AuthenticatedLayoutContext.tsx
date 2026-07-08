@@ -9,6 +9,12 @@ import type { CurrentUser } from "#/api/currentUser/model";
 
 export type AuthenticatedLayoutOptions = {
   navigationContent?: ReactNode;
+  // True while the route's navigation content is still loading (e.g. its query
+  // is pending), so the persistent NavigationPanel can hold its previous height
+  // and show a skeleton instead of collapsing. Explicit on purpose: a null
+  // navigationContent can be a deliberate "no menu" state (e.g. /workspaces/new
+  // for FREE tier), so loading must never be inferred from null content.
+  navigationLoading?: boolean;
   navigationActiveItemKey?: string;
   showHeaderBar?: boolean;
   showWorkspaceSettings?: boolean;
@@ -16,6 +22,7 @@ export type AuthenticatedLayoutOptions = {
 
 export type AuthenticatedLayoutState = {
   navigationContent: ReactNode | null;
+  navigationLoading: boolean;
   navigationActiveItemKey?: string;
   showHeaderBar: boolean;
   showWorkspaceSettings: boolean;
@@ -23,6 +30,7 @@ export type AuthenticatedLayoutState = {
 
 export const defaultAuthenticatedLayoutState: AuthenticatedLayoutState = {
   navigationContent: null,
+  navigationLoading: false,
   navigationActiveItemKey: undefined,
   showHeaderBar: true,
   showWorkspaceSettings: false,

@@ -141,11 +141,16 @@ function RouteComponent() {
             />
           </>
         ) : null,
+      navigationLoading: getWorkspacePending,
       showWorkspaceSettings: userCapabilities?.manageWorkspace ?? false,
     }),
+    // getWorkspacePending must be a dep: on a query error, pending flips false
+    // with workspace still undefined — without it the effect wouldn't re-fire
+    // and the nav skeleton would be stuck on.
     [
       activeView,
       caseName,
+      getWorkspacePending,
       globalSearch,
       pendingProposalCount,
       userCapabilities?.manageWorkspace,
